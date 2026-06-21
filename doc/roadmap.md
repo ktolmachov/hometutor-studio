@@ -88,6 +88,8 @@ timeline
         2026-06-21 : llama.cpp coding trigger
                    : qwen3-coder-next controlled patch executor
                    : read-set injection + write-set gates + live smoke PASS
+        2026-06-21 : Advanced RAG
+                   : Multi-query expansion + lost-in-middle reorder
     section AI Intelligence (May 2026)
         2026-05-06 : Smart Study Router
                    : 4 core waves + trust + accessibility
@@ -120,7 +122,7 @@ timeline
 
 ### 2.2 Что изменилось: до и после
 
-| Аспект | **Апрель 2026 (начало)** | **Май 2026** | **Июнь 2026 (model switch qwopus35b, all waves closed)** | Прорыв |
+| Аспект | **Апрель 2026 (начало)** | **Май 2026** | **Июнь 2026 (model switch qwopus35b, Advanced RAG, all waves closed)** | Прорыв |
 |--------|--------------------------|----------------------|----------------------|--------|
 | **Продуктовая идентичность** | RAG-поиск по документам | Полноценная learning platform с retention | Localhost-first learning OS | 🚀 Смена категории |
 | **Пользовательский путь** | Разовый Q&A | Непрерывный цикл: answer → tutor → quiz → SRS → progress | Папка → курс → graduation за 10 мин | 🎯 Learning loop |
@@ -136,7 +138,7 @@ timeline
 | **Архитектура** | Монолитные модули >1200L | Decomposed services <600L + ADR-021 RAG profiles + eval/dashboards split | Balanced provider abstraction | 🏗️ Maintainability |
 | **Delivery** | Manual planning | Autonomous control plane + smart trigger orchestrator + CI/CD pipeline | Localhost-first deployment | ⚙️ Velocity |
 
-**Вывод:** За ~75 дней продукт прошёл путь от "локального поиска по документам" до "AI-powered персонализированной учебной платформы", и доказал это сквозным Golden E2E: новый пользователь за 10 минут проходит папка → курс → учёба → graduation полностью на локальной модели. Модель эволюционировала от `qwen/qwen3.6-27b` (LM Studio) к `qwopus3.6-35b-a3b-v1-mtp` (llama.cpp, 185 tps, rank 99.55). Это **смена категории продукта**, усиленная собственным ML-слоем (SSR L1–L5) и evidence-дисциплиной (eval gates, latency budgets, session tape).
+**Вывод:** За ~76 дней продукт прошёл путь от "локального поиска по документам" до "AI-powered персонализированной учебной платформы", и доказал это сквозным Golden E2E: новый пользователь за 10 минут проходит папка → курс → учёба → graduation полностью на локальной модели. Модель эволюционировала от `qwen/qwen3.6-27b` (LM Studio) к `qwopus3.6-35b-a3b-v1-mtp` (llama.cpp, 185 tps, rank 99.55). RAG-pipeline усилен multi-query expansion и lost-in-middle reorder (2026-06-21). Это **смена категории продукта**, усиленная собственным ML-слоем (SSR L1–L5) и evidence-дисциплиной (eval gates, latency budgets, session tape).
 
 ---
 
@@ -159,8 +161,9 @@ timeline
 | 11 | **Smart Study Router + AI Vision (L1-L2)** | 2026-05-06–23 | Первый local-first ML-powered pedagogical router | Система сама решает, что учить дальше, с объяснениями и what-if preview |
 | 12 | **Localhost Balance + Course Delight Loop** | 2026-05-23–06-20 | Локальный запуск → продуктовый ритуал без трения: модель эволюционировала от `qwen/qwen3.6-27b` (LM Studio, ADR-024) к `qwopus3.6-35b-a3b-v1-mtp` (llama.cpp, benchmark rank 99.55, 185 tps); папка → курс (2026-06-05), Golden E2E graduation (2026-06-10), grounded validation hardening (2026-06-20) | Новый пользователь за 10 минут проходит загрузку → учёбу → повторение → graduation полностью локально |
 | 13 | **SSR AI Vision L3–L5 delivered** | 2026-05-15–31 | Weekly planner baseline, prerequisite-aware graph routing (за flag), misroute policy learning (offline) — все 5 уровней инженерно доставлены | Система планирует неделю, учитывает prerequisites и учится на отклонённых рекомендациях |
-| 14 | **Course Graph Evidence** *(active)* | 2026-06-10+ | От «карты файлов» к evidence-backed GraphRAG: compiler закрыт 2026-06-11, далее relation UX и uplift gate перед включением graph-aware retrieval | Пользователь видит типизированные связи концептов с evidence до source chunks; graph-aware retrieval включается только при измеримом uplift |
+| 14 | **Course Graph Evidence** | 2026-06-11 | От «карты файлов» к evidence-backed GraphRAG: compiler + relation UX + uplift gate — все 3 пакета closed 2026-06-11 | Пользователь видит типизированные связи концептов с evidence до source chunks; graph-aware retrieval включается только при измеримом uplift |
 | 15 | **Local llama.cpp Coding Trigger** | 2026-06-21 | `qwen/qwen3-coder-next` на llama.cpp стал controlled patch executor: `/v1/models` alias gate, read-set context injection, fenced diff, write-set validation, `git apply --check/apply`, targeted tests, `execution_contract.md` из evidence; disposable live smoke PASS | Разработка получает local-first AI-помощника без cloud API: модель предлагает patch, а trigger доказывает безопасность через compiler-style gates |
+| 16 | **Advanced RAG** | 2026-06-21 | Multi-query expansion + lost-in-middle reorder: автоматическое расширение запроса несколькими переформулировками, явный reorder слитых кандидатов против degradation при длинном контексте | Source-coverage растёт без регрессии latency budget и grounded-citation rate |
 
 ### 3.2 Технические vs Пользовательские прорывы
 
@@ -182,9 +185,9 @@ timeline
 
 ## 4. Стратегические эпохи E4–E13 (закрытый горизонт)
 
-- **Пакетов в `items`:** 249, волн: 92 (снимок 2026-06-20). Активного пакета нет (все `closed` или `proposed`).
-- **Волны (`waves`):** `wave-course-graph-evidence-2026-06` закрыта 2026-06-11; `wave-flashcard-handoff-fast-path` закрыта 2026-06-20; `wave-grounding-abstain-contract` и `wave-langfuse-eval-loop` закрыты. `wave-ragas-eval-harness` wip (волна), но следующий пакет `proposed`.
-- **Очередь proposed:** `ragas-langfuse-dataset-v1`, `smart-notes-native-generation-v1`, `redaction-sink-coverage-v1`, `multi-query-expansion-v1`, `workflow-skills-thin-adapter-v1` + `workflow-role-subagents-v1`.
+- **Пакетов в `items`:** 247, волн: 92 (снимок 2026-06-21). Активного пакета нет (все `closed` или `proposed`).
+- **Волны (`waves`):** `wave-advanced-rag-rewrite-rerank` wip (оба пакета closed 2026-06-21); `wave-course-graph-evidence-2026-06` закрыта 2026-06-11; `wave-flashcard-handoff-fast-path` закрыта 2026-06-20; `wave-grounding-abstain-contract` и `wave-langfuse-eval-loop` закрыты. `wave-ragas-eval-harness` wip (волна), но следующий пакет `proposed`.
+- **Очередь proposed:** `ragas-langfuse-dataset-v1`, `smart-notes-native-generation-v1`, `redaction-sink-coverage-v1`, `workflow-skills-thin-adapter-v1` + `workflow-role-subagents-v1`.
 - **Отложено без автозапуска:** `performance-tail-18-1`, `ocr-docling` — условия re-entry в YAML.
 - **Модель:** `qwopus3.6-35b-a3b-v1-mtp` (llama.cpp :8080) — benchmark 2026-06-20.
 
@@ -215,7 +218,7 @@ timeline
 
 ## 5. Волны поставки (registry `waves`, хронология)
 
-Снимок на **2026-06-20**: все волны закрыты; активного пакета нет; очередь — `proposed`. Модель: `qwopus3.6-35b-a3b-v1-mtp` (llama.cpp). Колонка **#pkg** — число пакетов в волне. Колонка **Тип** — классификация воздействия.
+Снимок на **2026-06-21**: `wave-advanced-rag-rewrite-rerank` wip (оба пакета closed); остальные — `proposed`. Модель: `qwopus3.6-35b-a3b-v1-mtp` (llama.cpp). Колонка **#pkg** — число пакетов в волне. Колонка **Тип** — классификация воздействия.
 
 **Легенда типов:**
 - 🎯 **UX** — прямое улучшение пользовательского опыта
@@ -309,8 +312,9 @@ timeline
 | 2026-06-19/20 | `wave-flashcard-handoff-fast-path` | 1 | 🎯 | **Flashcard → Tutor Handoff Fast Path** (закрыта 2026-06-20) | «Не знаю / Объясни» fast-path ≤6s: prose prompt, honest latency split, one-shot entrypoint |
 | 2026-06-11–20 | `wave-grounding-abstain-contract` | 2 | ⚙️ | **Grounding / Abstain Contract** (закрыта) | Abstain rate baseline + over-/under-citation tolerance + footer filtering |
 | 2026-06-11–20 | `wave-langfuse-eval-loop` | 2 | ⚙️ | **Langfuse Eval Loop** (закрыта) | Trace export + eval dataset integration |
+| 2026-06-21 | `wave-advanced-rag-rewrite-rerank` | 2 | 🧠 | **Advanced RAG** (wip, оба пакета closed) | Multi-query expansion + lost-in-middle reorder; source-coverage без регрессии latency |
 
-**Итого:** 92 волны, 249 пакетов. Все волны по 2026-06-20 закрыты; активного пакета нет. Очередь proposed (6 пакетов в 5 волнах). Модель: `qwopus3.6-35b-a3b-v1-mtp` (llama.cpp). SSoT — `backlog_registry.yaml`.
+**Итого:** 92 волны, 247 пакетов. Все пакеты по 2026-06-21 закрыты; `wave-advanced-rag-rewrite-rerank` wip (оба пакета closed). Очередь proposed (5 пакетов в 4 волнах). Модель: `qwopus3.6-35b-a3b-v1-mtp` (llama.cpp). SSoT — `backlog_registry.yaml`.
 
 Полный список пакетов по каждой волне — в поле `packages` соответствующей записи в [`backlog_registry.yaml`](backlog_registry.yaml).
 
@@ -323,13 +327,13 @@ timeline
 | Тип | Волн | Пакетов | % от общего | Комментарий |
 |-----|------|---------|-------------|-------------|
 | 🎯 UX | 12 | 33 | 19.3% | Прямое улучшение опыта |
-| 🧠 Intelligence | 18 | 43 | 25.1% | Персонализация, SSR, AI Vision |
+| 🧠 Intelligence | 19 | 45 | 26.0% | Персонализация, SSR, AI Vision, Advanced RAG |
 | 🔄 Retention | 5 | 11 | 6.4% | Механики возврата |
 | 📚 Content | 4 | 8 | 4.7% | Работа с материалами |
 | ⚙️ Platform | 22 | 58 | 33.9% | Инфраструктура, качество, eval, governance |
 | 🎓 Learning | 6 | 18 | 10.5% | Педагогические механики |
 
-**Вывод:** Intelligence (SSR + AI Vision) — второе по объёму направление после Platform (~25%). После закрытия Localhost Delight и Graph Evidence фокус сместился на hardening: grounded validation, model benchmark infra, Langfuse integration. Очередь proposed-волн держит баланс между measurement (RAGAS + PII masking) и retrieval quality (advanced RAG).
+**Вывод:** Intelligence (SSR + AI Vision + Advanced RAG) — второе по объёму направление после Platform (~26%). После закрытия Localhost Delight, Graph Evidence и Advanced RAG фокус сместился на measurement и quality: Langfuse integration, grounded validation. Очередь proposed-волн держит баланс между measurement (RAGAS + PII masking) и workflow platform.
 
 ### 6.2 Волны с наибольшим воздействием (Top-6)
 
@@ -386,7 +390,7 @@ timeline
 
 ## Сопутствующие «живые» гиды
 
-| Документ | Актуальность (аудит 2026-06-20) |
+| Документ | Актуальность (аудит 2026-06-21) |
 |----------|----------------------------------|
 | [`readme.md`](readme.md), [`index.md`](index.md) | Навигация; `index.md` → ссылка на breakthrough v4 добавлена |
 | [`vision.md`](vision.md) | ✅ Актуализирован до **2026-05-23**: SSR AI Vision, Mission Control, Expert Controls |
@@ -411,7 +415,7 @@ timeline
 
 **Статус покрытия User Stories:** ✅ **Все 87 User Stories закрыты.** ✅ Все 13 MoT покрыты. Впервые за историю проекта `open_candidates` пуст.
 
-**Ключевой вывод:** Продукт достиг **полной feature completeness** для learning platform v1 и доказал её сквозным локальным циклом: все 87 US закрыты, все 13 MoT покрыты, SSR AI Vision L1–L5 инженерно доставлены, Localhost Delight loop пройден end-to-end на `qwopus3.6-35b-a3b-v1-mtp` (llama.cpp, 185 tps) без cloud fallback.
+**Ключевой вывод:** Продукт достиг **полной feature completeness** для learning platform v1 и доказал её сквозным локальным циклом: все 87 US закрыты, все 13 MoT покрыты, SSR AI Vision L1–L5 инженерно доставлены, Localhost Delight loop пройден end-to-end на `qwopus3.6-35b-a3b-v1-mtp` (llama.cpp, 185 tps) без cloud fallback. Advanced RAG (multi-query expansion + lost-in-middle reorder) закрыт 2026-06-21 — retrieval quality усилен без регрессии latency.
 
 **Закрытый прорыв:** `wave-localhost-balance-course-delight` (2026-05-23 – 2026-06-20):
 1. **Balanced local model** — `qwopus3.6-35b-a3b-v1-mtp` (llama.cpp, benchmark rank 99.55, 185 tps); ранее `qwen/qwen3.6-27b` (LM Studio, ADR-024)
@@ -435,6 +439,11 @@ timeline
 3. **Compiler-style gates** — sections/order/no-`<think>`, fenced diff only, changed paths subset of write-set, hunk normalization, `git apply --check/apply`, metrics: `hunk_count_normalized=true`, `recount_used=false`, `repair_used=false`, `adapter_fallback_used=false`, `context_chars=918`, `n_ctx=32768`.
 4. **Граница Phase 1** — готово для controlled low-risk patch tasks; orchestrator auto-selection, repair attempt и guarded one-line fallback остаются следующими engineering steps.
 
+**Закрытый прорыв (2026-06-21):** `wave-advanced-rag-rewrite-rerank` — Advanced RAG:
+1. **Multi-query expansion** — `multi-query-expansion-v1` closed 2026-06-21: расширение одиночного запроса несколькими переформулировками поверх существующего single-query rewrite
+2. **Lost-in-middle reorder** — `lost-in-middle-reorder-v1` closed 2026-06-21: явный reorder слитых кандидатов против lost-in-the-middle degradation при длинном контексте
+3. **Kill-switch** — регрессия latency budget, grounded-citation rate или retrieval_router / reranker fallback
+
 ---
 
 ## 8. Прорывные направления: куда двигаться дальше
@@ -444,12 +453,12 @@ timeline
 
 ### 8.1 Текущий статус backlog
 
-- **Пакетов в `items`:** 249, волн: 92; SSoT — `backlog_registry.yaml` (снимок 2026-06-20).
-- **Активного пакета нет** (все `closed` или `proposed`). `wave-ragas-eval-harness` wip (волна), но следующий пакет `proposed`. Для выбора следующего — `generate_plan_next_prompt.md`.
+- **Пакетов в `items`:** 247, волн: 92; SSoT — `backlog_registry.yaml` (снимок 2026-06-21).
+- **Активного пакета нет** (все `closed` или `proposed`). `wave-advanced-rag-rewrite-rerank` wip (оба пакета closed 2026-06-21). `wave-ragas-eval-harness` wip (волна), но следующий пакет `proposed`. Для выбора следующего — `generate_plan_next_prompt.md`.
 - **Модель:** `qwopus3.6-35b-a3b-v1-mtp` (llama.cpp :8080, benchmark rank 99.55, 185 tps).
 - **Локальная разработка кода:** `qwen/qwen3-coder-next` через `scripts/llamacpp_agent_trigger.ts` — Phase 1 live smoke PASS; использовать только для low-risk controlled patch tasks до включения в orchestrator auto-selection.
-- **Закрыты с 2026-06-11:** `wave-course-graph-evidence-2026-06` (целиком 06-11), `wave-flashcard-handoff-fast-path` (06-20), `wave-grounding-abstain-contract`, `wave-langfuse-eval-loop`.
-- **Очередь proposed:** `ragas-langfuse-dataset-v1`, `smart-notes-native-generation-v1`, `redaction-sink-coverage-v1`, `multi-query-expansion-v1`, `workflow-skills-thin-adapter-v1` + `workflow-role-subagents-v1`.
+- **Закрыты с 2026-06-11:** `wave-course-graph-evidence-2026-06` (целиком 06-11), `wave-flashcard-handoff-fast-path` (06-20), `wave-grounding-abstain-contract`, `wave-langfuse-eval-loop`, `wave-advanced-rag-rewrite-rerank` (оба пакета closed 06-21).
+- **Очередь proposed:** `ragas-langfuse-dataset-v1`, `smart-notes-native-generation-v1`, `redaction-sink-coverage-v1`, `workflow-skills-thin-adapter-v1` + `workflow-role-subagents-v1`.
 - **Отложено без автозапуска:** `performance-tail-18-1`, `ocr-docling` — условия re-entry в YAML.
 - **SSR serving promotion (data-gated, не feature work):** L1 hybrid serving после cold-start ≥1000 real samples; L5 online policy после 4+ недель feedback; `ml-ssr-plan-optimization` после 4+ недель planner telemetry.
 
@@ -521,8 +530,9 @@ flowchart TD
 4. ✅ **Flashcard Handoff Fast Path закрыта (06-20):** fast RAG, prose prompt, one-shot lifecycle, честный latency split, UX fix (нет сырого JSON пользователю).
 5. ✅ **Grounding / Abstain Contract закрыта:** abstain rate baseline, over-/under-citation tolerance, footer filtering.
 6. ✅ **Local llama.cpp coding trigger Phase 1 smoke:** `qwen/qwen3-coder-next` + read-set injection + write-set gates + targeted tests + evidence contract; next low-risk real task: trigger/tooling metric such as `context_files_count` and `context_truncated`.
-7. **Сейчас (нет active пакета):** выбрать следующий из proposed через `generate_plan_next_prompt.md` — кандидаты: `ragas-langfuse-dataset-v1`, `smart-notes-native-generation-v1`, `workflow-skills-thin-adapter-v1`.
-8. **Затем по очереди proposed:** measurement loop (RAGAS + PII masking) → advanced RAG (multi-query expansion) → workflow skills platform.
+7. ✅ **Advanced RAG delivered (06-21):** `multi-query-expansion-v1` + `lost-in-middle-reorder-v1` — multi-query expansion расширяет запрос несколькими переформулировками, lost-in-middle reorder борется с деградацией качества при длинном контексте.
+8. **Сейчас (нет active пакета):** выбрать следующий из proposed через `generate_plan_next_prompt.md` — кандидаты: `ragas-langfuse-dataset-v1`, `smart-notes-native-generation-v1`, `workflow-skills-thin-adapter-v1`.
+9. **Затем по очереди proposed:** measurement loop (RAGAS + PII masking) → workflow skills platform.
 9. **Дальний горизонт:** production deployment (VPS/Docker), SSR serving promotion (при 1000+ real samples), gamification, collaborative learning.
 
 ### 8.4 Связь с breakthrough ideation prompt

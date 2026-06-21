@@ -1,7 +1,7 @@
 # 🧭 Навигатор Документации hometutor
 
 > Единая точка входа во всю документацию проекта.
-> Актуализирован: **2026-06-05**.
+> Актуализирован: **2026-06-21**.
 
 **hometutor** — Python RAG-приложение для адаптивного обучения: graph-retrieval, learner state, LLM-генерация. Стек: FastAPI + Streamlit + SQLite + Chroma + LangChain + Anthropic.
 
@@ -45,7 +45,7 @@
 | [smart_study_router.md](smart_study_router.md) | **Killer Feature:** Smart Study Router — архитектура, сигналы, AI Vision |
 | [future_roadmap.md](future_roadmap.md) | Закрытый стратегический индекс E4–E13 и правила re-entry |
 | [roadmap_governance.md](roadmap_governance.md) | Правила управления roadmap, tail-policy |
-| [next/localhost_balance_course_delight_breakthrough.md](next/localhost_balance_course_delight_breakthrough.md) | **🚀 Текущий прорыв:** qwen accepted, Smoke v7 PASS, Wave 2 `folder-to-course-delight-v1` ready |
+| [next/localhost_balance_course_delight_breakthrough.md](next/localhost_balance_course_delight_breakthrough.md) | **🚀 Закрытый прорыв:** Localhost Delight + Course Loop полностью закрыт; qwopus35b (llama.cpp, 185 tps); Golden E2E graduation delivered |
 | [next/BREAKTHROUGH_SUMMARY.md](next/BREAKTHROUGH_SUMMARY.md) | 2-минутная сводка: три инновации, метрики, сценарий |
 | [next/localhost_balance_course_delight_plan.md](next/localhost_balance_course_delight_plan.md) | Исторический план Localhost Balance + Course Delight Loop |
 | [next/BREAKTHROUGH_VISUAL.md](next/BREAKTHROUGH_VISUAL.md) | Диаграммы и визуальные гайды: архитектура, метрики, timeline, wow-moments |

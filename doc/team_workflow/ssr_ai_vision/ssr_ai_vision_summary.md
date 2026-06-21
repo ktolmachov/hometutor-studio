@@ -1,8 +1,8 @@
 # SSR AI Vision — Roadmap Summary
 ## Актуальный статус уровней 1-5
 
-**Дата:** 2026-06-11  
-**Версия:** 2.0  
+**Дата:** 2026-06-21  
+**Версия:** 2.1  
 **Статус:** Levels 1-5 engineering delivered; serving promotion gated by data/rollout gates
 
 Этот файл — обзор roadmap. Source of truth по backlog-статусам остаётся
@@ -148,9 +148,10 @@ ML/RL-оптимизация (`ml-ssr-plan-optimization`) остаётся defer
   rule-based fallback при недоступном графе
 
 **Verdict:** prerequisite-aware routing доставлен за feature flag, без
-регрессии hint_kind/primary_nav. Качество графа усиливается активной волной
-`wave-course-graph-evidence-2026-06` (compiler → relation UX → uplift gate);
-расширение graph-aware retrieval включается только после измеримого uplift.
+регрессии hint_kind/primary_nav. Качество графа усилено закрытой волной
+`wave-course-graph-evidence-2026-06` (compiler + relation UX + uplift gate,
+все 3 пакета closed 2026-06-11); graph-aware retrieval включается только
+при измеримом uplift.
 
 ### Level 5 — Misroute Feedback Loop
 
@@ -211,9 +212,9 @@ misroute policy learning (L5, 2026-05-30).
 - `ml-ssr-plan-optimization` — после 4+ недель L3 planner telemetry
 - L1 hybrid serving promotion — после cold-start ≥1000 real samples + A/B gate
 - L5 online policy learning — после 4+ недель misroute feedback data
-- L4 graph-aware retrieval expansion — после
-  `course-graph-aware-uplift-gate-v1` (активная волна
-  `wave-course-graph-evidence-2026-06`)
+- L4 graph-aware retrieval expansion — `course-graph-aware-uplift-gate-v1`
+  closed 2026-06-11 (`wave-course-graph-evidence-2026-06` закрыта целиком);
+  расширение graph-aware retrieval за feature flag до rollout
 
 ---
 
@@ -234,7 +235,7 @@ misroute policy learning (L5, 2026-05-30).
 | `wave-ssr-l4-graph-routing-runtime-2026-05` | completed | `epoch-ssr-graph-routing-eval-scaffold-v1`, `epoch-ssr-graph-routing-v1` |
 | `wave-ssr-l5-misroute-policy-2026-05` | completed | `epoch-ssr-misroute-policy-learning-v1` |
 | `wave-ssr-retention-narrative-2026-05` | completed | `epoch-ssr-weekly-study-narrative-v1` |
-| `wave-course-graph-evidence-2026-06` | **active** | `course-graph-compiler-v1` (closed 2026-06-11), `course-graph-relation-ux-v1` (ready), `course-graph-aware-uplift-gate-v1` (proposed) — усиливает граф под L4 uplift |
+| `wave-course-graph-evidence-2026-06` | **closed** | `course-graph-compiler-v1` (closed 2026-06-11), `course-graph-relation-ux-v1` (closed 2026-06-11), `course-graph-aware-uplift-gate-v1` (closed 2026-06-11) — все 3 пакета closed; evidence-backed GraphRAG с uplift gate |
 
 Точные статусы — `doc/backlog_registry.yaml`.
 

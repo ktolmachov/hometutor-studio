@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "user_guide.md",
+                "file": "prompts_catalog.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "user_guide"
+              "title": "prompts_catalog"
             }
           }
         ]
@@ -186,6 +186,18 @@
   },
   "active": "4de73a4332e766a5",
   "lastOpenFiles": [
+    "presentations/defense_presentation_v4.md.tmp.22704.80a0aaefc229",
+    "roadmap.md.tmp.22704.81e44adf72df",
+    "roadmap.md.tmp.22704.d58dbbd6e26e",
+    "roadmap.md.tmp.22704.2a8ad60494e4",
+    "roadmap.md.tmp.22704.c87ae45e4b1f",
+    "roadmap.md.tmp.22704.a4bc45455948",
+    "roadmap.md.tmp.22704.3a3573a9a71c",
+    "next/localhost_balance_course_delight_breakthrough.md.tmp.22704.8580dff63aed",
+    "roadmap.md.tmp.22704.87f43568b806",
+    "roadmap.md.tmp.22704.95b876f25255",
+    "roadmap.md.tmp.22704.12b02b87c983",
+    "user_guide.md",
     "next/LLM_Provider_Router_hometutor.md",
     "screenshots/slide_01_product_overview.png",
     "screenshots/final/scenario_13/06_course_mastery_dashboard.png",
@@ -194,19 +206,10 @@
     "screenshots/final/scenario_04/01_quiz_question_presented.png",
     "screenshots/final/scenario_07/03_weak_spots_panel.png",
     "screenshots/final/scenario_01/03_quick_answer_with_sources.png",
-    "screenshots/final/scenario_13",
-    "screenshots/final/scenario_04",
-    "screenshots/final/scenario_07",
-    "screenshots/final/scenario_01",
-    "screenshots/final",
     "screenshots/README.md",
     "screenshots/defense_pdf/pdf_slide_10.png",
     "screenshots/defense_pdf/pdf_slide_08.png",
     "screenshots/defense_pdf/pdf_slide_09.png",
-    "screenshots/defense_pdf",
-    "screenshots",
-    "agent_workflow_templates.md.tmp.27268.1409ec183e70",
-    "agent_workflow_templates.md.tmp.27268.8838bc8cd048",
     "prompts/agent_prompts_verify.md",
     "prompts/agent_prompts_index.md",
     "prompts/ARCHIVE_ADD_PROMPT.md",
@@ -220,18 +223,15 @@
     "smart_study_router.md",
     "index.md",
     "presentations/defense_presentation_v3.md",
-    "presentations/defense_presentation_v4.md.tmp.33156.ceef6655e18e",
     "presentations/defense_presentation_v2.md",
     "presentations/defense_presentation.md",
     "quickstart_demo.md",
     "next/localhost_balance_course_delight_breakthrough.md",
-    "user_guide.md",
     "quickstart.md",
     "next/skills_subagents_workflow_platform.md",
     "team_workflow/process.md",
     "closed_iterations.md",
     "next/roadmap_recommendations_2026-06-11.md",
-    "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
     "Untitled.canvas"
   ]
 }

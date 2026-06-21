@@ -198,9 +198,11 @@ policy, model-role contract hardening, ADR-024 (balanced local model).
 
 ### 5.3 Следующий ход
 
-Активного пакета нет. Очередь proposed (SSoT — `backlog_registry.yaml`):
+Активного пакета нет. `wave-advanced-rag-rewrite-rerank` wip (оба пакета
+`multi-query-expansion-v1` и `lost-in-middle-reorder-v1` closed 2026-06-21).
+Очередь proposed (SSoT — `backlog_registry.yaml`):
 `ragas-langfuse-dataset-v1`, `smart-notes-native-generation-v1`,
-`redaction-sink-coverage-v1`, `multi-query-expansion-v1`,
+`redaction-sink-coverage-v1`,
 `workflow-skills-thin-adapter-v1`, `workflow-role-subagents-v1`.
 
 ---

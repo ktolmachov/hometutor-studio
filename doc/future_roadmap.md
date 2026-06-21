@@ -67,21 +67,30 @@ daily backlog и не должен конкурировать с `doc/backlog_re
   applies via `git apply --check/apply`, runs targeted tests and writes
   `execution_contract.md` only from evidence. Scope remains controlled
   low-risk patch tasks until orchestrator auto-selection is separately approved.
+- **Advanced RAG (multi-query expansion + lost-in-middle reorder)** —
+  `wave-advanced-rag-rewrite-rerank` закрыта 2026-06-21: оба пакета
+  (`multi-query-expansion-v1`, `lost-in-middle-reorder-v1`) closed.
+  Multi-query expansion расширяет одиночный запрос несколькими
+  переформулировками, lost-in-middle reorder борется с деградацией
+  качества при длинном контексте. Kill-switch: регрессия latency budget
+  или grounded-citation rate.
 
 ## Текущий горизонт
 
-- **Активного пакета нет** (снимок 2026-06-20). Все волны до 2026-06-20 закрыты.
+- **Активного пакета нет** (снимок 2026-06-21). Все пакеты до 2026-06-21 закрыты.
+  `wave-advanced-rag-rewrite-rerank` в статусе `wip` (волна), но оба пакета
+  (`multi-query-expansion-v1`, `lost-in-middle-reorder-v1`) — `closed`.
   `wave-ragas-eval-harness` в статусе `wip` (волна), но следующий пакет
   `ragas-langfuse-dataset-v1` — `proposed`.
 - Очередь proposed волн:
   `wave-ragas-eval-harness` (`ragas-langfuse-dataset-v1`),
   `wave-smart-notes-killer-feature` (`smart-notes-native-generation-v1`),
   `wave-pii-masking-redaction` (`redaction-sink-coverage-v1`),
-  `wave-advanced-rag-rewrite-rerank` (`multi-query-expansion-v1`),
   `wave-workflow-skills-platform` (2 пакета).
 - Закрыты с 2026-06-11: `wave-course-graph-evidence-2026-06` (целиком),
   `wave-flashcard-handoff-fast-path`, `wave-grounding-abstain-contract`,
-  `wave-langfuse-eval-loop`.
+  `wave-langfuse-eval-loop`, `wave-advanced-rag-rewrite-rerank` (оба пакета
+  closed 2026-06-21).
 - Платформенная инициатива (proposed, не блокирует продуктовые волны):
   **Skills + Subagents Workflow Platform** — 2–4 тонких skill-адаптера
   (`/workflow`, `/resume-package`, `/orchestrate`, `/audit-chain`) поверх

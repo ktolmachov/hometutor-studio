@@ -5,7 +5,7 @@
 > **Проект:** hometutor · Персональный учебный ассистент на основе ваших материалов
 > **Дата:** июнь 2026
 > **Формат:** 16 слайдов · Markdown-презентация
-> **Версия:** 4.1 — компиляция v1–v3 + актуальные достижения + local dev trigger
+> **Версия:** 4.2 — компиляция v1–v3 + актуальные достижения + local dev trigger + Advanced RAG
 
 ![От разрозненных документов к структурированным знаниям](../screenshots/mastery_engine/from_documents_to_deep_knowledge.png)
 
@@ -35,6 +35,7 @@
 | Достижение | Результат | Дата |
 |---|---|---|
 | Новая локальная модель | `qwopus3.6-35B-A3B-MTP` на llama.cpp: rank 99.55, ~185 ток/с, quality 11.5/11.5, RAG-smoke PASS | 2026-06-20 |
+| Advanced RAG | Multi-query expansion + lost-in-middle reorder; source-coverage растёт без регрессии latency budget | 2026-06-21 |
 | Golden E2E graduation | Сквозной путь папка → курс → graduation; в тесте `fallback_used=false` (6/6 course loop, 18/18 smoke) | 2026-06-10 |
 | Course Graph Evidence | Граф концептов с типизированными связями и provenance до chunk'ов; включение graph-aware retrieval только при измеримом uplift | 2026-06-11 |
 | Flashcard → Tutor fast-path | Маршрут «Не знаю / Объясни» по быстрому RAG-пути с честным разделением latency | 2026-06-20 |
@@ -42,7 +43,7 @@
 
 ### Состояние проекта (снимок 2026-06-20)
 
-**92 волны · 249 пакетов (241 закрыт) · 87/87 User Stories · 13/13 моментов истины CJM · 2 995 тест-функций.** Активных открытых пакетов нет; очередь — кандидаты в статусе `proposed`.
+**92 волны · 247 пакетов (242 закрыт) · 87/87 User Stories · 13/13 моментов истины CJM · 3 008 тест-функций.** Активная волна: `wave-advanced-rag-rewrite-rerank` (wip, оба пакета closed); очередь — кандидаты в статусе `proposed`.
 
 ---
 
@@ -124,11 +125,12 @@
 ### 5-ступенчатый pipeline
 
 ```
-Запрос → Classify → Rewrite → Retrieve → Rerank → Generate → Ответ
-                                  │                    │
-                          hybrid (BM25 + vector)  grounded + citations
-                                  │
-                          Self-Correction Loop (retry при слабом контексте)
+Запрос → Classify → Rewrite → Multi-Query → Retrieve → Reorder → Rerank → Generate → Ответ
+                        │           │            │          │                   │
+                    single +    expansion    hybrid     lost-in-middle     grounded +
+                    multi-query  variants  (BM25+vec)     reorder          citations
+                                                                │
+                                                  Self-Correction Loop
 ```
 
 ### Что заложено в RAG
@@ -136,6 +138,7 @@
 - **Гибридный поиск** — BM25 + векторный
 - **Двухуровневая индексация** — Document-level + Chunk-level под разные типы запросов
 - **Профили** (ADR-021) — `fast` / `quality` / `graph_aware`, выбор под задачу
+- **Multi-query expansion** — автоматическое расширение запроса несколькими переформулировками + lost-in-middle reorder для борьбы с деградацией качества при длинном контексте
 - **Заземление** — каждый тезис с inline-цитатой `[N]`; при слабом контексте — отказ от ответа
 
 **Измерено** (retrieval-only eval, demo-набор из 15 вопросов): recall@3 ≈ **86–87 %** (hybrid) против 80 % (vector-only), средняя retrieve-латентность ≈ **0.57 с**.
@@ -304,9 +307,10 @@ current_task.md
 |---|---|---|
 | User Stories закрыто | 87 / 87 | `user_stories_index.json` |
 | CJM моменты истины | 13 / 13 | `cjm.md` |
+| Advanced RAG | multi-query expansion + lost-in-middle reorder (closed 2026-06-21) | `backlog_registry.yaml` |
 | Волн завершено | 92 | `backlog_registry.yaml` |
-| Пакетов (закрыто / всего) | 241 / 249 | `backlog_registry.yaml` |
-| Тест-функций pytest | 2 995 (323 файла) | `grep "def test_"` |
+| Пакетов (закрыто / всего) | 242 / 247 | `backlog_registry.yaml` |
+| Тест-функций pytest | 3 008 | `grep "def test_"` |
 | FastAPI endpoints | 93 | `app/routers/` |
 | Architecture Decision Records | 23 | `adr.md` |
 | Retrieval recall@3 (hybrid, demo-набор) | ≈ 86–87 % · latency ≈ 0.57 с | `eval/` |
@@ -342,7 +346,7 @@ current_task.md
 
 ### Закрыто (фундамент)
 
-Localhost Delight loop · SSR AI Vision L1–L5 · Course Graph Evidence · Grounding Contract · Flashcard fast-path · Golden E2E graduation · Local llama.cpp coding trigger smoke.
+Localhost Delight loop · SSR AI Vision L1–L5 · Course Graph Evidence · Grounding Contract · Flashcard fast-path · Golden E2E graduation · Local llama.cpp coding trigger smoke · **Advanced RAG** (multi-query expansion + lost-in-middle reorder).
 
 ### Очередь кандидатов (`proposed`)
 
@@ -351,7 +355,6 @@ Localhost Delight loop · SSR AI Vision L1–L5 · Course Graph Evidence · Grou
 | Measurement loop | `ragas-langfuse-dataset-v1` | Метрики качества + трассировка прогонов |
 | Smart Notes | `smart-notes-native-generation-v1` | Авто-конспект из материалов |
 | PII masking | `redaction-sink-coverage-v1` | Маскирование чувствительных данных |
-| Advanced RAG | `multi-query-expansion-v1` | Multi-query expansion + rerank |
 | Skills Platform | `workflow-skills-thin-adapter-v1` | Тонкие skill-адаптеры workflow |
 | Local Code Executor | first real low-risk trigger task | Метрики context packaging и безопасный rollout llama.cpp trigger |
 
@@ -391,11 +394,11 @@ Desktop installer (снижение порога входа) · SSR serving prom
 ### Три довода
 
 1. **Полный цикл** — источник → объяснение → проверка → запоминание → план → graduation в одном инструменте
-2. **Подкреплено числами** — 87/87 US, 13/13 MoT, 2 995 тест-функций, 92 закрытых волны, Golden E2E с `fallback_used=false`
+2. **Подкреплено числами** — 87/87 US, 13/13 MoT, 3 008 тест-функций, 92 волны, Golden E2E с `fallback_used=false`
 3. **Local-first** — ≈185 ток/с на qwopus35B, 0 ₽ за API, данные на машине пользователя
 
 **Local-first. Open-source. Полный цикл. AI-assisted.**
 
 ---
 
-<sub>Подготовлено для защиты проектной работы · июнь 2026 · Версия 4.1 · компиляция v1–v3 + актуальные достижения + local dev trigger</sub>
+<sub>Подготовлено для защиты проектной работы · июнь 2026 · Версия 4.2 · компиляция v1–v3 + актуальные достижения + local dev trigger + Advanced RAG</sub>
