@@ -15,33 +15,6 @@
 
 | Package | Status | CJM | Primary US | Owner | Notes |
 |---|---|---|---|---|---|
-| `multi-query-expansion-v1` | `ready` | #2 First Answer, #10 Retrieval trust | US-12.1 | Auto | Proposed package from doc/next/ai_driven_design_waves_proposal.md § A3. Rewrite/hybrid/rerank already shipped — gap is multi-query only. Accepted via generate_plan_next 2026-06-21 (candidate #1, wave-advanced-rag-rewrite-rerank). Preflight SAFE. CJM #2 P0 — «Не нашёл информации» на тривиальный вопрос. US-12.1 is a closed baseline story; this package extends retrieval coverage gate, not reopening the delivered AC. |
-
-### multi-query-expansion-v1 Contract
-
-<!-- GENERATED from backlog_registry.yaml — do not edit manually -->
-
-- **Title:** Proposed package from doc/next/ai_driven_design_waves_proposal.md § A3. Rewrite/hybrid/rerank already shipped — gap is m
-- **CJM:** ##2 First Answer, #10 Retrieval trust
-- **User story:** US-12.1
-- **DoD commands:**
-  ```
-  .\.venv\Scripts\python.exe -m pytest tests/test_multi_query_expansion.py tests/test_retrieval_profile.py -q -k "multi_query or expansion" --tb=short
-  .\.venv\Scripts\python.exe scripts\lint_agent_prompts.py
-  .\.venv\Scripts\python.exe scripts\check_llm_context_gate.py
-  .\.venv\Scripts\python.exe scripts\backlog_registry_lint.py --strict
-  ```
-- **Outcomes:**
-  - Proposed package from doc/next/ai_driven_design_waves_proposal.md § A3. Rewrite/hybrid/rerank already shipped — gap is multi-query only. Accepted via generate_plan_next 2026-06-21 (candidate #1, wave-advanced-rag-rewrite-rerank). Preflight SAFE. CJM #2 P0 — «Не нашёл информации» на тривиальный вопрос. US-12.1 is a closed baseline story; this package extends retrieval coverage gate, not reopening the delivered AC.
-- **Write-set max:** 5 files
-- **Target artifacts:** Proposed package from doc/next/ai_driven_design_waves_proposal.md § A3. Rewrite/
-- **Read-set hint:**
-  - app/retrieval.py — rewrite/retrieve signatures only
-  - app/hybrid_retrieval.py — ParallelHybridRetriever signatures only
-  - app/retrieval_strategies.py — strategy dispatch only
-  - tests/test_hybrid_retrieval.py — 1 merge/dedup test as pattern
-  - tests/test_retrieval_profile.py — rerank/rewrite path tests only
-- **Notes:** Proposed package from doc/next/ai_driven_design_waves_proposal.md § A3. Rewrite/hybrid/rerank already shipped — gap is multi-query only. Accepted via generate_plan_next 2026-06-21 (candidate #1, wave-advanced-rag-rewrite-rerank). Preflight SAFE. CJM #2 P0 — «Не нашёл информации» на тривиальный вопрос. US-12.1 is a closed baseline story; this package extends retrieval coverage gate, not reopening the delivered AC.
 
 ### Wave queue
 

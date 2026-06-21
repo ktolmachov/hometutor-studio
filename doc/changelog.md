@@ -1,6 +1,12 @@
 
 # Журнал Изменений
 
+## 2026-06-21 (multi-query-expansion-v1 closure)
+
+- **Roadmap closure:** `multi-query-expansion-v1` moved to closed; contract removed from `doc/tasklist.md`; details in `doc/closed_iterations.md`.
+- **US lifecycle sync:** `US-12.1` marked closed in `doc/user_stories/` and `doc/user_stories_index.json`.
+- **Registry sync:** `doc/backlog_registry.yaml` marks the package `closed`.
+
 ## 2026-06-20 (llama.cpp local default: qwopus + smoke/provenance fixes)
 
 - **Local default model:** после benchmark pack v1.7 (`2026-06-20_20-34-44`) профиль `llama-cpp` и `config.env` переведены на **`qwopus3.6-35b-a3b-v1-mtp`** (`~185 tps`, quality 11.5/11.5, real home_rag smoke PASS). Baseline **`qwen3.6-27b`** остаётся доступен через `switch_local_llm.ps1 -Model …` и LM Studio-профиль.

@@ -2273,3 +2273,12 @@ Create a file archive/team_artifacts/test_e2e_hello_2.txt with the text hello wo
 - Verification: DoD not run during closure.
 - Verification commands: `.\.venv\Scripts\python.exe -m pytest tests/test_flashcard_handoff_timing.py tests/test_ssr_explain_stream_timing.py tests/test_query_service.py tests/test_retrieval_profile.py tests/test_ui_helpers.py -q --tb=short`, `.\.venv\Scripts\python.exe scripts\backlog_registry_lint.py --sync-from-index --write-sync --strict`.
 - Archive: `archive/team_artifacts/flashcard-handoff-fast-path-v1/`.
+
+### multi-query-expansion-v1 — 2026-06-21
+
+- Goal: Proposed package from doc/next/ai_driven_design_waves_proposal.md § A3. Rewrite/hybrid/rerank already shipped — gap is multi-query only. Accepted via generate_plan_next 2026-06-21 (candidate #1, wave-
+- Delivered: Proposed package from doc/next/ai_driven_design_waves_proposal.md § A3. Rewrite/hybrid/rerank already shipped — gap is multi-query only. Accepted via generate_plan_next 2026-06-21 (candidate #1, wave-advanced-rag-rewrite-rerank). Preflight SAFE. CJM #2 P0 — «Не нашёл информации» на тривиальный вопро
+- Mode: execution.
+- Verification: all DoD commands passed.
+- Verification commands: `.\.venv\Scripts\python.exe -m pytest tests/test_multi_query_expansion.py tests/test_retrieval_profile.py -q -k "multi_query or expansion" --tb=short`, `.\.venv\Scripts\python.exe scripts\lint_agent_prompts.py`, `.\.venv\Scripts\python.exe scripts\check_llm_context_gate.py`, `.\.venv\Scripts\python.exe scripts\backlog_registry_lint.py --strict`.
+- Archive: `archive/team_artifacts/multi-query-expansion-v1/`.

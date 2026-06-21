@@ -39,7 +39,7 @@ user_stories_index: doc/user_stories_index.json
 active_wave_id: wave-advanced-rag-rewrite-rerank
 # active_package_id: execution-focus package id — optional mirror of sole ready/wip row;
 # auto-maintained by backlog_registry_lint.py --write-sync when registry is valid.
-active_package_id: multi-query-expansion-v1
+active_package_id: null
 
 # ─── Wave Planning (schema v2) ────────────────────────────────────────────────
 # Waves are the primary planning unit. Each wave bundles 1–4 related packages
@@ -9046,7 +9046,7 @@ items:
   - id: multi-query-expansion-v1
     wave_id: wave-advanced-rag-rewrite-rerank
     wave_position: 1
-    status: ready
+    status: closed
     set_ready_date: 2026-06-21
     type: quality_package
     theme: "Multi-query expansion поверх существующего single-query rewrite"
