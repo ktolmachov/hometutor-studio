@@ -120,6 +120,10 @@ Expected: no matches
 🚨 **CRITICAL TOKEN WARNING:** Full architecture review (Phase 1–5) exceeds the **20k hard-limit** and is forbidden as one LLM call. Запускайте **только по фазам** (один запрос = одна фаза). Используйте `rg`/sections вместо full-file для больших модулей. См. [doc/token_safety.md](token_safety.md#таблица-безопасного-включения-критические-файлы).
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 Goal: periodic INCREMENTAL architecture review — find defects, violations, and decay
 introduced since last review. Do NOT write code. Do NOT edit any files.
 Output = structured report only.

@@ -24,6 +24,10 @@ Paste this block into the LLM, replacing `<JSON_REPORT>` with the output of
 `analyze_bottlenecks.py --format json`.
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 Role: Ты Performance Engineer для Python CLI пайплайна hometutor.
 
 Context: hometutor — локальный учебный ассистент. Pipeline запускается через
@@ -81,6 +85,10 @@ Performance data (JSON):
 ## Expected Output Structure
 
 ```
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 # Executive Summary
 - Total wall time: ~35–40s (estimated, 24 runs sampled)
 - Top-3: close_package::dod_run (mean=11.5s, p95=14.1s),

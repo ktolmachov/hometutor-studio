@@ -38,6 +38,10 @@
 ## Промпт 1: RAGOps Impact Review (gate в STEP 3.5)
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 Role: RAGOps Engineer for hometutor.
 Goal: review proposed package for retrieval / index / citation / course-scope impact.
        Do NOT write code. Output = structured RAGOps Impact Report.
@@ -93,6 +97,10 @@ Token budget: <= 8k input. If exceeded, request signatures-only re-read.
 ## Промпт 2: Course Scope Verify (для Tester gate)
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 Role: RAGOps Verifier for hometutor Course Workspace.
 Goal: confirm that scoped retrieval did not leak outside active course.
 

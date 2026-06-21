@@ -29,6 +29,10 @@
 ## Промпт 1: Execution Contract (Planning)
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 Role: Architect for hometutor learning assistant.
 Goal: produce an execution contract for package <PACKAGE_ID>.
 
@@ -123,6 +127,10 @@ Rules:
 Секция поддерживается скриптом `python scripts/sync_architecture_review_prompt.py`.
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 Goal: periodic architecture review — find defects, violations, and decay.
 Do NOT write code. Do NOT edit any files. Output = structured report only.
 

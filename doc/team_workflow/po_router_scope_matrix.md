@@ -106,6 +106,10 @@ Select-String -Path doc/roadmap.md -Pattern "Follow-up"
 ### Пример 1: 3 идеи, High Cohesion → Wave
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 Идеи:
 1. Contrastive router explanation (US-20.7)
 2. Route confidence ledger (US-20.8)

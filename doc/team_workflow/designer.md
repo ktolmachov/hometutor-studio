@@ -27,6 +27,10 @@
 ## Промпт 1: UI-спецификация для пакета
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 Role: UX/UI Designer for hometutor Streamlit learning assistant.
 Goal: produce a UI specification for package <PACKAGE_ID>.
 
@@ -131,6 +135,10 @@ Rules:
 ## Промпт 2: UX Review существующего экрана
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 Role: UX/UI Designer for hometutor.
 Goal: review UX quality of <screen/component>.
 

@@ -38,6 +38,10 @@
 ## Промпт 1: LLMOps Impact Review (gate в STEP 3.5)
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 Role: LLMOps Engineer for hometutor.
 Goal: review proposed package for LLM-layer impact.
        Do NOT write code. Output = structured LLMOps Impact Report.

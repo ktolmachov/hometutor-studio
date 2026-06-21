@@ -28,6 +28,10 @@
 ## Промпт 1: Детализация пакета
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 Role: Analyst for hometutor learning assistant.
 Goal: produce a detailed specification for package <PACKAGE_ID>.
 
@@ -107,6 +111,10 @@ Rules:
 ## Промпт 2: Анализ влияния изменений (Impact Analysis)
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 Role: Analyst for hometutor.
 Goal: analyze the impact of proposed changes for <PACKAGE_ID>.
 

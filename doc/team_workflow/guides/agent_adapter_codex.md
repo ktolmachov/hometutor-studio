@@ -56,6 +56,10 @@ RUN_CMD: |
 ## Step 3: последовательный запуск (3a → 3b)
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 ─── STEP 3a — Architect ──────────────────────────────────────────
 Act as Architect. Read doc/team_workflow/architect.md.
 

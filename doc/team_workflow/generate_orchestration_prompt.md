@@ -63,6 +63,10 @@ TARGET_AGENT: <claude_code | codex | cursor_ai | continue>
 ### Инструкции для AI-агента (мануальный путь)
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 Goal: generate a ready-to-paste orchestration prompt for the next active
       delivery package in hometutor.
 

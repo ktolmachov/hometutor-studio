@@ -57,6 +57,10 @@
 ⚠️ **TOKEN SAFETY:** перед добавлением файлов в read-set проверьте их в [doc/token_safety.md](token_safety.md). Если файл помечен как unsafe для full-read, используйте safe method из таблицы (signatures, grep, одна секция, summary).
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 Goal: plan <epoch-package> ONLY — produce a detailed execution contract.
 
 Cursor token guard:
@@ -247,6 +251,10 @@ Output:
 Пример для текущего roadmap:
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 Goal: close E10.2-A only.
 
 Context:
@@ -323,6 +331,10 @@ Doc sync:
 Короткий пример:
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 Задача:
 Расширить typed tutor payload для UI summary.
 

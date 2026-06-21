@@ -364,6 +364,10 @@ Invoke-RestMethod http://127.0.0.1:8080/v1/models | ConvertTo-Json -Depth 5
 Validated locally:
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 strict no-op smoke: PASS
 disposable real patch smoke: PASS
 llamacpp_agent_trigger live smoke: PASS

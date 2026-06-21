@@ -2437,6 +2437,10 @@ Reference layout §23 — желаемое, **не реальное**. Эта т
 Ops-роли подключаются к пайплайну через **STEP 3.5 — Ops Impact Gate** в [`orchestrator_template.md`](orchestrator_template.md). Gate срабатывает, если контракт пакета затрагивает:
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 - app/provider.py                                     → LLMOps owner
 - app/config.py (новые LLM/embeddings/profile ключи)  → LLMOps
 - app/query_service.py / app/pipeline_steps.py        → RAGOps

@@ -293,6 +293,10 @@ After each group, refresh the next pointer and summary:
 Используй этот промпт для планирования новой итерации или пакета.
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 Goal: plan <epoch-package> ONLY — produce a detailed execution contract.
 
 Cursor token guard:
@@ -390,6 +394,10 @@ Output:
 Используй этот промпт после завершения пакета разработчиком.
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 Goal: verify <epoch-package> execution against contract. Do NOT write code. Output = structured report.
 
 CONTRACT_FILE: <path to contract, e.g. archive/team_artifacts/E14-B/contract.md>
@@ -1163,6 +1171,10 @@ Rules:
 Используй для разработки спецификации пакета с Given-When-Then сценариями.
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 Role: Analyst for hometutor learning assistant.
 Goal: produce a detailed specification for package <PACKAGE_ID>.
 
@@ -1222,6 +1234,10 @@ Rules:
 Используй для создания архитектурного контракта и определения write-set.
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 Role: Architect for hometutor learning assistant.
 Goal: produce an execution contract for package <PACKAGE_ID>.
 
@@ -1284,6 +1300,10 @@ Rules:
 Используй для описания UI/UX изменений пакета.
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 Role: UX/UI Designer for hometutor Streamlit learning assistant.
 Goal: produce a UI specification for package <PACKAGE_ID>.
 
@@ -1397,6 +1417,10 @@ Output:
 Используй для верификации завершённого пакета.
 
 ```text
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 Role: Tester for hometutor learning assistant.
 Goal: verify package <PACKAGE_ID>.
 

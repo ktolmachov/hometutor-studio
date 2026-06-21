@@ -303,6 +303,10 @@ archive/team_artifacts/<PACKAGE_ID>/execution_contract.md
 | `$cjm_stage` | `#5 — Return next day` |
 
 ```
+# [two-root] Two-repo project: resolve app/** and requirements.txt against CODE_ROOT
+# (editable install of `hometutor`: `pip show hometutor` -> "Editable project location");
+# resolve doc/**, tests/**, scripts/** against the current cwd (DOCS_ROOT).
+# Run git per-root: `git -C <CODE_ROOT> ...` for app code, `git -C <cwd> ...` for docs/tests.
 → Selected package: epoch-us7-3-resume-card  (status: ready)
 → Mode: self-contained planning prompt [push-based, default]
 → Preflight: not needed (self-contained — all context pre-extracted)
