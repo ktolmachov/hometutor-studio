@@ -527,9 +527,10 @@ Check specifically (use grep for large files to save tokens):
    get_retrieval_settings() (except config.py itself and tests).
 2. LLM/embed access: any module creating LLM or embed clients NOT through
    app/provider.py.
-3. Prompt location: prompts are now split across `app/tutor_prompts.py` (87 lines, safe to read fully) and inline
-   in service files. Use `rg "prompt\s*=\s*f?['\"]" app/ --type py | grep -v "tutor_prompts.py"` to find
-   hardcoded prompts outside the designated prompt modules.
+3. Prompt location: SSoT = `app/prompts/` package (`_impl.py` — forbidden full-read);
+   `app/tutor_prompts.py` is a bridge/helper. Use
+   `rg "prompt\s*=\s*f?['\"]" app/ --type py | grep -v "app/prompts/" | grep -v "tutor_prompts.py"`
+   to find hardcoded prompts outside the prompt package.
 4. Pipeline contract: any step NOT following process(QueryContext) -> QueryContext.
 5. Router structure: any HTTP handler NOT in app/routers/; any endpoint not
    registered through include_router in app/api.py.

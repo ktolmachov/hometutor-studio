@@ -138,7 +138,8 @@ Do NOT write code. Do NOT edit any files. Output = structured report only.
 
 Before reading any file >600 lines, check doc/token_safety.md for safe method:
 - app/query_service.py (~900+ lines) → rg "^class\|^def " only, don't read full body
-- app/tutor_prompts.py → small, safe to read fully; prompts distributed across services
+- app/prompts/_impl.py   → forbidden full-read; use `rg "^def\|^[A-Z_].*=" app/prompts/_impl.py`
+- app/tutor_prompts.py   → small bridge/helper, safe to read fully; SSoT = app/prompts/ package
 - app/knowledge_graph.py (1258 lines, ~13k est tokens) → rg "^class\|^def " only
 - doc/adr.md (~660+ lines, ~13k est tokens) → read ONLY the status table or one ADR
 - doc/architecture.md (383 lines) → read ONLY the module list, skip detail sections

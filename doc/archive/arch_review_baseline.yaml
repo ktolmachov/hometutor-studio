@@ -4,7 +4,7 @@ last_review:
   # after the split; they are preserved under `legacy:` for provenance only and
   # are NOT valid diff bases. code_sha/docs_sha below are the fresh anchors.
   code_sha: bc6af7e77ad8f8fa2ebbede6709e3c06d55fc1f7   # D:\Projects\hometutor HEAD (app/ source)
-  docs_sha: 9f78f7f314f1b9f7c56d071f1ec2f4b3973391ad   # *-studio HEAD (this repo: doc/, tests/, baseline)
+  docs_sha: 7b756836e8f03dfe29605972faf0bb1479ded115   # *-studio HEAD (this repo: doc/, tests/, baseline)
   date: "2026-06-21"
   backlog_wave_id: wave-arch-review-incremental-2026-06-11
   report_files: []

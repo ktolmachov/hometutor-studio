@@ -186,8 +186,9 @@ Check specifically (use grep for large files to save tokens):
    get_retrieval_settings() (except config.py itself and tests).
 2. LLM/embed access: any module creating LLM or embed clients NOT through
    app/provider.py.
-3. Prompt location: use `rg "prompt\s*=\s*f?['\"]" app/ --type py | Select-String -NotMatch "tutor_prompts.py"`
-   to find hardcoded prompts outside the prompt package (`app/prompts/` + `app/tutor_prompts.py`).
+3. Prompt location: SSoT = `app/prompts/` package + `app/tutor_prompts.py` (bridge). Use
+   `rg "prompt\s*=\s*f?['\"]" app/ --type py | Select-String -NotMatch "app[\\/]prompts" | Select-String -NotMatch "tutor_prompts.py"`
+   to find hardcoded prompts outside the prompt package.
 4. Pipeline contract: any step NOT following process(QueryContext) -> QueryContext.
 5. Router structure: any HTTP handler NOT in app/routers/; any endpoint not
    registered through include_router in app/api.py.
@@ -417,7 +418,7 @@ follow-up" отдельным списком, не в DoD.
 - **Regression Guard (обязательно на каждый critical+warning finding).** В fix-prompt
   указать как предотвратить повторное появление. Минимум один из:
   - новое правило в `doc/conventions.md` / `conventions_architecture.md` со ссылкой на ID finding;
-  - pre-commit hook или CI check (скрипт в `scripts/check_*.py`), запускаемый в `scripts/run_checks.sh`;
+  - pre-commit hook или CI check (скрипт в `scripts/check_*.py`), агрегируемый в `scripts/arch_regression_guards.py`;
   - инвариант-тест в `tests/test_*_invariants.py` (падает при возврате проблемы);
   - добавление `evidence_cmd` в `scripts/arch_regression_guards.py` (Windows-first агрегатор для pre-merge).
   Fix-prompt без Regression Guard на critical/warning → **не принимается verify**.
