@@ -1,0 +1,48 @@
+{
+  "generated_at": "2026-05-09T07:09:46.288199+00:00",
+  "prompt_version": "1.0",
+  "case_count": 2,
+  "offline_template": true,
+  "llm_role": "classifier",
+  "records": [
+    {
+      "case_id": "ssr-l2-001",
+      "hint_kind": "cards_due",
+      "primary_label_ru": "Повторить",
+      "primary_nav": "flashcards_review",
+      "template_explanation": "Локальная очередь SM-2: к повтору 5 карточек — интервал уже наступил.",
+      "generated_explanation": "Локальная очередь SM-2: к повтору 5 карточек — интервал уже наступил.",
+      "generated_word_count": 11,
+      "used_template_fallback": true,
+      "latency_sec": 0.0,
+      "error_type": null,
+      "must_preserve": [
+        "Повторить",
+        "flashcards_review"
+      ],
+      "forbidden_claims": [
+        "90%",
+        "облако"
+      ]
+    },
+    {
+      "case_id": "ssr-l2-002",
+      "hint_kind": "cards_due",
+      "primary_label_ru": "Повторить",
+      "primary_nav": "flashcards_review",
+      "template_explanation": "К повтору 1 карточка — интервал уже наступил.",
+      "generated_explanation": "К повтору 1 карточка — интервал уже наступил.",
+      "generated_word_count": 8,
+      "used_template_fallback": true,
+      "latency_sec": 0.0,
+      "error_type": null,
+      "must_preserve": [
+        "Повторить",
+        "flashcards_review"
+      ],
+      "forbidden_claims": [
+        "карточек к повтору: 5"
+      ]
+    }
+  ]
+}

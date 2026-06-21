@@ -1,0 +1,40 @@
+evaluation_contract:
+  feature: "SSR Level 5 - Misroute Feedback Collection"
+  owner_decision: "proposed"
+
+  metrics:
+    primary:
+      name: "feedback_capture_success_rate"
+      type: "offline_fixture"
+      baseline: "0.0 no SSR misroute feedback capture"
+      target: ">= 0.99 for accept/reject/defer events"
+      test_set: "tests/test_ssr_feedback_collection.py fixtures"
+    secondary:
+      - name: "feedback_collection_latency_p95"
+        target: "< 100ms"
+      - name: "pii_fields_captured"
+        target: "0"
+      - name: "routing_behavior_changes"
+        target: "0 before policy-learning package"
+
+  test_harness:
+    script: "tests/test_ssr_feedback_collection.py"
+    data: "pytest fixtures"
+    rubric: "not required for collection-only package"
+    command: ".\\.venv\\Scripts\\python.exe -m pytest tests/test_ssr_feedback_collection.py -v"
+
+  success_criteria:
+    - "accept, reject, and defer events persist locally"
+    - "all secondary metrics stay within bounds"
+    - "no model or adaptive policy changes are introduced"
+
+  failure_plan:
+    - condition: "events capture PII or free-text payloads"
+      action: "reject implementation and redesign schema with IDs only"
+    - condition: "latency exceeds 100ms p95"
+      action: "make write path async or narrow captured context"
+
+  fallback:
+    mode: "disabled"
+    trigger: "storage error, privacy violation, or write latency breach"
+    user_visible_trace: "hide feedback controls and preserve current SSR behavior"

@@ -6,6 +6,12 @@ from pathlib import Path
 
 from app.config import BASE_DIR
 from tests.integration_paths import apply_integration_layout_for_script
+from tests.studio_layout import PRODUCT_ROOT, is_split_layout
+
+
+def _default_chroma_base() -> Path:
+    """After restore, chroma paths follow the product checkout in split layout."""
+    return PRODUCT_ROOT if is_split_layout() else BASE_DIR
 
 
 def test_apply_integration_layout_for_script_redirects_bm25_and_graph(tmp_path: Path) -> None:
@@ -24,7 +30,7 @@ def test_apply_integration_layout_for_script_redirects_bm25_and_graph(tmp_path: 
     finally:
         restore()
 
-    assert hybrid_retrieval._bm25_persist_dir() == BASE_DIR / "chroma_db" / "bm25_index"
+    assert hybrid_retrieval._bm25_persist_dir() == _default_chroma_base() / "chroma_db" / "bm25_index"
 
 
 def test_apply_integration_layout_for_script_redirects_telemetry(tmp_path: Path) -> None:

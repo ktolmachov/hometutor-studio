@@ -1,0 +1,115 @@
+# ML package contract: ml-ssr-local-reranking-v1 (SSR Level 1)
+# Соответствует output format из doc/team_workflow/product_owner_plan_ml_package_prompt.md
+
+package_id: "ml-ssr-local-reranking-v1"
+type: "hybrid_intelligence"
+status: "proposed"
+
+goal: >-
+  Локальная лёгкая модель (logistic regression) повышает вероятность успешного
+  retention-step, переранжируя SSR priorities поверх rule baseline без замены
+  детерминированного ядра.
+
+user_stories:
+  - "US-20.1"
+  - "US-20.x (SSR v2.0 baseline epic — уточнить при оркестрации)"
+
+data_phase:
+  goal: "1000+ сессий с SM-2 / flashcard outcomes для обучения и валидации"
+  cold_start_policy:
+    minimum_real_samples: 1000
+    synthetic_bootstrap: "если real samples < 1000, generate 500+ synthetic samples using SM-2 formula"
+    serving_mode: "rule-based priority until 1000+ real samples and AUC-ROC >= 0.70"
+    retraining: "weekly after new real samples are available"
+  sources:
+    - "user_state.db → flashcard_reviews"
+    - "user_state.db → quiz_outcomes"
+    - "user_state.db → tutor_sessions (session duration / cadence)"
+  labeling:
+    method: "automatic"
+    validation: >-
+      spot-check на выборке; согласование label definition с retention_probability
+      target в evaluation_contract.yaml
+  deliverables:
+    - "data/ml/ssr_forgetting_curve_train.parquet"
+    - "data/ml/ssr_forgetting_curve_test.parquet"
+    - "scripts/ml/data_collection_ssr.py"
+
+model_phase:
+  approach: "sklearn logistic regression (при необходимости elastic-net regularization)"
+  features:
+    - "time_since_last_review (hours)"
+    - "quiz_score_last_3 (avg)"
+    - "concept_difficulty (knowledge_graph proxy / heuristics)"
+    - "session_duration_avg (minutes)"
+    - "time_of_day (hour)"
+    - "day_of_week (0-6)"
+    - "cards_due_count"
+    - "sm2_due_count"
+    - "quiz_failed_recent (bool)"
+    - "session_fatigue (derived, integration phase)"
+  target: "retention_probability (0-1) и/или rank score для hint kinds"
+  training_or_iteration:
+    script: "scripts/ml/train_ssr_forgetting_curve.py"
+    output: "models/ssr_forgetting_curve_v1.pkl"
+    size_limit: "< 1MB on disk"
+
+eval_phase:
+  primary_metric: "AUC-ROC"
+  baseline: "0.50 (random)"
+  target: ">= 0.75"
+  test_set: "20% holdout из Phase 1 + tests/eval/ssr_ml_reranking_test_cases.json (contract harness)"
+  script: "scripts/ml/eval_ssr_forgetting_curve.py"
+  report: "archive/ml_eval/ssr_forgetting_curve_v1_report.md"
+  secondary_metrics:
+    - "Precision@5 >= 0.80"
+    - "Recall@5 >= 0.70"
+    - "inference_latency_p95 < 50ms"
+  failure_plan:
+    - "AUC-ROC < 0.70 → BLOCK integration; collect 1000+ additional samples"
+    - "0.70 <= AUC-ROC < 0.75 → TRY XGBoost upgrade and retrain"
+    - "AUC-ROC >= 0.75 → PASS integration gate"
+
+integration_phase:
+  modules:
+    - "app/ui/adaptive_plan_card.py → _apply_ml_priority_reranking()"
+  behavior: >-
+    ML выдаёт scores/perturbation к rule order; итоговый top-hint = hybrid merge
+    с явным audit trail.
+  fallback: "rule-only при сбоях (см. evaluation_contract failure_plan)"
+  monitoring:
+    - "inference_latency_p95 < 50ms"
+    - "prediction_confidence > 0.6 не менее чем в 80% кейсов (калибруемо)"
+    - "fallback_rate < 5%"
+
+ab_test_phase:
+  required: true
+  control: "rule-based SSR (текущий)"
+  treatment: "hybrid rule + ML reranking"
+  metric: "cards_due_completion_rate"
+  duration: "2 weeks (локальный flag в user_state)"
+  sample_size: "100 users (локально / opt-in — уточнить при реализации)"
+
+risks:
+  - "мало данных → переобучение / холодный старт"
+  - "смещение concept_difficulty от knowledge_graph"
+  - "latency budget на слабых машинах"
+
+rollback:
+  mode: "disable model; rule-only default"
+  trigger: "метрики из failure_plan evaluation_contract или инцидент деградации UX"
+
+registry_entry:
+  backlog_status: "proposed"
+  wave_id: "ssr-ai-vision-wave-1-foundation"
+  dependencies_eval_first:
+    - "archive/ml_eval/ssr_level1/evaluation_contract.yaml"
+  docs_to_update:
+    - "doc/changelog.md (после закрытия пакетов)"
+    - "doc/backlog_registry.yaml"
+    - "doc/ssr_llm_monitoring.md или sibling doc для ML latency/fallback (при необходимости)"
+
+phases_wave_mapping:
+  note: >-
+    Полный rollout разбит в backlog на три packages: baseline hardening,
+    eval harness, forgetting-curve v1 implementation (см. backlog_registry.yaml).

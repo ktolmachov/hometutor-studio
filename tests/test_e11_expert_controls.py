@@ -21,10 +21,12 @@ def test_expert_layer_copy_matches_beginner_contract():
         _assert_no_forbidden_ru_copy(fn())
 
 
+from tests.studio_layout import product_app_path
+
+
 def test_expert_controls_wired_in_sidebar_and_query_tab():
-    root = Path(__file__).resolve().parents[1]
-    sidebar_src = (root / "app" / "ui" / "sidebar.py").read_text(encoding="utf-8")
-    query_answer_src = (root / "app" / "ui" / "query_tab_answer_section.py").read_text(
+    sidebar_src = product_app_path("ui", "sidebar.py").read_text(encoding="utf-8")
+    query_answer_src = product_app_path("ui", "query_tab_answer_section.py").read_text(
         encoding="utf-8"
     )
     assert "expert_controls_expander_label_ru()" in sidebar_src

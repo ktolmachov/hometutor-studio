@@ -7,6 +7,7 @@ import subprocess
 import sys
 
 from app.ssr_ai import eval_harness as eh
+from tests.studio_layout import product_app_path
 
 
 def _load_cases() -> list[dict]:
@@ -62,8 +63,8 @@ def test_ssr_ml_reranking_test_set_has_100_local_scenarios() -> None:
 
 def test_ssr_ml_contract_declares_ab_and_monitoring_infrastructure() -> None:
     pfx = "".join(("s", "s", "r"))
-    module = (eh.ROOT / "app" / f"{pfx}_ml_monitoring.py").read_text(encoding="utf-8")
-    telemetry = (eh.ROOT / "app" / "ssr_ai" / "telemetry.py").read_text(encoding="utf-8")
+    module = product_app_path(f"{pfx}_ml_monitoring.py").read_text(encoding="utf-8")
+    telemetry = product_app_path("ssr_ai", "telemetry.py").read_text(encoding="utf-8")
     assert "record_cards_due_completion" in module
     assert "summarize_cards_due_completion_ab" in module
     assert "summarize_ml_inference_events" in module

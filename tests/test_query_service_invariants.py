@@ -1,9 +1,10 @@
 import ast
-from pathlib import Path
+
+from tests.studio_layout import product_app_path
 
 
 def test_no_function_over_100_lines():
-    tree = ast.parse(Path("app/query_service.py").read_bytes())
+    tree = ast.parse(product_app_path("query_service.py").read_bytes())
     oversized = [
         (node.name, node.end_lineno - node.lineno)
         for node in ast.walk(tree)

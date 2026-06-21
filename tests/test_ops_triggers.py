@@ -303,7 +303,7 @@ def test_false_positive_regression_knowledge_graph_in_read_set() -> None:
             "app/config.py\n"
             "tests/test_ssr_graph_routing.py\n"
             "tests/eval/test_ssr_graph_routing.py\n"
-            "archive/ml_eval/ssr_level4/contract.yaml"
+            "eval_data/ml_eval/ssr_level4/contract.yaml"
         ),
         READ_SET_HINT=(
             "app/knowledge_graph.py -- rg \"^class|^def \"\n"

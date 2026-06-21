@@ -44,7 +44,11 @@ def test_run_single_router_case_match(monkeypatch):
             {"prompt_tokens": 1, "completion_tokens": 2},
         )
 
+    def fake_clamp(decision, _profile):
+        return decision, {}
+
     monkeypatch.setattr(rv, "invoke_pedagogical_orchestrator_llm", fake_invoke)
+    monkeypatch.setattr(rv, "apply_orchestrator_policy_clamp", fake_clamp)
     case = {
         "id": "tutor_x",
         "category": "explain_depth",

@@ -1,0 +1,41 @@
+evaluation_contract:
+  feature: "SSR Level 4 - Concept Graph Router"
+  owner_decision: "proposed"
+
+  metrics:
+    primary:
+      name: "prerequisite_ordering_accuracy"
+      type: "offline_eval"
+      baseline: "current rule router without graph prerequisite audit"
+      target: ">= 0.85 on graph-routing fixtures"
+      test_set: "tests/eval/ssr_graph_routing_cases.json, proposed"
+    secondary:
+      - name: "orphan_concept_rate"
+        target: "measured before implementation"
+      - name: "cycle_count"
+        target: "0 blocking prerequisite cycles"
+      - name: "routing_latency_p95"
+        target: "< 100ms  # scaffold-N/A — deferred to epoch-ssr-graph-routing-v1"
+
+  test_harness:
+    script: "tests/eval/test_ssr_graph_routing.py"
+    data: "tests/eval/ssr_graph_routing_cases.json"
+    rubric: "doc/eval/ssr_graph_routing_rubric.md"
+    command: ".\\.venv\\Scripts\\python.exe -m pytest tests/eval/test_ssr_graph_routing.py -v"
+
+  success_criteria:
+    - "KG completeness audit classifies the graph as ready or patchable"
+    - "primary metric hits target"
+    - "fallback preserves deterministic SSR route when graph data is incomplete"
+    - "routing_latency_p95 not enforced in scaffold (see doc/eval/ssr_graph_routing_rubric.md)"
+
+  failure_plan:
+    - condition: "KG audit returns blocker"
+      action: "park L4 routing and create a separate KG repair package"
+    - condition: "ordering accuracy below target"
+      action: "iterate graph fixtures or narrow L4 scope once before PO review"
+
+  fallback:
+    mode: "rule_based"
+    trigger: "missing prerequisites, cycle detected, graph unavailable, or eval regression"
+    user_visible_trace: "show baseline SSR reason and omit graph-based adjustment"

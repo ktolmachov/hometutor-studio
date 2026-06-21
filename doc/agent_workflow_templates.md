@@ -113,7 +113,7 @@ Ignore prior responses/tools. Fresh context only.
 
 После того как агент-исполнитель завершил пакет, запускать верификацию в **отдельном потоке**.
 
-Универсальный шаблон: [`../archive/agent_prompts/agent_prompts_verify.md`](../archive/agent_prompts/agent_prompts_verify.md).
+Универсальный шаблон: [`prompts/agent_prompts_verify.md`](prompts/agent_prompts_verify.md).
 
 Заполнить четыре параметра перед запуском:
 
@@ -365,7 +365,7 @@ Doc sync:
 
 ## Архивированные Contract Prompts
 
-Архивные копии contract prompts (Context / Scope / Working rules) живут отдельными файлами в [`../archive/agent_prompts/`](../archive/agent_prompts/). Список всех заархивированных prompts: [`../archive/agent_prompts/README.md`](../archive/agent_prompts/README.md).
+Архивные копии contract prompts (Context / Scope / Working rules) живут отдельными файлами в `archive/agent_prompts/` (генерируется скриптами). Индекс: [`prompts/agent_prompts_index.md`](prompts/agent_prompts_index.md).
 
 
-Чтобы добавить следующий prompt в архив, используйте helper [`../archive/agent_prompts/ARCHIVE_ADD_PROMPT.md`](../archive/agent_prompts/ARCHIVE_ADD_PROMPT.md): он должен создавать отдельный `.md` файл в `archive/agent_prompts/`, а не вставлять текст prompt в сам helper.
+Чтобы добавить следующий prompt в архив, используйте helper [`prompts/ARCHIVE_ADD_PROMPT.md`](prompts/ARCHIVE_ADD_PROMPT.md): он создаёт отдельный `.md` файл в `archive/agent_prompts/`.

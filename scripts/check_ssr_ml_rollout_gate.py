@@ -22,8 +22,23 @@ if str(ROOT) not in sys.path:
 EXIT_OK = 0
 EXIT_FAIL = 2
 
-CONTRACT_PATH = ROOT / "archive" / "ml_eval" / "ssr_level1" / "evaluation_contract.yaml"
-WEIGHTS_PATH = ROOT / "app" / "ssr_ml_reranking_weights.json"
+CONTRACT_PATH = ROOT / "eval_data" / "ml_eval" / "ssr_level1" / "evaluation_contract.yaml"
+
+
+def _weights_path() -> Path:
+    """Weights live in the pip-installed ``app`` package (split studio layout)."""
+    try:
+        import app.config as cfg
+
+        candidate = Path(cfg.__file__).resolve().parent / "ssr_ml_reranking_weights.json"
+        if candidate.is_file():
+            return candidate
+    except ImportError:
+        pass
+    return ROOT / "app" / "ssr_ml_reranking_weights.json"
+
+
+WEIGHTS_PATH = _weights_path()
 
 try:
     import yaml  # type: ignore[import-untyped]

@@ -1908,8 +1908,8 @@ def test_readme_starts_with_quickstart() -> None:
 
 
 def test_archive_snapshots_exist() -> None:
-    snapshots_dir = ROOT / "archive" / "team_workflow_snapshots"
-    assert snapshots_dir.exists(), "archive/team_workflow_snapshots/ должен существовать"
+    snapshots_dir = ROOT / "fixtures" / "team_workflow_snapshots"
+    assert snapshots_dir.exists(), "fixtures/team_workflow_snapshots/ должен существовать"
     files = list(snapshots_dir.iterdir())
     assert len(files) >= 3, f"Ожидалось ≥3 перемещённых файла, найдено: {len(files)}"
 

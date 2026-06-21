@@ -10,7 +10,9 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+from tests.studio_layout import PRODUCT_ROOT
+
+ROOT = PRODUCT_ROOT
 APP = ROOT / "app"
 
 PROVIDER_OPENAI_ALLOWLIST = {

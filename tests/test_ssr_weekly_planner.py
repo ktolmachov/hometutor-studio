@@ -120,6 +120,6 @@ def test_telemetry_swallow_errors() -> None:
 
 
 def test_fixture_path_override() -> None:
-    p = REPO_ROOT / "archive" / "ml_eval" / "ssr_level3" / "ssr_weekly_plan_fixtures.json"
+    p = REPO_ROOT / "eval_data" / "ml_eval" / "ssr_level3" / "ssr_weekly_plan_fixtures.json"
     loaded = load_weekly_planner_fixtures(p)
     assert len(loaded) == 30

@@ -56,12 +56,12 @@ def build_registry_item(
         "priority": priority,
         "write_set_max": 8,
         "deliverables": [
-            f"archive/ml_eval/{package_id}/evaluation_contract.yaml",
-            f"archive/ml_eval/{package_id}/package.yaml",
+            f"eval_data/ml_eval/{package_id}/evaluation_contract.yaml",
+            f"eval_data/ml_eval/{package_id}/package.yaml",
             f"tests/eval/test_{package_id.replace('-', '_')}.py",
         ],
         "dod_commands": [
-            f".\\.venv\\Scripts\\python.exe scripts\\validate_evaluation_contract.py archive/ml_eval/{package_id}/evaluation_contract.yaml",
+            f".\\.venv\\Scripts\\python.exe scripts\\validate_evaluation_contract.py eval_data/ml_eval/{package_id}/evaluation_contract.yaml",
             ".\\.venv\\Scripts\\python.exe scripts\\backlog_registry_lint.py --strict --sync-from-index --write-sync",
         ],
         "read_set_hint": [

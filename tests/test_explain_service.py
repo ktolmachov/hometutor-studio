@@ -95,6 +95,7 @@ def test_get_file_content_reads_pdf_via_extractor(tmp_path, monkeypatch):
 
 
 def test_get_file_content_reads_docx(tmp_path, monkeypatch):
+    pytest.importorskip("docx")
     from docx import Document as DocxDocument
 
     data_dir = tmp_path / "data"

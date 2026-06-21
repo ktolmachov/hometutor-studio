@@ -11,6 +11,8 @@ from pathlib import Path
 import pytest
 
 from app.config import reset_settings_cache
+from tests.studio_layout import product_app_path
+
 from app.ssr_weekly_narrative import (
     WeeklyNarrativeSignals,
     build_weekly_study_narrative_snapshot,
@@ -90,7 +92,7 @@ def test_build_p95_under_50ms_without_network():
 def test_module_does_not_import_ssr_policy_or_provider():
     import ast
 
-    tree = ast.parse(Path("app/ssr_weekly_narrative.py").read_text(encoding="utf-8"))
+    tree = ast.parse(product_app_path("ssr_weekly_narrative.py").read_text(encoding="utf-8"))
     banned = ("smart_study_router", "smart_study_recommendation", "provider")
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):

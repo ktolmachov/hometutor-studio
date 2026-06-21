@@ -19,8 +19,11 @@ import app.config as app_config
 from _pytest.monkeypatch import MonkeyPatch
 from app.config import reset_settings_cache
 
+from tests.studio_layout import apply_studio_root_patches
+
 
 def pytest_configure():
+    apply_studio_root_patches()
     """
     Тестовое окружение: всегда отключаем reranker, чтобы не грузить Torch/FlagEmbedding.
 

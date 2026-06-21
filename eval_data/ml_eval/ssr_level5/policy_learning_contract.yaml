@@ -1,0 +1,45 @@
+evaluation_contract:
+  feature: "SSR Level 5 - Misroute Policy Learning"
+  owner_decision: "proposed"
+
+  metrics:
+    primary:
+      name: "policy_adaptation_accuracy"
+      type: "offline_fixture"
+      baseline: "rule-only tie-break without gated misroute adjustment"
+      target: ">= 0.75 on labeled bucket fixtures"
+      test_set: "tests/test_ssr_misroute_policy.py labeled cases"
+    secondary:
+      - name: "recommendation_acceptance_rate_uplift"
+        target: ">= +10pp vs rule-only baseline on paired fixtures"
+      - name: "feedback_collection_latency_p95"
+        target: "< 100ms unchanged from collection package"
+      - name: "routing_behavior_changes"
+        target: "allowed for L5 learning (tie-break primary_nav only)"
+      - name: "hint_kind_primary_nav_regression"
+        target: "0 on canonical router subset with flag default off"
+
+  test_harness:
+    script: "tests/test_ssr_misroute_policy.py"
+    data: "pytest iso_db fixtures"
+    rubric: "archive/team_artifacts/epoch-ssr-misroute-policy-learning-v1/3_architect_contract.md"
+    command: ".\\.venv\\Scripts\\python.exe -m pytest tests/test_ssr_misroute_policy.py -v --tb=short"
+
+  success_criteria:
+    - "offline learner + runtime hook behind default-off flag"
+    - "policy_adaptation_accuracy meets target on labeled fixtures"
+    - "write path remains decoupled from policy module"
+    - "canonical router tests green with learning disabled"
+
+  failure_plan:
+    - condition: "policy_adaptation_accuracy below 0.75"
+      action: "tighten retention gate fixtures or narrow tie-break scope"
+    - condition: "router regression with flag off"
+      action: "revert hook and escalate to Architect"
+    - condition: "feedback write latency p95 regression"
+      action: "keep policy off hot path; profile aggregate query"
+
+  fallback:
+    mode: "disabled"
+    trigger: "sparse feedback, gate failure, or hook error"
+    user_visible_trace: "SSR uses rule baseline; optional ml_audit_ru skip line when flag on"

@@ -884,9 +884,13 @@ def test_sync_main_returns_failed_close_package_code(monkeypatch):
 
     def _fake_run(args, **kwargs):
         if "scripts/close_package.py" in args:
-            return SimpleNamespace(returncode=2)
-        return SimpleNamespace(returncode=0)
+            return SimpleNamespace(returncode=2, stdout="", stderr="")
+        return SimpleNamespace(returncode=0, stdout="", stderr="")
 
     monkeypatch.setattr(ra.subprocess, "run", _fake_run)
+    monkeypatch.setattr(
+        "scripts.prompt_utils.git_head_commit_src_files",
+        lambda root=None: set(),
+    )
 
     assert ra.main() == 2

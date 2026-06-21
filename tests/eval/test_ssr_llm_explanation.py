@@ -11,7 +11,7 @@ from scripts.eval_ssr_prompts import generate_explanations
 ROOT = Path(__file__).resolve().parents[2]
 CASES_PATH = ROOT / "tests" / "eval" / "ssr_explanation_test_cases.json"
 RUBRIC_PATH = ROOT / "doc" / "eval" / "ssr_explanation_rubric.md"
-CONTRACT_PATH = ROOT / "archive" / "ml_eval" / "ssr_level2" / "evaluation_contract.yaml"
+CONTRACT_PATH = ROOT / "eval_data" / "ml_eval" / "ssr_level2" / "evaluation_contract.yaml"
 
 
 def _load_cases() -> list[dict]:

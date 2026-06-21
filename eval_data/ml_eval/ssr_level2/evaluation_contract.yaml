@@ -1,0 +1,87 @@
+evaluation_contract:
+  feature: "SSR Level 2 — LLM-Enhanced Explanation"
+  owner_decision: "ready_for_package"
+  created: "2026-05-08"
+  package_id: "llm-ssr-explanation-v1"
+  scope_type: "standard"
+
+  current_behavior: "template-based why_now_ru generated after deterministic SSR routing"
+  constraints:
+    routing: "LLM must not change hint_kind, primary_nav, primary_label_ru, or route priority"
+    latency: "llm_latency_p95 < 2s; template fallback if a single call exceeds 3s"
+    cost: "token_cost_p95 < 500 tokens per explanation; compress prompt if a response exceeds 500; template fallback if > 700"
+    privacy: "local learning context only; no cloud training on user data"
+    readability: "explanation_length < 150 words"
+    fallback: "template-based why_now_ru"
+
+  metrics:
+    primary:
+      name: "explanation_clarity_score"
+      type: "human_eval (1-5 Likert)"
+      baseline: 3.2
+      target: ">= 4.0"
+      test_set: "50 SSR scenarios x 3 human raters"
+    secondary:
+      - name: "llm_latency_p95"
+        target: "< 2s"
+      - name: "token_cost"
+        target: "< 500 tokens per explanation"
+      - name: "explanation_length"
+        target: "< 150 words"
+      - name: "fallback_rate"
+        target: "< 10%"
+      - name: "routing_regression"
+        target: "0 changed deterministic routing decisions"
+
+  test_harness:
+    script: "tests/eval/test_ssr_llm_explanation.py"
+    data: "tests/eval/ssr_explanation_test_cases.json"
+    rubric: "doc/eval/ssr_explanation_rubric.md"
+    command: ".\\.venv\\Scripts\\python.exe -m pytest tests/eval/test_ssr_llm_explanation.py tests/test_smart_study_router.py::test_ssr_llm_explanation_uses_cache_and_preserves_fallback -v"
+
+  success_criteria:
+    - "mean explanation_clarity_score >= 4.0 across 50 scenarios and 3 raters"
+    - "mean personalization score >= 4.0"
+    - "mean pedagogical_value score >= 4.0"
+    - "accuracy score has no rating below 3"
+    - "all secondary metrics stay within bounds"
+    - "existing SSR routing tests still pass"
+
+  failure_plan:
+    - condition: "clarity_score < 3.5"
+      action: "abort rollout; keep template explanation and redesign prompt constraints"
+    - condition: "3.5 <= clarity_score < 4.0"
+      action: "iterate prompt engineering up to 3 more versions, then re-run human eval"
+    - condition: "llm_latency_p95 >= 2s or fallback_rate >= 10%"
+      action: "keep LLM generation behind async/manual path; tune cache/model before rollout"
+    - condition: "500 < token_cost <= 700"
+      action: "compress prompt context and remove low-value fields before rollout"
+    - condition: "token_cost > 700"
+      action: "template fallback for the request; block caching of the over-budget explanation"
+    - condition: "any routing_regression > 0"
+      action: "block integration; LLM output may only replace explanation text"
+
+  fallback:
+    mode: "template_based"
+    trigger: "provider error, empty output, >3s generation, token_cost > 700, invalid text, or cache miss with unavailable LLM"
+    user_visible_trace: "SSR evidence ledger still shows deterministic local signals"
+
+  tier_gate:
+    package: "ssr-l2-tiered-explanation-gate-v1"
+    added: "2026-05-23"
+    description: "Tiered gate decides template-only vs LLM enrichment before explanation render"
+    rules:
+      simple: "≤2 influencing ledger signals AND no contrastive AND no debt+steering conflict → template_only"
+      complex: "≥3 influencing signals OR contrastive required OR debt+steering conflict → llm_enriched"
+    metrics:
+      - name: "template_only_rate"
+        target: "≤ 0.40 (at most 40% of P0 moments skip LLM)"
+      - name: "blended_llm_latency_p95"
+        target: "< 2s (simple + complex fixtures blended)"
+      - name: "helpful_rate_delta"
+        target: "≥ 0 (not below L2 baseline after tier introduction)"
+      - name: "routing_regression"
+        target: "0 hint_kind/primary_nav changes due to tier activation"
+    test_harness:
+      script: "tests/test_ssr_explanation_tier_gate.py"
+      command: ".\\.venv\\Scripts\\python.exe -m pytest tests/test_ssr_explanation_tier_gate.py -v --tb=short"

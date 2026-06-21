@@ -53,10 +53,12 @@ def test_check_readset_merges_registry() -> None:
             rel_path
             for rel_path, meta in registry.get("files", {}).items()
             if meta.get("full_read") == "forbidden"
+            and (ROOT / rel_path.replace("/", "\\")).exists()
+            or (ROOT / rel_path).exists()
         ),
         None,
     )
-    assert forbidden_from_registry, "Expected at least one forbidden file in token_safety_registry.json"
+    assert forbidden_from_registry, "Expected at least one existing forbidden file in token_safety_registry.json"
 
     proc = subprocess.run(
         [sys.executable, str(ROOT / "scripts" / "check_readset.py"), forbidden_from_registry],

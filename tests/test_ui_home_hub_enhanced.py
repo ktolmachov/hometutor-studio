@@ -80,9 +80,11 @@ def test_render_mode_selector_delegates_to_mission_control(stub_streamlit):
     render_mission_control.assert_called_once_with({"status": "ok"})
 
 
+from tests.studio_layout import product_app_path
+
+
 def test_ui_theme_preserves_mode_card_focus_visible_summary():
     """Регрессия: видимый фокус клавиатуры на превью режима (не только hover-карточки)."""
-    root = Path(__file__).resolve().parents[1]
-    css = (root / "app" / "ui_theme.css").read_text(encoding="utf-8")
+    css = product_app_path("ui_theme.css").read_text(encoding="utf-8")
     assert ".mode-preview-details summary:focus-visible" in css
     assert ".mode-card:hover" in css

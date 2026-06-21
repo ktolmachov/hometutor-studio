@@ -1,0 +1,40 @@
+evaluation_contract:
+  feature: "SSR Level 3 - Weekly Planner Baseline"
+  owner_decision: "proposed"
+
+  metrics:
+    primary:
+      name: "plan_completion_rate"
+      type: "offline_fixture"
+      baseline: "0.0 no weekly planner baseline"
+      target: ">= 0.60 on fixture profiles"
+      test_set: "archive/ml_eval/ssr_level3/ssr_weekly_plan_fixtures.json, 30 profiles"
+    secondary:
+      - name: "planner_latency_p95"
+        target: "< 1s"
+      - name: "fallback_rate"
+        target: "0% for rule-based baseline"
+      - name: "empty_plan_rate"
+        target: "< 5% when due or weak-concept signals exist"
+
+  test_harness:
+    script: "tests/test_ssr_weekly_planner.py"
+    data: "archive/ml_eval/ssr_level3/ssr_weekly_plan_fixtures.json"
+    rubric: "not required for rule-based baseline"
+    command: ".\\.venv\\Scripts\\python.exe -m pytest tests/test_ssr_weekly_planner.py -v"
+
+  success_criteria:
+    - "7-day plan generated for each fixture profile"
+    - "all secondary metrics stay within bounds"
+    - "plan-completion telemetry is emitted through shared SSR AI telemetry"
+
+  failure_plan:
+    - condition: "fixture coverage exposes ambiguous or empty recommendations"
+      action: "iterate rule priority once, then return to PO review"
+    - condition: "latency exceeds 1s p95"
+      action: "simplify planner inputs or cache derived state"
+
+  fallback:
+    mode: "rule_based"
+    trigger: "planner error, missing profile state, or eval regression"
+    user_visible_trace: "show existing daily SSR recommendation instead of weekly plan"

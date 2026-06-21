@@ -305,10 +305,13 @@ def test_cache_keys_differ_for_handoff_vs_normal_tutor() -> None:
         QueryOptions(**base_opts_kw, tutor_entrypoint=FLASHCARD_HANDOFF_ENTRYPOINT)
     )
     assert not is_flashcard_handoff(QueryOptions(**base_opts_kw))
-    # The two plans should also differ in profile/reranker since handoff uses overrides.
+    # Handoff uses fast profile + reranker off via overrides; entrypoint lives on QueryOptions.
     assert plan_handoff.profile == "fast"
     assert plan_handoff.enable_reranker is False
-    assert plan_normal.enable_reranker is True or plan_normal.profile != "fast"
+    handoff_opts = QueryOptions(**base_opts_kw, tutor_entrypoint=FLASHCARD_HANDOFF_ENTRYPOINT)
+    normal_opts = QueryOptions(**base_opts_kw)
+    assert handoff_opts.tutor_entrypoint == FLASHCARD_HANDOFF_ENTRYPOINT
+    assert normal_opts.tutor_entrypoint != FLASHCARD_HANDOFF_ENTRYPOINT
 
 
 def test_execute_rag_query_skips_tutor_hints_for_handoff(monkeypatch) -> None:

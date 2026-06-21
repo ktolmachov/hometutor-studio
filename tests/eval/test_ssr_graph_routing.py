@@ -12,7 +12,7 @@ from app.knowledge_graph import JsonKnowledgeGraph
 from app.smart_study_router import build_smart_study_recommendation
 
 ROOT = Path(__file__).resolve().parents[2]
-CONTRACT_PATH = ROOT / "archive" / "ml_eval" / "ssr_level4" / "contract.yaml"
+CONTRACT_PATH = ROOT / "eval_data" / "ml_eval" / "ssr_level4" / "contract.yaml"
 RUBRIC_PATH = ROOT / "doc" / "eval" / "ssr_graph_routing_rubric.md"
 DESIGN_PATH = ROOT / "doc" / "ssr_kg_integration_design.md"
 CASES_PATH = Path(__file__).with_name("ssr_graph_routing_cases.json")

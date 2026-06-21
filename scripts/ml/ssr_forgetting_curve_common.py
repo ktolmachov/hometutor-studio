@@ -49,7 +49,7 @@ FEATURE_COLUMNS = (
 TRAIN_PATH = ROOT / "data" / "ml" / "ssr_forgetting_curve_train.parquet"
 TEST_PATH = ROOT / "data" / "ml" / "ssr_forgetting_curve_test.parquet"
 MODEL_PATH = ROOT / "models" / "ssr_forgetting_curve_v1.pkl"
-REPORT_PATH = ROOT / "archive" / "ml_eval" / "ssr_forgetting_curve_v1_report.md"
+REPORT_PATH = ROOT / "eval_data" / "ml_eval" / "ssr_forgetting_curve_v1_report.md"
 CONTRACT_CASES_PATH = ROOT / "tests" / "eval" / "ssr_ml_reranking_test_cases.json"
 WEIGHTS_PATH = ROOT / "app" / "ssr_ml_reranking_weights.json"
 

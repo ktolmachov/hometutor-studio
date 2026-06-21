@@ -20,8 +20,8 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 DEFAULT_CASES = ROOT / "tests" / "eval" / "ssr_explanation_test_cases.json"
-DEFAULT_OUT = ROOT / "archive" / "ml_eval" / "ssr_level2" / "generated_explanations_v1.json"
-DEFAULT_HUMAN_SHEET = ROOT / "archive" / "ml_eval" / "ssr_level2" / "human_eval_sheet.csv"
+DEFAULT_OUT = ROOT / "eval_data" / "ml_eval" / "ssr_level2" / "generated_explanations_v1.json"
+DEFAULT_HUMAN_SHEET = ROOT / "eval_data" / "ml_eval" / "ssr_level2" / "human_eval_sheet.csv"
 LLM_ROLES = frozenset({"main", "classifier", "rewrite", "ssr"})
 RATERS = ("rater1", "rater2", "rater3")
 RATING_DIMS = ("clarity", "personalization", "pedagogical_value", "accuracy")
