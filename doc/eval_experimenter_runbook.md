@@ -188,7 +188,7 @@ per_request_avg_usd: ...
 
 Контекст проекта:
 - Eval pipeline: scripts/run_eval_loop.py (phases: prompt_smoke, quality_benchmark, router_eval, judge_sweep, latency_by_mode)
-- Промпты: app/prompts.py (5 query modes), app/tutor_prompts.py (orchestrator + tutor v2)
+- Промпты: app/tutor_prompts.py + inline в service-файлах (промпты распределены; app/prompts.py удалён)
 - LLM provider: app/provider.py (OpenAI-compatible, retry=3, timeout=60s, connect=10s)
 - Cost tracking: app/usage_cost.py (MODEL_PRICING_PER_1M_TOKENS)
 - SLO config: app/config.py (slo_* fields)

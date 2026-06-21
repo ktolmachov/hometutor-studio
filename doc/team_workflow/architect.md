@@ -138,7 +138,7 @@ Do NOT write code. Do NOT edit any files. Output = structured report only.
 
 Before reading any file >600 lines, check doc/token_safety.md for safe method:
 - app/query_service.py (~900+ lines) → rg "^class\|^def " only, don't read full body
-- app/prompts.py (1194 lines, ~18k est tokens) → rg "^def\|^[A-Z_].*=" only
+- app/tutor_prompts.py → small, safe to read fully; prompts distributed across services
 - app/knowledge_graph.py (1258 lines, ~13k est tokens) → rg "^class\|^def " only
 - doc/adr.md (~660+ lines, ~13k est tokens) → read ONLY the status table or one ADR
 - doc/architecture.md (383 lines) → read ONLY the module list, skip detail sections
@@ -154,7 +154,7 @@ Read these files as the authoritative baseline:
 - doc/conventions_reference.md (~1.9k tokens, safe to read fully)
 
 Then scan the codebase for violations of each stated convention.
-DO NOT read app/query_service.py, app/prompts.py, app/knowledge_graph.py fully — use rg/signatures as noted above.
+DO NOT read app/query_service.py, app/knowledge_graph.py fully — use rg/signatures as noted above (app/* under CODE_ROOT).
 
 Check specifically (use grep for large files to save tokens):
 1. Config access: any module reading settings NOT through get_settings() /
@@ -162,7 +162,7 @@ Check specifically (use grep for large files to save tokens):
 2. LLM/embed access: any module creating LLM or embed clients NOT through
    app/provider.py.
 3. Prompt location: use `rg "prompt = |PROMPT = |prompt\s*=" app/ --type py | grep -v prompts.py`
-   to find hardcoded prompts outside app/prompts.py.
+   to find hardcoded prompts outside the designated prompt module (app/tutor_prompts.py).
 4. Pipeline contract: any step NOT following process(QueryContext) -> QueryContext.
 5. Router structure: any HTTP handler NOT in app/routers/; any endpoint not
    registered through include_router in app/api.py.
@@ -189,7 +189,7 @@ To stay within the 12k target / 20k hard-limit, do NOT read these files in full.
 
 | Module / doc | Read method | Why |
 |---|---|---|
-| `app/prompts.py` (1194, ~18k est tokens) | `rg "^def\|^[A-Z_].*=" app/prompts.py` + one section | full-read alone can exceed target budget |
+| `app/tutor_prompts.py` | read in full (small) | designated prompt module; prompts distributed across services |
 | `doc/changelog.md` (~15k est tokens) | last 2-3 entries or append target only | history docs accumulate quickly |
 | `tests/test_api.py` (1614, ~14k est tokens) | `rg "def test_<pattern>" tests/test_api.py` + one test case | full tests can exceed target budget |
 | `doc/adr.md` (~660+, ~13k est tokens) | status table or one ADR only | full decision history is not phase input |

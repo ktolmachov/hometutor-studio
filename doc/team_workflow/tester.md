@@ -82,7 +82,7 @@ For PACKAGE_TYPE=code or mixed, inspect the diff:
 3.1 Convention compliance:
 - Config access through get_settings() only?
 - LLM access through provider.py only?
-- Prompts in app/prompts.py only?
+- Prompts in app/tutor_prompts.py or inline in service files only?
 - No circular imports introduced?
 
 3.2 Implementation quality:

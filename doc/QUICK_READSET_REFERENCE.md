@@ -65,7 +65,7 @@ python scripts/check_readset.py \
 python scripts/check_readset.py \
   app/query_service.py \
   app/knowledge_graph.py \
-  app/prompts.py \
+  app/tutor_prompts.py \
   doc/closed_iterations.md \
   doc/adr.md
 

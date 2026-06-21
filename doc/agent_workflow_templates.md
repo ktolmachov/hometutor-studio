@@ -46,7 +46,7 @@
 | **3. `doc/backlog_registry.yaml` — ТОЛЬКО запись целевого пакета** (не весь файл) | Status, ownership, dependencies | Для планирования только | **НИКОГДА не читайте файл целиком** |
 | **4. `doc/user_stories/<US-N>.md` — ТОЛЬКО acceptance criteria** (не вся папка) | Given/When/Then для целевой US | Только если эпоха привязана к US | Читайте **одну** US, не папку целиком |
 | **5. `doc/conventions.md` — ТОЛЬКО секция для целевого area** | Инженерные ограничения | Только если нужны инженерные шаблоны | Можно читать целиком (~1k est токенов), но лучше нужную секцию |
-| ❌ **ЗАПРЕЩЕНО целиком** | — | — | `app/query_service.py`, `app/prompts.py`, `app/knowledge_graph.py`, `tests/test_api.py`, `doc/changelog.md`, `doc/adr.md`, `doc/architecture.md`, `doc/cjm.md`, `doc/epochs/*`, `doc/epochs/e4.md`, сам `doc/agent_workflow.md` как полный @-контекст → см. [token_safety.md](token_safety.md#таблица-безопасного-включения-критические-файлы) |
+| ❌ **ЗАПРЕЩЕНО целиком** | — | — | `app/query_service.py`, `app/knowledge_graph.py`, `tests/test_api.py`, `doc/changelog.md`, `doc/adr.md`, `doc/architecture.md`, `doc/cjm.md`, `doc/epochs/*`, `doc/epochs/e4.md`, сам `doc/agent_workflow.md` как полный @-контекст → см. [token_safety.md](token_safety.md#таблица-безопасного-включения-критические-файлы) |
 
 **Правило:** перед добавлением файла в read-set проверьте его в [token_safety.md](token_safety.md). Если там указано "не целиком" — используйте safe method из таблицы.
 

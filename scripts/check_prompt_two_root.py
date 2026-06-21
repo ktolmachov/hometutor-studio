@@ -195,7 +195,10 @@ def collect_files(use_all: bool, explicit: list[str]) -> list[Path]:
 
 
 def build_report(path: Path) -> FileReport:
-    lines = path.read_text(encoding="utf-8").splitlines()
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except (UnicodeDecodeError, ValueError):
+        return FileReport(path=path)
     rep = FileReport(path=path)
     rep.blocks = parse_blocks(lines)
     rep.manual = scan_manual(lines)

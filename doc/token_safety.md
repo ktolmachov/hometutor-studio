@@ -41,7 +41,7 @@ Planning template по умолчанию находится в `doc/agent_workf
 | Файл | Строк | Est токенов* | ❌ Почему не целиком | ✅ Что вместо этого |
 |---|---:|---:|---|---|
 | `doc/epochs/e4.md` | 742 | ~23k | Самый тяжёлый epoch-файл | Только header / целевой фрагмент |
-| `app/prompts.py` | 1194 | ~18.4k | Все промпты сразу не нужны | `rg -n "^def|^[A-Z_].*=" app/prompts.py` + одна секция |
+| `app/tutor_prompts.py` | small | safe | Designated prompt module; prompts distributed across services | read in full |
 | `doc/agent_workflow.md` | 64 | ~1.1k | slim index после split 2026-04-20; full_read allowed | Навигационная ссылка; детали — в topic-файлах |
 | `doc/agent_workflow_rules.md` | 111 | ~2.3k | full_read allowed | Читать целиком (~2.3k) |
 | `doc/agent_workflow_cycle.md` | 159 | ~1.9k | full_read allowed | Читать целиком (~1.9k) |
@@ -173,7 +173,7 @@ Don't read: full test files, full contract review, full changelog
 Read ALL of:
 - app/query_service.py целиком (~8.4k est)
 - app/knowledge_graph.py целиком (~13.7k)
-- app/prompts.py целиком (~18.4k)
+- app/prompts.py целиком (удалён; промпты теперь в app/tutor_prompts.py + inline в services)
 - tests/test_api.py целиком (~14.2k)
 - doc/adr.md целиком (~13.8k)
 - doc/architecture.md целиком (~8.8k)
@@ -260,7 +260,7 @@ app/query_service.py — summary:
 - QueryService.process(query: QueryContext) -> QueryResponse
 - Handles: preprocessing, retrieval routing, tutor orchestration, response gen
 - Key methods: _preprocess, _route_to_retrieval, _route_to_tutor, _generate
-- Depends: app/retrieval.py, app/tutor_orchestrator.py, app/prompts.py
+- Depends: app/retrieval.py, app/tutor_orchestrator.py, app/tutor_prompts.py
 
 For full method bodies, use: grep "^class\|^def " app/query_service.py
 ```
@@ -284,15 +284,14 @@ Total: 0.3k tokens
 
 ### 4. Используйте Grep вместо Full-Read (Сэкономить 60–80%)
 
-**Было:**
+**Было (до миграции промптов):**
 ```
 Read app/prompts.py целиком (~18.4k est tokens)
 ```
 
-**Стало:**
+**Стало (app/prompts.py удалён; промпты в app/tutor_prompts.py + inline):**
 ```
-grep "^def get_\|^[A-Z_]*PROMPT" app/prompts.py
-[output: 200 tokens of function names and constants]
+Read app/tutor_prompts.py целиком (small, safe)
 ```
 
 ---
