@@ -751,6 +751,12 @@ def main() -> int:
     done = total - len(missing)
     print(f"[demo-doc] scenarios: {done}/{total} captured")
     print(f"[demo-doc] output: {args.output}")
+
+    product_docs = Path(__file__).resolve().parents[1].parent / "hometutor" / "docs"
+    if product_docs.is_dir():
+        shutil.copy2(args.output, product_docs / args.output.name)
+        print(f"[demo-doc] synced → {product_docs / args.output.name}")
+
     if missing:
         print("[demo-doc] missing screenshots for: " + ", ".join(missing))
         if args.fail_on_missing:

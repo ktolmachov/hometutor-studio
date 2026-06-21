@@ -36,10 +36,10 @@
 schema_version: 2
 user_stories_index: doc/user_stories_index.json
 # active_wave_id: explicit override for active wave selection (null = auto: wip→ready→proposed)
-active_wave_id: wave-flashcard-handoff-fast-path
+active_wave_id: wave-advanced-rag-rewrite-rerank
 # active_package_id: execution-focus package id — optional mirror of sole ready/wip row;
 # auto-maintained by backlog_registry_lint.py --write-sync when registry is valid.
-active_package_id: null
+active_package_id: multi-query-expansion-v1
 
 # ─── Wave Planning (schema v2) ────────────────────────────────────────────────
 # Waves are the primary planning unit. Each wave bundles 1–4 related packages
@@ -1417,9 +1417,10 @@ waves:
     kill_switch: >-
       Expansion/reorder добавляют >hard_ms к query-budget >2 дней, снижают grounded-citation rate,
       или ломают retrieval_router / существующий reranker fallback.
-    status: completed
+    status: wip
     created: 2026-06-05
-    last_touched_mot: null
+    last_review: 2026-06-21
+    last_touched_mot: "#2 First Answer"
 
   - id: wave-langfuse-eval-loop
     theme: "Observability: Langfuse self-hosted + цикл trace→dataset"
@@ -1454,9 +1455,9 @@ waves:
     kill_switch: >-
       RAGAS-judge удваивает eval-стоимость без сигнала, метрики противоречат существующим
       faithfulness/answer_relevancy без объяснения, или прогон рвёт CI-gate.
-    status: wip
+    status: completed
     created: 2026-06-05
-    last_review: 2026-06-11
+    last_review: 2026-06-21
     last_touched_mot: null
 
   - id: wave-flashcard-handoff-fast-path
@@ -9045,26 +9046,76 @@ items:
   - id: multi-query-expansion-v1
     wave_id: wave-advanced-rag-rewrite-rerank
     wave_position: 1
-    status: proposed
+    status: ready
+    set_ready_date: 2026-06-21
     type: quality_package
     theme: "Multi-query expansion поверх существующего single-query rewrite"
     cjm_moments:
       - "#2 First Answer"
       - "#10 Retrieval trust"
-    user_stories: []
+    user_stories:
+      - US-12.1
     impact: loop-improvement
     priority: P1
     cost_estimate: M
-    write_set_max: 6
+    write_set_max: 5
     north_star: >-
-      Основной answer-путь получает multi-query expansion поверх enable_rewrite,
-      повышая source-coverage без регрессии latency_budget.
+      При enable_rewrite=true answer-path генерирует 2–4 query-варианта и мержит кандидатов
+      без дублирования chunk_id; source-coverage на labeled fixture растёт ≥10% vs single-query
+      baseline без регрессии p95 retrieval_ms относительно hard_ms_budget.
+    preconditions:
+      - >-
+        Single-query rewrite (enable_rewrite), hybrid RRF (ParallelHybridRetriever) и cross-encoder
+        rerank (bge-reranker) уже shipped — gap только в multi-query expansion
+      - lost-in-middle-reorder-v1 уже closed; expansion не дублирует reorder-логику
+    deliverables:
+      - >-
+        app/multi_query_expansion.py — expand_queries() + merge_deduped_candidates(); dedup по chunk_id
+      - >-
+        app/retrieval.py — hook после single rewrite, до hybrid merge; flag-gated path
+      - >-
+        app/config.py — ENABLE_MULTI_QUERY (default False) + MULTI_QUERY_COUNT в RetrievalSettings
+      - >-
+        tests/test_multi_query_expansion.py — expansion count, dedup, flag-off regression
+      - >-
+        tests/test_retrieval_profile.py — integration: coverage uplift на labeled fixture
+    dod_commands:
+      - '.\.venv\Scripts\python.exe -m pytest tests/test_multi_query_expansion.py tests/test_retrieval_profile.py -q -k "multi_query or expansion" --tb=short'
+      - '.\.venv\Scripts\python.exe scripts\lint_agent_prompts.py'
+      - '.\.venv\Scripts\python.exe scripts\check_llm_context_gate.py'
+      - '.\.venv\Scripts\python.exe scripts\backlog_registry_lint.py --strict'
+    read_set_hint:
+      - app/retrieval.py — rewrite/retrieve signatures only
+      - app/hybrid_retrieval.py — ParallelHybridRetriever signatures only
+      - app/retrieval_strategies.py — strategy dispatch only
+      - tests/test_hybrid_retrieval.py — 1 merge/dedup test as pattern
+      - tests/test_retrieval_profile.py — rerank/rewrite path tests only
+    write_set:
+      - app/multi_query_expansion.py
+      - app/retrieval.py
+      - app/config.py
+      - tests/test_multi_query_expansion.py
+      - tests/test_retrieval_profile.py
+    constraints:
+      - Config only through get_settings() / get_retrieval_settings()
+      - LLM only through app/provider.py; prompts only in app/prompts/
+      - ENABLE_MULTI_QUERY=false — zero regression на existing retrieval_profile tests
+      - source_coverage_uplift_pct >= 10 на eval_data/retrieval_regression.json labeled subset
+      - p95 retrieval_ms delta <= hard_ms_budget при ENABLE_MULTI_QUERY=true
+      - dedup: 0 duplicate chunk_id в merged top-k
+    kill_switch: >-
+      Expansion добавляет >hard_ms к query-budget >2 дней, снижает grounded-citation rate,
+      или ломает retrieval_router / существующий reranker fallback.
     depends_on: []
     created: 2026-06-05
-    last_review: 2026-06-05
+    last_review: 2026-06-21
     notes: >-
       Proposed package from doc/next/ai_driven_design_waves_proposal.md § A3.
       Rewrite/hybrid/rerank already shipped — gap is multi-query only.
+      Accepted via generate_plan_next 2026-06-21 (candidate #1, wave-advanced-rag-rewrite-rerank).
+      Preflight SAFE. CJM #2 P0 — «Не нашёл информации» на тривиальный вопрос.
+      US-12.1 is a closed baseline story; this package extends retrieval coverage gate,
+      not reopening the delivered AC.
 
   - id: lost-in-middle-reorder-v1
     wave_id: wave-advanced-rag-rewrite-rerank

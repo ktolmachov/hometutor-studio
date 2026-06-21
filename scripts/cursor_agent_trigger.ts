@@ -157,8 +157,12 @@ async function callCursor(
           /fetch failed|network|econnrefused|etimedout|unavailable|api key exchange/i.test(
             msg,
           );
-        if (retryableNetwork) {
-          log.log(`WARN: retryable network/SDK error: ${msg}`);
+        const retryableSdkInit =
+          err instanceof TypeError &&
+          /cannot read properties of undefined|is not a function|is not a constructor/i.test(msg);
+        if (retryableNetwork || retryableSdkInit) {
+          const kind = retryableSdkInit ? "SDK init" : "network/SDK";
+          log.log(`WARN: retryable ${kind} error: ${msg}`);
           lastErr = err instanceof Error ? err : new Error(msg);
           result = null;
           continue;

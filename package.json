@@ -49,5 +49,8 @@
     "@playwright/test": "^1.49.1",
     "tsx": "^4.19.2",
     "vitest": "^4.1.6"
+  },
+  "dependencies": {
+    "@connectrpc/connect-node": "^2.1.2"
   }
 }

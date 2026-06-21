@@ -15,23 +15,50 @@
 
 | Package | Status | CJM | Primary US | Owner | Notes |
 |---|---|---|---|---|---|
+| `multi-query-expansion-v1` | `ready` | #2 First Answer, #10 Retrieval trust | US-12.1 | Auto | Proposed package from doc/next/ai_driven_design_waves_proposal.md § A3. Rewrite/hybrid/rerank already shipped — gap is multi-query only. Accepted via generate_plan_next 2026-06-21 (candidate #1, wave-advanced-rag-rewrite-rerank). Preflight SAFE. CJM #2 P0 — «Не нашёл информации» на тривиальный вопрос. US-12.1 is a closed baseline story; this package extends retrieval coverage gate, not reopening the delivered AC. |
+
+### multi-query-expansion-v1 Contract
+
+<!-- GENERATED from backlog_registry.yaml — do not edit manually -->
+
+- **Title:** Proposed package from doc/next/ai_driven_design_waves_proposal.md § A3. Rewrite/hybrid/rerank already shipped — gap is m
+- **CJM:** ##2 First Answer, #10 Retrieval trust
+- **User story:** US-12.1
+- **DoD commands:**
+  ```
+  .\.venv\Scripts\python.exe -m pytest tests/test_multi_query_expansion.py tests/test_retrieval_profile.py -q -k "multi_query or expansion" --tb=short
+  .\.venv\Scripts\python.exe scripts\lint_agent_prompts.py
+  .\.venv\Scripts\python.exe scripts\check_llm_context_gate.py
+  .\.venv\Scripts\python.exe scripts\backlog_registry_lint.py --strict
+  ```
+- **Outcomes:**
+  - Proposed package from doc/next/ai_driven_design_waves_proposal.md § A3. Rewrite/hybrid/rerank already shipped — gap is multi-query only. Accepted via generate_plan_next 2026-06-21 (candidate #1, wave-advanced-rag-rewrite-rerank). Preflight SAFE. CJM #2 P0 — «Не нашёл информации» на тривиальный вопрос. US-12.1 is a closed baseline story; this package extends retrieval coverage gate, not reopening the delivered AC.
+- **Write-set max:** 5 files
+- **Target artifacts:** Proposed package from doc/next/ai_driven_design_waves_proposal.md § A3. Rewrite/
+- **Read-set hint:**
+  - app/retrieval.py — rewrite/retrieve signatures only
+  - app/hybrid_retrieval.py — ParallelHybridRetriever signatures only
+  - app/retrieval_strategies.py — strategy dispatch only
+  - tests/test_hybrid_retrieval.py — 1 merge/dedup test as pattern
+  - tests/test_retrieval_profile.py — rerank/rewrite path tests only
+- **Notes:** Proposed package from doc/next/ai_driven_design_waves_proposal.md § A3. Rewrite/hybrid/rerank already shipped — gap is multi-query only. Accepted via generate_plan_next 2026-06-21 (candidate #1, wave-advanced-rag-rewrite-rerank). Preflight SAFE. CJM #2 P0 — «Не нашёл информации» на тривиальный вопрос. US-12.1 is a closed baseline story; this package extends retrieval coverage gate, not reopening the delivered AC.
 
 ### Wave queue
 
 <!-- GENERATED: tasklist.wave_queue (do not edit manually) -->
 
-<!-- ACTIVE_WAVE: wave-ragas-eval-harness -->
-- **Active wave:** `wave-ragas-eval-harness`
+<!-- ACTIVE_WAVE: wave-advanced-rag-rewrite-rerank -->
+- **Active wave:** `wave-advanced-rag-rewrite-rerank`
 - **Queued (same wave):**
-  - `ragas-retrieval-metrics-v1`
-  - `ragas-langfuse-dataset-v1`
+  - `multi-query-expansion-v1`
+  - `lost-in-middle-reorder-v1`
 - **Queued (other waves):**
 - `wave-smart-notes-killer-feature`: `smart-notes-konspekt-surfacing-v1`, `smart-notes-native-generation-v1`
   - Kill switch: UI badge показывает конспект несуществующего файла; native generation пишет truncated Markdown (finish_reason=length принят); фича делает тихий cloud-вызов без явного режима или ломает текущий txt map/reduce/compose export.
 - `wave-workflow-skills-platform`: `workflow-skills-thin-adapter-v1`, `workflow-role-subagents-v1`
   - Kill switch: Тело skill'а копирует логику генератора (4-е представление SSoT); skill проскакивает стоп-точку процесса (review контракта, WIP=1, RED Ops gate); путь md+скрипты для cursor_ai/codex ломается или становится второсортным.
-- **North star:** Eval-harness получает метрики, которых нет у текущих evaluator'ов: context_precision (rank-aware precision@k) и answer_correctness vs reference; recall@k/MRR уже есть в eval_retrieval_comparison.py — RAGAS дополняет, не дублирует. Прогон сравним с baseline и блокирует регресс wave-advanced-rag-rewrite-rerank.
-- **Kill switch:** RAGAS-judge удваивает eval-стоимость без сигнала, метрики противоречат существующим faithfulness/answer_relevancy без объяснения, или прогон рвёт CI-gate.
+- **North star:** Поверх уже работающих single-query rewrite (enable_rewrite), hybrid RRF (ParallelHybridRetriever) и cross-encoder rerank (bge-reranker, enable_reranker on by default) основной answer-путь получает multi-query expansion и явный lost-in-the-middle reorder контекста; source-coverage растёт без регрессии latency_budget.
+- **Kill switch:** Expansion/reorder добавляют >hard_ms к query-budget >2 дней, снижают grounded-citation rate, или ломают retrieval_router / существующий reranker fallback.
 
 ### Recent closed references
 

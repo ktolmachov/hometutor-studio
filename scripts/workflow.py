@@ -1016,9 +1016,10 @@ def _trigger_cmd_rc_hint(rc: int) -> str:
     """
     return {
         1: (
-            "конфиг/I/O: отсутствует API-ключ, не найден файл задачи, или оркестратор не смог "
-            "определить доступные credentials. Проверьте .env (CURSOR_API_KEY / DEEPSEEK_API_KEY / "
-            "DEEPSEEK_CLI_CMD) и что WORKFLOW_CURRENT_TASK_PATH ведёт к существующему файлу."
+            "конфиг/I/O или краш SDK: отсутствует API-ключ, не найден файл задачи, "
+            "или Node.js-процесс триггера упал (TypeError/missing dependency). "
+            "Проверьте .env (CURSOR_API_KEY / DEEPSEEK_API_KEY / DEEPSEEK_CLI_CMD), "
+            "WORKFLOW_CURRENT_TASK_PATH, а также npm и совместимость @cursor/sdk с версией Node."
         ),
         2: (
             "агент вернул status=error. Проверьте лог выше — там будет error_reason из trigger_metrics.jsonl. "

@@ -51,3 +51,4 @@ materials/
 
 # Product linked via editable install
 app_src/
+drift_out.txt
