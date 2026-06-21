@@ -4,7 +4,11 @@ last_review:
   # after the split; they are preserved under `legacy:` for provenance only and
   # are NOT valid diff bases. code_sha/docs_sha below are the fresh anchors.
   code_sha: bc6af7e77ad8f8fa2ebbede6709e3c06d55fc1f7   # D:\Projects\hometutor HEAD (app/ source)
-  docs_sha: 7b756836e8f03dfe29605972faf0bb1479ded115   # *-studio HEAD (this repo: doc/, tests/, baseline)
+  # Note: docs_sha always points to the PARENT of the baseline-update commit
+  # (chicken-and-egg: the commit that updates this file makes the sha stale).
+  # The incremental diff will include the baseline-update commit itself, which
+  # contains only doc changes — no app/ findings, so the noise is negligible.
+  docs_sha: 7b756836e8f03dfe29605972faf0bb1479ded115   # *-studio HEAD before baseline update
   date: "2026-06-21"
   backlog_wave_id: wave-arch-review-incremental-2026-06-11
   report_files: []

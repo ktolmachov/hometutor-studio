@@ -36,6 +36,8 @@ node_modules/
 
 # IDE
 .idea/
+.obsidian/
+doc/.obsidian/
 
 # AI agent generated
 .agents/skills/
