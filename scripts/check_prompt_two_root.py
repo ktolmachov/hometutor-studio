@@ -84,7 +84,7 @@ TWO_ROOT_MARKER = re.compile(r"CODE_ROOT|DOCS_ROOT|\[two-root\]|Editable project
 MANUAL_SIGNALS = [
     ("last_review.sha (single-repo; use code_sha/docs_sha)", re.compile(r"last_review\.sha|<last_review\.sha>")),
     ("singular report_file (schema is report_files: list)", re.compile(r"\breport_file\b(?!s)")),
-    ("phantom app/prompts.py (does not exist; use app/tutor_prompts.py)", re.compile(r"\bapp/prompts\.py\b")),
+    ("phantom app/prompts.py (file does not exist; SSoT = app/prompts/ package + app/tutor_prompts.py bridge)", re.compile(r"\bapp/prompts\.py\b")),
 ]
 
 # Default prompt-bearing scope (active prompts). --all widens it.

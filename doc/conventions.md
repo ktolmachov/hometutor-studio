@@ -14,7 +14,7 @@
 - **Knowledge / guardrails:** `knowledge_service.py`, `guardrails.py`.
 - **Пайплайн запроса:** `pipeline_runner.py`, `pipeline_steps.py`, контракт шага `process(QueryContext) -> QueryContext`.
 - **DB / persistence:** user-state таблицы — через `app/user_state.py` и `_with_db()`; отдельные локальные SQLite-хранилища — только через документированные store wrappers / artifacts (см. `conventions_architecture.md`).
-- **Промпты:** единственный источник `app/prompts/`.
+- **Промпты:** пакет `app/prompts/` (SSoT; `_impl.py` — основной массив); `app/tutor_prompts.py` — bridge/helper.
 - **Тесты:** `tests/`; env — фикстура `settings_env` в `conftest.py`.
 - **Итерации:** scope и критерии — `doc/backlog_registry.yaml`; `doc/tasklist.md` — производный weekly view; процесс — `.cursor/rules/workflow.mdc`.
 

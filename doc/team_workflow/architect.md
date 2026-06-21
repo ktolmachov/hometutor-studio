@@ -162,7 +162,7 @@ Check specifically (use grep for large files to save tokens):
 2. LLM/embed access: any module creating LLM or embed clients NOT through
    app/provider.py.
 3. Prompt location: use `rg "prompt = |PROMPT = |prompt\s*=" app/ --type py | grep -v prompts.py`
-   to find hardcoded prompts outside the designated prompt module (app/tutor_prompts.py).
+   to find hardcoded prompts outside the prompt package (`app/prompts/` + `app/tutor_prompts.py`).
 4. Pipeline contract: any step NOT following process(QueryContext) -> QueryContext.
 5. Router structure: any HTTP handler NOT in app/routers/; any endpoint not
    registered through include_router in app/api.py.
@@ -189,7 +189,8 @@ To stay within the 12k target / 20k hard-limit, do NOT read these files in full.
 
 | Module / doc | Read method | Why |
 |---|---|---|
-| `app/tutor_prompts.py` | read in full (small) | designated prompt module; prompts distributed across services |
+| `app/prompts/_impl.py` | `rg "^def\|^[A-Z_].*=" app/prompts/_impl.py` | SSoT промптов (>1500 lines — forbidden full-read) |
+| `app/tutor_prompts.py` | read in full (small) | bridge/helper for `app/prompts/` |
 | `doc/changelog.md` (~15k est tokens) | last 2-3 entries or append target only | history docs accumulate quickly |
 | `tests/test_api.py` (1614, ~14k est tokens) | `rg "def test_<pattern>" tests/test_api.py` + one test case | full tests can exceed target budget |
 | `doc/adr.md` (~660+, ~13k est tokens) | status table or one ADR only | full decision history is not phase input |

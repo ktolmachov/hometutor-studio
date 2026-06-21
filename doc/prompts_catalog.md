@@ -557,7 +557,8 @@ Verify each file's current size first (`(Get-Content <file>).Count` / `wc -l`); 
 
 | Module / doc | Read method | Why |
 |---|---|---|
-| `app/tutor_prompts.py` | read in full (small) | designated prompt module; prompts now distributed across services |
+| `app/prompts/_impl.py` | `rg "^def\|^[A-Z_].*=" app/prompts/_impl.py` | SSoT промптов (>1500 lines — forbidden full-read) |
+| `app/tutor_prompts.py` | read in full (small) | bridge/helper for `app/prompts/` |
 | `doc/changelog.md` | last 2-3 entries or append target only | history docs accumulate quickly |
 | `tests/test_api.py` | `rg "def test_<pattern>" tests/test_api.py` + one test case | full tests can exceed target budget |
 | `doc/adr.md` | status table or one ADR only | full decision history is not phase input |

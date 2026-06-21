@@ -18,8 +18,10 @@
 
 ## Источники Истины
 
+> **Two-root layout:** `app/*` живёт в отдельном репо (CODE_ROOT, editable install `hometutor`), а `doc/`, `tests/`, `scripts/` — здесь (DOCS_ROOT). Подробнее: `CLAUDE.md § Two-Root Repository Layout`.
+
 - Текущее состояние backlog и owner-зон: `doc/backlog_registry.yaml` (SSoT); `doc/tasklist.md` — производный weekly view после `scripts/backlog_registry_lint.py --sync-from-index --write-sync`
-- Текущее состояние кода: `app/*`, `tests/*`, `scripts/*` (это source map, не read-set; не читать папки целиком)
+- Текущее состояние кода: `app/*` (CODE_ROOT), `tests/*`, `scripts/*` (DOCS_ROOT) — это source map, не read-set; не читать папки целиком
 - История уже закрытых slices: `doc/closed_iterations.md`
 - Актуальные инженерные соглашения: `doc/conventions.md`
 

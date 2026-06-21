@@ -1,6 +1,15 @@
 
 # Журнал Изменений
 
+## 2026-06-21 (two-root migration + prompts SSoT correction)
+
+- **Two-root repository layout documented.** Project is split: `CODE_ROOT` (`D:\Projects\hometutor`, editable install) holds `app/`, `DOCS_ROOT` (`hometutor-studio`, this repo) holds `doc/`, `tests/`, `scripts/`. New `§ Two-Root Repository Layout` section added to `CLAUDE.md`. All active prompt docs updated with `[two-root]` preamble or root annotations.
+- **Baseline yaml migrated** to two-root schema: `last_review.sha` (single, dangling) replaced with `code_sha` + `docs_sha` (valid in their respective repos). Old shas preserved under `legacy:` block for provenance.
+- **`scripts/check_prompt_two_root.py` created.** Linter that detects prompt blocks operating on `app/` without two-root awareness. `--fix` inserts idempotent preamble; `--all` widens scope to archive/examples. Default scope: 0 actionable / 0 manual after migration.
+- **Prompts SSoT corrected.** `app/prompts.py` (file) no longer exists — was reorganized into `app/prompts/` package (`_impl.py` >1500 lines, forbidden full-read). `app/tutor_prompts.py` is a bridge/helper. All active docs updated: forbidden-lists, token-budget tables, Phase 1 search commands, conventions.
+- **Frozen line-counts removed** from all active prompt docs and CLAUDE.md forbidden-list. Replaced with dynamic `(Get-Content <file>).Count` / `wc -l` instructions.
+- **Stale references fixed** across 30+ files: `report_file` → `report_files` (list), `last_review.sha` → `code_sha`/`docs_sha`, `run_checks.sh` → `arch_regression_guards.py`.
+
 ## 2026-06-21 (multi-query-expansion-v1 closure)
 
 - **Roadmap closure:** `multi-query-expansion-v1` moved to closed; contract removed from `doc/tasklist.md`; details in `doc/closed_iterations.md`.

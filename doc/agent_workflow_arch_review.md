@@ -50,11 +50,11 @@
 | `app/retrieval.py` + `app/retrieval_strategies.py` | Retrieval execution plan и реестр стратегий |
 | `app/query_service.py` — **signatures only**: `rg -n "^class\|^def " app/query_service.py` | Верхнеуровневая оркестрация ответа; full-read запрещён |
 | `app/user_state.py` | SQLite persistence: схема, миграции, состояние |
-| `app/tutor_prompts.py` — small, safe to read fully | Designated prompt module; prompts are distributed across services. For hardcoded prompts outside it: `rg "prompt\s*=\s*f?['\"]" app/ --type py \| Select-String -NotMatch "tutor_prompts.py"` |
+| `app/prompts/` — пакет (SSoT промптов); `_impl.py` (>1500 строк) — **forbidden full-read**, use `rg "^def\|^[A-Z_].*=" app/prompts/_impl.py` | Основной массив промптов; `app/tutor_prompts.py` — bridge/helper (small, safe to read). For hardcoded prompts outside the package: `rg "prompt\s*=\s*f?['\"]" app/ --type py \| Select-String -NotMatch "prompts"` |
 | `app/knowledge_graph.py` — **signatures only**: `rg -n "^class\|^def " app/knowledge_graph.py` | Graph-контур; full-read запрещён |
 | `app/graph_retrieval.py` | Graph retrieval execution |
 | `app/tutor_orchestrator.py` — **signatures only** | Tutor orchestration (641 строк; полное = 3k токенов) |
-| `app/tutor_prompts.py` | Designated prompt module (small, safe to read fully); prompts distributed across services |
+| `app/tutor_prompts.py` | Bridge/helper (small, safe to read fully); SSoT = `app/prompts/` package |
 | `app/learner_model_service.py` — **signatures only** | Learner model (662 строк; полное = 2.9k токенов) |
 | `app/learning_plan_service.py` — **signatures only** | Adaptive plan (592 строк; полное = 2.7k токенов) |
 | `app/ui/main.py` + ключевые UI-модули | Streamlit surface: навигация, state management |
@@ -162,7 +162,8 @@ to severity=info and excluded from the fix-prompt. No subjective claims
 
 Before reading any file >600 lines, check doc/token_safety.md for safe method:
 - app/query_service.py (~900+ lines) → rg "^class\|^def " only, don't read full body
-- app/tutor_prompts.py → small, safe to read fully; prompts are distributed across services
+- app/prompts/_impl.py   → >1500 lines, forbidden full-read; use `rg "^def\|^[A-Z_].*=" app/prompts/_impl.py`
+- app/tutor_prompts.py   → small bridge/helper, safe to read fully
 - app/knowledge_graph.py (1258 lines, ~13k est tokens) → rg "^class\|^def " only
 - doc/adr.md (~660+ lines, ~13k est tokens) → read ONLY the status table or one ADR
 - doc/architecture.md (383 lines) → read ONLY the module list, skip detail sections
@@ -186,7 +187,7 @@ Check specifically (use grep for large files to save tokens):
 2. LLM/embed access: any module creating LLM or embed clients NOT through
    app/provider.py.
 3. Prompt location: use `rg "prompt\s*=\s*f?['\"]" app/ --type py | Select-String -NotMatch "tutor_prompts.py"`
-   to find hardcoded prompts outside the designated prompt module (app/tutor_prompts.py).
+   to find hardcoded prompts outside the prompt package (`app/prompts/` + `app/tutor_prompts.py`).
 4. Pipeline contract: any step NOT following process(QueryContext) -> QueryContext.
 5. Router structure: any HTTP handler NOT in app/routers/; any endpoint not
    registered through include_router in app/api.py.
@@ -213,7 +214,7 @@ To stay within the 12k target / 20k hard-limit, do NOT read these files in full.
 
 | Module / doc | Read method | Why |
 |---|---|---|
-| `app/tutor_prompts.py` | read in full (small) | designated prompt module; prompts distributed across services |
+| `app/tutor_prompts.py` | read in full (small) | bridge/helper; SSoT = `app/prompts/` package (`_impl.py` >1500 lines — forbidden full-read) |
 | `doc/changelog.md` | last 2-3 entries or append target only | history docs accumulate quickly |
 | `tests/test_api.py` | `rg "def test_<pattern>" tests/test_api.py` + one test case | full tests can exceed target budget |
 | `doc/adr.md` | status table or one ADR only | full decision history is not phase input |

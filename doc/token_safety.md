@@ -41,7 +41,8 @@ Planning template по умолчанию находится в `doc/agent_workf
 | Файл | Строк | Est токенов* | ❌ Почему не целиком | ✅ Что вместо этого |
 |---|---:|---:|---|---|
 | `doc/epochs/e4.md` | 742 | ~23k | Самый тяжёлый epoch-файл | Только header / целевой фрагмент |
-| `app/tutor_prompts.py` | small | safe | Designated prompt module; prompts distributed across services | read in full |
+| `app/prompts/_impl.py` | >1500 | ~15k+ | SSoT промптов (forbidden full-read) | `rg -n "^def\|^[A-Z_].*=" app/prompts/_impl.py` + одна секция |
+| `app/tutor_prompts.py` | small | safe | Bridge/helper for `app/prompts/` | read in full |
 | `doc/agent_workflow.md` | 64 | ~1.1k | slim index после split 2026-04-20; full_read allowed | Навигационная ссылка; детали — в topic-файлах |
 | `doc/agent_workflow_rules.md` | 111 | ~2.3k | full_read allowed | Читать целиком (~2.3k) |
 | `doc/agent_workflow_cycle.md` | 159 | ~1.9k | full_read allowed | Читать целиком (~1.9k) |

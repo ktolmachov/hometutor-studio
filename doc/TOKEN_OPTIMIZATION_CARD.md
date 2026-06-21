@@ -55,8 +55,10 @@ python scripts/check_readset.py file1 file2
 app/query_service.py (1499 строк, 14k)
     └─ Safe: grep "^class\|^def " app/query_service.py
 
+app/prompts/_impl.py (>1500 строк, ~15k+)
+    └─ Safe: rg "^def\|^[A-Z_].*=" app/prompts/_impl.py
 app/tutor_prompts.py (small, safe to read fully)
-    └─ Designated prompt module; prompts distributed across services
+    └─ Bridge/helper for app/prompts/ package
 
 app/knowledge_graph.py (1258 строк, 13k)
     └─ Safe: grep "^class\|^def " app/knowledge_graph.py
@@ -98,6 +100,7 @@ requirements.txt            ✅ OK (~164 токенов)
 | Файл | Строк | Токены | Max? |
 |---|---:|---:|---|
 | app/query_service.py | 1499 | ~14k | ❌ FORBIDDEN |
+| app/prompts/_impl.py | >1500 | ~15k+ | ❌ FORBIDDEN |
 | app/tutor_prompts.py | small | safe | ✅ read in full |
 | app/knowledge_graph.py | 1258 | ~13k | ❌ FORBIDDEN |
 | app/tutor_orchestrator.py | 641 | ~6.5k | ⚠️ signatures only |

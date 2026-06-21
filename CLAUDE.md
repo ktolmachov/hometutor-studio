@@ -90,7 +90,8 @@ app/* files are under **CODE_ROOT** (see § Two-Root Repository Layout), not in 
 ```
 ❌ app/query_service.py        → use: grep signatures           (CODE_ROOT)
 ❌ app/knowledge_graph.py      → use: grep signatures           (CODE_ROOT)
-✅ app/tutor_prompts.py        → safe to read fully (small)     (CODE_ROOT)
+❌ app/prompts/_impl.py        → use: grep signatures           (CODE_ROOT, SSoT промптов)
+✅ app/tutor_prompts.py        → safe to read fully (bridge)    (CODE_ROOT)
 ❌ tests/test_api.py           → use: 1 test case               (DOCS_ROOT)
 ❌ tests/test_query_service.py → use: 1 test case               (DOCS_ROOT)
 ❌ doc/changelog.md            → use: last 2–3 rows             (DOCS_ROOT)
