@@ -1,12 +1,22 @@
 last_review:
-  sha: 727d787705afd4d537d4550e35813dba8691b188
-  date: "2026-06-11"
+  # Re-baselined 2026-06-21 to two-root schema (code repo + docs/studio repo).
+  # The old single-repo `sha`/`previous_sha` were dangling in BOTH working trees
+  # after the split; they are preserved under `legacy:` for provenance only and
+  # are NOT valid diff bases. code_sha/docs_sha below are the fresh anchors.
+  code_sha: bc6af7e77ad8f8fa2ebbede6709e3c06d55fc1f7   # D:\Projects\hometutor HEAD (app/ source)
+  docs_sha: 9f78f7f314f1b9f7c56d071f1ec2f4b3973391ad   # *-studio HEAD (this repo: doc/, tests/, baseline)
+  date: "2026-06-21"
   backlog_wave_id: wave-arch-review-incremental-2026-06-11
   report_files: []
   phases_completed: [1, 2, 3, 4, 5]
   phases_pending: []
-  previous_sha: b7f88d5572c897987f846a546c53e778d9a4bd48
-  previous_report: arch_review_incremental_2026-05-31.md
+  legacy:
+    schema: single-repo
+    note: "dangling after repo split — not valid diff bases"
+    sha: 727d787705afd4d537d4550e35813dba8691b188
+    date: "2026-06-11"
+    previous_sha: b7f88d5572c897987f846a546c53e778d9a4bd48
+    previous_report: arch_review_incremental_2026-05-31.md
 
 findings:
   - id: AR-2026-05-31-001
