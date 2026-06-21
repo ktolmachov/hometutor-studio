@@ -25,7 +25,7 @@ FORCE: <true | false>
 ## Instructions For The AI Agent
 
 ```text
-Goal: execute the unified workflow for home-rag_v2 end-to-end.
+Goal: execute the unified workflow for hometutor end-to-end.
 
 For START_MODE: execute, it is incorrect to stop after the router prints a planning prompt.
 The workflow is complete only when:

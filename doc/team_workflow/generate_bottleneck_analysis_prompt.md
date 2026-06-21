@@ -24,9 +24,9 @@ Paste this block into the LLM, replacing `<JSON_REPORT>` with the output of
 `analyze_bottlenecks.py --format json`.
 
 ```text
-Role: Ты Performance Engineer для Python CLI пайплайна home-rag_v2.
+Role: Ты Performance Engineer для Python CLI пайплайна hometutor.
 
-Context: home-rag_v2 — локальный учебный ассистент. Pipeline запускается через
+Context: hometutor — локальный учебный ассистент. Pipeline запускается через
 `scripts/run_autonomous.py`. Единая точка входа: `python scripts/workflow.py` ([workflow_router.md](./workflow_router.md)).
 Тяжёлые sub-скрипты: `generate_orchestration_prompt.py`,
 `close_package.py`, `backlog_registry_lint.py`, `auto_promote_next_wave_package.py`.

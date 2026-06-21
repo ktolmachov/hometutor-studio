@@ -1,9 +1,9 @@
-# 🧭 Навигатор Документации home-rag_v2
+# 🧭 Навигатор Документации hometutor
 
 > Единая точка входа во всю документацию проекта.
 > Актуализирован: **2026-06-05**.
 
-**home-rag_v2** — Python RAG-приложение для адаптивного обучения: graph-retrieval, learner state, LLM-генерация. Стек: FastAPI + Streamlit + SQLite + Chroma + LangChain + Anthropic.
+**hometutor** — Python RAG-приложение для адаптивного обучения: graph-retrieval, learner state, LLM-генерация. Стек: FastAPI + Streamlit + SQLite + Chroma + LangChain + Anthropic.
 
 > 🕸️ **[Интерактивный граф документации](doc_graph.html)** — визуальная карта связей между документами: 244 документа, 778 связей, роли, поиск, фильтры и minimap.
 > Регенерация: `.\.venv\Scripts\python.exe scripts\generate_doc_graph.py`. Машинный экспорт: `.\.venv\Scripts\python.exe scripts\generate_doc_graph.py --json`.

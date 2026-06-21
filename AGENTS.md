@@ -1,4 +1,4 @@
-# home-rag_v2 — Agent Instructions
+# hometutor — Agent Instructions
 
 Этот файл читается агентами Codex CLI и совместимыми инструментами
 автоматически при запуске в корне проекта.

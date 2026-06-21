@@ -39,7 +39,7 @@
 Навигация перед выбором prompt: [`product_owner_router.md`](product_owner_router.md).
 
 ```text
-Role: Product Owner for home-rag_v2 learning assistant.
+Role: Product Owner for hometutor learning assistant.
 Goal: define the next delivery package.
 
 Read these files (do not edit yet):
@@ -93,7 +93,7 @@ Rules:
 ## Промпт 2: Приоритизация backlog
 
 ```text
-Role: Product Owner for home-rag_v2.
+Role: Product Owner for hometutor.
 Goal: re-prioritize the active backlog based on current state.
 
 Read these files:
@@ -125,7 +125,7 @@ Rules:
 ## Промпт 3: Закрытие пакета
 
 ```text
-Role: Product Owner for home-rag_v2.
+Role: Product Owner for hometutor.
 Goal: close package <PACKAGE_ID> after successful verification.
 
 Read:

@@ -1,11 +1,11 @@
-# 🎓 home-rag_v2 — Академическая защита проектной работы
+# 🎓 hometutor — Академическая защита проектной работы
 
-> **Проект:** home-rag_v2 · Персональный учебный ассистент на основе ваших материалов  
+> **Проект:** hometutor · Персональный учебный ассистент на основе ваших материалов  
 > **Дата:** май 2026  
 > **Мероприятие:** Академическая защита проектной работы  
 > **Формат:** 9 слайдов · Markdown-презентация
 
-![home-rag как личный тьютор из собственных конспектов](doc/screenshots/defense_pdf/pdf_slide_01.png)
+![hometutor как личный тьютор из собственных конспектов](doc/screenshots/defense_pdf/pdf_slide_01.png)
 
 ---
 
@@ -28,7 +28,7 @@
 
 ## Слайд 1 — 🎯 Обзор продукта: проблема и решение
 
-![Обзор продукта home-rag: путь от файлов к персональному AI-тьютору](doc/screenshots/slide_01_product_overview.png)
+![Обзор продукта hometutor: путь от файлов к персональному AI-тьютору](doc/screenshots/slide_01_product_overview.png)
 
 ### 💡 Проблема: куча документов → ценность?
 
@@ -50,7 +50,7 @@
 
 ---
 
-### ✨ Решение: home-rag_v2 — от документов до знания
+### ✨ Решение: hometutor — от документов до знания
 
 **Один инструмент. Полный цикл. Локально.**
 
@@ -113,7 +113,7 @@
 
 ## Слайд 2 — 🏗️ Архитектура и стек технологий
 
-![Омниканальная локальная экосистема home-rag](doc/screenshots/defense_pdf/pdf_slide_09.png)
+![Омниканальная локальная экосистема hometutor](doc/screenshots/defense_pdf/pdf_slide_09.png)
 
 ### 🎨 Четыре слоя системы
 
@@ -357,7 +357,7 @@ graph TB
 
 ---
 
-### 🎨 Уникальные фичи RAG в home-rag_v2
+### 🎨 Уникальные фичи RAG в hometutor
 
 **🔹 Двухуровневая индексация**
 - Chunk-level — для точечных вопросов
@@ -886,11 +886,11 @@ python scripts/workflow.py --loop --skip-review --watch-contract \
 
 ## Слайд 11 — ⚖️ Сравнение с конкурентами
 
-![Сравнение home-rag с существующими инструментами](doc/screenshots/defense_pdf/pdf_slide_02.png)
+![Сравнение hometutor с существующими инструментами](doc/screenshots/defense_pdf/pdf_slide_02.png)
 
-### 📊 home-rag_v2 vs Альтернативы
+### 📊 hometutor vs Альтернативы
 
-| Функция | home-rag_v2 | NotebookLM | Anki | ChatGPT + Files | Obsidian |
+| Функция | hometutor | NotebookLM | Anki | ChatGPT + Files | Obsidian |
 |---|---|---|---|---|---|
 | **📚 Q&A по документам** | ✅ RAG с источниками | ✅ Да | ❌ Нет | ✅ Да | ⚠️ Через плагины |
 | **🎓 Автоматические квизы** | ✅ Из RAG-ответа | ❌ Нет | ⚠️ Ручное создание | ❌ Нет | ❌ Нет |
@@ -907,7 +907,7 @@ python scripts/workflow.py --loop --skip-review --watch-contract \
 
 ### 🎯 Уникальное позиционирование
 
-**home-rag_v2 — это единственный инструмент, который:**
+**hometutor — это единственный инструмент, который:**
 - Отвечает по вашим материалам (как NotebookLM)
 - Создаёт квизы автоматически из ответов
 - Интегрирует SRS с mastery tracking (как Anki, но автоматически)
@@ -927,7 +927,7 @@ python scripts/workflow.py --loop --skip-review --watch-contract \
 | Уже есть отлаженный workflow с Anki | **Anki** — не ломайте работающее |
 | Нужен general AI assistant, не только учёба | **ChatGPT Plus** — шире возможности |
 | Фокус на note-taking и knowledge management | **Obsidian** — лучший в классе |
-| Нужен полный учебный цикл с автоматизацией | **home-rag_v2** — это наша ниша |
+| Нужен полный учебный цикл с автоматизацией | **hometutor** — это наша ниша |
 
 ---
 

@@ -232,7 +232,7 @@ Suggested event for TUI:
   "tool_error_count": 1,
   "tool_success_count": 11,
   "cwd_verified": true,
-  "repo_root": "D:\\Projects\\home-rag_v2"
+  "repo_root": "D:\\Projects\\hometutor-studio"
 }
 ```
 

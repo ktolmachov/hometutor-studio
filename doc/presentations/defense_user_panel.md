@@ -1,4 +1,4 @@
-# home-rag_v2 — Защита перед пользователями продукта
+# hometutor — Защита перед пользователями продукта
 
 > Третья виртуальная защита по [`doc/defense_presentation.md`](defense_presentation.md).  
 > Формат: панель реальных пользователей — от новичков до power users, включая хейтеров, конкурентов и критиков.  
@@ -251,7 +251,7 @@
 ### Для защиты проекта
 
 1. **Killer demo:** Показать полный цикл от вопроса до mastery за 3 минуты
-2. **Сравнительная таблица:** home-rag_v2 vs NotebookLM vs Anki vs ChatGPT
+2. **Сравнительная таблица:** hometutor vs NotebookLM vs Anki vs ChatGPT
 3. **User testimonials:** Если есть beta-тестеры — их отзывы
 4. **Cost calculator:** Сколько стоит месяц использования при разных сценариях
 5. **Roadmap slide:** Что будет в следующих версиях
@@ -293,7 +293,7 @@
 
 **✨ Улучшение:** Longitudinal study с участниками:
 - Контрольная группа (традиционное обучение)
-- Экспериментальная группа (home-rag_v2)
+- Экспериментальная группа (hometutor)
 - Метрики: retention after 7/30 days, quiz scores, time to mastery
 - Публикация результатов
 

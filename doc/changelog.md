@@ -9,7 +9,7 @@
 
 ## 2026-06-20 (llama.cpp local default: qwopus + smoke/provenance fixes)
 
-- **Local default model:** после benchmark pack v1.7 (`2026-06-20_20-34-44`) профиль `llama-cpp` и `config.env` переведены на **`qwopus3.6-35b-a3b-v1-mtp`** (`~185 tps`, quality 11.5/11.5, real home_rag smoke PASS). Baseline **`qwen3.6-27b`** остаётся доступен через `switch_local_llm.ps1 -Model …` и LM Studio-профиль.
+- **Local default model:** после benchmark pack v1.7 (`2026-06-20_20-34-44`) профиль `llama-cpp` и `config.env` переведены на **`qwopus3.6-35b-a3b-v1-mtp`** (`~185 tps`, quality 11.5/11.5, real hometutor smoke PASS). Baseline **`qwen3.6-27b`** остаётся доступен через `switch_local_llm.ps1 -Model …` и LM Studio-профиль.
 - **`scripts/switch_local_llm.ps1`:** дефолт llama-cpp = qwopus; добавлен опциональный `-Model` для override alias без ручного редактирования `config.env`.
 - **`scripts/Smoke-HomeRag-LlamaCpp.ps1`:** `Set-Location` в корень репо; override `LLM_MODEL`/`QUIZ_LLM_MODEL` из `-Model`; дефолт smoke = qwopus. Исправляет false-negative smoke при запуске из benchmark pack (cwd) и mismatch `debug.llm_model` vs загруженный alias.
 - **`app/config.py`:** `config.env` / `.env` загружаются от `BASE_DIR`, а не cwd вызывающего процесса — subprocess smoke из другого каталога больше не теряет `OPENAI_API_KEY`.
@@ -745,7 +745,7 @@
 - **Roadmap:** Визуальный roadmap с Gantt-диаграммой, execution paths (sequential vs parallel), ключевыми вехами.
 - **Конкурентное преимущество:** Добавлен анализ, почему конкуренты отстают на 12-18 месяцев.
 - **Документация:** Обновлён раздел "Связанные документы" с полным списком SSR AI Vision документации.
-- **Главный тезис:** Презентация теперь позиционирует home-rag_v2 как "первый в мире локальный учебный ассистент с полным AI-powered циклом".
+- **Главный тезис:** Презентация теперь позиционирует hometutor как "первый в мире локальный учебный ассистент с полным AI-powered циклом".
 
 ## 2026-05-09 (SSR AI Vision Level 3-5 audit corrections)
 

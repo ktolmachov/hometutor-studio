@@ -29,7 +29,7 @@
 
 ## 1. Контекст
 
-`home-rag_v2` уже вырос из простого Q&A RAG в локального учебного ассистента: FastAPI, Streamlit, CLI и Telegram входят в один learning loop, ответы должны быть связаны с источниками, а retrieval используется не только для ответа, но и для tutor, quiz, spaced repetition, graph expansion и планирования.
+`hometutor` уже вырос из простого Q&A RAG в локального учебного ассистента: FastAPI, Streamlit, CLI и Telegram входят в один learning loop, ответы должны быть связаны с источниками, а retrieval используется не только для ответа, но и для tutor, quiz, spaced repetition, graph expansion и планирования.
 
 В проекте уже приняты важные решения:
 

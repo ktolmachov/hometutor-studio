@@ -12,7 +12,7 @@
 
 Конспект описывает каноничный стек production-агента: **multi-model routing → context engineering → structured output → advanced RAG → ReAct + MCP-инструменты → память → observability (Langfuse) → security (guardrails) → multimodal → multi-agent**.
 
-home-rag_v2 уже закрывает большую часть этого (RAG, graph-retrieval, provider-fallback, OTel, guardrails, local-LLM circuit, eval-harness, SSR local-ML слой). Поэтому **сильный ход — не повторять готовое, а добить реальные пробелы** относительно конспекта и **состыковать каждый пробел с killer feature (SSR)**:
+hometutor уже закрывает большую часть этого (RAG, graph-retrieval, provider-fallback, OTel, guardrails, local-LLM circuit, eval-harness, SSR local-ML слой). Поэтому **сильный ход — не повторять готовое, а добить реальные пробелы** относительно конспекта и **состыковать каждый пробел с killer feature (SSR)**:
 
 | Пробел из конспекта | Что уже есть | Чего не хватает |
 |---|---|---|

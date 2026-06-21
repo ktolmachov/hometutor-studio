@@ -48,7 +48,7 @@
 
 ```mermaid
 timeline
-    title Эволюция home-rag: 47 дней трансформации
+    title Эволюция hometutor: 47 дней трансформации
     section Foundation (E4-E7)
         2026-04-07 : E4 Graph Intelligence
                    : Knowledge Graph + Provenance

@@ -5,7 +5,7 @@
       "id": "AGENTS.md",
       "label": "AGENTS.md",
       "cat": "other",
-      "desc": "home-rag_v2 — Agent Instructions",
+      "desc": "hometutor — Agent Instructions",
       "broken_refs": 0
     },
     {
@@ -110,7 +110,7 @@
       "id": "architecture.md",
       "label": "architecture.md",
       "cat": "arch",
-      "desc": "Архитектура `home-rag_v2`",
+      "desc": "Архитектура `hometutor`",
       "broken_refs": 0
     },
     {
@@ -145,7 +145,7 @@
       "id": "archive/architectural_refactoring.md",
       "label": "…/architectural_refactoring.md",
       "cat": "archive",
-      "desc": "Архитектурный рефакторинг home-rag_v2: от Q&A RAG к модульной системе с графом знаний и диалогами",
+      "desc": "Архитектурный рефакторинг hometutor: от Q&A RAG к модульной системе с графом знаний и диалогами",
       "broken_refs": 14
     },
     {
@@ -299,7 +299,7 @@
       "id": "documentation_onboarding_guide.md",
       "label": "documentation_onboarding_guide.md",
       "cat": "other",
-      "desc": "Онбординг в документацию home-rag_v2",
+      "desc": "Онбординг в документацию hometutor",
       "broken_refs": 0
     },
     {
@@ -411,14 +411,14 @@
       "id": "glossary.md",
       "label": "glossary.md",
       "cat": "vision",
-      "desc": "Глоссарий home-rag",
+      "desc": "Глоссарий hometutor",
       "broken_refs": 0
     },
     {
       "id": "index.md",
       "label": "index.md",
       "cat": "entry",
-      "desc": "🧭 Навигатор Документации home-rag_v2",
+      "desc": "🧭 Навигатор Документации hometutor",
       "broken_refs": 2
     },
     {
@@ -593,7 +593,7 @@
       "id": "pitch.md",
       "label": "pitch.md",
       "cat": "vision",
-      "desc": "home-rag — personal tutor from your own notes",
+      "desc": "hometutor — personal tutor from your own notes",
       "broken_refs": 2
     },
     {
@@ -607,7 +607,7 @@
       "id": "presentations/defense_expert_panel.md",
       "label": "…/defense_expert_panel.md",
       "cat": "presentations",
-      "desc": "home-rag_v2 — Экспертная RAG/AI-защита",
+      "desc": "hometutor — Экспертная RAG/AI-защита",
       "broken_refs": 0
     },
     {
@@ -670,7 +670,7 @@
       "id": "presentations/defense_presentation.md",
       "label": "…/defense_presentation.md",
       "cat": "presentations",
-      "desc": "🎓 home-rag_v2 — Академическая защита проектной работы",
+      "desc": "🎓 hometutor — Академическая защита проектной работы",
       "broken_refs": 28
     },
     {
@@ -691,7 +691,7 @@
       "id": "presentations/defense_presentation_compact.md",
       "label": "…/defense_presentation_compact.md",
       "cat": "presentations",
-      "desc": "home-rag_v2 — Академическая защита",
+      "desc": "hometutor — Академическая защита",
       "broken_refs": 0
     },
     {
@@ -726,7 +726,7 @@
       "id": "presentations/defense_presentation_slides.md",
       "label": "…/defense_presentation_slides.md",
       "cat": "presentations",
-      "desc": "home-rag_v2 — Академическая защита",
+      "desc": "hometutor — Академическая защита",
       "broken_refs": 10
     },
     {
@@ -740,7 +740,7 @@
       "id": "presentations/defense_presentation_v2.md",
       "label": "…/defense_presentation_v2.md",
       "cat": "presentations",
-      "desc": "🎓 home-rag_v2 — Академическая защита проектной работы",
+      "desc": "🎓 hometutor — Академическая защита проектной работы",
       "broken_refs": 22
     },
     {
@@ -754,14 +754,14 @@
       "id": "presentations/defense_presenter_script.md",
       "label": "…/defense_presenter_script.md",
       "cat": "presentations",
-      "desc": "Скрипт выступления на академической защите — home-rag_v2",
+      "desc": "Скрипт выступления на академической защите — hometutor",
       "broken_refs": 15
     },
     {
       "id": "presentations/defense_README.md",
       "label": "presentations/defense_README.md",
       "cat": "entry",
-      "desc": "🎓 Материалы для академической защиты проекта home-rag_v2",
+      "desc": "🎓 Материалы для академической защиты проекта hometutor",
       "broken_refs": 9
     },
     {
@@ -775,14 +775,14 @@
       "id": "presentations/defense_summary.md",
       "label": "presentations/defense_summary.md",
       "cat": "presentations",
-      "desc": "home-rag_v2 — Итоговое резюме трёх виртуальных защит",
+      "desc": "hometutor — Итоговое резюме трёх виртуальных защит",
       "broken_refs": 0
     },
     {
       "id": "presentations/defense_user_panel.md",
       "label": "presentations/defense_user_panel.md",
       "cat": "presentations",
-      "desc": "home-rag_v2 — Защита перед пользователями продукта",
+      "desc": "hometutor — Защита перед пользователями продукта",
       "broken_refs": 0
     },
     {
@@ -803,7 +803,7 @@
       "id": "presentations/defense_virtual_defense.md",
       "label": "…/defense_virtual_defense.md",
       "cat": "presentations",
-      "desc": "home-rag_v2 — Виртуальная защита проектной работы",
+      "desc": "hometutor — Виртуальная защита проектной работы",
       "broken_refs": 0
     },
     {
@@ -1629,7 +1629,7 @@
       "id": "technical_specification.md",
       "label": "technical_specification.md",
       "cat": "arch",
-      "desc": "Техническая Спецификация `home-rag_v2`",
+      "desc": "Техническая Спецификация `hometutor`",
       "broken_refs": 0
     },
     {
@@ -1664,7 +1664,7 @@
       "id": "user_guide.md",
       "label": "user_guide.md",
       "cat": "ux",
-      "desc": "home-rag — учебный центр из твоей папки",
+      "desc": "hometutor — учебный центр из твоей папки",
       "broken_refs": 0
     },
     {
@@ -1678,7 +1678,7 @@
       "id": "user_scenarios.md",
       "label": "user_scenarios.md",
       "cat": "ux",
-      "desc": "Сценарии — Как home-rag меняет обучение",
+      "desc": "Сценарии — Как hometutor меняет обучение",
       "broken_refs": 0
     },
     {
@@ -1692,7 +1692,7 @@
       "id": "user_stories.md",
       "label": "user_stories.md",
       "cat": "user-stories",
-      "desc": "User Stories — Learner (home-rag)",
+      "desc": "User Stories — Learner (hometutor)",
       "broken_refs": 0
     },
     {

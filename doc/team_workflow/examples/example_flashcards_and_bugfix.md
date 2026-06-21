@@ -26,7 +26,7 @@ E12 закрыт: базовые flashcards реализованы (генера
 **Что вставить в агент:**
 
 ```text
-Role: Product Owner for home-rag_v2 learning assistant.
+Role: Product Owner for hometutor learning assistant.
 Goal: define the next delivery package.
 
 Read these files (do not edit yet):
@@ -90,7 +90,7 @@ E12 closed (base flashcard stack) ✓
 **Что вставить в агент:**
 
 ```text
-Role: Analyst for home-rag_v2 learning assistant.
+Role: Analyst for hometutor learning assistant.
 Goal: produce a detailed specification for package E15-A.
 
 Input from Product Owner:
@@ -156,7 +156,7 @@ GET /flashcards/{deck_id}/progress
 **Что вставить в агент:**
 
 ```text
-Role: Architect for home-rag_v2 learning assistant.
+Role: Architect for hometutor learning assistant.
 Goal: produce an execution contract for package E15-A.
 
 Input:
@@ -249,7 +249,7 @@ Output: changed files + tests + unresolved risk.
 **Что вставить в агент:**
 
 ```text
-Role: UX/UI Designer for home-rag_v2 Streamlit learning assistant.
+Role: UX/UI Designer for hometutor Streamlit learning assistant.
 Goal: produce a UI specification for package E15-A.
 
 Input:
@@ -369,7 +369,7 @@ Output:
 **Что вставить в агент:**
 
 ```text
-Role: Tester for home-rag_v2 learning assistant.
+Role: Tester for hometutor learning assistant.
 Goal: verify package E15-A-1.
 
 CONTRACT_FILE: archive/agent_prompts/e15_a1_flashcard_progress_2026-04-13.md
@@ -427,7 +427,7 @@ Regression bundle: pytest tests/test_flashcard_service.py — 23 passed, 0 faile
 **Что вставить в агент:**
 
 ```text
-Role: Tester for home-rag_v2.
+Role: Tester for hometutor.
 Goal: run regression suite to locate failing area.
 
 Run these test bundles:
@@ -486,7 +486,7 @@ Analyst нужен, если баг затрагивает несколько к
 **Что вставить в агент:**
 
 ```text
-Role: Architect for home-rag_v2.
+Role: Architect for hometutor.
 Goal: confirm root cause and define write-set for bugfix.
 
 Bug report:
@@ -561,7 +561,7 @@ pytest tests/test_flashcard_service.py tests/test_user_state.py tests/test_api.p
 **Что вставить в агент:**
 
 ```text
-Role: Developer for home-rag_v2.
+Role: Developer for hometutor.
 Goal: fix bug E15-BUG-001 (due count always returns 0).
 
 Symptoms:
@@ -614,7 +614,7 @@ Output:
 **Что вставить в агент:**
 
 ```text
-Role: Tester for home-rag_v2.
+Role: Tester for hometutor.
 Goal: verify bugfix E15-BUG-001.
 
 CONTRACT_FILE: (bug report from Architect above)

@@ -383,5 +383,5 @@ grep "^def get_\|^[A-Z_]*PROMPT" app/prompts.py
 
 ## История Изменений
 
-- **2026-04-19:** Инициальная версия. Анализ на основе token consumption audit по `home-rag_v2`.
+- **2026-04-19:** Инициальная версия. Анализ на основе token consumption audit по `hometutor`.
 - **2026-04-20:** Таблицы синхронизированы с `doc/token_safety_registry.json` / `scripts/measure_token_registry.py`; добавлены `doc/agent_workflow.md`, `doc/epochs/e4.md` в критический список; уточнены лимиты 12k/20k и примеры накопления; добавлен раздел «Поддержка документации после крупных правок» (реестр + таблицы).

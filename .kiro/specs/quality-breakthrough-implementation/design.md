@@ -2,7 +2,7 @@
 
 ## Overview
 
-This design implements expert panel recommendations to transform home-rag_v2 from "it works well" claims to "here's the reproducible eval-run proving it works well." The implementation adds comprehensive evaluation infrastructure, retrieval mode comparison, cost/latency transparency, educational metrics, adversarial testing, and honest limitation documentation.
+This design implements expert panel recommendations to transform hometutor from "it works well" claims to "here's the reproducible eval-run proving it works well." The implementation adds comprehensive evaluation infrastructure, retrieval mode comparison, cost/latency transparency, educational metrics, adversarial testing, and honest limitation documentation.
 
 **Core Philosophy:** Measurement-driven quality improvement with reproducible baselines, transparent cost/latency breakdowns, and honest documentation of limitations.
 
@@ -691,7 +691,7 @@ python scripts/promote_baseline.py \
 ## File Structure
 
 ```
-home-rag_v2/
+hometutor/
 ├── app/
 │   ├── eval_service.py                    # Enhanced with baseline support
 │   ├── eval_retrieval_comparison.py       # NEW: Retrieval mode comparison

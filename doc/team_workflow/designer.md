@@ -27,7 +27,7 @@
 ## Промпт 1: UI-спецификация для пакета
 
 ```text
-Role: UX/UI Designer for home-rag_v2 Streamlit learning assistant.
+Role: UX/UI Designer for hometutor Streamlit learning assistant.
 Goal: produce a UI specification for package <PACKAGE_ID>.
 
 Input:
@@ -131,7 +131,7 @@ Rules:
 ## Промпт 2: UX Review существующего экрана
 
 ```text
-Role: UX/UI Designer for home-rag_v2.
+Role: UX/UI Designer for hometutor.
 Goal: review UX quality of <screen/component>.
 
 Read:
@@ -177,7 +177,7 @@ Rules:
 ## Промпт 3: UI-контракт для Разработчика
 
 ```text
-Role: UX/UI Designer for home-rag_v2.
+Role: UX/UI Designer for hometutor.
 Goal: translate UI spec into a developer-ready UI contract for <PACKAGE_ID>.
 
 Input: UI Specification (from Prompt 1 output)

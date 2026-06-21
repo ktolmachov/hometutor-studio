@@ -27,7 +27,7 @@
 Создать/обновить `AGENTS.md` в корне проекта перед запуском:
 
 ```markdown
-# home-rag_v2 Agent Instructions
+# hometutor Agent Instructions
 
 ## Project context
 - Python FastAPI + Streamlit learning assistant
@@ -71,7 +71,7 @@ codex
 ║  TEAM PIPELINE ORCHESTRATOR — E15-A  [Codex CLI]               ║
 ╚══════════════════════════════════════════════════════════════════╝
 
-You are a team pipeline orchestrator for home-rag_v2.
+You are a team pipeline orchestrator for hometutor.
 Execute the 6-role team pipeline for E15-A sequentially.
 You have Shell Tool MCP (bash) available.
 

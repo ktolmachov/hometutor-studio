@@ -64,7 +64,7 @@ TARGET_AGENT: <claude_code | codex | cursor_ai | continue>
 
 ```text
 Goal: generate a ready-to-paste orchestration prompt for the next active
-      delivery package in home-rag_v2.
+      delivery package in hometutor.
 
 INPUT:
   TARGET_AGENT: <specified by user — claude_code | codex | cursor_ai | continue>

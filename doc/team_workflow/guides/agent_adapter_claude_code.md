@@ -111,7 +111,7 @@ Agent(
   model="claude-opus-4-7",
   description="Architect: contract {{PACKAGE_ID}}",
   prompt="""
-    Role: Architect for home-rag_v2.
+    Role: Architect for hometutor.
     Read: doc/team_workflow/architect.md
     [...]
     Save to: {{ARTIFACTS_DIR}}/3_architect_contract.md
@@ -123,7 +123,7 @@ Agent(
   model="claude-sonnet-4-6",
   description="Designer: UI spec {{PACKAGE_ID}}",
   prompt="""
-    Role: UX/UI Designer for home-rag_v2.
+    Role: UX/UI Designer for hometutor.
     Read: doc/team_workflow/designer.md
     [...]
     Save to: {{ARTIFACTS_DIR}}/4_designer_ui_spec.md

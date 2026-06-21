@@ -52,7 +52,7 @@
 ## Промпт 1: Performance / DevOps Impact Review (gate в STEP 3.5)
 
 ```text
-Role: Performance Engineer / DevOps for home-rag_v2.
+Role: Performance Engineer / DevOps for hometutor.
 Goal: review proposed package for latency / cost / readiness / deployment / observability impact.
        Do NOT write code. Output = structured Performance Impact Report.
 
@@ -136,7 +136,7 @@ Token budget: <= 8k input.
 ## Промпт 2: Post-Release Performance Watch
 
 ```text
-Role: Performance / DevOps Verifier for home-rag_v2.
+Role: Performance / DevOps Verifier for hometutor.
 Goal: after a package is closed, confirm no regression on latency / readiness / cost.
 
 Input:

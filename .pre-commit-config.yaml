@@ -1,4 +1,4 @@
-# Opt-in pre-commit framework config for home-rag_v2.
+# Opt-in pre-commit framework config for hometutor.
 #
 # To activate: `pip install pre-commit && pre-commit install`
 # After activation, every `git commit` runs the hooks below locally.

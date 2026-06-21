@@ -3,7 +3,7 @@ Converted from D:/Downloads/LLM_Provider_Router_home_rag_v2.docx.
 Generated mechanically from DOCX paragraphs and tables; review before treating as canonical architecture docs.
 -->
 
-# LLM Provider Router для home-rag_v2
+# LLM Provider Router для hometutor
 
 Единая локальная модель + облачные модели OpenRouter/Yandex AI Studio по ролям
 
@@ -11,7 +11,7 @@ Generated mechanically from DOCX paragraphs and tables; review before treating a
 
 ## Контекст и исходные вводные
 
-Проект home-rag_v2 использует гибридную схему: локальная LLM через LM Studio/Ollama для интерактивных задач и облачные LLM для специализированных ролей. В текущем конфиге уже есть OPENAI_API_BASE для OpenRouter, локальный LLM_API_BASE для LM Studio, отдельные роли EVAL_JUDGE_LLM, REWRITE_MODEL, CLASSIFIER_MODEL, INGESTION_MODEL, EVALUATE_MODEL, LLAMAINDEX_METADATA_FALLBACK_MODEL, SSR-блок и embeddings через OpenRouter.
+Проект hometutor использует гибридную схему: локальная LLM через LM Studio/Ollama для интерактивных задач и облачные LLM для специализированных ролей. В текущем конфиге уже есть OPENAI_API_BASE для OpenRouter, локальный LLM_API_BASE для LM Studio, отдельные роли EVAL_JUDGE_LLM, REWRITE_MODEL, CLASSIFIER_MODEL, INGESTION_MODEL, EVALUATE_MODEL, LLAMAINDEX_METADATA_FALLBACK_MODEL, SSR-блок и embeddings через OpenRouter.
 
 Новая вводная: локальная видеокарта в ноутбуке — RTX 4060 Laptop 8GB. Это означает, что локально нужно держать одну универсальную модель, а не несколько моделей одновременно. Облачные модели можно выбирать по задаче и цена/качество.
 
@@ -164,7 +164,7 @@ YANDEX_BATCH_GEMMA3_27B_MODEL=gemma3-27b-it/latest
 ## Целевая архитектура
 
 ```text
-home-rag_v2
+hometutor
   ↓
 Feature layer:
   - ask

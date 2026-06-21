@@ -13,7 +13,7 @@
 ## 1. Context & precise gap
 
 The lecture ([`summary_01-ai-driven-design.md`](../../../../exchange/summary_01-ai-driven-design.md)) calls for an
-evaluation loop with datasets and runs (Langfuse). home-rag_v2 already evaluates RAG quality:
+evaluation loop with datasets and runs (Langfuse). hometutor already evaluates RAG quality:
 
 | Already present | Where | Metric class |
 |---|---|---|

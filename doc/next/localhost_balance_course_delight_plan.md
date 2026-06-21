@@ -1304,4 +1304,4 @@ Event types (MVP): `session_started`, `mission_loaded`, `question_asked`, `retri
 
 ## 12. One-Sentence Pitch
 
-**home-rag turns a local folder of course materials into a private adaptive course: it starts fast, explains its AI mode honestly, teaches from your sources, tests you, creates memory, and brings you back tomorrow with the right next step.**
+**hometutor turns a local folder of course materials into a private adaptive course: it starts fast, explains its AI mode honestly, teaches from your sources, tests you, creates memory, and brings you back tomorrow with the right next step.**

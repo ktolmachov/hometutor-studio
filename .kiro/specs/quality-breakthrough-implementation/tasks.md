@@ -2,7 +2,7 @@
 
 ## Overview
 
-This implementation plan transforms home-rag_v2 from "it works well" claims to "here's the reproducible eval-run proving it works well" by adding comprehensive evaluation infrastructure, retrieval mode comparison, cost/latency transparency, educational metrics, adversarial testing, and data governance procedures.
+This implementation plan transforms hometutor from "it works well" claims to "here's the reproducible eval-run proving it works well" by adding comprehensive evaluation infrastructure, retrieval mode comparison, cost/latency transparency, educational metrics, adversarial testing, and data governance procedures.
 
 **Implementation Language:** Python
 

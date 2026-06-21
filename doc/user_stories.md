@@ -1,4 +1,4 @@
-# User Stories — Learner (home-rag)
+# User Stories — Learner (hometutor)
 
 Актуализировано на **2026-05-23** (детали вынесены по одной US в `doc/user_stories/`).
 
@@ -92,7 +92,7 @@ Machine-readable shortlist for planning. Full status/coverage lives in `doc/user
 
 | Epic | Story | Priority | Status | Coverage | Details |
 |---|---|---|---|---|---|
-| Epic 1: Discover & Install | `US-1.1` - Понять, для чего нужен home-rag | `P1` | `closed` | `workflow-dx-p4-common-rules` | [`details`](user_stories/us-1.1.md) |
+| Epic 1: Discover & Install | `US-1.1` - Понять, для чего нужен hometutor | `P1` | `closed` | `workflow-dx-p4-common-rules` | [`details`](user_stories/us-1.1.md) |
 | Epic 1: Discover & Install | `US-1.2` - Поднять локально без чтения 5 документов | `P0` | `closed` | `strong-move-first-session-cold-open-v1` | [`details`](user_stories/us-1.2.md) |
 | Epic 1: Discover & Install | `US-1.3` - Понять, какие env-переменные обязательны | `P1` | `closed` | `epoch-tour-skeleton-ch1` | [`details`](user_stories/us-1.3.md) |
 | Epic 2: Ingest | `US-2.1` - Видеть прогресс первой индексации | `P0` | `closed` | `epoch-ingest-first-index-progress` | [`details`](user_stories/us-2.1.md) |

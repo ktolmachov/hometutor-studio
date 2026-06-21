@@ -25,7 +25,7 @@ v5 фиксировал closure: Golden E2E, prompt-role unification. v6 отр�
 ## 1. Accepted North Star
 
 `qwopus3.6-35b-a3b-v1-mtp` принята как balanced local default model для всего
-home_rag learning-plane (benchmark 2026-06-20, заменяет `qwen/qwen3.6-27b`):
+hometutor learning-plane (benchmark 2026-06-20, заменяет `qwen/qwen3.6-27b`):
 
 ```env
 LOCAL_LLM_PROFILE=llama-cpp
@@ -49,7 +49,7 @@ Evaluation/cloud-plane (`EVAL_JUDGE_LLM`, `REWRITE_MODEL`, `CLASSIFIER_MODEL`,
 generation.
 
 Архитектурное решение: `doc/adr.md` → `ADR-024: Local balanced model for
-home_rag learning-plane`.
+hometutor learning-plane`.
 
 ---
 
@@ -57,7 +57,7 @@ home_rag learning-plane`.
 
 ### 2.1 Model Benchmark (2026-06-20)
 
-Benchmark pack v1.8: 3 кандидата, 8 задач + real home_rag smoke.
+Benchmark pack v1.8: 3 кандидата, 8 задач + real hometutor smoke.
 
 | alias | rank_score | avg tps | quality | smoke |
 |---|---|---|---|---|
@@ -66,7 +66,7 @@ Benchmark pack v1.8: 3 кандидата, 8 задач + real home_rag smoke.
 | qwen3.6-27b | 93.21 | 43.44 | 11.5/11.5 | — |
 
 Все 3 модели: abstain PASS, grounded PASS, JSON PASS, quiz PASS.
-qwopus35b получает +5 smoke bonus за real home_rag smoke (grounded validation
+qwopus35b получает +5 smoke bonus за real hometutor smoke (grounded validation
 пройдена, `schema_validated=true`).
 
 ### 2.2 Smoke checker hardening
@@ -230,7 +230,7 @@ LLM-вызовы идут как `system + user` либо в explicit allowlist;
 
 AI workstation: **ACCEPTED**  
 llama.cpp + `qwopus3.6-35b-a3b-v1-mtp`: **ACCEPTED** (benchmark 2026-06-20, rank 99.55)  
-home_rag local RAG smoke gate: **ACCEPTED**  
+hometutor local RAG smoke gate: **ACCEPTED**  
 `qwopus3.6-35b-a3b-v1-mtp` as balanced local learning-plane default: **CONFIRMED**  
 Breakthrough «папка → курс → graduation за 10 минут локально»: **DELIVERED 2026-06-10**  
 Model upgrade path (qwen→qwopus, LM Studio→llama.cpp): **VALIDATED 2026-06-20**

@@ -31,7 +31,7 @@
 ## Промпт 1: Верификация пакета (основной)
 
 ```text
-Role: Tester for home-rag_v2 learning assistant.
+Role: Tester for hometutor learning assistant.
 Goal: verify package <PACKAGE_ID>.
 
 Inputs:
@@ -146,7 +146,7 @@ Rules:
 ## Промпт 2: Regression Suite
 
 ```text
-Role: Tester for home-rag_v2.
+Role: Tester for hometutor.
 Goal: run full regression suite and report results.
 
 Trigger: before closing an epoch or after large merge.
@@ -197,7 +197,7 @@ Rules:
 ## Промпт 3: Smoke Test после деплоя
 
 ```text
-Role: Tester for home-rag_v2.
+Role: Tester for hometutor.
 Goal: smoke test the running application.
 
 Prerequisites: application is running (Streamlit on 8501, FastAPI on 8000).
@@ -235,7 +235,7 @@ Rules:
 ## Промпт 4: Проверка acceptance criteria
 
 ```text
-Role: Tester for home-rag_v2.
+Role: Tester for hometutor.
 Goal: verify acceptance criteria for <US-X.Y>.
 
 Read:

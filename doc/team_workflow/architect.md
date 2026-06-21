@@ -29,7 +29,7 @@
 ## Промпт 1: Execution Contract (Planning)
 
 ```text
-Role: Architect for home-rag_v2 learning assistant.
+Role: Architect for hometutor learning assistant.
 Goal: produce an execution contract for package <PACKAGE_ID>.
 
 Input:
@@ -366,7 +366,7 @@ Rules:
 ## Промпт 3: ADR Decision
 
 ```text
-Role: Architect for home-rag_v2.
+Role: Architect for hometutor.
 Goal: evaluate and document an architecture decision.
 
 Context: <describe the decision needed>

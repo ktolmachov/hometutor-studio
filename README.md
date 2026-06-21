@@ -1,4 +1,4 @@
-# home-rag_v2
+# hometutor
 
 **Что это:** локальный учебный RAG поверх ваших файлов в `data/`: ответы с источниками, чат-тьютор, spaced repetition и adaptive plan — без отдельного облачного продукта. Идея и сценарии: [doc/product_idea.md](doc/product_idea.md); сводная карта эпох и волн: [doc/roadmap.md](doc/roadmap.md).
 
@@ -55,7 +55,7 @@ npm run local:check:running
 - **API:** http://127.0.0.1:8000
 - **UI (Streamlit):** http://127.0.0.1:8501
 
-Индексация: `docker compose exec home-rag python ingest.py`.
+Индексация: `docker compose exec hometutor python ingest.py`.
 
 **LM Studio на хосте:** `docker compose -f docker-compose.yml -f docker-compose.lmstudio.yml up` или `host.docker.internal` в `.env` — [deploy/docker/env.docker.example](deploy/docker/env.docker.example).
 

@@ -32,7 +32,7 @@ Reference smart note prepared by another model:
 - `D:\exchange\ИИ Агенты\урок 2 Как агент думает и дейс.html`
 
 Current generated Markdown:
-- `D:\Projects\home-rag_v2\doc\конспекты\ИИ Агенты\урок 2 Как агент думает и дейс.md`
+- `D:\Projects\hometutor-studio\doc\конспекты\ИИ Агенты\урок 2 Как агент думает и дейс.md`
 
 ### Lesson 3
 

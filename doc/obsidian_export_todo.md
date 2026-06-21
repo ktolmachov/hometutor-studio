@@ -342,8 +342,8 @@ data/<курс>/<лекция>.md   → выход (type: konspekt)
 # 1. Проверить vault-пути (после Задачи 0: vault = data/)
 .\.venv\Scripts\python.exe -c "from app.obsidian_export import vault_root, vault_obsidian_root; print(vault_root()); print(vault_obsidian_root())"
 # Ожидаем:
-# D:\Projects\home-rag_v2\data
-# D:\Projects\home-rag_v2\data
+# D:\Projects\hometutor-studio\data
+# D:\Projects\hometutor-studio\data
 
 # 2. Тесты
 .\.venv\Scripts\python.exe -m pytest tests/test_smart_konspekt.py tests/test_obsidian_export.py tests/test_ingestion_konspekt.py -q

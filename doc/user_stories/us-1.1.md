@@ -10,7 +10,7 @@ covered_by: "workflow-dx-p4-common-rules"
 closed_date: "2026-05-03"
 ---
 
-# US-1.1 — Понять, для чего нужен home-rag (P1)
+# US-1.1 — Понять, для чего нужен hometutor (P1)
 
 ## Epic 1: Discover & Install
 
@@ -18,9 +18,9 @@ closed_date: "2026-05-03"
 
 ---
 
-### US-1.1 — Понять, для чего нужен home-rag (P1)
+### US-1.1 — Понять, для чего нужен hometutor (P1)
 **As a** новый пользователь, который наткнулся на репозиторий,
-**I want** за 60 секунд понять, чем home-rag отличается от ChatGPT и Obsidian,
+**I want** за 60 секунд понять, чем hometutor отличается от ChatGPT и Obsidian,
 **so that** я мог решить, стоит ли его ставить.
 
 **Acceptance:**

@@ -31,7 +31,7 @@
 ## Промпт 1: Реализация пакета (основной)
 
 ```text
-Role: Developer for home-rag_v2 learning assistant.
+Role: Developer for hometutor learning assistant.
 Goal: close <PACKAGE_ID> only.
 
 Context:
@@ -92,7 +92,7 @@ Output:
 ## Промпт 2: Bugfix
 
 ```text
-Role: Developer for home-rag_v2.
+Role: Developer for hometutor.
 Goal: fix bug <BUG_DESCRIPTION>.
 
 Symptoms:
@@ -134,7 +134,7 @@ Output:
 ## Промпт 3: Doc sweep / doc sync
 
 ```text
-Role: Developer for home-rag_v2.
+Role: Developer for hometutor.
 Goal: synchronize documentation for <PACKAGE_ID> changes.
 
 Read:
@@ -177,7 +177,7 @@ Output:
 ## Промпт 4: Реализация UI-компонента
 
 ```text
-Role: Developer for home-rag_v2.
+Role: Developer for hometutor.
 Goal: implement UI component <COMPONENT_NAME> per UI contract.
 
 Input:

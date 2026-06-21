@@ -21,7 +21,7 @@
 
 ### 2. Start the API Server
 ```bash
-cd C:\Users\Dragon\Exchange\home-rag_v2
+cd C:\Users\Dragon\Exchange\hometutor-studio
 python main.py
 # OR with uvicorn directly:
 # uvicorn app.api:app --host 0.0.0.0 --port 8000

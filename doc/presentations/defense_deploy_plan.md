@@ -28,7 +28,7 @@
 
 **Что разворачивается:** demo UI с заранее подготовленными публичными данными и cloud LLM. FastAPI внутри Space допустим только как demo-упрощение или через Docker Space.  
 **Что не разворачивается:** Ollama (нет GPU на free tier → cloud LLM через API-ключ)  
-**URL:** `https://huggingface.co/spaces/<username>/home-rag`
+**URL:** `https://huggingface.co/spaces/<username>/hometutor`
 
 #### Шаги
 
@@ -69,7 +69,7 @@ DATA_PATH=./demo_data
 
 **5. Деплой**
 ```bash
-git remote add spaces https://huggingface.co/spaces/<username>/home-rag
+git remote add spaces https://huggingface.co/spaces/<username>/hometutor
 git push spaces main
 ```
 
@@ -99,13 +99,13 @@ usermod -aG docker deploy
 **2. Клонировать репозиторий**
 ```bash
 su - deploy
-git clone https://github.com/<username>/home-rag_v2.git
-cd home-rag_v2
+git clone https://github.com/<username>/hometutor-studio.git
+cd hometutor-studio
 cp .env.example .env
 # Отредактировать .env: LLM_MODEL, OPENAI_API_KEY, HOME_RAG_API_KEY и т.д.
 ```
 
-**3. Nginx конфиг (`/etc/nginx/sites-available/home-rag`)**
+**3. Nginx конфиг (`/etc/nginx/sites-available/hometutor`)**
 ```nginx
 server {
     listen 80;
@@ -136,7 +136,7 @@ certbot --nginx -d <your-domain.ru>
 
 **5. Запуск**
 ```bash
-cd home-rag_v2
+cd hometutor-studio
 docker-compose up -d
 ```
 
@@ -248,7 +248,7 @@ jobs:
           username: deploy
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            cd home-rag_v2
+            cd hometutor-studio
             git pull origin main
             docker-compose pull
             docker-compose up -d --remove-orphans
@@ -474,7 +474,7 @@ Eval-run: 15 вопросов, demo corpus, модель qwen2.5:7b
 | # | Задача | Файлы | Статус |
 |---|---|---|---|
 | 1A | HF Spaces деплой | `deploy/hf-spaces/README.md`, `deploy/hf-spaces/.env.spaces.example`, `demo_data/`, `demo_chroma_db/`, `scripts/build_demo_chroma.py` | ✅ артефакты в репо; push на HF — вручную |
-| 1B | RUVDS деплой | `deploy/nginx/home-rag.conf.example`, `docker-compose.yml`, SSL | 🟡 шаблон nginx; VPS/SSL — вручную |
+| 1B | RUVDS деплой | `deploy/nginx/hometutor.conf.example`, `docker-compose.yml`, SSL | 🟡 шаблон nginx; VPS/SSL — вручную |
 | 2 | CI/build workflow | `.github/workflows/ci.yml` | ✅ CI + docker-build; SSH deploy при `VPS_HOST`/`VPS_SSH_KEY` |
 | 3 | Confidence tooltip | `app/ui/query_tab_answer_section.py` | ✅ |
 | 4 | Eval-run | `eval/eval_dataset.json`, `eval/eval_results_2026-05-20.json`, `scripts/run_defense_eval.py` | ✅ retrieval-only прогон |

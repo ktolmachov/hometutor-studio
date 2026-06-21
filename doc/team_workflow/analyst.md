@@ -28,7 +28,7 @@
 ## Промпт 1: Детализация пакета
 
 ```text
-Role: Analyst for home-rag_v2 learning assistant.
+Role: Analyst for hometutor learning assistant.
 Goal: produce a detailed specification for package <PACKAGE_ID>.
 
 Input from Product Owner:
@@ -107,7 +107,7 @@ Rules:
 ## Промпт 2: Анализ влияния изменений (Impact Analysis)
 
 ```text
-Role: Analyst for home-rag_v2.
+Role: Analyst for hometutor.
 Goal: analyze the impact of proposed changes for <PACKAGE_ID>.
 
 Read these files:
@@ -148,7 +148,7 @@ Rules:
 ## Промпт 3: Валидация acceptance criteria
 
 ```text
-Role: Analyst for home-rag_v2.
+Role: Analyst for hometutor.
 Goal: validate that acceptance criteria for <US-X.Y> are complete and testable.
 
 Read:

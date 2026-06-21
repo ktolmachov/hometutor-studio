@@ -44,7 +44,7 @@
 
 ```mermaid
 journey
-    title Путь ученика — home-rag
+    title Путь ученика — hometutor
     section Открытие
       Узнаёт о продукте: 3: Learner
       Читает README: 4: Learner
@@ -277,7 +277,7 @@ flowchart LR
 
 | Pain point | US | Статус |
 |---|---|---|
-| Понять, для чего нужен home-rag | [US-1.1](user_stories/us-1.1.md) | `closed:epoch-tour-skeleton-ch1` |
+| Понять, для чего нужен hometutor | [US-1.1](user_stories/us-1.1.md) | `closed:epoch-tour-skeleton-ch1` |
 | Stack trace / пустой экран / missing env | [US-1.2](user_stories/us-1.2.md) | `closed:unknown-closed` |
 | Неочевидные обязательные env-переменные | [US-1.3](user_stories/us-1.3.md) | `closed:epoch-tour-skeleton-ch1` |
 | Не вижу прогресс первой индексации | [US-2.1](user_stories/us-2.1.md) | `closed:epoch-ingest-first-index-progress` |

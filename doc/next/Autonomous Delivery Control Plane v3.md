@@ -14,7 +14,7 @@
 
 ## **Главная цель wave**
 
-Перевести home-rag\_v2 autonomous delivery из “event-driven pipeline v2”  
+Перевести hometutor autonomous delivery из “event-driven pipeline v2”  
 в “auditable, replayable, policy-governed, adversarially-tested agentic runtime”.
 
 Короткая формула:
@@ -474,7 +474,7 @@ Get-Content tests/fixtures/cursor\_stop\_event.json | .\\.venv\\Scripts\\python.
 
 Ниже можно скопировать в отдельную сессию агента. Это не “общая просьба подумать”, а рабочий orchestration prompt для планирования и выполнения Wave 1\.
 
-Ты работаешь в репозитории home-rag\_v2.
+Ты работаешь в репозитории hometutor.
 
 Задача: запланировать и начать выполнение Wave 1 — Runtime Trust Foundation  
 для Autonomous Delivery Control Plane v3.

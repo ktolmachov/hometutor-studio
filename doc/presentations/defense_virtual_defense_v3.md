@@ -70,7 +70,7 @@
 
 **Ответ:** Для local-first инструмента основной сценарий — localhost. Для публичного деплоя выбраны два реалистичных варианта: Docker Compose на VPS (RUVDS/Hetzner) и Hugging Face Spaces как demo-режим с публичными demo data и cloud LLM. В репозитории добавлен проверяемый GitHub Actions CI/build gate: push в main → ruff → focused pytest → docker build. Полный SSH-автодеплой — следующий шаг после настройки VPS, домена и GitHub Secrets; до этого я не выдаю его за уже работающий публичный URL.
 
-**Архитектурное уточнение:** `docker-compose.yml` содержит 1 сервис `home-rag`; ChromaDB работает as in-process PersistentClient внутри того же контейнера. Порты привязаны к `127.0.0.1` для безопасности при локальном деплое.
+**Архитектурное уточнение:** `docker-compose.yml` содержит 1 сервис `hometutor`; ChromaDB работает as in-process PersistentClient внутри того же контейнера. Порты привязаны к `127.0.0.1` для безопасности при локальном деплое.
 
 ---
 

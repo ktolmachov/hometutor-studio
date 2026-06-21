@@ -1,4 +1,4 @@
-# home-rag_v2 — Экспертная RAG/AI-защита
+# hometutor — Экспертная RAG/AI-защита
 
 > Вторая виртуальная защита по [`doc/defense_presentation.md`](defense_presentation.md).  
 > Формат: панель сильных экспертов по RAG, retrieval, evaluation, AI safety, MLOps, privacy и educational AI.  

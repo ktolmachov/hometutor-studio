@@ -9,7 +9,7 @@
 
 > «Достала ли система правильные документы и правильные chunks и корректно ли сослалась на источники?»
 
-В `home-rag_v2` RAGOps также является owner-ом Course Delight Loop: course discovery, activation, upload, scoped retrieval, citation, course-tagged flashcards (см. §33).
+В `hometutor` RAGOps также является owner-ом Course Delight Loop: course discovery, activation, upload, scoped retrieval, citation, course-tagged flashcards (см. §33).
 
 ## Зона ответственности
 
@@ -38,7 +38,7 @@
 ## Промпт 1: RAGOps Impact Review (gate в STEP 3.5)
 
 ```text
-Role: RAGOps Engineer for home-rag_v2.
+Role: RAGOps Engineer for hometutor.
 Goal: review proposed package for retrieval / index / citation / course-scope impact.
        Do NOT write code. Output = structured RAGOps Impact Report.
 
@@ -93,7 +93,7 @@ Token budget: <= 8k input. If exceeded, request signatures-only re-read.
 ## Промпт 2: Course Scope Verify (для Tester gate)
 
 ```text
-Role: RAGOps Verifier for home-rag_v2 Course Workspace.
+Role: RAGOps Verifier for hometutor Course Workspace.
 Goal: confirm that scoped retrieval did not leak outside active course.
 
 Input:

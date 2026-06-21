@@ -3,7 +3,7 @@
 ## Версия документа
 
 **Статус:** Draft / Recommended (rev. 2026-05-23 — critical review + balance-plan alignment)
-**Проект:** `home-rag_v2` / локальная RAG-платформа
+**Проект:** `hometutor` / локальная RAG-платформа
 **Целевая архитектура:** Smart Router RAG: `fast + hybrid + graph` → GraphRAG Global Analytics
 **Назначение:** описать инженерную, архитектурную и организационную модель развития RAG / LLM-системы, включая новые роли MLOps, LLMOps, RAGOps и их включение в проектную оркестрацию.
 
@@ -18,7 +18,7 @@
 | E1 | §14 RACI | В строках `Vector index`, `BM25/RRF`, `Reranker`, `Prompt registry`, `Token budget`, `Retrieval trace`, `Golden dataset`, `Eval reports` стояло несколько `A/R` в одной строке — нарушение базового инварианта RACI (один Accountable). | Один `A` на строку, остальные → `R`/`C`. См. §14. |
 | E2 | §5.6 Router metrics | В списке метрик ошибочно отсутствовала `false hybrid rate` (4 режима маршрутизации, метрик ошибок только 3). | Метрика добавлена. |
 | E3 | §17 Структура команды | Designer как роль не упоминалась ни в minimal/optimal/mature team, хотя в `process.md` это полноценный шаг 3b. | Designer добавлен. Architect в §17.3 разведён с AI Platform Lead. |
-| E4 | §23 Project structure | Структура аспирационная (`app/rag/`, `app/llm/`, `app/ops/`, `app/graph/`), не отражает реальные пути проекта (`app/provider.py`, `app/config.py`, `app/routers/`, `app/ui/`). | Раздел помечен как reference layout, добавлен §34 «Mapping на реальный home-rag_v2». |
+| E4 | §23 Project structure | Структура аспирационная (`app/rag/`, `app/llm/`, `app/ops/`, `app/graph/`), не отражает реальные пути проекта (`app/provider.py`, `app/config.py`, `app/routers/`, `app/ui/`). | Раздел помечен как reference layout, добавлен §34 «Mapping на реальный hometutor». |
 | E5 | §19 vs §30 | §19 содержит фазы 0–8 (9 фаз), §30 — 8 шагов summary; нумерация плыла. | Summary §30 пронумерован 0–8, а итоговые 8 «steps» в §28 отделены как практические шаги внедрения, не фазы. |
 | E6 | §5.3 example JSON | Поля `vector_index` / `bm25_index` в JSON не совпадали по форме с описанными выше (`embedding_dimension`, `chunking_strategy`). | Пример нормализован. |
 | E7 | §6.6 Fallback Strategy | Не различался primary chat LLM и secondary LLM channels — конфликт с фундаментом балансового плана (см. §0 балансового плана). | Введён §31 «Primary chat LLM vs secondary LLM channels», fallback политика расщеплена. |
@@ -32,7 +32,7 @@
 
 # 1. Executive Summary
 
-Проект `home-rag_v2` развивается из локальной RAG-системы в инженерную платформу для работы с документами, знаниями, LLM, retrieval, graph analysis и учебно-аналитическими сценариями.
+Проект `hometutor` развивается из локальной RAG-системы в инженерную платформу для работы с документами, знаниями, LLM, retrieval, graph analysis и учебно-аналитическими сценариями.
 
 Главный переход:
 
@@ -71,7 +71,7 @@ Smart Router RAG
 
 ## 2.1. Исходная точка
 
-`home-rag_v2` — локальный RAG-проект, ориентированный на работу с:
+`hometutor` — локальный RAG-проект, ориентированный на работу с:
 
 - PDF;
 - DOCX;
@@ -345,7 +345,7 @@ fast | hybrid | graph | global_graph
 
 ## 5.1. Определение
 
-MLOps в проекте `home-rag_v2` — это дисциплина управления ML-компонентами RAG-системы:
+MLOps в проекте `hometutor` — это дисциплина управления ML-компонентами RAG-системы:
 
 - embedding models;
 - reranker models;
@@ -607,7 +607,7 @@ safety_margin_tokens
 | Global synthesis | **primary chat** | strong |
 | Eval judge | secondary | strong offline |
 
-**Channel kind** напрямую определяет fallback политику в `home-rag_v2`:
+**Channel kind** напрямую определяет fallback политику в `hometutor`:
 
 - **primary chat** — обслуживает `/ask`, tutor, course mission. Идёт через `app/provider.py` и подчиняется балансовому профилю (`LOCAL_STRICT` / `BALANCED` / `CLOUD_FAST`) + soft/hard timeout (см. §31 и Phase 2 балансового плана).
 - **secondary** — отдельные клиенты (`QUIZ_LLM_*`, `SSR_LLM_*`, `INGESTION_MODEL`, `CLASSIFIER_MODEL`, `REWRITE_MODEL`, `EVALUATE_MODEL`, `EVAL_JUDGE_LLM`, `LLAMAINDEX_METADATA_FALLBACK_MODEL`). Работают по существующему circuit breaker (`LLM_LOCAL_CB_*`) и **не** включаются в profile-fallback в рамках текущего пакета.
@@ -1835,7 +1835,7 @@ eval/datasets/
 
 # 23. Рекомендуемая структура проекта (REFERENCE LAYOUT, не текущая реальность)
 
-> ⚠️ Эта структура — **аспирационный reference**, а не текущее состояние `home-rag_v2`. Реальные пути проекта (`app/provider.py`, `app/config.py`, `app/routers/`, `app/ui/`, `app/services/`, `data/docs/`) описаны в §34. Не использовать этот блок как карту существующего кода.
+> ⚠️ Эта структура — **аспирационный reference**, а не текущее состояние `hometutor`. Реальные пути проекта (`app/provider.py`, `app/config.py`, `app/routers/`, `app/ui/`, `app/services/`, `data/docs/`) описаны в §34. Не использовать этот блок как карту существующего кода.
 
 ```text
   app/
@@ -2277,7 +2277,7 @@ DevOps/SRE обеспечивает стабильность и deployment.
 
 # 30. Краткое резюме
 
-Для `home-rag_v2` оптимальный путь — не просто «добавить GraphRAG» и не просто «поставить reranker».
+Для `hometutor` оптимальный путь — не просто «добавить GraphRAG» и не просто «поставить reranker».
 
 Оптимальный путь (нумерация выровнена с §19 фазами 0–8):
 
@@ -2402,11 +2402,11 @@ Smart Router RAG + Ops-дисциплины = путь от локального
 
 ---
 
-# 34. Mapping ролей на реальные модули `home-rag_v2`
+# 34. Mapping ролей на реальные модули `hometutor`
 
 Reference layout §23 — желаемое, **не реальное**. Эта таблица — фактическое соответствие:
 
-| Тема | Реальные модули `home-rag_v2` | Owner |
+| Тема | Реальные модули `hometutor` | Owner |
 |---|---|---|
 | Primary chat LLM client + fallback | `app/provider.py`, `app/llm_local_health.py` | LLMOps |
 | Config | `app/config.py` (через `get_settings()`) | LLMOps + RAGOps по контракту |

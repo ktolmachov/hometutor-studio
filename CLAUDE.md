@@ -1,4 +1,4 @@
-﻿# home-rag_v2 Project Rules for Claude
+﻿# hometutor Project Rules for Claude
 
 **Last updated:** 2026-04-25  
 **Status:** Active — apply to all Claude Code sessions in this project
@@ -7,7 +7,7 @@
 
 ## 📋 Project Brief
 
-**home-rag_v2** is a Python RAG (Retrieval-Augmented Generation) application for adaptive tutoring with graph-based knowledge retrieval, learner state persistence, and LLM-based answer generation.
+**hometutor** is a Python RAG (Retrieval-Augmented Generation) application for adaptive tutoring with graph-based knowledge retrieval, learner state persistence, and LLM-based answer generation.
 
 **Tech stack:** FastAPI, Streamlit, SQLite, Chroma, LangChain, Anthropic API.
 

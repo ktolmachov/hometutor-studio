@@ -28,7 +28,7 @@
 ║  TEAM PIPELINE ORCHESTRATOR — E15-A  [Claude Code]             ║
 ╚══════════════════════════════════════════════════════════════════╝
 
-You are a team pipeline orchestrator for home-rag_v2.
+You are a team pipeline orchestrator for hometutor.
 Your job: coordinate sub-agents through the 6-role team pipeline
 to deliver package E15-A: Flashcards Deck Progress + Tag Filter.
 
@@ -57,7 +57,7 @@ Use Agent tool:
     model="claude-sonnet-4-6",
     description="PO: define E15-A package",
     prompt="""
-      Role: Product Owner for home-rag_v2.
+      Role: Product Owner for hometutor.
       Goal: produce package definition for E15-A.
 
       Read (do not edit):
@@ -100,7 +100,7 @@ Use Agent tool:
     model="claude-sonnet-4-6",
     description="Analyst: spec E15-A",
     prompt="""
-      Role: Analyst for home-rag_v2.
+      Role: Analyst for hometutor.
       Goal: detailed specification for E15-A.
 
       Read (do not edit):
@@ -147,7 +147,7 @@ Launch BOTH agents in a SINGLE message (parallel execution):
     model="claude-opus-4-7",
     description="Architect: contract E15-A",
     prompt="""
-      Role: Architect for home-rag_v2.
+      Role: Architect for hometutor.
       Goal: execution contract for E15-A.
 
       Read (do not edit):
@@ -186,7 +186,7 @@ Launch BOTH agents in a SINGLE message (parallel execution):
     model="claude-sonnet-4-6",
     description="Designer: UI spec E15-A",
     prompt="""
-      Role: UX/UI Designer for home-rag_v2.
+      Role: UX/UI Designer for hometutor.
       Goal: UI specification for E15-A.
 
       Read (do not edit):
@@ -265,7 +265,7 @@ STEP 5 — Tester E15-A-1
     model="claude-haiku-4-5",
     description="Tester: verify E15-A-1",
     prompt="""
-      Role: Tester for home-rag_v2.
+      Role: Tester for hometutor.
 
       Read: doc/team_workflow/tester.md   ← execute Prompt 1 exactly
 

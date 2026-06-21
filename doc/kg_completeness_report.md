@@ -5,7 +5,7 @@ _Generated `2026-06-11T15:06:42+00:00` (UTC) from `_gather_metrics()`._
 ## Classification
 
 - **SSR L4 readiness:** `patchable`
-- **Graph path:** `D:\Projects\home-rag_v2\data\concept_graph.json`
+- **Graph path:** `D:\Projects\hometutor-studio\data\concept_graph.json`
 - **Readable path:** `False`
 
 ### Notes

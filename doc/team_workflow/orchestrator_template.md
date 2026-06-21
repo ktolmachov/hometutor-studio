@@ -51,7 +51,7 @@
 ║  TEAM PIPELINE ORCHESTRATOR — {{PACKAGE_ID}}                    ║
 ╚══════════════════════════════════════════════════════════════════╝
 
-You are a team pipeline orchestrator for home-rag_v2.
+You are a team pipeline orchestrator for hometutor.
 Your job: coordinate AI agents through the 6-role team pipeline
 to deliver package {{PACKAGE_ID}}: {{PACKAGE_TITLE}}.
 

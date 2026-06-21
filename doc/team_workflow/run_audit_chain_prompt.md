@@ -67,7 +67,7 @@ GROUP_ID: group_01
 ## Instructions For The AI Agent
 
 ````text
-Goal: execute the closed-package audit chain for home-rag_v2 until the selected
+Goal: execute the closed-package audit chain for hometutor until the selected
 handoff point is genuinely complete.
 
 Inputs:

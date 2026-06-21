@@ -62,7 +62,7 @@
 - smoke/gate-команда, если задача затрагивает regression contour;
 - короткая сверка diff на предмет лишних изменений.
 
-Для `home-rag_v2` это особенно важно в зонах:
+Для `hometutor` это особенно важно в зонах:
 
 - tutor orchestration;
 - typed API contracts;

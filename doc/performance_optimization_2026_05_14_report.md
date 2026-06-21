@@ -7,7 +7,7 @@
 
 ## Executive Summary
 
-Comprehensive performance optimization addressing 4 critical bottlenecks in the home-rag_v2 RAG application. All fixes implemented, tested, and verified. **Production ready.**
+Comprehensive performance optimization addressing 4 critical bottlenecks in the hometutor RAG application. All fixes implemented, tested, and verified. **Production ready.**
 
 ### Key Results
 

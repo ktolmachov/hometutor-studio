@@ -1,6 +1,6 @@
 # AI workstation
 
-Конфигурация проверенной AI-workstation для home_rag:
+Конфигурация проверенной AI-workstation для hometutor:
 - Материнская плата: ASRock X870E Taichi
 - Процессор: AMD Ryzen 9 9900X3D
 - Видеокарты: 2× RTX 5070 Ti 16 GB

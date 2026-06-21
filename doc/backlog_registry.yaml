@@ -9517,7 +9517,7 @@ items:
     last_review: 2026-06-10
     notes: >-
       Second step after deterministic import. Uses the other model's HTML as a quality bar and
-      golden structural fixture, but makes home-rag independent through SmartNote IR.
+      golden structural fixture, but makes hometutor independent through SmartNote IR.
       2026-06-08 real-run update: a SIMPLER first slice landed as app/smart_konspekt.py (staged
       map->reduce->single universal-prompt compose, NOT the SmartNote IR / section-level compose
       this contract specifies). Real-run on урок 1 (qwen3.6-27b, 25 LLM calls, 11.5 min) passed

@@ -175,7 +175,7 @@ echo "Verdict: $(head -5 ${ARTIFACTS_DIR}/6_tester_verdict.md)"
 ```text
 Промпт для мета-оркестратора:
 
-You are a team orchestrator for home-rag_v2. Your job is to run the
+You are a team orchestrator for hometutor. Your job is to run the
 team pipeline for package <PACKAGE_ID>.
 
 The team workflow is described in doc/team_workflow/process.md.

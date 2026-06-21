@@ -3,7 +3,7 @@
 Updated: **2026-05-08**
 
 Use this module before planning or implementing any AI-assisted feature in
-`home-rag_v2`. The goal is to make evaluation explicit before an ML, LLM, or
+`hometutor`. The goal is to make evaluation explicit before an ML, LLM, or
 hybrid package enters the backlog.
 
 Main router: [`product_owner_router.md`](product_owner_router.md).

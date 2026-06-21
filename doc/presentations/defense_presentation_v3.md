@@ -1,6 +1,6 @@
 # ИИ-тьютор с RAG: персонализированное обучение на собственных документах
 
-> **Проект:** home-rag_v2  
+> **Проект:** hometutor  
 > **Дата защиты:** май 2026  
 > **Формат:** 12 слайдов  
 > **Версия:** 3.0 — Издание для проектной защиты
@@ -636,7 +636,7 @@ e22-close: Hybrid Search — BM25 + vector RRF fusion
 ```yaml
 # docker-compose.yml (реальный файл)
 services:
-  home-rag:
+  hometutor:
     build:
       context: .
       dockerfile: Dockerfile
@@ -659,7 +659,7 @@ services:
     restart: unless-stopped
 ```
 
-> **Архитектурная заметка:** ChromaDB работает как in-process `PersistentClient` внутри контейнера `home-rag` — отдельного сервиса chroma нет. Данные персистентны через volume `./chroma_db`. Порты привязаны к `127.0.0.1` для безопасности локального деплоя.
+> **Архитектурная заметка:** ChromaDB работает как in-process `PersistentClient` внутри контейнера `hometutor` — отдельного сервиса chroma нет. Данные персистентны через volume `./chroma_db`. Порты привязаны к `127.0.0.1` для безопасности локального деплоя.
 
 ---
 
@@ -686,7 +686,7 @@ services:
    └── /api/ → FastAPI :8000
         ↓
    Docker Compose
-   ├── home-rag (FastAPI + Streamlit)
+   ├── hometutor (FastAPI + Streamlit)
    ├── chroma_db volume (векторный индекс)
    └── .env (LLM_MODEL, HOME_RAG_API_KEY, ...)
 ```
@@ -724,7 +724,7 @@ jobs:
       - uses: docker/build-push-action@v6
         with:
           push: false
-          tags: home-rag:ci
+          tags: hometutor:ci
 ```
 
 **Проверяемый результат каждого push в `main`:**
@@ -765,7 +765,7 @@ SSH deploy на VPS — следующий шаг после настройки 
 
 ### Сравнительная таблица
 
-| Критерий | **home-rag** | NotebookLM | Anki | ChatGPT+Files | Obsidian |
+| Критерий | **hometutor** | NotebookLM | Anki | ChatGPT+Files | Obsidian |
 |---|---|---|---|---|---|
 | Q&A по документам | ✅ RAG + источники | ✅ | ❌ | ✅ | ⚠️ |
 | Автоквизы из ответов | ✅ | ❌ | ⚠️ ручные | ❌ | ❌ |
@@ -779,7 +779,7 @@ SSH deploy на VPS — следующий шаг после настройки 
 
 ### Уникальное позиционирование
 
-**Только home-rag закрывает полный учебный цикл:**
+**Только hometutor закрывает полный учебный цикл:**
 
 ```
 Документы → Q&A → Тьютор → Квиз → Карточки → Mastery → Graduation

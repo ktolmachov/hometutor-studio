@@ -1,4 +1,4 @@
-# home-rag_v2 Project Rules for DeepSeek
+# hometutor Project Rules for DeepSeek
 
 **Last updated:** 2026-05-17
 **Status:** Active — apply to all DeepSeek TUI / DeepSeek Code sessions in this project

@@ -9,7 +9,7 @@
 
 > «Почему эта версия retrieval / model лучше или хуже предыдущей и можем ли мы это воспроизвести?»
 
-В `home-rag_v2` MLOps — owner embeddings / reranker / router classifier / entity-relation extractors / golden dataset / eval reports, а также reproducibility budget по профилям (см. §32.2).
+В `hometutor` MLOps — owner embeddings / reranker / router classifier / entity-relation extractors / golden dataset / eval reports, а также reproducibility budget по профилям (см. §32.2).
 
 ## Зона ответственности
 
@@ -38,7 +38,7 @@
 ## Промпт 1: MLOps Impact Review (gate в STEP 3.5)
 
 ```text
-Role: MLOps Engineer for home-rag_v2.
+Role: MLOps Engineer for hometutor.
 Goal: review proposed package for model / embedding / reranker / router / extractor impact.
        Do NOT write code. Output = structured MLOps Impact Report.
 
@@ -103,7 +103,7 @@ Token budget: <= 8k input.
 ## Промпт 2: Eval Regression Verify (для Tester gate)
 
 ```text
-Role: MLOps Verifier for home-rag_v2.
+Role: MLOps Verifier for hometutor.
 Goal: confirm no regression on golden dataset vs last accepted baseline.
 
 Input:

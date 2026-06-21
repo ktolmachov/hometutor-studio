@@ -4,7 +4,7 @@
 Роль: журнал принятых и предлагаемых архитектурных решений.
 Важно: каждая запись имеет собственный статус (`Accepted`, `Proposed` и т.д.), поэтому не все ADR описывают уже реализованное состояние кода.
 
-> Бортовой журнал архитектурных решений проекта home-rag_v2.
+> Бортовой журнал архитектурных решений проекта hometutor.
 > Код отвечает на вопрос «как». Этот документ отвечает на вопрос «почему».
 
 ## Реестр решений
@@ -37,7 +37,7 @@
 | [021b](#adr-021-latency-budgets) | Surface latency budgets (Move 2 MVP — mission_load) | Proposed | 2026-05-24 |
 | [022b](#adr-022-session-tape) | Session tape (append-only learning arc trace) | Accepted | 2026-05-24 |
 | [023](adr_023_ssr_graph_routing.md) | SSR graph routing: prerequisite-aware weak-concept ordering | Accepted | 2026-05-29 |
-| [024](#adr-024) | Local balanced model for home_rag learning-plane | Accepted | 2026-06-04 |
+| [024](#adr-024) | Local balanced model for hometutor learning-plane | Accepted | 2026-06-04 |
 | [025](adr_025_course_graph_compiler.md) | Course Graph Compiler and local artifact cache | Accepted | 2026-06-11 |
 
 ---
@@ -1057,7 +1057,7 @@ Move 3 — learning arc теряется между четырьмя aggregate s
 ---
 
 <a id="adr-024"></a>
-## ADR-024: Local balanced model for home_rag learning-plane
+## ADR-024: Local balanced model for hometutor learning-plane
 
 **Статус:** Accepted
 **Дата:** 2026-06-04
@@ -1090,7 +1090,7 @@ Move 3 — learning arc теряется между четырьмя aggregate s
 
 ### Последствия
 
-`qwen/qwen3.6-27b` принята как balanced local model для home_rag. В текущей локальной
+`qwen/qwen3.6-27b` принята как balanced local model для hometutor. В текущей локальной
 LM Studio конфигурации она даёт достаточное качество для grounded RAG answers,
 tutor/quiz generation и anti-hallucination behavior.
 

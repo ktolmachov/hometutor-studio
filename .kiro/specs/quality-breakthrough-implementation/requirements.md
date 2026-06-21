@@ -2,15 +2,15 @@
 
 ## Introduction
 
-This specification defines requirements for implementing expert panel recommendations from two virtual defense sessions (`defense_virtual_defense.md` and `defense_expert_panel.md`) to achieve a measurable quality breakthrough for the home-rag_v2 project. The goal is to transform expert feedback into a structured, implementable specification that significantly improves the project's evaluation rigor, transparency, and defensibility.
+This specification defines requirements for implementing expert panel recommendations from two virtual defense sessions (`defense_virtual_defense.md` and `defense_expert_panel.md`) to achieve a measurable quality breakthrough for the hometutor project. The goal is to transform expert feedback into a structured, implementable specification that significantly improves the project's evaluation rigor, transparency, and defensibility.
 
-**Context:** home-rag_v2 is a local-first educational RAG assistant (FastAPI + Streamlit + CLI + Telegram) using Chroma + llama-index for retrieval with configurable LLM providers. The core learning cycle is: answer → tutor → quiz → SRS → mastery → plan.
+**Context:** hometutor is a local-first educational RAG assistant (FastAPI + Streamlit + CLI + Telegram) using Chroma + llama-index for retrieval with configurable LLM providers. The core learning cycle is: answer → tutor → quiz → SRS → mastery → plan.
 
 **North Star:** Move from "it works well" claims to "here's the reproducible eval-run proving it works well" — with retrieval metrics, adversarial test sets, cost/latency breakdowns, and honest limitation documentation.
 
 ## Glossary
 
-- **System**: The home-rag_v2 RAG pipeline and learning orchestration system
+- **System**: The hometutor RAG pipeline and learning orchestration system
 - **Eval_Service**: The evaluation infrastructure in `app/eval_service.py` and `run_eval.py`
 - **Retrieval_Pipeline**: The document retrieval and ranking system (vector/hybrid/BM25/doc_then_chunk modes)
 - **Defense_Baseline**: A reproducible evaluation run with fixed dataset, metrics, and configuration

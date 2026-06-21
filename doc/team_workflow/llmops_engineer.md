@@ -9,7 +9,7 @@
 
 > «Почему LLM дала именно такой ответ, каким prompt/model/context это было вызвано, и можно ли это повторить?»
 
-В `home-rag_v2` LLMOps — owner Profile-aware Fallback (`LOCAL_STRICT` / `BALANCED` / `CLOUD_FAST`) и разделения **primary chat LLM** vs **secondary LLM channels** (см. §31, §32).
+В `hometutor` LLMOps — owner Profile-aware Fallback (`LOCAL_STRICT` / `BALANCED` / `CLOUD_FAST`) и разделения **primary chat LLM** vs **secondary LLM channels** (см. §31, §32).
 
 ## Зона ответственности
 
@@ -38,7 +38,7 @@
 ## Промпт 1: LLMOps Impact Review (gate в STEP 3.5)
 
 ```text
-Role: LLMOps Engineer for home-rag_v2.
+Role: LLMOps Engineer for hometutor.
 Goal: review proposed package for LLM-layer impact.
        Do NOT write code. Output = structured LLMOps Impact Report.
 
@@ -99,7 +99,7 @@ Token budget: <= 8k input.
 ## Промпт 2: Primary Chat Fallback Verify (для Tester gate)
 
 ```text
-Role: LLMOps Verifier for home-rag_v2 primary chat fallback.
+Role: LLMOps Verifier for hometutor primary chat fallback.
 Goal: confirm fallback policy works across 8 scenarios from balance plan Phase 2.
 
 Scenarios (each must be covered by an existing test):

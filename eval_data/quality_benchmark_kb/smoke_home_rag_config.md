@@ -1,6 +1,6 @@
-# Конфигурация home_rag
+# Конфигурация hometutor
 
-Финальная локальная модель для home_rag: **qwopus3.6-35b-a3b-v1-mtp**.
+Финальная локальная модель для hometutor: **qwopus3.6-35b-a3b-v1-mtp**.
 
 Все роли learning-plane используют одну и ту же модель:
 - LLM_MODEL=qwopus3.6-35b-a3b-v1-mtp

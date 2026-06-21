@@ -228,7 +228,7 @@
 Скопируйте этот блок текста и отдайте агенту в новой сессии:
 
 ```text
-Ты работаешь в репозитории home-rag_v2.
+Ты работаешь в репозитории hometutor.
 
 Задача: подготовить Wave 1 — Runtime Trust Foundation и начать выполнение только через штатный workflow  
 для Autonomous Delivery Control Plane v3.

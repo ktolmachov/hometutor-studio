@@ -146,12 +146,12 @@ python scripts/delete_all_data.py --verify-only
 docker compose -f docker-compose.yml -f docker-compose.lmstudio.yml up --build
 ```
 
-Перед первым запуском на хосте: `python scripts/bootstrap.py`, затем `docker compose exec home-rag python ingest.py`.
+Перед первым запуском на хосте: `python scripts/bootstrap.py`, затем `docker compose exec hometutor python ingest.py`.
 
 ---
 
 1. `docker compose up -d` на сервере.
-2. Nginx: [deploy/nginx/home-rag.conf.example](../deploy/nginx/home-rag.conf.example) — `/` → Streamlit :8501, `/api/` → FastAPI :8000.
+2. Nginx: [deploy/nginx/hometutor.conf.example](../deploy/nginx/hometutor.conf.example) — `/` → Streamlit :8501, `/api/` → FastAPI :8000.
 3. HTTPS: `certbot --nginx`.
 4. CI deploy (опционально): GitHub Actions job `deploy` при секретах `VPS_HOST`, `VPS_SSH_KEY` — см. [presentations/defense_deploy_plan.md](presentations/defense_deploy_plan.md).
 

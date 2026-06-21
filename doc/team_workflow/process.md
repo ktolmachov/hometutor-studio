@@ -4,7 +4,7 @@
 
 ## Зачем этот документ
 
-Проект `home-rag_v2` достиг зрелости: 14+ закрытых эпох, стабильная архитектура, развитая документация. Дальнейшее развитие требует чёткого разделения ролей и формализованного процесса, где каждая роль работает через AI-агента с заточенным промптом.
+Проект `hometutor` достиг зрелости: 14+ закрытых эпох, стабильная архитектура, развитая документация. Дальнейшее развитие требует чёткого разделения ролей и формализованного процесса, где каждая роль работает через AI-агента с заточенным промптом.
 
 Этот документ описывает **кто**, **когда** и **с каким промптом** работает над проектом.
 
@@ -62,7 +62,7 @@ python scripts/validate_team_artifact.py --artifacts-dir archive/team_artifacts/
 | 9 | **MLOps Engineer** ([`mlops_engineer.md`](mlops_engineer.md)) | Контракт меняет embedding / reranker / router classifier / entity-relation extractor / chunking стратегию / eval dataset | MLOps Impact Report + rollback plan |
 | 10 | **Performance Engineer / DevOps** ([`performance_devops.md`](performance_devops.md)) | Контракт трогает latency / cost / readiness / `scripts/local_*`, `.env.example`, ingest throughput, CI workflows, observability | Performance Impact Report + post-release watch |
 
-Полное описание Ops-ролей, их KPI, RACI и mapping на реальные модули `home-rag_v2` — в [`rag_llm_ops_project_document.md`](rag_llm_ops_project_document.md) (§5, §6, §7, §10–§12, §31–§35); тактические инструменты Performance/DevOps — [`budget_health_prompt.md`](budget_health_prompt.md), [`generate_bottleneck_analysis_prompt.md`](generate_bottleneck_analysis_prompt.md).
+Полное описание Ops-ролей, их KPI, RACI и mapping на реальные модули `hometutor` — в [`rag_llm_ops_project_document.md`](rag_llm_ops_project_document.md) (§5, §6, §7, §10–§12, §31–§35); тактические инструменты Performance/DevOps — [`budget_health_prompt.md`](budget_health_prompt.md), [`generate_bottleneck_analysis_prompt.md`](generate_bottleneck_analysis_prompt.md).
 
 > **Принцип подключения Ops:** Ops-роль это **не отдельный шаг конвейера, а gate-обзор**, который вставляется после Architect+Designer (STEP 3) и **до** Developer (STEP 4). Если триггер не сработал — gate пропускается без вреда для скорости.
 

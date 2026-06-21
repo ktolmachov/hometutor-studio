@@ -114,7 +114,7 @@ Expected attributes:
 - `ssr.hint_kind`
 - `ssr.primary_nav`
 
-`OTEL_SERVICE_NAME` задаёт service resource, default `home-rag`. Sampling
+`OTEL_SERVICE_NAME` задаёт service resource, default `hometutor`. Sampling
 defaults to SDK exporter defaults; если нужен sampling ниже 100%, задавать его
 в OTEL Collector/SDK конфиге, а не в SSR policy.
 
