@@ -1,0 +1,44 @@
+id: scenario_13
+title: "Course Workspace: полный цикл"
+level: "🔴 Orchestration"
+persona: "Аня запускает обучение по целому курсу из папки."
+duration_min: 8
+why: |
+  Показать весь pipeline курса: активация области, scoped-вопросы, план, карточки,
+  tutor-поддержка и сигнал mastery/graduation.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+  e2e_env:
+    HOME_RAG_E2E_OFFLINE: "1"
+wow_moment: |
+  За одну сессию проходит полный цикл «курс активирован → освоение подтверждено».
+takeaway: |
+  Course Mode делает обучение управляемым и измеримым на уровне целой папки.
+scenario_link: "user_scenarios.md#сценарий-13--course-workspace-цикл"
+
+shots:
+  - slug: "01_activate_course_scope"
+    caption: "Активация папки как курса"
+    narration: "Курс выбирается в Темах и становится активной областью."
+    duration_sec: 4
+  - slug: "02_scoped_quick_answer"
+    caption: "Scoped быстрый ответ внутри курса"
+    narration: "Запросы автоматически ограничены материалами курса."
+    duration_sec: 4
+  - slug: "03_course_plan"
+    caption: "План изучения курса"
+    narration: "План формируется на основе структуры и текущего прогресса."
+    duration_sec: 4
+  - slug: "04_course_flashcards"
+    caption: "Генерация карточек курса"
+    narration: "Карточки запускают закрепление ключевых концептов."
+    duration_sec: 4
+  - slug: "05_tutor_unknown_recovery"
+    caption: "Маршрут «Не знаю» через Tutor"
+    narration: "Тьютор помогает пройти сложные места без срыва сессии."
+    duration_sec: 4
+  - slug: "06_course_mastery_dashboard"
+    caption: "Dashboard курса и mastery"
+    narration: "Видно рост mastery и сигнал graduation по курсу."
+    duration_sec: 4

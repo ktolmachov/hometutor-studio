@@ -1,0 +1,35 @@
+id: scenario_12
+title: "Quiz → колода карточек"
+level: "🔵 Учебный ритм"
+persona: "Аня хочет превратить ошибки из квиза в карточки на повторение."
+duration_min: 4
+why: |
+  Показать цикл «проверка знаний → автоматическое усиление слабых мест».
+requires:
+  openai_api_key: false
+  offline_friendly: true
+  e2e_env:
+    HOME_RAG_E2E_OFFLINE: "1"
+wow_moment: |
+  Результаты квиза сразу преобразуются в колоду для интервального повторения.
+takeaway: |
+  Ошибки становятся учебным активом, а не тупиком.
+scenario_link: "user_scenarios.md#сценарий-12--quiz-в-деck"
+
+shots:
+  - slug: "01_quiz_summary"
+    caption: "Итоги квиза по теме"
+    narration: "Видны сильные и слабые концепты."
+    duration_sec: 3
+  - slug: "02_convert_to_deck"
+    caption: "CTA «Сделать колоду из квиза»"
+    narration: "Переход к карточкам запускается напрямую из summary."
+    duration_sec: 3
+  - slug: "03_generated_cards_preview"
+    caption: "Предпросмотр карточек из ошибок"
+    narration: "Можно проверить и отредактировать карточки перед сохранением."
+    duration_sec: 4
+  - slug: "04_saved_deck_review_ready"
+    caption: "Колода сохранена и готова к review"
+    narration: "Новая колода сразу попадает в цикл повторений."
+    duration_sec: 3

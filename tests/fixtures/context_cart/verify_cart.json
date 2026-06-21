@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "budget": 6000,
+  "overhead_reserved": 3000,
+  "available": 3000,
+  "tokens_used": 1140,
+  "included": [
+    {
+      "path": "app/api.py",
+      "tokens": 1140,
+      "tokens_charged": 1140,
+      "strategy": "full"
+    }
+  ],
+  "excluded": [
+    {
+      "path": "tests/test_api.py",
+      "tokens": 14230,
+      "strategy": "forbidden",
+      "hint": "rg -n \"def test_\" tests/test_api.py  # then open one test",
+      "reason": "forbidden_full_read"
+    }
+  ]
+}

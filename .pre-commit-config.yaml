@@ -1,0 +1,23 @@
+# Opt-in pre-commit framework config for home-rag_v2.
+#
+# To activate: `pip install pre-commit && pre-commit install`
+# After activation, every `git commit` runs the hooks below locally.
+#
+# You can also run the budget gate manually without pre-commit installed:
+#   python scripts/kilo_budget_gate.py
+#
+# Override a single commit: `KILO_BUDGET_GATE=skip git commit ...`
+# or `git commit --no-verify`.
+
+repos:
+  - repo: local
+    hooks:
+      - id: kilo-budget-gate
+        name: Kilo budget gate (workflow launcher regression)
+        entry: python scripts/kilo_budget_gate.py
+        language: system
+        pass_filenames: false
+        stages: [commit]
+        # Only relevant when files likely to affect budget change; otherwise
+        # the gate runs fast (<200ms) so always-on is fine.
+        files: '^(doc/team_workflow/|fixtures/kilo_injection_baseline\.json|scripts/_kilo_guard\.py|scripts/kilo_budget_gate\.py|scripts/kilo_budget_simulate\.py|scripts/kilo_proxy_relay\.py|scripts/kilo_budget_daily\.py|scripts/kilo_injection_calibrate\.py|CLAUDE\.md)'

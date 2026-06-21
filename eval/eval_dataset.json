@@ -1,0 +1,114 @@
+{
+  "version": "1.0",
+  "date": "2026-05-20",
+  "corpus": "demo_data",
+  "model": "cloud-llm-demo",
+  "retrieval_modes_evaluated": ["vector_only", "hybrid", "bm25_only"],
+  "questions": [
+    {
+      "id": "q01",
+      "difficulty": "easy",
+      "question": "Что такое RAG и зачем он нужен?",
+      "expected_topics": ["извлечение", "контекст", "источники"],
+      "ground_truth_source": "alpha_rag_intro.md"
+    },
+    {
+      "id": "q02",
+      "difficulty": "easy",
+      "question": "Почему Chroma называют embedded vector database?",
+      "expected_topics": ["Chroma", "векторное хранилище"],
+      "ground_truth_source": "beta_vector_db.md"
+    },
+    {
+      "id": "q03",
+      "difficulty": "easy",
+      "question": "Где Chroma хранит данные и что такое persistence?",
+      "expected_topics": ["chroma_db", "persistence"],
+      "ground_truth_source": "beta_vector_db.md"
+    },
+    {
+      "id": "q04",
+      "difficulty": "easy",
+      "question": "Что такое уникальный маркер RAG_ALPHA_UNIQUE_7741?",
+      "expected_topics": ["RAG_ALPHA_UNIQUE_7741"],
+      "ground_truth_source": "alpha_rag_intro.md"
+    },
+    {
+      "id": "q05",
+      "difficulty": "easy",
+      "question": "HYBRID_GAMMA_UNIQUE_8833",
+      "expected_topics": ["HYBRID_GAMMA_UNIQUE_8833"],
+      "ground_truth_source": "gamma_hybrid.md"
+    },
+    {
+      "id": "q06",
+      "difficulty": "medium",
+      "question": "Как гибридный поиск сочетает BM25 и векторный поиск?",
+      "expected_topics": ["BM25", "векторный", "гибрид"],
+      "ground_truth_source": "gamma_hybrid.md"
+    },
+    {
+      "id": "q07",
+      "difficulty": "medium",
+      "question": "Что такое RRF в гибридном поиске?",
+      "expected_topics": ["RRF", "Reciprocal Rank Fusion"],
+      "ground_truth_source": "gamma_hybrid.md"
+    },
+    {
+      "id": "q08",
+      "difficulty": "medium",
+      "question": "Зачем нужны guardrails в пайплайне?",
+      "expected_topics": ["guardrails", "безопасность"],
+      "ground_truth_source": "epsilon_guardrails.md"
+    },
+    {
+      "id": "q09",
+      "difficulty": "medium",
+      "question": "Что такое ease factor в SM-2?",
+      "expected_topics": ["SM-2", "ease factor", "интервалы"],
+      "ground_truth_source": "delta_srs.md"
+    },
+    {
+      "id": "q10",
+      "difficulty": "medium",
+      "question": "Как Python использует отступы для блоков кода?",
+      "expected_topics": ["отступы", "блок"],
+      "ground_truth_source": "python_basics.md"
+    },
+    {
+      "id": "q11",
+      "difficulty": "hard",
+      "question": "Свяжите RAG и guardrails: как снизить риск галлюцинаций?",
+      "expected_topics": ["RAG", "guardrails", "источники"],
+      "ground_truth_source": "alpha_rag_intro.md"
+    },
+    {
+      "id": "q12",
+      "difficulty": "hard",
+      "question": "Как хранение эмбеддингов в Chroma связано с этапом retrieval в RAG?",
+      "expected_topics": ["Chroma", "retrieval", "RAG"],
+      "ground_truth_source": "beta_vector_db.md"
+    },
+    {
+      "id": "q13",
+      "difficulty": "hard",
+      "question": "Сравните: чем гибридный поиск и guardrails решают разные классы ошибок?",
+      "expected_topics": ["гибрид", "guardrails"],
+      "ground_truth_source": "gamma_hybrid.md"
+    },
+    {
+      "id": "q14",
+      "difficulty": "hard",
+      "question": "Почему spaced repetition уместен после ответа с источниками?",
+      "expected_topics": ["SRS", "повторение", "закрепление"],
+      "ground_truth_source": "delta_srs.md"
+    },
+    {
+      "id": "q15",
+      "difficulty": "hard",
+      "question": "Опишите протокол TelepathySync v0 для интеграции с домашним ассистентом.",
+      "expected_topics": ["out-of-corpus"],
+      "ground_truth_source": null
+    }
+  ]
+}

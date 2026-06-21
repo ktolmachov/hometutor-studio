@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://home-rag.local/schemas/replay_manifest.schema.json",
+  "title": "ReplayManifest",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["run_id", "run_dir", "event_log", "snapshots"],
+  "properties": {
+    "run_id": { "type": "string", "minLength": 1 },
+    "run_dir": { "type": "string", "minLength": 1 },
+    "event_log": { "type": "string", "minLength": 1 },
+    "snapshots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path"],
+        "properties": {
+          "path": { "type": "string", "minLength": 1 },
+          "phase": { "type": ["string", "null"] },
+          "updated_at": { "type": ["string", "null"] }
+        }
+      }
+    }
+  }
+}

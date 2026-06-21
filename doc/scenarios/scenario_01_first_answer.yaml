@@ -1,0 +1,42 @@
+id: scenario_01
+title: "Первый запуск: от папки до первого ответа"
+level: "🟢 Первые шаги"
+persona: "Аня, студентка. Скачала home-rag впервые."
+duration_min: 5
+why: |
+  За 5 минут превратить папку с конспектами в поисковую систему по своим материалам
+  с источниками. Момент, ради которого пользователь решает остаться.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+  e2e_env:
+    HOME_RAG_E2E_OFFLINE: "1"
+wow_moment: |
+  Ответ с confidence 87% и тремя фрагментами из реальных файлов пользователя —
+  клик по фрагменту открывает подсветку в исходнике.
+takeaway: |
+  Положил папку → через 5 минут получил поиск по своим материалам
+  с источниками. Локально. Бесплатно по privacy.
+scenario_link: "user_scenarios.md#сценарий-1--первый-запуск-от-папки-до-первого-ответа"
+
+shots:
+  - slug: "01_home_mode_selector"
+    caption: "Home Mode Selector: 7 карточек режимов"
+    narration: "UI встречает семью режимами, а не пустым чатом."
+    duration_sec: 3
+  - slug: "02_quick_answer_empty"
+    caption: "Быстрый ответ: готов принять вопрос"
+    narration: "Аня спрашивает как есть — без магических промптов."
+    duration_sec: 3
+  - slug: "03_quick_answer_with_sources"
+    caption: "Ответ получен: confidence + источники"
+    narration: "Ответ — с confidence-оценкой и точными фрагментами из её лекций."
+    duration_sec: 5
+  - slug: "04_sources_expanded"
+    caption: "Раскрытые источники с превью"
+    narration: "Никаких галлюцинаций: каждый тезис подкреплён фрагментом."
+    duration_sec: 4
+  - slug: "05_learn_this_topic_cta"
+    caption: "Кнопка «Учить эту тему 5 минут»"
+    narration: "А если вдруг захотелось разобраться — одна кнопка превращает ответ в учебный разбор."
+    duration_sec: 3

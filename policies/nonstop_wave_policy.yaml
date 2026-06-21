@@ -1,0 +1,5 @@
+{
+  "enabled": true,
+  "max_next_tasks": 50,
+  "max_runtime_seconds": 14400
+}

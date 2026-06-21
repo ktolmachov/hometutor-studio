@@ -1,0 +1,20 @@
+{
+  "routes": [
+    {
+      "name": "plan_next",
+      "actions": ["PLAN_NEXT"],
+      "template": "doc/team_workflow/generate_plan_next_prompt.md"
+    },
+    {
+      "name": "orchestration",
+      "actions": ["ORCHESTRATION"],
+      "template": "doc/team_workflow/generate_orchestration_prompt.md"
+    },
+    {
+      "name": "execution_auto",
+      "actions": ["EXECUTION_AUTO", "RESUME"],
+      "template": "scripts/generate_next_prompt.py"
+    }
+  ],
+  "default_route": "execution_auto"
+}

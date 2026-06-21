@@ -1,0 +1,34 @@
+id: scenario_18
+title: "Главная как карта возврата: режимы, due и следующий шаг"
+level: "🟠 Retention engine"
+persona: "Аня утром: нужен один экран, откуда видно «что сегодня» без рыскания по меню."
+duration_min: 2
+why: |
+  Закрепить образ Home как хаба удержания: шесть режимов, вход к повторениям и экран
+  прогресса с явным следующим действием.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+wow_moment: |
+  С «главной» можно попасть и в очередь повторений, и в сводку дня без длинной навигации.
+takeaway: |
+  Retention начинается с первого экрана: due, план и режимы — в одной картине.
+scenario_link: "user_scenarios.md#сценарий-18--главная-карта-возврата"
+
+shots:
+  - slug: "01_home_modes_hub"
+    caption: "Шесть режимов на Home"
+    narration: "Не пустой чат — выбор траектории: ответ, тьютор, карточки, прогресс."
+    duration_sec: 3
+  - slug: "02_flashcards_due_surface"
+    caption: "Flashcards: поверхность повторений"
+    narration: "Очередь SM-2 — отдельный режим с понятным входом с главной."
+    duration_sec: 3
+  - slug: "03_progress_next_actions"
+    caption: "Прогресс: снимок дня и CTA"
+    narration: "Видно, что делать дальше после быстрого обзора метрик."
+    duration_sec: 3
+  - slug: "04_back_to_home_rhythm"
+    caption: "Возврат на Home"
+    narration: "Пользователь снова на хабе — цикл «узнал → сделал → вернулся» замыкается."
+    duration_sec: 3

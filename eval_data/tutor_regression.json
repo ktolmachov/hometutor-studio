@@ -1,0 +1,481 @@
+{
+  "version": "1.4",
+  "description": "Regression dataset для tutor mode (19.2 + E6.4) + router_eval gold (E10.3/E11-Q). Покрывает quiz, Socratic, homework, adaptive difficulty, spaced repetition, mastery recommendations, anti-overhelp и misconception-handling. v1.4: добавлен gold_rationale ко всем 26 кейсам (E11-Q).",
+  "timestamp": "2026-04-11",
+  "test_cases": [
+    {
+      "id": "tutor_01",
+      "category": "quiz_quality",
+      "input": {
+        "query_mode": "tutor",
+        "question": "Как работает reranking в RAG?",
+        "session_id": "test_session_01"
+      },
+      "router_eval": {
+        "gold_selected_agent": "MicroQuizGenerator",
+        "gold_rationale": "MicroQuizGenerator: student asks 'how does X work' without history. Active recall > re-explain: MicroQuizGenerator reveals gaps more precisely than ConceptExplainer guessing starting level. Not ConceptExplainer — it assumes student is unfamiliar; a quiz tests this first."
+      },
+      "expected": {
+        "quiz_concepts": [
+          "reranking",
+          "cross-encoder"
+        ],
+        "difficulty_level": "recall",
+        "quiz_type": "short_answer"
+      },
+      "metrics": {
+        "quiz_relevance_score": 0.95,
+        "concept_match": true,
+        "no_neighbor_leak": true
+      }
+    },
+    {
+      "id": "tutor_02",
+      "category": "socratic_quality",
+      "input": {
+        "query_mode": "tutor",
+        "question": "Почему hybrid search лучше vector-only?",
+        "history": "Предыдущий ответ про BM25"
+      },
+      "router_eval": {
+        "gold_selected_agent": "SocraticQuestioner",
+        "gold_rationale": "SocraticQuestioner: question asked after prior BM25 explanation (history present). After explanation — deepen via probing, not re-explain. Not ConceptExplainer — history already provides context; repeating = overteaching."
+      },
+      "expected": {
+        "socratic_type": "probing",
+        "question_contains": "почему ты считаешь"
+      },
+      "metrics": {
+        "socratic_depth": 0.9,
+        "does_not_repeat_answer": true
+      }
+    },
+    {
+      "id": "tutor_03",
+      "category": "hint_gradation",
+      "input": {
+        "query_mode": "tutor",
+        "homework_level": "hint",
+        "question": "Реши задачу про Prompt Injection в RAG"
+      },
+      "router_eval": {
+        "gold_selected_agent": "ConceptExplainer",
+        "gold_rationale": "ConceptExplainer: homework_level='hint' — scaffold-режим по явному запросу студента. Anti-overhelp Rule 2 НЕ применяется: студент уже запросил уровень 'hint', а не 'реши за меня'. ConceptExplainer в режиме hint даёт частичную структуру/направление без полного решения. Не SocraticQuestioner — студент уже выбрал scaffold уровень, задавать вопросы назад было бы frustrating."
+      },
+      "expected": {
+        "mode": "hint",
+        "contains_solution": false,
+        "contains_structure": false
+      },
+      "metrics": {
+        "hint_gradation_error": 0.0
+      }
+    },
+    {
+      "id": "tutor_04",
+      "category": "adaptive_difficulty",
+      "input": {
+        "query_mode": "tutor",
+        "question": "Что такое Prompt Injection?",
+        "previous_quiz_score": 0.85,
+        "streak": 2
+      },
+      "router_eval": {
+        "gold_selected_agent": "ConceptExplainer",
+        "gold_rationale": "ConceptExplainer: previous_quiz_score=0.85, streak=2 — student ready to advance from recognition to recall. ConceptExplainer with deeper level; adaptive progression. Not MicroQuizGenerator — new quiz comes after the advanced explanation, not before."
+      },
+      "expected": {
+        "difficulty_level": "recall"
+      },
+      "metrics": {
+        "level_progression_correct": true
+      }
+    },
+    {
+      "id": "tutor_05",
+      "category": "spaced_repetition",
+      "input": {
+        "query_mode": "tutor",
+        "question": "Повтори Prompt Injection"
+      },
+      "router_eval": {
+        "gold_selected_agent": "MicroQuizGenerator",
+        "gold_rationale": "MicroQuizGenerator: 'повтори X' is an explicit SM-2 / spaced repetition trigger. Activating memory via recall-quiz is more effective than re-explaining (desirable difficulty principle). Not ConceptExplainer — re-explain on 'review' request violates active recall contract."
+      },
+      "expected": {
+        "due_review_triggered": true,
+        "next_interval_days": 6
+      },
+      "metrics": {
+        "sm2_update_correct": true
+      }
+    },
+    {
+      "id": "tutor_06",
+      "category": "mastery_dashboard",
+      "input": {
+        "endpoint": "/dashboard/mastery"
+      },
+      "router_eval": {
+        "gold_selected_agent": "MotivationCoach",
+        "stub_user_message": "Напомни, какой у меня прогресс по темам и что стоит повторить в первую очередь?",
+        "gold_rationale": "MotivationCoach: 'что стоит повторить в первую очередь?' — мета-вопрос о приоритетах обучения, не SM-2 trigger. SM-2 Rule 3 НЕ применяется: 'что стоит повторить' — это вопрос о learning plan, не запрос на recall конкретной темы. MotivationCoach связывает прогресс с целями и мотивирует приоритизацию. Не MicroQuizGenerator — студент спрашивает ЧТО повторить, а не просит повторить конкретную тему."
+      },
+      "expected": {
+        "mastery_percentage": ">= 60",
+        "next_recommendation": "не пусто",
+        "graph_overlay_present": true
+      },
+      "metrics": {
+        "dashboard_accuracy": 1.0
+      }
+    },
+    {
+      "id": "tutor_07",
+      "category": "homework_mode_session",
+      "input": {
+        "query_mode": "tutor",
+        "question": "Покажи plan решения задачи про reranker"
+      },
+      "router_eval": {
+        "gold_selected_agent": "ConceptExplainer",
+        "gold_rationale": "ConceptExplainer: 'show me the solution plan' — scaffold, not full solution. ConceptExplainer in plan mode gives steps without full code. Not SocraticQuestioner — student already requested scaffold; asking more questions would frustrate."
+      },
+      "expected": {
+        "mode": "plan",
+        "contains_steps": true,
+        "no_full_code": true
+      }
+    },
+    {
+      "id": "tutor_08",
+      "category": "dynamic_learning_plan",
+      "input": {
+        "endpoint": "/learning-plan",
+        "user_progress": true
+      },
+      "router_eval": {
+        "gold_selected_agent": "ConceptExplainer",
+        "stub_user_message": "Что у меня в адаптивном плане сегодня и где главные пробелы?",
+        "gold_rationale": "ConceptExplainer: question about adaptive plan and gaps — informational request. ConceptExplainer structures learning plan and explains priorities. Not MotivationCoach — no emotional trigger; information is needed."
+      },
+      "expected": {
+        "plan_contains_review": true,
+        "mastery_percentage_present": true
+      }
+    },
+    {
+      "id": "tutor_09",
+      "category": "socratic_type_switch",
+      "input": {
+        "question": "Что если у нас 10000 документов?"
+      },
+      "router_eval": {
+        "gold_selected_agent": "SocraticQuestioner",
+        "gold_rationale": "SocraticQuestioner (challenge): 'what if 10000 documents?' — counterfactual/scaling question. Correct response: challenge student to think through scaling consequences themselves. Not ConceptExplainer — providing a ready answer to 'what if' kills independent reasoning."
+      },
+      "expected": {
+        "socratic_type": "challenge"
+      }
+    },
+    {
+      "id": "tutor_10",
+      "category": "quiz_feedback_loop",
+      "input": {
+        "quiz_answer_score": 0.4
+      },
+      "router_eval": {
+        "gold_selected_agent": "MicroQuizGenerator",
+        "stub_user_message": "Я провалил квиз, что дальше — упростить задание или разбор ошибки?",
+        "gold_rationale": "MicroQuizGenerator: quiz_score=0.4 — failure. Pedagogical tactic: not ErrorDiagnoser first, but MicroQuizGenerator with level_downgrade to recall. Restore confidence with easier success, then diagnose errors. Not ErrorDiagnoser — diagnosing without confidence rebuild demoralizes."
+      },
+      "expected": {
+        "level_downgrade": "recall"
+      }
+    },
+    {
+      "id": "tutor_11",
+      "category": "condensed_question_integrity",
+      "input": {
+        "long_history": true,
+        "query_mode": "tutor"
+      },
+      "router_eval": {
+        "gold_selected_agent": "ConceptExplainer",
+        "stub_user_message": "Кратко: о чём мы говорили про retrieval в последней длинной переписке?",
+        "gold_rationale": "ConceptExplainer: long history, student requests condensed summary of retrieval discussion. ConceptExplainer synthesizes and reformulates — condensed question integrity. Not SocraticQuestioner — student requests information, not a question."
+      },
+      "expected": {
+        "condensed_question_used": true,
+        "rewritten_not_overwritten": true
+      }
+    },
+    {
+      "id": "tutor_12",
+      "category": "history_window_tutor",
+      "input": {
+        "query_mode": "tutor",
+        "message_count": 15
+      },
+      "router_eval": {
+        "gold_selected_agent": "ConceptExplainer",
+        "stub_user_message": "После длинной сессии с чего лучше продолжить — квиз или объяснение?",
+        "gold_rationale": "ConceptExplainer: after long session (15+ messages), student asks how to continue. ConceptExplainer provides consolidation: structured explanation best anchors a long session. Not MicroQuizGenerator — quiz without consolidation after 15 messages overloads cognitive load."
+      },
+      "expected": {
+        "window_size": 16,
+        "no_context_loss": true
+      }
+    },
+    {
+      "id": "tutor_13",
+      "category": "concept_mastery_overlay",
+      "input": {
+        "graph_prerequisites": true
+      },
+      "router_eval": {
+        "gold_selected_agent": "ConceptExplainer",
+        "stub_user_message": "Какие пререквизиты у темы hybrid search в моём графе знаний?",
+        "gold_rationale": "ConceptExplainer: prerequisites in knowledge graph — informational query about knowledge structure. ConceptExplainer with graph_overlay explains prerequisites and connections. Not SocraticQuestioner — student explicitly requested information, not a check."
+      },
+      "expected": {
+        "prerequisites_respected": true,
+        "color_coding_correct": true
+      }
+    },
+    {
+      "id": "tutor_14",
+      "category": "immediate_feedback",
+      "input": {
+        "quiz_answer": "wrong"
+      },
+      "router_eval": {
+        "gold_selected_agent": "ErrorDiagnoser",
+        "stub_user_message": "Я выбрал неверный ответ в квизе — в чём логическая ошибка в моём рассуждении?",
+        "gold_rationale": "ErrorDiagnoser: студент явно просит 'в чём логическая ошибка в моём рассуждении?' — targeted diagnosis request. Quiz Failure Rule 5 исключение: при quiz_answer=wrong + явный вопрос об ошибке → ErrorDiagnoser, не MicroQuizGenerator. ErrorDiagnoser диагностирует конкретную логическую ошибку немедленно — это то, что запросил студент. Не MicroQuizGenerator — level_downgrade без диагностики игнорирует явный запрос студента на объяснение."
+      },
+      "expected": {
+        "feedback_shown_immediately": true,
+        "error_explanation_present": true
+      }
+    },
+    {
+      "id": "tutor_15",
+      "category": "full_cycle",
+      "input": {
+        "full_session": "question → tutor → quiz → socratic → homework"
+      },
+      "router_eval": {
+        "gold_selected_agent": "ConceptExplainer",
+        "stub_user_message": "Проведи меня через один полный цикл: объяснение → проверка → практика.",
+        "gold_rationale": "ConceptExplainer: request for full cycle explain->check->practice. ConceptExplainer as first cycle step — anchors subsequent quiz and homework. Not MicroQuizGenerator — quiz without explanation is no-context quiz."
+      },
+      "expected": {
+        "cycle_complete": true,
+        "all_features_triggered": true
+      },
+      "metrics": {
+        "pedagogical_effectiveness": 0.92
+      }
+    },
+    {
+      "id": "tutor_16",
+      "category": "tutor_cycle_contract",
+      "input": {
+        "query_mode": "tutor",
+        "question": "Кратко: что такое RAG pipeline?",
+        "session_id": "cycle_contract_16"
+      },
+      "router_eval": {
+        "gold_selected_agent": "ConceptExplainer",
+        "gold_rationale": "ConceptExplainer: 'what is RAG pipeline?' — basic conceptual request. ConceptExplainer fulfills tutor_cycle_contract (phase, quiz_state, review_state). Only correct agent for direct 'what is X' question."
+      },
+      "expected": {
+        "tutor_cycle_fields": [
+          "phase",
+          "default_next_step",
+          "quiz_state",
+          "review_state"
+        ],
+        "diagnostic_status_enum": [
+          "recognized",
+          "recalled",
+          "misconception",
+          "cannot_apply"
+        ]
+      },
+      "metrics": {
+        "contract_present": true
+      }
+    },
+    {
+      "id": "tutor_17",
+      "category": "anti_overhelp_homework",
+      "input": {
+        "query_mode": "tutor",
+        "question": "Реши за меня задачу целиком: как оптимизировать reranker в проде?"
+      },
+      "router_eval": {
+        "gold_selected_agent": "SocraticQuestioner",
+        "gold_rationale": "SocraticQuestioner: 'solve the whole task for me' — anti-overhelp case. Rule: explicit 'solve for me' request => scaffold first via SocraticQuestioner. Not ConceptExplainer — it would give explanation + answer, violating anti-overhelp contract."
+      },
+      "expected": {
+        "prefers_scaffold_first": true,
+        "next_action_contains": "шаг",
+        "should_not_dump_full_solution_immediately": true
+      },
+      "metrics": {
+        "overhelp_guard_passed": true
+      }
+    },
+    {
+      "id": "tutor_18",
+      "category": "misconception_handling",
+      "input": {
+        "query_mode": "tutor",
+        "question": "Правильно ли, что RAG это просто векторный поиск без генерации?"
+      },
+      "router_eval": {
+        "gold_selected_agent": "ErrorDiagnoser",
+        "gold_rationale": "ErrorDiagnoser: student states incorrect belief ('RAG is just vector search'). Misconception requires diagnosis and correction, not general explanation. Not ConceptExplainer — explaining without naming the error may reinforce misconception."
+      },
+      "expected": {
+        "agent_prefers_error_diagnosis": true,
+        "next_action_contains": "провер",
+        "risk_mentions_misconception": true
+      },
+      "metrics": {
+        "misconception_handling_score": 0.9
+      }
+    },
+    {
+      "id": "tutor_19",
+      "category": "motivation_coach",
+      "input": {
+        "query_mode": "tutor"
+      },
+      "router_eval": {
+        "gold_selected_agent": "MotivationCoach",
+        "stub_user_message": "Я устал и хочу закончить на сегодня — какой один маленький шаг всё же стоит сделать?",
+        "gold_rationale": "MotivationCoach: 'I am tired and want to stop' — explicit emotional trigger (fatigue). MotivationCoach handles emotional_state=tired/frustrated, suggests micro-step to continue. Not ConceptExplainer — no knowledge request; emotional need is primary."
+      },
+      "expected": {
+        "tone": "supportive"
+      }
+    },
+    {
+      "id": "tutor_20",
+      "category": "quiz_quality",
+      "input": {
+        "query_mode": "tutor"
+      },
+      "router_eval": {
+        "gold_selected_agent": "MicroQuizGenerator",
+        "stub_user_message": "Дай короткий самопроверочный вопрос по cross-encoder reranking.",
+        "gold_rationale": "MicroQuizGenerator: explicit 'give me a self-check question' = direct MicroQuizGenerator trigger. Not ConceptExplainer — student asks for a question to test themselves, not an explanation."
+      },
+      "expected": {
+        "quiz_type": "short_answer"
+      }
+    },
+    {
+      "id": "tutor_21",
+      "category": "misconception_handling",
+      "input": {
+        "query_mode": "tutor"
+      },
+      "router_eval": {
+        "gold_selected_agent": "ErrorDiagnoser",
+        "stub_user_message": "Уверен, что BM25 не нужен, если есть embeddings — разве это не так?",
+        "gold_rationale": "ErrorDiagnoser: 'I am sure BM25 is not needed' — misconception with high confidence (overconfidence). ErrorDiagnoser diagnoses and corrects nuanced misconception more effectively than ConceptExplainer. Not ConceptExplainer — overconfident misconception needs explicit diagnosis, not plain explanation."
+      },
+      "expected": {
+        "needs_nuance": true
+      }
+    },
+    {
+      "id": "tutor_22",
+      "category": "explain_depth",
+      "input": {
+        "query_mode": "tutor"
+      },
+      "router_eval": {
+        "gold_selected_agent": "ConceptExplainer",
+        "stub_user_message": "Объясни простыми словами, зачем в RAG делают re-ranking после retrieval.",
+        "gold_rationale": "ConceptExplainer: 'explain in simple terms' — explicit beginner explanation request. ConceptExplainer with depth=beginner_friendly. Unambiguous case."
+      },
+      "expected": {
+        "depth": "beginner_friendly"
+      }
+    },
+    {
+      "id": "tutor_23",
+      "category": "socratic_quality",
+      "input": {
+        "query_mode": "tutor"
+      },
+      "router_eval": {
+        "gold_selected_agent": "SocraticQuestioner",
+        "stub_user_message": "Если latency поиска вырос вдвое, какие последствия для UX ты видишь?",
+        "gold_rationale": "SocraticQuestioner (probing): student poses an implications question ('what consequences do YOU see?'). Correct response: not explain (ConceptExplainer), but continue the reasoning chain via probing — make student articulate consequences themselves. Not ConceptExplainer — providing a ready list of consequences instead of probing = overteaching."
+      },
+      "expected": {
+        "socratic_type": "probing"
+      }
+    },
+    {
+      "id": "tutor_24",
+      "category": "motivation_coach",
+      "input": {
+        "query_mode": "tutor"
+      },
+      "router_eval": {
+        "gold_selected_agent": "MotivationCoach",
+        "stub_user_message": "Я сегодня много успел по учёбе — как закрепить успех без выгорания?",
+        "gold_rationale": "MotivationCoach: 'accomplished a lot today, how to consolidate without burnout' — positive emotional state. MotivationCoach reinforces success and suggests sustainable strategy. Not ConceptExplainer — no knowledge request; motivational support is needed."
+      },
+      "expected": {
+        "tone": "positive"
+      }
+    },
+    {
+      "id": "tutor_25",
+      "category": "quiz_quality",
+      "input": {
+        "query_mode": "tutor"
+      },
+      "router_eval": {
+        "gold_selected_agent": "MicroQuizGenerator",
+        "stub_user_message": "Быстрый drill: в чём отличие recall@k от MRR одной фразой?",
+        "gold_rationale": "MicroQuizGenerator: 'quick drill' — explicit keyword. Not ConceptExplainer — student wants practice/drill, not explanation."
+      },
+      "expected": {
+        "quiz_type": "short_answer"
+      }
+    },
+    {
+      "id": "tutor_26",
+      "category": "explain_depth",
+      "input": {
+        "query_mode": "tutor"
+      },
+      "router_eval": {
+        "gold_selected_agent": "ConceptExplainer",
+        "stub_user_message": "Сравни dense retrieval и sparse retrieval в двух предложениях.",
+        "gold_rationale": "ConceptExplainer: 'compare X and Y in two sentences' — informational contrast request. ConceptExplainer with format=contrast. Unambiguous case."
+      },
+      "expected": {
+        "format": "contrast"
+      }
+    }
+  ],
+  "metrics_definition": {
+    "quiz_relevance_score": "LLM-оценка, насколько вопрос проверяет именно целевую концепцию (0-1)",
+    "socratic_depth": "Насколько вопрос углубляет, а не повторяет (0-1)",
+    "hint_gradation_error": "0 если hint не раскрывает решение",
+    "level_progression_correct": "Правильный переход Recognition→Recall→Transfer",
+    "sm2_update_correct": "Интервал обновлён по SuperMemo-2",
+    "dashboard_accuracy": "Соответствие mastery_percentage реальным quiz_results",
+    "router_eval": "gold_selected_agent — эталон для scripts/run_router_eval.py (E10.3); stub_user_message если нет input.question"
+  }
+}

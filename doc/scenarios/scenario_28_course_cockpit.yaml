@@ -1,0 +1,35 @@
+id: scenario_28
+title: "Course Cockpit v2: daily briefing курса"
+level: "🔴 Orchestration"
+persona: "Сергей проходит курс из папки и хочет один экран «что сегодня по курсу»."
+duration_min: 5
+why: |
+  Показать Course Cockpit: path map, rotator активностей и прогресс до graduation в одном режиме.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+  e2e_env:
+    HOME_RAG_E2E_OFFLINE: "1"
+wow_moment: |
+  Daily briefing + rotator — курс ощущается как управляемая сессия, а не набор вкладок.
+takeaway: |
+  Course Cockpit собирает scoped-обучение в single-pane маршрут.
+scenario_link: "user_scenarios.md#сценарий-28--course-cockpit-v2-daily-briefing-курса"
+
+shots:
+  - slug: "01_cockpit_header"
+    caption: "Course Cockpit: заголовок и pace mode"
+    narration: "Активный курс открывается в режиме v2-кабины."
+    duration_sec: 4
+  - slug: "02_daily_briefing"
+    caption: "Daily briefing и активность"
+    narration: "Центральная колонка показывает обзор сессии и следующий блок."
+    duration_sec: 5
+  - slug: "03_rotator_panel"
+    caption: "Rotator: карточки активностей курса"
+    narration: "Переключение между quiz, tutor и карточками без потери scope."
+    duration_sec: 4
+  - slug: "04_graduation_progress"
+    caption: "Прогресс курса до graduation"
+    narration: "Видно, сколько осталось до завершения курса."
+    duration_sec: 4

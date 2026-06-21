@@ -1,0 +1,123 @@
+{
+  "version": 1,
+  "skills": {
+    "agent-governance": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "computedHash": "a91eb8ef638422fa4ec457d81e270f79fe5040b41d7f137dba35016bc20529f5"
+    },
+    "chroma-local": {
+      "source": "chroma-core/agent-skills",
+      "sourceType": "github",
+      "computedHash": "976949166868e0578254efd4794d448345e82e66fd1b285324354c6a40b1af3f"
+    },
+    "debugging-streamlit": {
+      "source": "streamlit/streamlit",
+      "sourceType": "github",
+      "computedHash": "0dc44e0fbc557ea8eba6a81a498102c0979734d4309f4e4e225a58ae9c5641c0"
+    },
+    "developing-with-streamlit": {
+      "source": "streamlit/agent-skills",
+      "sourceType": "github",
+      "computedHash": "51823384978f738f76ff8f601e11c1343aebea03d2ad782dc73fc22d3f129812"
+    },
+    "docker-expert": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "computedHash": "b712d6d1a6ac8bc2b67e366571106e63cfcc6df7fe4596a326e39969a1999113"
+    },
+    "executing-plans": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "computedHash": "2f709d1a2c7564f8ce6a9bb707e7f5451117ba80f8e8e2302662c29bc61246a6"
+    },
+    "fastapi": {
+      "source": "fastapi/fastapi",
+      "sourceType": "github",
+      "computedHash": "9feb517089c269af4fdab5031dea1100a92fd50081e906ccfaf8a971858e39f9"
+    },
+    "fastapi-python": {
+      "source": "mindrally/skills",
+      "sourceType": "github",
+      "computedHash": "4521c6090735152b7b8df670cefe5c1c6d1dcaa115de67bb96e74ebf802d4f24"
+    },
+    "git-guardrails-claude-code": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "computedHash": "a04bf71be9abc44ca3b00e2f1740b37d2e471abadd20d43a31bccff7135baedf"
+    },
+    "grill-me": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/productivity/grill-me/SKILL.md",
+      "computedHash": "daf64ca15f4fa081a6747766db538e2dbd1131725ed4fcdd3d538dc62c7035ba"
+    },
+    "improve-codebase-architecture": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/improve-codebase-architecture/SKILL.md",
+      "computedHash": "2da1d23b8f53cfe67f2e0b68924ab9f4ec400bb6480de097007eeaeb517d1722"
+    },
+    "llama-factory": {
+      "source": "davila7/claude-code-templates",
+      "sourceType": "github",
+      "computedHash": "45c651226d7ed81b8b0f4ecd972952d0ebf386f3ea8021d6af508c9c0d6e7009"
+    },
+    "llamaindex": {
+      "source": "davila7/claude-code-templates",
+      "sourceType": "github",
+      "computedHash": "d5532596a00b3093c1d4d9de3ef143d46f29a94b7ffbce18b621bc6f5bffb7c3"
+    },
+    "llamaindex-development": {
+      "source": "mindrally/skills",
+      "sourceType": "github",
+      "computedHash": "255aefbb8507a1ea0759dfefd0638ed5fa9f068243291f3b915b3c716ec83ccb"
+    },
+    "llm-evaluation": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "computedHash": "de67db2aef120e482dfa2a2be701307aff77a68c7789b36619ba1a4251fc2adc"
+    },
+    "opentelemetry": {
+      "source": "julianobarbosa/claude-code-skills",
+      "sourceType": "github",
+      "computedHash": "ec2c895a6a6e9ee9a739f9d2f7680f313dfd589cf1bfac7103c368c237303263"
+    },
+    "pdf": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "37226d4220d844377e6b2a386c51a011df4cd130855ff0b80bcc22f9c28abd57"
+    },
+    "playwright-best-practices": {
+      "source": "currents-dev/playwright-best-practices-skill",
+      "sourceType": "github",
+      "computedHash": "6db654e753257e642d6507d59b4fc633a2382e93429748ba0fb6817c23ef5216"
+    },
+    "rag-architect": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "computedHash": "9e73a9440ca7f419a192901bf38e8c61e7449e0e9340b6f3507b85ca249dce42"
+    },
+    "rag-implementation": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "computedHash": "0a68c672384c5c6aa7acb286c18f8eb9dce53a058062a8951ac0adca4d01d4ea"
+    },
+    "to-prd": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/to-prd/SKILL.md",
+      "computedHash": "b3ebbc8aad6e91d04aa1b5c0387ce556b32adc8d60d130d61f90a2b84a38addc"
+    },
+    "webapp-testing": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "computedHash": "3f14af7f5690695209c22fbf8c8d133769a86d64892602c09bb13f135e14e857"
+    },
+    "writing-plans": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "computedHash": "bfaed11054ad8021c66860244e2d2e0d1eca483ae9f5fbfcb956e99c61f5c3d7"
+    }
+  }
+}

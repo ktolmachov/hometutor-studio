@@ -1,0 +1,17 @@
+.venv/
+node_modules/
+__pycache__/
+*.pyc
+.env
+data/
+chroma_db/
+logs/
+eval_results/
+.pytest_cache/
+test-results/
+playwright-report/
+doc/screenshots/
+archive/team_artifacts/_timing/
+archive/team_artifacts/_regression/
+# Продукт подключается отдельно (submodule / pip -e ../hometutor):
+app_src/

@@ -1,0 +1,33 @@
+id: scenario_27
+title: "Incremental reindex: материалы без потери прогресса"
+level: "🟠 Retention engine"
+persona: "Марк добавил новые лекции и боится потерять mastery после переиндексации."
+duration_min: 4
+why: |
+  Показать, что reindex добавляет новые концепты, но learner profile и mastery сохраняются.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+wow_moment: |
+  Бейдж «Профиль обновлён после переиндексации» — прогресс на месте, база выросла.
+takeaway: |
+  Новые файлы расширяют курс, а не обнуляют учебное состояние.
+scenario_link: "user_scenarios.md#сценарий-27--incremental-reindex-материалы-без-потери-прогресса"
+
+shots:
+  - slug: "01_topics_catalog_ready"
+    caption: "Темы: каталог после добавления материалов"
+    narration: "Новые документы попадают в каталог тем без ручной разметки."
+    duration_sec: 4
+  - slug: "02_reindex_profile_badge"
+    caption: "Бейдж: профиль обновлён после reindex"
+    narration: "Mastery rehydrated — learner state сохранён поверх нового индекса."
+    duration_sec: 4
+  - slug: "03_mastery_preserved"
+    caption: "Mastery vector без обнуления"
+    narration: "Прежние концепты остаются на своих уровнях освоения."
+    duration_sec: 4
+  - slug: "04_new_concepts_in_plan"
+    caption: "Adaptive Plan: новые концепты в блоке New"
+    narration: "Система предлагает свежие темы из новых файлов отдельно от gap."
+    duration_sec: 5

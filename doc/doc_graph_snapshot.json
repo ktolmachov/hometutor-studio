@@ -1,0 +1,4837 @@
+{
+  "generated": "2026-06-03",
+  "nodes": [
+    {
+      "id": "AGENTS.md",
+      "label": "AGENTS.md",
+      "cat": "other",
+      "desc": "home-rag_v2 — Agent Instructions",
+      "broken_refs": 0
+    },
+    {
+      "id": "CLAUDE.md",
+      "label": "CLAUDE.md",
+      "cat": "other",
+      "desc": "CLAUDE.md",
+      "broken_refs": 0
+    },
+    {
+      "id": "adr.md",
+      "label": "adr.md",
+      "cat": "arch",
+      "desc": "Журнал Архитектурных Решений",
+      "broken_refs": 0
+    },
+    {
+      "id": "adr_021_smart_router_rag_modes.md",
+      "label": "adr_021_smart_router_rag_modes.md",
+      "cat": "arch",
+      "desc": "ADR-021: Smart Router RAG modes and bounded GraphRAG analytics",
+      "broken_refs": 0
+    },
+    {
+      "id": "adr_021a_global_analytics_design.md",
+      "label": "adr_021a_global_analytics_design.md",
+      "cat": "arch",
+      "desc": "ADR-021 Appendix A: Global Analytics Design",
+      "broken_refs": 0
+    },
+    {
+      "id": "adr_021a_smart_router_architecture_lifts.md",
+      "label": "…/adr_021a_smart_router_architecture_lifts.md",
+      "cat": "arch",
+      "desc": "ADR-021a: Audit architecture lifts — amendment to ADR-021",
+      "broken_refs": 0
+    },
+    {
+      "id": "adr_022_ssr_ai_eval_harness.md",
+      "label": "adr_022_ssr_ai_eval_harness.md",
+      "cat": "arch",
+      "desc": "ADR-022: SSR-AI eval harness and local artifact contract",
+      "broken_refs": 0
+    },
+    {
+      "id": "adr_023_ssr_graph_routing.md",
+      "label": "adr_023_ssr_graph_routing.md",
+      "cat": "arch",
+      "desc": "ADR-023: SSR Graph Routing — Prerequisite-Aware Weak-Concept Ordering",
+      "broken_refs": 0
+    },
+    {
+      "id": "agent_workflow.md",
+      "label": "agent_workflow.md",
+      "cat": "workflow",
+      "desc": "Workflow Для Агентов",
+      "broken_refs": 0
+    },
+    {
+      "id": "agent_workflow_arch_review.md",
+      "label": "agent_workflow_arch_review.md",
+      "cat": "workflow",
+      "desc": "Workflow Для Агентов — Architecture Review",
+      "broken_refs": 0
+    },
+    {
+      "id": "agent_workflow_cycle.md",
+      "label": "agent_workflow_cycle.md",
+      "cat": "workflow",
+      "desc": "Workflow Для Агентов — Work Cycle",
+      "broken_refs": 0
+    },
+    {
+      "id": "agent_workflow_rules.md",
+      "label": "agent_workflow_rules.md",
+      "cat": "workflow",
+      "desc": "Workflow Для Агентов — Rules (Token Budget & Retry Safety)",
+      "broken_refs": 0
+    },
+    {
+      "id": "agent_workflow_templates.md",
+      "label": "agent_workflow_templates.md",
+      "cat": "workflow",
+      "desc": "Workflow Для Агентов — Prompt Templates",
+      "broken_refs": 0
+    },
+    {
+      "id": "agent_workflow_test_bundles.md",
+      "label": "agent_workflow_test_bundles.md",
+      "cat": "workflow",
+      "desc": "Workflow Для Агентов — Test Bundles + Low-Budget Templates",
+      "broken_refs": 0
+    },
+    {
+      "id": "api_reference.md",
+      "label": "api_reference.md",
+      "cat": "arch",
+      "desc": "HTTP API",
+      "broken_refs": 0
+    },
+    {
+      "id": "architecture.md",
+      "label": "architecture.md",
+      "cat": "arch",
+      "desc": "Архитектура `home-rag_v2`",
+      "broken_refs": 0
+    },
+    {
+      "id": "archive/adr_rag_architecture.md",
+      "label": "archive/adr_rag_architecture.md",
+      "cat": "arch",
+      "desc": "ADR По RAG-Архитектуре",
+      "broken_refs": 0
+    },
+    {
+      "id": "archive/arch_review_baseline.yaml",
+      "label": "archive/arch_review_baseline.yaml",
+      "cat": "archive",
+      "desc": "archive/arch_review_baseline.yaml",
+      "broken_refs": 0
+    },
+    {
+      "id": "archive/arch_review_incremental_2026-05-31.md",
+      "label": "…/arch_review_incremental_2026-05-31.md",
+      "cat": "archive",
+      "desc": "Incremental Architecture Review — 2026-05-31",
+      "broken_refs": 0
+    },
+    {
+      "id": "archive/arch_review_phase1_2026-04-29.md",
+      "label": "…/arch_review_phase1_2026-04-29.md",
+      "cat": "archive",
+      "desc": "Architecture Review — Phase 1 (Conventions)",
+      "broken_refs": 0
+    },
+    {
+      "id": "archive/architectural_refactoring.md",
+      "label": "…/architectural_refactoring.md",
+      "cat": "archive",
+      "desc": "Архитектурный рефакторинг home-rag_v2: от Q&A RAG к модульной системе с графом знаний и диалогами",
+      "broken_refs": 14
+    },
+    {
+      "id": "archive/architecture_review_2026-04-24.md",
+      "label": "…/architecture_review_2026-04-24.md",
+      "cat": "archive",
+      "desc": "Architecture Review — 2026-04-24 (Incremental)",
+      "broken_refs": 0
+    },
+    {
+      "id": "archive/blue_green_reindex_design.md",
+      "label": "…/blue_green_reindex_design.md",
+      "cat": "archive",
+      "desc": "Дизайн Blue-Green Reindex",
+      "broken_refs": 7
+    },
+    {
+      "id": "archive/blue_green_reindex_implementation_plan.md",
+      "label": "…/blue_green_reindex_implementation_plan.md",
+      "cat": "archive",
+      "desc": "План Внедрения Blue-Green Reindex",
+      "broken_refs": 1
+    },
+    {
+      "id": "archive/handoff_next_level.md",
+      "label": "archive/handoff_next_level.md",
+      "cat": "archive",
+      "desc": "Hand-off: следующий уровень demo-пакета для конкурса",
+      "broken_refs": 0
+    },
+    {
+      "id": "archive/IMPLEMENTATION_COMPLETE.md",
+      "label": "archive/IMPLEMENTATION_COMPLETE.md",
+      "cat": "archive",
+      "desc": "Implementation Complete: Token Optimization v1.0 (2026-04-19)",
+      "broken_refs": 0
+    },
+    {
+      "id": "archive/IMPLEMENTATION_P0_P1.md",
+      "label": "archive/IMPLEMENTATION_P0_P1.md",
+      "cat": "archive",
+      "desc": "Implementation: P0 Guards + P1 Cost Logging",
+      "broken_refs": 0
+    },
+    {
+      "id": "archive/kilo_budget_remediation_plan.md",
+      "label": "…/kilo_budget_remediation_plan.md",
+      "cat": "token",
+      "desc": "Kilo Budget Stack — Remediation Plan (Wave 4)",
+      "broken_refs": 0
+    },
+    {
+      "id": "archive/README.md",
+      "label": "archive/README.md",
+      "cat": "entry",
+      "desc": "📦 Архив Документации",
+      "broken_refs": 0
+    },
+    {
+      "id": "archive/tasklist_historical.md",
+      "label": "archive/tasklist_historical.md",
+      "cat": "backlog",
+      "desc": "Tasklist: исторические exit criteria и журнал This Week",
+      "broken_refs": 7
+    },
+    {
+      "id": "archive/token_optimization_checklist.md",
+      "label": "…/token_optimization_checklist.md",
+      "cat": "token",
+      "desc": "Token Optimization Checklist (2026-04-20)",
+      "broken_refs": 0
+    },
+    {
+      "id": "archive/token_optimization_plan.md",
+      "label": "archive/token_optimization_plan.md",
+      "cat": "token",
+      "desc": "План оптимизации входных токенов LLM",
+      "broken_refs": 0
+    },
+    {
+      "id": "archive/workflow_hardening_plan_2026-04-24.md",
+      "label": "…/workflow_hardening_plan_2026-04-24.md",
+      "cat": "archive",
+      "desc": "Workflow Hardening Plan — 2026-04-24",
+      "broken_refs": 0
+    },
+    {
+      "id": "backlog_registry.yaml",
+      "label": "backlog_registry.yaml",
+      "cat": "backlog",
+      "desc": "Backlog Registry (PoC)",
+      "broken_refs": 0
+    },
+    {
+      "id": "changelog.md",
+      "label": "changelog.md",
+      "cat": "history",
+      "desc": "Журнал Изменений",
+      "broken_refs": 0
+    },
+    {
+      "id": "cjm.md",
+      "label": "cjm.md",
+      "cat": "vision",
+      "desc": "Customer Journey Map — Карта пути ученика",
+      "broken_refs": 0
+    },
+    {
+      "id": "closed_iterations.md",
+      "label": "closed_iterations.md",
+      "cat": "history",
+      "desc": "Закрытые Итерации",
+      "broken_refs": 0
+    },
+    {
+      "id": "conventions.md",
+      "label": "conventions.md",
+      "cat": "entry",
+      "desc": "Правила и соглашения по разработке",
+      "broken_refs": 0
+    },
+    {
+      "id": "conventions_architecture.md",
+      "label": "conventions_architecture.md",
+      "cat": "arch",
+      "desc": "Соглашения: архитектура и дерево проекта",
+      "broken_refs": 0
+    },
+    {
+      "id": "conventions_reference.md",
+      "label": "conventions_reference.md",
+      "cat": "conventions",
+      "desc": "Соглашения: промпты, API, ошибки, тесты, документация",
+      "broken_refs": 0
+    },
+    {
+      "id": "current_task.md",
+      "label": "current_task.md",
+      "cat": "backlog",
+      "desc": "TASK: Post-Closure SSoT Audit for epoch-micro-quiz-progress-bridge-v1",
+      "broken_refs": 0
+    },
+    {
+      "id": "data_governance.md",
+      "label": "data_governance.md",
+      "cat": "arch",
+      "desc": "Управление локальными данными (data governance)",
+      "broken_refs": 0
+    },
+    {
+      "id": "documentation_onboarding_guide.md",
+      "label": "documentation_onboarding_guide.md",
+      "cat": "other",
+      "desc": "Онбординг в документацию home-rag_v2",
+      "broken_refs": 0
+    },
+    {
+      "id": "epochs/epoch_adr_.md",
+      "label": "epochs/epoch_adr_.md",
+      "cat": "arch",
+      "desc": "Закрытые Итерации",
+      "broken_refs": 0
+    },
+    {
+      "id": "epochs/epoch_exception_hygiene.md",
+      "label": "epochs/epoch_exception_hygiene.md",
+      "cat": "history",
+      "desc": "Закрытые Итерации",
+      "broken_refs": 0
+    },
+    {
+      "id": "epochs/epoch_learning_route_continuity.md",
+      "label": "…/epoch_learning_route_continuity.md",
+      "cat": "history",
+      "desc": "Закрытые Итерации",
+      "broken_refs": 0
+    },
+    {
+      "id": "epochs/epoch_local_cors_defaults.md",
+      "label": "epochs/epoch_local_cors_defaults.md",
+      "cat": "history",
+      "desc": "Закрытые Итерации",
+      "broken_refs": 0
+    },
+    {
+      "id": "epochs/epoch_local_store_contracts.md",
+      "label": "…/epoch_local_store_contracts.md",
+      "cat": "history",
+      "desc": "Закрытые Итерации",
+      "broken_refs": 0
+    },
+    {
+      "id": "epochs/epoch_metrics_decomposition.md",
+      "label": "…/epoch_metrics_decomposition.md",
+      "cat": "history",
+      "desc": "Закрытые Итерации",
+      "broken_refs": 0
+    },
+    {
+      "id": "epochs/epoch_query_service_decomposition.md",
+      "label": "…/epoch_query_service_decomposition.md",
+      "cat": "history",
+      "desc": "Закрытые Итерации",
+      "broken_refs": 0
+    },
+    {
+      "id": "epochs/epoch_ui_refactoring.md",
+      "label": "epochs/epoch_ui_refactoring.md",
+      "cat": "history",
+      "desc": "Закрытые Итерации",
+      "broken_refs": 0
+    },
+    {
+      "id": "epochs/ingest_acceleration.md",
+      "label": "epochs/ingest_acceleration.md",
+      "cat": "history",
+      "desc": "Epoch: Ingest Acceleration",
+      "broken_refs": 0
+    },
+    {
+      "id": "epochs/ops_stability_hybrid_embeddings.md",
+      "label": "…/ops_stability_hybrid_embeddings.md",
+      "cat": "history",
+      "desc": "Закрытые Итерации",
+      "broken_refs": 0
+    },
+    {
+      "id": "eval_experimenter_runbook.md",
+      "label": "eval_experimenter_runbook.md",
+      "cat": "arch",
+      "desc": "Runbook: Eval Experimenter",
+      "broken_refs": 0
+    },
+    {
+      "id": "expert_controls_recommendations.md",
+      "label": "expert_controls_recommendations.md",
+      "cat": "ux",
+      "desc": "Expert Controls Recommendations",
+      "broken_refs": 0
+    },
+    {
+      "id": "future_roadmap.md",
+      "label": "future_roadmap.md",
+      "cat": "vision",
+      "desc": "Future Roadmap",
+      "broken_refs": 0
+    },
+    {
+      "id": "gemma4b_quality_assessment.md",
+      "label": "gemma4b_quality_assessment.md",
+      "cat": "other",
+      "desc": "Gemma 4B Quality Assessment Plan",
+      "broken_refs": 0
+    },
+    {
+      "id": "gemma4b_test_checklist.md",
+      "label": "gemma4b_test_checklist.md",
+      "cat": "other",
+      "desc": "Gemma 4B Quick Quality Checklist",
+      "broken_refs": 0
+    },
+    {
+      "id": "glossary.md",
+      "label": "glossary.md",
+      "cat": "vision",
+      "desc": "Глоссарий home-rag",
+      "broken_refs": 0
+    },
+    {
+      "id": "index.md",
+      "label": "index.md",
+      "cat": "entry",
+      "desc": "🧭 Навигатор Документации home-rag_v2",
+      "broken_refs": 2
+    },
+    {
+      "id": "index_lifecycle.md",
+      "label": "index_lifecycle.md",
+      "cat": "arch",
+      "desc": "Индекс: резервное копирование и жизненный цикл артефактов",
+      "broken_refs": 0
+    },
+    {
+      "id": "kg_completeness_report.md",
+      "label": "kg_completeness_report.md",
+      "cat": "other",
+      "desc": "KG completeness audit (SSR L4 gate)",
+      "broken_refs": 0
+    },
+    {
+      "id": "kilo_budget_capture_runbook.md",
+      "label": "kilo_budget_capture_runbook.md",
+      "cat": "token",
+      "desc": "Capturing a real Kilo injection fixture",
+      "broken_refs": 0
+    },
+    {
+      "id": "kilo_budget_gate.md",
+      "label": "kilo_budget_gate.md",
+      "cat": "token",
+      "desc": "Kilo Budget Gate — predict-and-prevent regression guard",
+      "broken_refs": 0
+    },
+    {
+      "id": "kilo_budget_system.md",
+      "label": "kilo_budget_system.md",
+      "cat": "token",
+      "desc": "Kilo Budget System — Master Reference",
+      "broken_refs": 0
+    },
+    {
+      "id": "kilo_proxy_relay.md",
+      "label": "kilo_proxy_relay.md",
+      "cat": "token",
+      "desc": "Локальный релей `kilo_proxy_relay.py`",
+      "broken_refs": 0
+    },
+    {
+      "id": "local_llm_quickstart.md",
+      "label": "local_llm_quickstart.md",
+      "cat": "ux",
+      "desc": "Local LLM Quick Start — Get Profit from Home-RAG v2",
+      "broken_refs": 0
+    },
+    {
+      "id": "local_llm_runbook.md",
+      "label": "local_llm_runbook.md",
+      "cat": "ux",
+      "desc": "Local LLM Runbook — Smart Study Router («Почему сейчас»)",
+      "broken_refs": 0
+    },
+    {
+      "id": "loop_metrics_gate_runbook.md",
+      "label": "loop_metrics_gate_runbook.md",
+      "cat": "token",
+      "desc": "Loop Metrics Gate Runbook (US-14.4)",
+      "broken_refs": 0
+    },
+    {
+      "id": "MICROPLAN_USAGE.md",
+      "label": "MICROPLAN_USAGE.md",
+      "cat": "token",
+      "desc": "Micro-Plan: Как использовать (Real Usage)",
+      "broken_refs": 0
+    },
+    {
+      "id": "next/Autonomous Delivery Control Plane v3.md",
+      "label": "…/Autonomous Delivery Control Plane v3.md",
+      "cat": "next",
+      "desc": "next/Autonomous Delivery Control Plane v3.md",
+      "broken_refs": 0
+    },
+    {
+      "id": "next/autonomous_delivery_control_plane_final.md",
+      "label": "…/autonomous_delivery_control_plane_final.md",
+      "cat": "next",
+      "desc": "Autonomous Delivery Control Plane v3 — Final Master Plan",
+      "broken_refs": 0
+    },
+    {
+      "id": "next/BREAKTHROUGH_SUMMARY.md",
+      "label": "next/BREAKTHROUGH_SUMMARY.md",
+      "cat": "next",
+      "desc": "🚀 Localhost Balance + Course Delight Loop — Executive Summary",
+      "broken_refs": 0
+    },
+    {
+      "id": "next/BREAKTHROUGH_VISUAL.md",
+      "label": "next/BREAKTHROUGH_VISUAL.md",
+      "cat": "next",
+      "desc": "🎨 Localhost Balance + Course Delight Loop — Visual Guide",
+      "broken_refs": 0
+    },
+    {
+      "id": "next/DEFENSE_TALKING_POINTS.md",
+      "label": "next/DEFENSE_TALKING_POINTS.md",
+      "cat": "next",
+      "desc": "🎤 Defense Talking Points: Localhost Balance + Course Delight Loop",
+      "broken_refs": 0
+    },
+    {
+      "id": "next/dreamy-churning-thompson.md",
+      "label": "next/dreamy-churning-thompson.md",
+      "cat": "next",
+      "desc": "Autonomous Delivery Control Plane v2 — Implementation Plan",
+      "broken_refs": 0
+    },
+    {
+      "id": "next/LLM_Provider_Router_home_rag_v2.md",
+      "label": "…/LLM_Provider_Router_home_rag_v2.md",
+      "cat": "next",
+      "desc": "next/LLM_Provider_Router_home_rag_v2.md",
+      "broken_refs": 0
+    },
+    {
+      "id": "next/localhost_balance_course_delight_breakthrough.md",
+      "label": "…/localhost_balance_course_delight_breakthrough.md",
+      "cat": "next",
+      "desc": "Localhost Balance + Course Delight Loop: Breakthrough Analysis",
+      "broken_refs": 0
+    },
+    {
+      "id": "next/localhost_balance_course_delight_plan.md",
+      "label": "…/localhost_balance_course_delight_plan.md",
+      "cat": "next",
+      "desc": "Localhost Balance + Course Delight Loop",
+      "broken_refs": 4
+    },
+    {
+      "id": "next/model_role_contract_audit.md",
+      "label": "next/model_role_contract_audit.md",
+      "cat": "next",
+      "desc": "Model-Role Contract Audit",
+      "broken_refs": 0
+    },
+    {
+      "id": "next/model_role_registry.md",
+      "label": "next/model_role_registry.md",
+      "cat": "next",
+      "desc": "Model Role Registry",
+      "broken_refs": 0
+    },
+    {
+      "id": "observability_slo.md",
+      "label": "observability_slo.md",
+      "cat": "arch",
+      "desc": "SLO И Наблюдаемость",
+      "broken_refs": 0
+    },
+    {
+      "id": "performance_optimization_2026_05_14_report.md",
+      "label": "…/performance_optimization_2026_05_14_report.md",
+      "cat": "other",
+      "desc": "Performance Optimization Report",
+      "broken_refs": 0
+    },
+    {
+      "id": "personalized_learner_model.md",
+      "label": "personalized_learner_model.md",
+      "cat": "arch",
+      "desc": "Персонализированная модель ученика — твой учебный автопилот",
+      "broken_refs": 0
+    },
+    {
+      "id": "pitch.md",
+      "label": "pitch.md",
+      "cat": "vision",
+      "desc": "home-rag — personal tutor from your own notes",
+      "broken_refs": 2
+    },
+    {
+      "id": "presentations/defense_deploy_plan.md",
+      "label": "…/defense_deploy_plan.md",
+      "cat": "presentations",
+      "desc": "План доработок к защите — 6 задач",
+      "broken_refs": 0
+    },
+    {
+      "id": "presentations/defense_expert_panel.md",
+      "label": "…/defense_expert_panel.md",
+      "cat": "presentations",
+      "desc": "home-rag_v2 — Экспертная RAG/AI-защита",
+      "broken_refs": 0
+    },
+    {
+      "id": "presentations/defense_expert_panel_v3.md",
+      "label": "…/defense_expert_panel_v3.md",
+      "cat": "presentations",
+      "desc": "ИИ-тьютор с RAG — Экспертная техническая защита",
+      "broken_refs": 0
+    },
+    {
+      "id": "presentations/defense_glossary.md",
+      "label": "presentations/defense_glossary.md",
+      "cat": "vision",
+      "desc": "📖 Словарь терминов для презентации защиты",
+      "broken_refs": 0
+    },
+    {
+      "id": "presentations/defense_improvements_log.md",
+      "label": "…/defense_improvements_log.md",
+      "cat": "presentations",
+      "desc": "Лог улучшений презентации после виртуальных защит",
+      "broken_refs": 1
+    },
+    {
+      "id": "presentations/defense_killer_demo.md",
+      "label": "…/defense_killer_demo.md",
+      "cat": "presentations",
+      "desc": "🎬 Killer Demo: \"От вопроса до mastery за 3 минуты\"",
+      "broken_refs": 0
+    },
+    {
+      "id": "presentations/defense_killer_demo_cheatsheet.md",
+      "label": "…/defense_killer_demo_cheatsheet.md",
+      "cat": "presentations",
+      "desc": "🎯 Killer Demo Cheatsheet — Шпаргалка на один лист",
+      "broken_refs": 0
+    },
+    {
+      "id": "presentations/defense_killer_demo_storyboard.md",
+      "label": "…/defense_killer_demo_storyboard.md",
+      "cat": "presentations",
+      "desc": "🎨 Killer Demo Storyboard: Визуальная раскадровка",
+      "broken_refs": 0
+    },
+    {
+      "id": "presentations/defense_killer_demo_v2_with_smart_assistant.md",
+      "label": "…/defense_killer_demo_v2_with_smart_assistant.md",
+      "cat": "presentations",
+      "desc": "🎬 Killer Demo v2: \"От вопроса до mastery за 3 минуты\" + 🧭 Умный помощник",
+      "broken_refs": 13
+    },
+    {
+      "id": "presentations/defense_killer_feature_smart_assistant.md",
+      "label": "…/defense_killer_feature_smart_assistant.md",
+      "cat": "presentations",
+      "desc": "🧭 Killer Feature: Умный помощник (Smart Study Router)",
+      "broken_refs": 0
+    },
+    {
+      "id": "presentations/defense_presentation.md",
+      "label": "…/defense_presentation.md",
+      "cat": "presentations",
+      "desc": "🎓 home-rag_v2 — Академическая защита проектной работы",
+      "broken_refs": 28
+    },
+    {
+      "id": "presentations/defense_presentation_CHANGELOG.md",
+      "label": "…/defense_presentation_CHANGELOG.md",
+      "cat": "history",
+      "desc": "Defense Presentation Changelog",
+      "broken_refs": 0
+    },
+    {
+      "id": "presentations/defense_presentation_code_alignment.md",
+      "label": "…/defense_presentation_code_alignment.md",
+      "cat": "presentations",
+      "desc": "✅ Выравнивание презентации с реальным кодом",
+      "broken_refs": 0
+    },
+    {
+      "id": "presentations/defense_presentation_compact.md",
+      "label": "…/defense_presentation_compact.md",
+      "cat": "presentations",
+      "desc": "home-rag_v2 — Академическая защита",
+      "broken_refs": 0
+    },
+    {
+      "id": "presentations/defense_presentation_fixes_summary.md",
+      "label": "…/defense_presentation_fixes_summary.md",
+      "cat": "presentations",
+      "desc": "✅ Исправления презентации — Summary",
+      "broken_refs": 0
+    },
+    {
+      "id": "presentations/defense_presentation_images_fix.md",
+      "label": "…/defense_presentation_images_fix.md",
+      "cat": "presentations",
+      "desc": "✅ Исправление ссылок на изображения",
+      "broken_refs": 10
+    },
+    {
+      "id": "presentations/defense_presentation_improvements.md",
+      "label": "…/defense_presentation_improvements.md",
+      "cat": "presentations",
+      "desc": "Улучшения презентации defense_presentation.pdf",
+      "broken_refs": 1
+    },
+    {
+      "id": "presentations/defense_presentation_README.md",
+      "label": "…/defense_presentation_README.md",
+      "cat": "entry",
+      "desc": "Defense Presentation - README",
+      "broken_refs": 1
+    },
+    {
+      "id": "presentations/defense_presentation_slides.md",
+      "label": "…/defense_presentation_slides.md",
+      "cat": "presentations",
+      "desc": "home-rag_v2 — Академическая защита",
+      "broken_refs": 10
+    },
+    {
+      "id": "presentations/defense_presentation_speech_script.md",
+      "label": "…/defense_presentation_speech_script.md",
+      "cat": "presentations",
+      "desc": "🎤 Скрипт выступления для защиты курсовой работы",
+      "broken_refs": 0
+    },
+    {
+      "id": "presentations/defense_presentation_v2.md",
+      "label": "…/defense_presentation_v2.md",
+      "cat": "presentations",
+      "desc": "🎓 home-rag_v2 — Академическая защита проектной работы",
+      "broken_refs": 22
+    },
+    {
+      "id": "presentations/defense_presentation_v3.md",
+      "label": "…/defense_presentation_v3.md",
+      "cat": "presentations",
+      "desc": "ИИ-тьютор с RAG: персонализированное обучение на собственных документах",
+      "broken_refs": 1
+    },
+    {
+      "id": "presentations/defense_presenter_script.md",
+      "label": "…/defense_presenter_script.md",
+      "cat": "presentations",
+      "desc": "Скрипт выступления на академической защите — home-rag_v2",
+      "broken_refs": 15
+    },
+    {
+      "id": "presentations/defense_README.md",
+      "label": "presentations/defense_README.md",
+      "cat": "entry",
+      "desc": "🎓 Материалы для академической защиты проекта home-rag_v2",
+      "broken_refs": 9
+    },
+    {
+      "id": "presentations/defense_speech.md",
+      "label": "presentations/defense_speech.md",
+      "cat": "presentations",
+      "desc": "Текст выступления для защиты",
+      "broken_refs": 0
+    },
+    {
+      "id": "presentations/defense_summary.md",
+      "label": "presentations/defense_summary.md",
+      "cat": "presentations",
+      "desc": "home-rag_v2 — Итоговое резюме трёх виртуальных защит",
+      "broken_refs": 0
+    },
+    {
+      "id": "presentations/defense_user_panel.md",
+      "label": "presentations/defense_user_panel.md",
+      "cat": "presentations",
+      "desc": "home-rag_v2 — Защита перед пользователями продукта",
+      "broken_refs": 0
+    },
+    {
+      "id": "presentations/defense_user_panel_v3.md",
+      "label": "…/defense_user_panel_v3.md",
+      "cat": "presentations",
+      "desc": "ИИ-тьютор с RAG — Защита перед пользователями продукта",
+      "broken_refs": 0
+    },
+    {
+      "id": "presentations/defense_user_router_breakthrough.md",
+      "label": "…/defense_user_router_breakthrough.md",
+      "cat": "presentations",
+      "desc": "Прорыв после пользовательской панели: Smart Study Router",
+      "broken_refs": 1
+    },
+    {
+      "id": "presentations/defense_virtual_defense.md",
+      "label": "…/defense_virtual_defense.md",
+      "cat": "presentations",
+      "desc": "home-rag_v2 — Виртуальная защита проектной работы",
+      "broken_refs": 0
+    },
+    {
+      "id": "presentations/defense_virtual_defense_v3.md",
+      "label": "…/defense_virtual_defense_v3.md",
+      "cat": "presentations",
+      "desc": "ИИ-тьютор с RAG — Виртуальная защита перед комиссией",
+      "broken_refs": 0
+    },
+    {
+      "id": "presentations/README_glossary.md",
+      "label": "presentations/README_glossary.md",
+      "cat": "vision",
+      "desc": "📖 Как использовать словарь терминов",
+      "broken_refs": 0
+    },
+    {
+      "id": "presentations/README_v2.md",
+      "label": "presentations/README_v2.md",
+      "cat": "presentations",
+      "desc": "Defense Presentation v2.0 — SSR AI Vision Edition",
+      "broken_refs": 0
+    },
+    {
+      "id": "presenter_script.md",
+      "label": "presenter_script.md",
+      "cat": "presentations",
+      "desc": "Presenter Script — выступление на конкурсе (3 минуты)",
+      "broken_refs": 0
+    },
+    {
+      "id": "product_idea.md",
+      "label": "product_idea.md",
+      "cat": "vision",
+      "desc": "Продуктовая Идея",
+      "broken_refs": 0
+    },
+    {
+      "id": "prompts_catalog.md",
+      "label": "prompts_catalog.md",
+      "cat": "prompts",
+      "desc": "📚 Каталог Промптов",
+      "broken_refs": 3
+    },
+    {
+      "id": "prompts_usage_guide.md",
+      "label": "prompts_usage_guide.md",
+      "cat": "prompts",
+      "desc": "🧭 Руководство по Использованию Промптов (Prompts Usage Guide)",
+      "broken_refs": 2
+    },
+    {
+      "id": "QUICK_READSET_REFERENCE.md",
+      "label": "QUICK_READSET_REFERENCE.md",
+      "cat": "token",
+      "desc": "Быстрая Справка: Check ReadSet (1-минутная версия)",
+      "broken_refs": 0
+    },
+    {
+      "id": "quickstart.md",
+      "label": "quickstart.md",
+      "cat": "ux",
+      "desc": "Быстрый старт — от папки до учебного цикла за 5 минут",
+      "broken_refs": 0
+    },
+    {
+      "id": "quickstart_demo.md",
+      "label": "quickstart_demo.md",
+      "cat": "ux",
+      "desc": "Smart Demo — автоматически снятые кадры сценариев",
+      "broken_refs": 0
+    },
+    {
+      "id": "quickstart_demo.preview.md",
+      "label": "quickstart_demo.preview.md",
+      "cat": "ux",
+      "desc": "Smart Demo — автоматически снятые кадры сценариев",
+      "broken_refs": 8
+    },
+    {
+      "id": "readme.md",
+      "label": "readme.md",
+      "cat": "entry",
+      "desc": "Документация `doc/`",
+      "broken_refs": 0
+    },
+    {
+      "id": "roadmap.md",
+      "label": "roadmap.md",
+      "cat": "vision",
+      "desc": "Roadmap — История Прорывов и Карта Развития",
+      "broken_refs": 0
+    },
+    {
+      "id": "roadmap_governance.md",
+      "label": "roadmap_governance.md",
+      "cat": "vision",
+      "desc": "Roadmap Governance",
+      "broken_refs": 0
+    },
+    {
+      "id": "scenarios/README.md",
+      "label": "scenarios/README.md",
+      "cat": "entry",
+      "desc": "Манифесты сценариев",
+      "broken_refs": 0
+    },
+    {
+      "id": "session_2026_05_13_summary.md",
+      "label": "session_2026_05_13_summary.md",
+      "cat": "other",
+      "desc": "Performance & Quality Optimization Session Summary",
+      "broken_refs": 0
+    },
+    {
+      "id": "smart_study_router.md",
+      "label": "smart_study_router.md",
+      "cat": "vision",
+      "desc": "Smart Study Router — Killer Feature",
+      "broken_refs": 0
+    },
+    {
+      "id": "ssr_advanced_features.md",
+      "label": "ssr_advanced_features.md",
+      "cat": "arch",
+      "desc": "SSR Advanced Features — Pre-Generation, Semantic Caching, Quality Feedback",
+      "broken_refs": 0
+    },
+    {
+      "id": "ssr_baseline_metrics.md",
+      "label": "ssr_baseline_metrics.md",
+      "cat": "arch",
+      "desc": "SSR rule baseline (pre–ML reranking)",
+      "broken_refs": 0
+    },
+    {
+      "id": "ssr_kg_integration_design.md",
+      "label": "ssr_kg_integration_design.md",
+      "cat": "arch",
+      "desc": "SSR ↔ Knowledge Graph integration (L4 scaffold design)",
+      "broken_refs": 0
+    },
+    {
+      "id": "ssr_llm_monitoring.md",
+      "label": "ssr_llm_monitoring.md",
+      "cat": "arch",
+      "desc": "SSR LLM Explanation Monitoring",
+      "broken_refs": 0
+    },
+    {
+      "id": "ssr_llm_profiling.md",
+      "label": "ssr_llm_profiling.md",
+      "cat": "arch",
+      "desc": "SSR LLM: профили и сравнение с основным чатом",
+      "broken_refs": 0
+    },
+    {
+      "id": "ssr_ml_production_readiness.md",
+      "label": "ssr_ml_production_readiness.md",
+      "cat": "arch",
+      "desc": "SSR ML Production Readiness Checklist",
+      "broken_refs": 0
+    },
+    {
+      "id": "ssr_ml_rollout_gates.md",
+      "label": "ssr_ml_rollout_gates.md",
+      "cat": "arch",
+      "desc": "SSR ML serving — go / no-go gates (US-20.1 hybrid)",
+      "broken_refs": 0
+    },
+    {
+      "id": "ssr_prompt_iterations.md",
+      "label": "ssr_prompt_iterations.md",
+      "cat": "arch",
+      "desc": "SSR Level 2 Prompt Iterations",
+      "broken_refs": 0
+    },
+    {
+      "id": "tail_sweep.md",
+      "label": "tail_sweep.md",
+      "cat": "backlog",
+      "desc": "Tail sweep (исполнение)",
+      "broken_refs": 0
+    },
+    {
+      "id": "tasklist.md",
+      "label": "tasklist.md",
+      "cat": "backlog",
+      "desc": "План работ",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/_common_rules.md",
+      "label": "team_workflow/_common_rules.md",
+      "cat": "workflow",
+      "desc": "Общие правила для промптов `doc/team_workflow/`",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/analyst.md",
+      "label": "team_workflow/analyst.md",
+      "cat": "workflow",
+      "desc": "Аналитик (Analyst)",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/architect.md",
+      "label": "team_workflow/architect.md",
+      "cat": "workflow",
+      "desc": "team_workflow/architect.md",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/archive/audit_coverage_prompt_epic20-smart-study-router_codex.md",
+      "label": "…/audit_coverage_prompt_epic20-smart-study-router_codex.md",
+      "cat": "workflow",
+      "desc": "AUDIT COVERAGE PROMPT — Epic 20 Smart Study Router / Codex",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/archive/audit_prompt_2026-05-16__2026-05-16_cursor_ai.md",
+      "label": "…/audit_prompt_2026-05-16__2026-05-16_cursor_ai.md",
+      "cat": "workflow",
+      "desc": "Generated Audit Prompt",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/archive/audit_prompt_epic20-smart-study-router_codex.md",
+      "label": "…/audit_prompt_epic20-smart-study-router_codex.md",
+      "cat": "workflow",
+      "desc": "AUDIT PROMPT — Epic 20 Smart Study Router (narrow scope)",
+      "broken_refs": 2
+    },
+    {
+      "id": "team_workflow/archive/epoch_demo_post_agent_smoke.md",
+      "label": "…/epoch_demo_post_agent_smoke.md",
+      "cat": "workflow",
+      "desc": "Epoch-Demo: smoke `run_autonomous --post-agent` (реальный CLI, не unit)",
+      "broken_refs": 8
+    },
+    {
+      "id": "team_workflow/archive/po_router_decision_tree.md",
+      "label": "…/po_router_decision_tree.md",
+      "cat": "workflow",
+      "desc": "Product Owner Router — Interactive Decision Tree",
+      "broken_refs": 5
+    },
+    {
+      "id": "team_workflow/archive/product_owner_router_ai_vision_enhancement.md",
+      "label": "…/product_owner_router_ai_vision_enhancement.md",
+      "cat": "workflow",
+      "desc": "Product Owner Router — AI Vision Enhancement Plan",
+      "broken_refs": 5
+    },
+    {
+      "id": "team_workflow/archive/zero_click_delivery_analysis.md",
+      "label": "…/zero_click_delivery_analysis.md",
+      "cat": "workflow",
+      "desc": "Zero-click delivery (анализ)",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/audit_prompt_2026-05-22__2026-05-22_cursor_ai.md",
+      "label": "…/audit_prompt_2026-05-22__2026-05-22_cursor_ai.md",
+      "cat": "workflow",
+      "desc": "CLOSED PACKAGES AUDIT — 2026-05-22..2026-05-22 [cursor_ai]",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/automation.md",
+      "label": "team_workflow/automation.md",
+      "cat": "workflow",
+      "desc": "Автоматизация командного процесса",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/budget_health_prompt.md",
+      "label": "…/budget_health_prompt.md",
+      "cat": "workflow",
+      "desc": "Kilo Budget Health Check — Daily-Use Prompt",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/demo_scenarios_prompt_bundle.md",
+      "label": "…/demo_scenarios_prompt_bundle.md",
+      "cat": "workflow",
+      "desc": "Demo Scenarios Prompt Bundle",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/designer.md",
+      "label": "team_workflow/designer.md",
+      "cat": "workflow",
+      "desc": "Дизайнер (Designer)",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/developer.md",
+      "label": "team_workflow/developer.md",
+      "cat": "workflow",
+      "desc": "Разработчик (Developer)",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/examples/example_e15a_orchestration_level3_in_agent_claude_code.md",
+      "label": "…/example_e15a_orchestration_level3_in_agent_claude_code.md",
+      "cat": "workflow",
+      "desc": "E15-A: Оркестрация в Claude Code",
+      "broken_refs": 1
+    },
+    {
+      "id": "team_workflow/examples/example_e15a_orchestration_level3_in_agent_codex.md",
+      "label": "…/example_e15a_orchestration_level3_in_agent_codex.md",
+      "cat": "workflow",
+      "desc": "E15-A: Оркестрация в OpenAI Codex CLI",
+      "broken_refs": 1
+    },
+    {
+      "id": "team_workflow/examples/example_e15a_orchestration_level3_in_agent_cursor_ai.md",
+      "label": "…/example_e15a_orchestration_level3_in_agent_cursor_ai.md",
+      "cat": "workflow",
+      "desc": "E15-A: Оркестрация в Cursor AI",
+      "broken_refs": 1
+    },
+    {
+      "id": "team_workflow/examples/example_flashcards_and_bugfix.md",
+      "label": "…/example_flashcards_and_bugfix.md",
+      "cat": "workflow",
+      "desc": "Пример автоматизации: Flashcards + Bug Fix",
+      "broken_refs": 1
+    },
+    {
+      "id": "team_workflow/examples/ssr_level1_ml_package_example.yaml",
+      "label": "…/ssr_level1_ml_package_example.yaml",
+      "cat": "arch",
+      "desc": "team_workflow/examples/ssr_level1_ml_package_example.yaml",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/examples/ssr_level2_eval_contract_example.yaml",
+      "label": "…/ssr_level2_eval_contract_example.yaml",
+      "cat": "arch",
+      "desc": "team_workflow/examples/ssr_level2_eval_contract_example.yaml",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/generate_audit_closed_packages_prompt.md",
+      "label": "…/generate_audit_closed_packages_prompt.md",
+      "cat": "workflow",
+      "desc": "generate_audit_closed_packages_prompt",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/generate_audit_packages_coverage_prompt.md",
+      "label": "…/generate_audit_packages_coverage_prompt.md",
+      "cat": "workflow",
+      "desc": "Generate Audit Packages Coverage Prompt",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/generate_bottleneck_analysis_prompt.md",
+      "label": "…/generate_bottleneck_analysis_prompt.md",
+      "cat": "workflow",
+      "desc": "Bottleneck Analysis — LLM Prompt Template",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/generate_breakthrough_ideation_prompt.md",
+      "label": "…/generate_breakthrough_ideation_prompt.md",
+      "cat": "workflow",
+      "desc": "generate_breakthrough_ideation_prompt",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/generate_execution_prompt_auto.md",
+      "label": "…/generate_execution_prompt_auto.md",
+      "cat": "workflow",
+      "desc": "generate_execution_prompt_auto",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/generate_orchestration_prompt.md",
+      "label": "…/generate_orchestration_prompt.md",
+      "cat": "workflow",
+      "desc": "generate_orchestration_prompt",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/generate_plan_next_prompt.md",
+      "label": "…/generate_plan_next_prompt.md",
+      "cat": "workflow",
+      "desc": "generate_plan_next_prompt",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/generate_resume_prompt.md",
+      "label": "…/generate_resume_prompt.md",
+      "cat": "workflow",
+      "desc": "generate_resume_prompt",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/generate_roadmap_epoch_waves_prompt.md",
+      "label": "…/generate_roadmap_epoch_waves_prompt.md",
+      "cat": "workflow",
+      "desc": "generate_roadmap_epoch_waves_prompt",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/guides/agent_adapter_claude_code.md",
+      "label": "…/agent_adapter_claude_code.md",
+      "cat": "workflow",
+      "desc": "Адаптер: Claude Code",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/guides/agent_adapter_codex.md",
+      "label": "…/agent_adapter_codex.md",
+      "cat": "workflow",
+      "desc": "Адаптер: OpenAI Codex CLI",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/guides/agent_adapter_continue.md",
+      "label": "…/agent_adapter_continue.md",
+      "cat": "workflow",
+      "desc": "Adapter: Continue / DeepSeek-oriented workflow",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/guides/agent_adapter_cursor_ai.md",
+      "label": "…/agent_adapter_cursor_ai.md",
+      "cat": "workflow",
+      "desc": "Адаптер: Cursor AI",
+      "broken_refs": 1
+    },
+    {
+      "id": "team_workflow/guides/agent_adapter_kilo.md",
+      "label": "…/agent_adapter_kilo.md",
+      "cat": "workflow",
+      "desc": "Adapter: Kilo",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/guides/workflow_cursor_sdk_trigger_guide.md",
+      "label": "…/workflow_cursor_sdk_trigger_guide.md",
+      "cat": "workflow",
+      "desc": "Настройка и использование режима Cursor SDK trigger (`--trigger-cmd`)",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/guides/workflow_deepseek_api_trigger_guide.md",
+      "label": "…/workflow_deepseek_api_trigger_guide.md",
+      "cat": "workflow",
+      "desc": "DeepSeek API trigger experiment (`--trigger-cmd`)",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/guides/workflow_deepseek_tui_trigger_guide.md",
+      "label": "…/workflow_deepseek_tui_trigger_guide.md",
+      "cat": "workflow",
+      "desc": "DeepSeek TUI Trigger Operational Guide",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/guides/workflow_deepseek_tui_trigger_implementation_plan.md",
+      "label": "…/workflow_deepseek_tui_trigger_implementation_plan.md",
+      "cat": "workflow",
+      "desc": "DeepSeek TUI Trigger Implementation Plan",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/guides/workflow_trigger_orchestrator_design.md",
+      "label": "…/workflow_trigger_orchestrator_design.md",
+      "cat": "workflow",
+      "desc": "Smart Trigger Orchestrator Design",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/llmops_engineer.md",
+      "label": "team_workflow/llmops_engineer.md",
+      "cat": "workflow",
+      "desc": "LLMOps Engineer",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/mlops_engineer.md",
+      "label": "team_workflow/mlops_engineer.md",
+      "cat": "workflow",
+      "desc": "MLOps Engineer",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/orchestrator_template.md",
+      "label": "…/orchestrator_template.md",
+      "cat": "workflow",
+      "desc": "Обобщённый шаблон промпта оркестратора",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/performance_devops.md",
+      "label": "team_workflow/performance_devops.md",
+      "cat": "workflow",
+      "desc": "Performance Engineer / DevOps",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/po_router_anti_patterns.md",
+      "label": "…/po_router_anti_patterns.md",
+      "cat": "workflow",
+      "desc": "PO Router — Anti-Patterns and Pitfalls",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/po_router_conflicts.md",
+      "label": "…/po_router_conflicts.md",
+      "cat": "workflow",
+      "desc": "PO Router — Conflict Resolution Rules",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/po_router_escape_hatches.md",
+      "label": "…/po_router_escape_hatches.md",
+      "cat": "workflow",
+      "desc": "PO Router — Escape Hatches",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/po_router_evaluation_gate.md",
+      "label": "…/po_router_evaluation_gate.md",
+      "cat": "workflow",
+      "desc": "PO Router - Evaluation Contract Gate",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/po_router_handoffs.md",
+      "label": "team_workflow/po_router_handoffs.md",
+      "cat": "workflow",
+      "desc": "PO Router — Role Handoffs",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/po_router_parallel_waves.md",
+      "label": "…/po_router_parallel_waves.md",
+      "cat": "workflow",
+      "desc": "PO Router — Parallel Waves Strategy",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/po_router_retrospectives.md",
+      "label": "…/po_router_retrospectives.md",
+      "cat": "workflow",
+      "desc": "PO Router — Retrospective Feedback Loop",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/po_router_scope_matrix.md",
+      "label": "…/po_router_scope_matrix.md",
+      "cat": "workflow",
+      "desc": "PO Router — Ideation Scope Decision Matrix",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/process.md",
+      "label": "team_workflow/process.md",
+      "cat": "workflow",
+      "desc": "Процесс работы команды над проектом",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/product_owner.md",
+      "label": "team_workflow/product_owner.md",
+      "cat": "workflow",
+      "desc": "Владелец продукта (Product Owner)",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/product_owner_plan_ml_package_prompt.md",
+      "label": "…/product_owner_plan_ml_package_prompt.md",
+      "cat": "workflow",
+      "desc": "Product Owner - ML Package Planning Prompt",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/product_owner_plan_package_prompt.md",
+      "label": "…/product_owner_plan_package_prompt.md",
+      "cat": "workflow",
+      "desc": "Product Owner — Планирование пакета",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/product_owner_router.md",
+      "label": "…/product_owner_router.md",
+      "cat": "workflow",
+      "desc": "Product Owner Router v2.1",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/rag_llm_ops_project_document.md",
+      "label": "…/rag_llm_ops_project_document.md",
+      "cat": "workflow",
+      "desc": "Инженерные дисциплины MLOps + LLMOps + RAGOps для RAG / LLM-проекта",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/ragops_engineer.md",
+      "label": "team_workflow/ragops_engineer.md",
+      "cat": "workflow",
+      "desc": "RAGOps Engineer",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/README.md",
+      "label": "team_workflow/README.md",
+      "cat": "entry",
+      "desc": "Командный AI-конвейер: инструкция для коллег",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/reopen_package_step_c_prompt.md",
+      "label": "…/reopen_package_step_c_prompt.md",
+      "cat": "workflow",
+      "desc": "Промпт: переоткрытие одного закрытого пакета (Step C)",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/reopen_prompt_closed_window_template.md",
+      "label": "…/reopen_prompt_closed_window_template.md",
+      "cat": "workflow",
+      "desc": "Reopen prompt — шаблон: батч переоткрытия `closed → ready` за окно PERIOD",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/run_audit_chain_prompt.md",
+      "label": "…/run_audit_chain_prompt.md",
+      "cat": "workflow",
+      "desc": "run_audit_chain_prompt",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/run_autonomous.md",
+      "label": "team_workflow/run_autonomous.md",
+      "cat": "workflow",
+      "desc": "Zero-Click Autonomous Delivery",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/run_autonomous_prompt.md",
+      "label": "…/run_autonomous_prompt.md",
+      "cat": "workflow",
+      "desc": "Zero-Click Delivery — стартовый промпт (non-stop)",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/run_autonomous_runbook.md",
+      "label": "…/run_autonomous_runbook.md",
+      "cat": "workflow",
+      "desc": "team_workflow/run_autonomous_runbook.md",
+      "broken_refs": 1
+    },
+    {
+      "id": "team_workflow/run_start_workflow_prompt.md",
+      "label": "…/run_start_workflow_prompt.md",
+      "cat": "workflow",
+      "desc": "run_start_workflow_prompt",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_level3_5_corrections.md",
+      "label": "…/ssr_ai_vision_audit_level3_5_corrections.md",
+      "cat": "arch",
+      "desc": "SSR AI Vision — Audit Corrections Level 3-5",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_level3_5_report.md",
+      "label": "…/ssr_ai_vision_audit_level3_5_report.md",
+      "cat": "arch",
+      "desc": "SSR AI Vision — Audit Report Level 3-5",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_report_2026-05-09.md",
+      "label": "…/ssr_ai_vision_audit_report_2026-05-09.md",
+      "cat": "arch",
+      "desc": "SSR AI Vision — Audit Report Level 1 & Level 2",
+      "broken_refs": 1
+    },
+    {
+      "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_level1_level2_readiness_gate_2026-05-09.md",
+      "label": "…/ssr_ai_vision_level1_level2_readiness_gate_2026-05-09.md",
+      "cat": "arch",
+      "desc": "SSR AI Vision Level 1/2 Readiness Gate",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_level1_prompt.md",
+      "label": "…/ssr_ai_vision_level1_prompt.md",
+      "cat": "arch",
+      "desc": "SSR AI Vision — Level 1: Local ML Layer",
+      "broken_refs": 3
+    },
+    {
+      "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_level3_readiness_gate.md",
+      "label": "…/ssr_ai_vision_level2_level3_readiness_gate.md",
+      "cat": "arch",
+      "desc": "SSR AI Vision — Level 2↔Level 3 readiness gate",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_prompt.md",
+      "label": "…/ssr_ai_vision_level2_prompt.md",
+      "cat": "arch",
+      "desc": "SSR AI Vision — Level 2: LLM-Enhanced Explanation",
+      "broken_refs": 2
+    },
+    {
+      "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_level3_prompt.md",
+      "label": "…/ssr_ai_vision_level3_prompt.md",
+      "cat": "arch",
+      "desc": "SSR AI Vision — Level 3: Proactive Study Planner",
+      "broken_refs": 2
+    },
+    {
+      "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_level4_prompt.md",
+      "label": "…/ssr_ai_vision_level4_prompt.md",
+      "cat": "arch",
+      "desc": "SSR AI Vision — Level 4: Concept Graph Router",
+      "broken_refs": 1
+    },
+    {
+      "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_level5_prompt.md",
+      "label": "…/ssr_ai_vision_level5_prompt.md",
+      "cat": "arch",
+      "desc": "SSR AI Vision — Level 5: Misroute Feedback Loop",
+      "broken_refs": 2
+    },
+    {
+      "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_roadmap_visual.md",
+      "label": "…/ssr_ai_vision_roadmap_visual.md",
+      "cat": "arch",
+      "desc": "SSR AI Vision — Visual Roadmap",
+      "broken_refs": 2
+    },
+    {
+      "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+      "label": "…/ssr_ai_vision_summary.md",
+      "cat": "arch",
+      "desc": "SSR AI Vision — Roadmap Summary",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/ssr_ai_vision/ssr_all_levels_quick_start.md",
+      "label": "…/ssr_all_levels_quick_start.md",
+      "cat": "arch",
+      "desc": "SSR AI Vision — Quick Start Guide (All Levels)",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/ssr_ai_vision/ssr_code_templates.md",
+      "label": "…/ssr_code_templates.md",
+      "cat": "arch",
+      "desc": "SSR AI Vision — Code Templates & Scaffolding",
+      "broken_refs": 1
+    },
+    {
+      "id": "team_workflow/ssr_ai_vision/ssr_level1_quick_start.md",
+      "label": "…/ssr_level1_quick_start.md",
+      "cat": "arch",
+      "desc": "Level 1: Local ML Layer — 5-Minute Quick Start",
+      "broken_refs": 1
+    },
+    {
+      "id": "team_workflow/ssr_ai_vision/ssr_wave1_audit_summary.md",
+      "label": "…/ssr_wave1_audit_summary.md",
+      "cat": "arch",
+      "desc": "SSR AI Vision — Wave 1 Foundation Audit Summary",
+      "broken_refs": 2
+    },
+    {
+      "id": "team_workflow/start_workflow.md",
+      "label": "team_workflow/start_workflow.md",
+      "cat": "workflow",
+      "desc": "start_workflow",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/templates/evaluation_contract_template.yaml",
+      "label": "…/evaluation_contract_template.yaml",
+      "cat": "workflow",
+      "desc": "team_workflow/templates/evaluation_contract_template.yaml",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/templates/ml_package_template.yaml",
+      "label": "…/ml_package_template.yaml",
+      "cat": "workflow",
+      "desc": "team_workflow/templates/ml_package_template.yaml",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/tester.md",
+      "label": "team_workflow/tester.md",
+      "cat": "workflow",
+      "desc": "Тестировщик (Tester)",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/workflow_decision_tree.md",
+      "label": "…/workflow_decision_tree.md",
+      "cat": "workflow",
+      "desc": "Workflow — дерево решений «что запускать сейчас»",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/workflow_router.md",
+      "label": "team_workflow/workflow_router.md",
+      "cat": "workflow",
+      "desc": "Smart Workflow Router — `scripts/workflow.py`",
+      "broken_refs": 0
+    },
+    {
+      "id": "technical_specification.md",
+      "label": "technical_specification.md",
+      "cat": "arch",
+      "desc": "Техническая Спецификация `home-rag_v2`",
+      "broken_refs": 0
+    },
+    {
+      "id": "token_metrics_tracking.md",
+      "label": "token_metrics_tracking.md",
+      "cat": "token",
+      "desc": "token_metrics_tracking.md",
+      "broken_refs": 0
+    },
+    {
+      "id": "TOKEN_OPTIMIZATION_CARD.md",
+      "label": "TOKEN_OPTIMIZATION_CARD.md",
+      "cat": "token",
+      "desc": "Token Optimization — Quick Reference Card (Printable)",
+      "broken_refs": 0
+    },
+    {
+      "id": "token_safety.md",
+      "label": "token_safety.md",
+      "cat": "token",
+      "desc": "Token Safety Справочник",
+      "broken_refs": 0
+    },
+    {
+      "id": "token_safety_registry.json",
+      "label": "token_safety_registry.json",
+      "cat": "token",
+      "desc": "token_safety_registry.json",
+      "broken_refs": 0
+    },
+    {
+      "id": "user_guide.md",
+      "label": "user_guide.md",
+      "cat": "ux",
+      "desc": "home-rag — учебный центр из твоей папки",
+      "broken_refs": 0
+    },
+    {
+      "id": "user_guide_details.md",
+      "label": "user_guide_details.md",
+      "cat": "ux",
+      "desc": "Детальный справочник: все возможности",
+      "broken_refs": 0
+    },
+    {
+      "id": "user_scenarios.md",
+      "label": "user_scenarios.md",
+      "cat": "ux",
+      "desc": "Сценарии — Как home-rag меняет обучение",
+      "broken_refs": 0
+    },
+    {
+      "id": "user_stories/README.md",
+      "label": "user_stories/README.md",
+      "cat": "entry",
+      "desc": "user_stories/README.md",
+      "broken_refs": 61
+    },
+    {
+      "id": "user_stories.md",
+      "label": "user_stories.md",
+      "cat": "user-stories",
+      "desc": "User Stories — Learner (home-rag)",
+      "broken_refs": 0
+    },
+    {
+      "id": "user_stories_details.md",
+      "label": "user_stories_details.md",
+      "cat": "user-stories",
+      "desc": "user_stories_details.md",
+      "broken_refs": 0
+    },
+    {
+      "id": "user_stories_index.json",
+      "label": "user_stories_index.json",
+      "cat": "user-stories",
+      "desc": "user_stories_index.json",
+      "broken_refs": 0
+    },
+    {
+      "id": "VALIDATOR_FLOWCHART.md",
+      "label": "VALIDATOR_FLOWCHART.md",
+      "cat": "token",
+      "desc": "Validator Workflow (Decision Tree)",
+      "broken_refs": 0
+    },
+    {
+      "id": "vision.md",
+      "label": "vision.md",
+      "cat": "vision",
+      "desc": "Видение продукта",
+      "broken_refs": 0
+    }
+  ],
+  "edges": [
+    {
+      "source": "adr.md",
+      "target": "adr_021_smart_router_rag_modes.md"
+    },
+    {
+      "source": "adr.md",
+      "target": "adr_021a_smart_router_architecture_lifts.md"
+    },
+    {
+      "source": "adr.md",
+      "target": "adr_022_ssr_ai_eval_harness.md"
+    },
+    {
+      "source": "adr.md",
+      "target": "adr_023_ssr_graph_routing.md"
+    },
+    {
+      "source": "adr_021a_smart_router_architecture_lifts.md",
+      "target": "adr_021_smart_router_rag_modes.md"
+    },
+    {
+      "source": "agent_workflow.md",
+      "target": "agent_workflow_rules.md"
+    },
+    {
+      "source": "agent_workflow.md",
+      "target": "agent_workflow_cycle.md"
+    },
+    {
+      "source": "agent_workflow.md",
+      "target": "agent_workflow_templates.md"
+    },
+    {
+      "source": "agent_workflow.md",
+      "target": "agent_workflow_arch_review.md"
+    },
+    {
+      "source": "agent_workflow.md",
+      "target": "agent_workflow_test_bundles.md"
+    },
+    {
+      "source": "agent_workflow.md",
+      "target": "kilo_budget_system.md"
+    },
+    {
+      "source": "agent_workflow.md",
+      "target": "archive/kilo_budget_remediation_plan.md"
+    },
+    {
+      "source": "agent_workflow.md",
+      "target": "team_workflow/budget_health_prompt.md"
+    },
+    {
+      "source": "agent_workflow.md",
+      "target": "team_workflow/process.md"
+    },
+    {
+      "source": "agent_workflow.md",
+      "target": "prompts_usage_guide.md"
+    },
+    {
+      "source": "agent_workflow.md",
+      "target": "team_workflow/workflow_router.md"
+    },
+    {
+      "source": "agent_workflow.md",
+      "target": "team_workflow/developer.md"
+    },
+    {
+      "source": "agent_workflow.md",
+      "target": "team_workflow/tester.md"
+    },
+    {
+      "source": "agent_workflow_arch_review.md",
+      "target": "agent_workflow.md"
+    },
+    {
+      "source": "agent_workflow_arch_review.md",
+      "target": "agent_workflow_rules.md"
+    },
+    {
+      "source": "agent_workflow_arch_review.md",
+      "target": "agent_workflow_cycle.md"
+    },
+    {
+      "source": "agent_workflow_arch_review.md",
+      "target": "agent_workflow_templates.md"
+    },
+    {
+      "source": "agent_workflow_arch_review.md",
+      "target": "agent_workflow_test_bundles.md"
+    },
+    {
+      "source": "agent_workflow_arch_review.md",
+      "target": "token_safety.md"
+    },
+    {
+      "source": "agent_workflow_cycle.md",
+      "target": "agent_workflow.md"
+    },
+    {
+      "source": "agent_workflow_cycle.md",
+      "target": "agent_workflow_rules.md"
+    },
+    {
+      "source": "agent_workflow_cycle.md",
+      "target": "agent_workflow_templates.md"
+    },
+    {
+      "source": "agent_workflow_cycle.md",
+      "target": "agent_workflow_arch_review.md"
+    },
+    {
+      "source": "agent_workflow_cycle.md",
+      "target": "agent_workflow_test_bundles.md"
+    },
+    {
+      "source": "agent_workflow_rules.md",
+      "target": "agent_workflow.md"
+    },
+    {
+      "source": "agent_workflow_rules.md",
+      "target": "agent_workflow_cycle.md"
+    },
+    {
+      "source": "agent_workflow_rules.md",
+      "target": "agent_workflow_templates.md"
+    },
+    {
+      "source": "agent_workflow_rules.md",
+      "target": "agent_workflow_arch_review.md"
+    },
+    {
+      "source": "agent_workflow_rules.md",
+      "target": "agent_workflow_test_bundles.md"
+    },
+    {
+      "source": "agent_workflow_rules.md",
+      "target": "token_safety.md"
+    },
+    {
+      "source": "agent_workflow_templates.md",
+      "target": "agent_workflow.md"
+    },
+    {
+      "source": "agent_workflow_templates.md",
+      "target": "agent_workflow_rules.md"
+    },
+    {
+      "source": "agent_workflow_templates.md",
+      "target": "agent_workflow_cycle.md"
+    },
+    {
+      "source": "agent_workflow_templates.md",
+      "target": "agent_workflow_arch_review.md"
+    },
+    {
+      "source": "agent_workflow_templates.md",
+      "target": "agent_workflow_test_bundles.md"
+    },
+    {
+      "source": "agent_workflow_templates.md",
+      "target": "token_safety.md"
+    },
+    {
+      "source": "agent_workflow_templates.md",
+      "target": "team_workflow/tester.md"
+    },
+    {
+      "source": "agent_workflow_templates.md",
+      "target": "team_workflow/developer.md"
+    },
+    {
+      "source": "agent_workflow_test_bundles.md",
+      "target": "agent_workflow.md"
+    },
+    {
+      "source": "agent_workflow_test_bundles.md",
+      "target": "agent_workflow_rules.md"
+    },
+    {
+      "source": "agent_workflow_test_bundles.md",
+      "target": "agent_workflow_cycle.md"
+    },
+    {
+      "source": "agent_workflow_test_bundles.md",
+      "target": "agent_workflow_templates.md"
+    },
+    {
+      "source": "agent_workflow_test_bundles.md",
+      "target": "agent_workflow_arch_review.md"
+    },
+    {
+      "source": "agent_workflow_test_bundles.md",
+      "target": "team_workflow/process.md"
+    },
+    {
+      "source": "api_reference.md",
+      "target": "adr_021a_global_analytics_design.md"
+    },
+    {
+      "source": "architecture.md",
+      "target": "backlog_registry.yaml"
+    },
+    {
+      "source": "architecture.md",
+      "target": "tasklist.md"
+    },
+    {
+      "source": "architecture.md",
+      "target": "future_roadmap.md"
+    },
+    {
+      "source": "architecture.md",
+      "target": "index_lifecycle.md"
+    },
+    {
+      "source": "cjm.md",
+      "target": "user_scenarios.md"
+    },
+    {
+      "source": "cjm.md",
+      "target": "user_guide.md"
+    },
+    {
+      "source": "cjm.md",
+      "target": "backlog_registry.yaml"
+    },
+    {
+      "source": "cjm.md",
+      "target": "product_idea.md"
+    },
+    {
+      "source": "closed_iterations.md",
+      "target": "epochs/ingest_acceleration.md"
+    },
+    {
+      "source": "closed_iterations.md",
+      "target": "epochs/epoch_local_cors_defaults.md"
+    },
+    {
+      "source": "closed_iterations.md",
+      "target": "epochs/epoch_ui_refactoring.md"
+    },
+    {
+      "source": "closed_iterations.md",
+      "target": "epochs/epoch_metrics_decomposition.md"
+    },
+    {
+      "source": "closed_iterations.md",
+      "target": "epochs/epoch_learning_route_continuity.md"
+    },
+    {
+      "source": "closed_iterations.md",
+      "target": "epochs/ops_stability_hybrid_embeddings.md"
+    },
+    {
+      "source": "closed_iterations.md",
+      "target": "epochs/epoch_query_service_decomposition.md"
+    },
+    {
+      "source": "closed_iterations.md",
+      "target": "epochs/epoch_adr_.md"
+    },
+    {
+      "source": "closed_iterations.md",
+      "target": "epochs/epoch_local_store_contracts.md"
+    },
+    {
+      "source": "closed_iterations.md",
+      "target": "epochs/epoch_exception_hygiene.md"
+    },
+    {
+      "source": "conventions.md",
+      "target": "conventions_architecture.md"
+    },
+    {
+      "source": "conventions.md",
+      "target": "conventions_reference.md"
+    },
+    {
+      "source": "conventions_architecture.md",
+      "target": "conventions.md"
+    },
+    {
+      "source": "conventions_architecture.md",
+      "target": "adr_021a_smart_router_architecture_lifts.md"
+    },
+    {
+      "source": "conventions_architecture.md",
+      "target": "index_lifecycle.md"
+    },
+    {
+      "source": "conventions_reference.md",
+      "target": "conventions.md"
+    },
+    {
+      "source": "conventions_reference.md",
+      "target": "api_reference.md"
+    },
+    {
+      "source": "conventions_reference.md",
+      "target": "agent_workflow_test_bundles.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "index.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "readme.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "quickstart.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "vision.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "user_guide.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "architecture.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "AGENTS.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "conventions.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "prompts_catalog.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "prompts_usage_guide.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "team_workflow/process.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "team_workflow/product_owner_router.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "roadmap.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "team_workflow/workflow_router.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "smart_study_router.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "conventions_architecture.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "changelog.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "api_reference.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "observability_slo.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "personalized_learner_model.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "token_safety.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "conventions_reference.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "backlog_registry.yaml"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "user_stories.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "tasklist.md"
+    },
+    {
+      "source": "documentation_onboarding_guide.md",
+      "target": "agent_workflow.md"
+    },
+    {
+      "source": "future_roadmap.md",
+      "target": "smart_study_router.md"
+    },
+    {
+      "source": "future_roadmap.md",
+      "target": "roadmap.md"
+    },
+    {
+      "source": "index.md",
+      "target": "documentation_onboarding_guide.md"
+    },
+    {
+      "source": "index.md",
+      "target": "readme.md"
+    },
+    {
+      "source": "index.md",
+      "target": "quickstart.md"
+    },
+    {
+      "source": "index.md",
+      "target": "vision.md"
+    },
+    {
+      "source": "index.md",
+      "target": "user_guide.md"
+    },
+    {
+      "source": "index.md",
+      "target": "user_scenarios.md"
+    },
+    {
+      "source": "index.md",
+      "target": "quickstart_demo.md"
+    },
+    {
+      "source": "index.md",
+      "target": "cjm.md"
+    },
+    {
+      "source": "index.md",
+      "target": "user_stories.md"
+    },
+    {
+      "source": "index.md",
+      "target": "backlog_registry.yaml"
+    },
+    {
+      "source": "index.md",
+      "target": "architecture.md"
+    },
+    {
+      "source": "index.md",
+      "target": "adr.md"
+    },
+    {
+      "source": "index.md",
+      "target": "conventions_architecture.md"
+    },
+    {
+      "source": "index.md",
+      "target": "conventions.md"
+    },
+    {
+      "source": "index.md",
+      "target": "technical_specification.md"
+    },
+    {
+      "source": "index.md",
+      "target": "api_reference.md"
+    },
+    {
+      "source": "index.md",
+      "target": "agent_workflow.md"
+    },
+    {
+      "source": "index.md",
+      "target": "agent_workflow_test_bundles.md"
+    },
+    {
+      "source": "index.md",
+      "target": "CLAUDE.md"
+    },
+    {
+      "source": "index.md",
+      "target": "token_safety.md"
+    },
+    {
+      "source": "index.md",
+      "target": "team_workflow/README.md"
+    },
+    {
+      "source": "index.md",
+      "target": "observability_slo.md"
+    },
+    {
+      "source": "index.md",
+      "target": "index_lifecycle.md"
+    },
+    {
+      "source": "index.md",
+      "target": "kilo_budget_system.md"
+    },
+    {
+      "source": "index.md",
+      "target": "roadmap.md"
+    },
+    {
+      "source": "index.md",
+      "target": "product_idea.md"
+    },
+    {
+      "source": "index.md",
+      "target": "pitch.md"
+    },
+    {
+      "source": "index.md",
+      "target": "presenter_script.md"
+    },
+    {
+      "source": "index.md",
+      "target": "smart_study_router.md"
+    },
+    {
+      "source": "index.md",
+      "target": "future_roadmap.md"
+    },
+    {
+      "source": "index.md",
+      "target": "roadmap_governance.md"
+    },
+    {
+      "source": "index.md",
+      "target": "next/BREAKTHROUGH_SUMMARY.md"
+    },
+    {
+      "source": "index.md",
+      "target": "next/localhost_balance_course_delight_breakthrough.md"
+    },
+    {
+      "source": "index.md",
+      "target": "next/BREAKTHROUGH_VISUAL.md"
+    },
+    {
+      "source": "index.md",
+      "target": "next/DEFENSE_TALKING_POINTS.md"
+    },
+    {
+      "source": "index.md",
+      "target": "user_guide_details.md"
+    },
+    {
+      "source": "index.md",
+      "target": "presentations/defense_deploy_plan.md"
+    },
+    {
+      "source": "index.md",
+      "target": "personalized_learner_model.md"
+    },
+    {
+      "source": "index.md",
+      "target": "ssr_llm_profiling.md"
+    },
+    {
+      "source": "index.md",
+      "target": "eval_experimenter_runbook.md"
+    },
+    {
+      "source": "index.md",
+      "target": "conventions_reference.md"
+    },
+    {
+      "source": "index.md",
+      "target": "archive/arch_review_baseline.yaml"
+    },
+    {
+      "source": "index.md",
+      "target": "tasklist.md"
+    },
+    {
+      "source": "index.md",
+      "target": "current_task.md"
+    },
+    {
+      "source": "index.md",
+      "target": "user_stories_index.json"
+    },
+    {
+      "source": "index.md",
+      "target": "user_stories_details.md"
+    },
+    {
+      "source": "index.md",
+      "target": "tail_sweep.md"
+    },
+    {
+      "source": "index.md",
+      "target": "agent_workflow_rules.md"
+    },
+    {
+      "source": "index.md",
+      "target": "agent_workflow_cycle.md"
+    },
+    {
+      "source": "index.md",
+      "target": "agent_workflow_templates.md"
+    },
+    {
+      "source": "index.md",
+      "target": "agent_workflow_arch_review.md"
+    },
+    {
+      "source": "index.md",
+      "target": "team_workflow/process.md"
+    },
+    {
+      "source": "index.md",
+      "target": "team_workflow/automation.md"
+    },
+    {
+      "source": "index.md",
+      "target": "team_workflow/workflow_router.md"
+    },
+    {
+      "source": "index.md",
+      "target": "token_safety_registry.json"
+    },
+    {
+      "source": "index.md",
+      "target": "token_metrics_tracking.md"
+    },
+    {
+      "source": "index.md",
+      "target": "QUICK_READSET_REFERENCE.md"
+    },
+    {
+      "source": "index.md",
+      "target": "MICROPLAN_USAGE.md"
+    },
+    {
+      "source": "index.md",
+      "target": "VALIDATOR_FLOWCHART.md"
+    },
+    {
+      "source": "index.md",
+      "target": "TOKEN_OPTIMIZATION_CARD.md"
+    },
+    {
+      "source": "index.md",
+      "target": "kilo_budget_gate.md"
+    },
+    {
+      "source": "index.md",
+      "target": "kilo_budget_capture_runbook.md"
+    },
+    {
+      "source": "index.md",
+      "target": "kilo_proxy_relay.md"
+    },
+    {
+      "source": "index.md",
+      "target": "loop_metrics_gate_runbook.md"
+    },
+    {
+      "source": "index.md",
+      "target": "changelog.md"
+    },
+    {
+      "source": "index.md",
+      "target": "closed_iterations.md"
+    },
+    {
+      "source": "index.md",
+      "target": "prompts_catalog.md"
+    },
+    {
+      "source": "index.md",
+      "target": "team_workflow/reopen_package_step_c_prompt.md"
+    },
+    {
+      "source": "index.md",
+      "target": "archive/adr_rag_architecture.md"
+    },
+    {
+      "source": "index.md",
+      "target": "archive/architectural_refactoring.md"
+    },
+    {
+      "source": "index.md",
+      "target": "archive/blue_green_reindex_design.md"
+    },
+    {
+      "source": "index.md",
+      "target": "archive/blue_green_reindex_implementation_plan.md"
+    },
+    {
+      "source": "index.md",
+      "target": "archive/tasklist_historical.md"
+    },
+    {
+      "source": "index.md",
+      "target": "archive/IMPLEMENTATION_COMPLETE.md"
+    },
+    {
+      "source": "index.md",
+      "target": "archive/IMPLEMENTATION_P0_P1.md"
+    },
+    {
+      "source": "index.md",
+      "target": "archive/token_optimization_plan.md"
+    },
+    {
+      "source": "index.md",
+      "target": "archive/token_optimization_checklist.md"
+    },
+    {
+      "source": "index.md",
+      "target": "archive/handoff_next_level.md"
+    },
+    {
+      "source": "index.md",
+      "target": "archive/architecture_review_2026-04-24.md"
+    },
+    {
+      "source": "index.md",
+      "target": "archive/workflow_hardening_plan_2026-04-24.md"
+    },
+    {
+      "source": "index.md",
+      "target": "archive/kilo_budget_remediation_plan.md"
+    },
+    {
+      "source": "kilo_budget_capture_runbook.md",
+      "target": "kilo_proxy_relay.md"
+    },
+    {
+      "source": "kilo_budget_gate.md",
+      "target": "kilo_budget_capture_runbook.md"
+    },
+    {
+      "source": "kilo_budget_system.md",
+      "target": "kilo_budget_gate.md"
+    },
+    {
+      "source": "kilo_budget_system.md",
+      "target": "kilo_budget_capture_runbook.md"
+    },
+    {
+      "source": "kilo_budget_system.md",
+      "target": "team_workflow/budget_health_prompt.md"
+    },
+    {
+      "source": "kilo_budget_system.md",
+      "target": "conventions.md"
+    },
+    {
+      "source": "kilo_budget_system.md",
+      "target": "token_safety.md"
+    },
+    {
+      "source": "kilo_proxy_relay.md",
+      "target": "kilo_budget_system.md"
+    },
+    {
+      "source": "kilo_proxy_relay.md",
+      "target": "kilo_budget_gate.md"
+    },
+    {
+      "source": "kilo_proxy_relay.md",
+      "target": "kilo_budget_capture_runbook.md"
+    },
+    {
+      "source": "personalized_learner_model.md",
+      "target": "quickstart.md"
+    },
+    {
+      "source": "personalized_learner_model.md",
+      "target": "quickstart_demo.md"
+    },
+    {
+      "source": "personalized_learner_model.md",
+      "target": "user_scenarios.md"
+    },
+    {
+      "source": "pitch.md",
+      "target": "user_scenarios.md"
+    },
+    {
+      "source": "pitch.md",
+      "target": "quickstart_demo.md"
+    },
+    {
+      "source": "pitch.md",
+      "target": "quickstart.md"
+    },
+    {
+      "source": "pitch.md",
+      "target": "eval_experimenter_runbook.md"
+    },
+    {
+      "source": "pitch.md",
+      "target": "cjm.md"
+    },
+    {
+      "source": "pitch.md",
+      "target": "vision.md"
+    },
+    {
+      "source": "pitch.md",
+      "target": "architecture.md"
+    },
+    {
+      "source": "pitch.md",
+      "target": "presenter_script.md"
+    },
+    {
+      "source": "presenter_script.md",
+      "target": "pitch.md"
+    },
+    {
+      "source": "presenter_script.md",
+      "target": "quickstart_demo.md"
+    },
+    {
+      "source": "presenter_script.md",
+      "target": "user_scenarios.md"
+    },
+    {
+      "source": "presenter_script.md",
+      "target": "eval_experimenter_runbook.md"
+    },
+    {
+      "source": "presenter_script.md",
+      "target": "vision.md"
+    },
+    {
+      "source": "presenter_script.md",
+      "target": "user_guide_details.md"
+    },
+    {
+      "source": "presenter_script.md",
+      "target": "architecture.md"
+    },
+    {
+      "source": "presenter_script.md",
+      "target": "quickstart.md"
+    },
+    {
+      "source": "product_idea.md",
+      "target": "roadmap.md"
+    },
+    {
+      "source": "product_idea.md",
+      "target": "smart_study_router.md"
+    },
+    {
+      "source": "product_idea.md",
+      "target": "backlog_registry.yaml"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "agent_workflow_templates.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "agent_workflow_arch_review.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/product_owner_router.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/po_router_conflicts.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/po_router_scope_matrix.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/po_router_escape_hatches.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/po_router_anti_patterns.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/po_router_handoffs.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/po_router_parallel_waves.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/po_router_retrospectives.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/generate_plan_next_prompt.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "backlog_registry.yaml"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "tasklist.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/generate_resume_prompt.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/generate_breakthrough_ideation_prompt.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/product_owner_plan_package_prompt.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/generate_roadmap_epoch_waves_prompt.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/generate_orchestration_prompt.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/generate_execution_prompt_auto.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/run_audit_chain_prompt.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/generate_audit_closed_packages_prompt.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/generate_audit_packages_coverage_prompt.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/reopen_package_step_c_prompt.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "current_task.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/reopen_prompt_closed_window_template.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/budget_health_prompt.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/demo_scenarios_prompt_bundle.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/generate_bottleneck_analysis_prompt.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/product_owner.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/analyst.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/architect.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/designer.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/developer.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/tester.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/ragops_engineer.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/rag_llm_ops_project_document.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/llmops_engineer.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/mlops_engineer.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/performance_devops.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/orchestrator_template.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/guides/agent_adapter_claude_code.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/guides/agent_adapter_cursor_ai.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/guides/agent_adapter_codex.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/guides/agent_adapter_kilo.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/examples/example_e15a_orchestration_level3_in_agent_claude_code.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/examples/example_e15a_orchestration_level3_in_agent_cursor_ai.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/examples/example_e15a_orchestration_level3_in_agent_codex.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/examples/example_flashcards_and_bugfix.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/workflow_router.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/process.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/automation.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/start_workflow.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/run_start_workflow_prompt.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/run_autonomous.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/run_autonomous_runbook.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/run_autonomous_prompt.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/README.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "index.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "vision.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "cjm.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "product_idea.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "future_roadmap.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "roadmap.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "user_stories.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "closed_iterations.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "architecture.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "adr.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "conventions.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "roadmap_governance.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "team_workflow/archive/epoch_demo_post_agent_smoke.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "prompts_usage_guide.md"
+    },
+    {
+      "source": "prompts_catalog.md",
+      "target": "agent_workflow_test_bundles.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "prompts_catalog.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "backlog_registry.yaml"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "tasklist.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/process.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/generate_orchestration_prompt.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/workflow_decision_tree.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/workflow_router.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/developer.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/tester.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/generate_plan_next_prompt.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/generate_resume_prompt.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/run_audit_chain_prompt.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/generate_audit_closed_packages_prompt.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/generate_audit_packages_coverage_prompt.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/product_owner_plan_package_prompt.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/product_owner.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/generate_breakthrough_ideation_prompt.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "cjm.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "token_safety.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/analyst.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/architect.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "agent_workflow_arch_review.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "conventions.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "agent_workflow_templates.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/archive/epoch_demo_post_agent_smoke.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/performance_devops.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/budget_health_prompt.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/generate_bottleneck_analysis_prompt.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/rag_llm_ops_project_document.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/ragops_engineer.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/llmops_engineer.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/mlops_engineer.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "next/localhost_balance_course_delight_plan.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/run_autonomous_prompt.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/run_autonomous_runbook.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/run_start_workflow_prompt.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/reopen_prompt_closed_window_template.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/guides/agent_adapter_claude_code.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/guides/agent_adapter_cursor_ai.md"
+    },
+    {
+      "source": "prompts_usage_guide.md",
+      "target": "team_workflow/guides/agent_adapter_kilo.md"
+    },
+    {
+      "source": "quickstart.md",
+      "target": "user_guide.md"
+    },
+    {
+      "source": "quickstart.md",
+      "target": "user_scenarios.md"
+    },
+    {
+      "source": "quickstart.md",
+      "target": "user_guide_details.md"
+    },
+    {
+      "source": "quickstart.md",
+      "target": "ssr_llm_profiling.md"
+    },
+    {
+      "source": "quickstart.md",
+      "target": "api_reference.md"
+    },
+    {
+      "source": "quickstart.md",
+      "target": "personalized_learner_model.md"
+    },
+    {
+      "source": "quickstart.md",
+      "target": "prompts_catalog.md"
+    },
+    {
+      "source": "quickstart.md",
+      "target": "prompts_usage_guide.md"
+    },
+    {
+      "source": "quickstart.md",
+      "target": "team_workflow/process.md"
+    },
+    {
+      "source": "quickstart.md",
+      "target": "quickstart_demo.md"
+    },
+    {
+      "source": "quickstart_demo.md",
+      "target": "user_scenarios.md"
+    },
+    {
+      "source": "quickstart_demo.md",
+      "target": "quickstart.md"
+    },
+    {
+      "source": "quickstart_demo.md",
+      "target": "scenarios/README.md"
+    },
+    {
+      "source": "quickstart_demo.preview.md",
+      "target": "user_scenarios.md"
+    },
+    {
+      "source": "quickstart_demo.preview.md",
+      "target": "quickstart.md"
+    },
+    {
+      "source": "quickstart_demo.preview.md",
+      "target": "scenarios/README.md"
+    },
+    {
+      "source": "QUICK_READSET_REFERENCE.md",
+      "target": "token_safety.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "index.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "architecture.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "index_lifecycle.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "technical_specification.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "api_reference.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "user_guide.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "user_guide_details.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "user_scenarios.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "user_stories.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "user_stories_details.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "vision.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "conventions.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "conventions_architecture.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "conventions_reference.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "archive/tasklist_historical.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "observability_slo.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "personalized_learner_model.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "changelog.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "backlog_registry.yaml"
+    },
+    {
+      "source": "readme.md",
+      "target": "tasklist.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "roadmap_governance.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "roadmap.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "future_roadmap.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "closed_iterations.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "product_idea.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "adr.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "archive/adr_rag_architecture.md"
+    },
+    {
+      "source": "readme.md",
+      "target": "archive/architectural_refactoring.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "backlog_registry.yaml"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "tasklist.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "closed_iterations.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "roadmap_governance.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "future_roadmap.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "cjm.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "user_stories_index.json"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "product_idea.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "vision.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "smart_study_router.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "user_stories.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "user_stories_details.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "team_workflow/generate_plan_next_prompt.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "team_workflow/generate_breakthrough_ideation_prompt.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "team_workflow/product_owner_plan_package_prompt.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "team_workflow/_common_rules.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "readme.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "index.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "user_guide.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "user_guide_details.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "user_scenarios.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "quickstart.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "quickstart_demo.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "expert_controls_recommendations.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "next/localhost_balance_course_delight_plan.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "next/localhost_balance_course_delight_breakthrough.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "team_workflow/product_owner_router.md"
+    },
+    {
+      "source": "roadmap_governance.md",
+      "target": "roadmap.md"
+    },
+    {
+      "source": "smart_study_router.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level1_prompt.md"
+    },
+    {
+      "source": "smart_study_router.md",
+      "target": "product_idea.md"
+    },
+    {
+      "source": "smart_study_router.md",
+      "target": "cjm.md"
+    },
+    {
+      "source": "smart_study_router.md",
+      "target": "roadmap.md"
+    },
+    {
+      "source": "smart_study_router.md",
+      "target": "future_roadmap.md"
+    },
+    {
+      "source": "smart_study_router.md",
+      "target": "user_stories.md"
+    },
+    {
+      "source": "smart_study_router.md",
+      "target": "team_workflow/product_owner_router.md"
+    },
+    {
+      "source": "smart_study_router.md",
+      "target": "team_workflow/archive/product_owner_router_ai_vision_enhancement.md"
+    },
+    {
+      "source": "smart_study_router.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md"
+    },
+    {
+      "source": "smart_study_router.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_prompt.md"
+    },
+    {
+      "source": "smart_study_router.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level3_prompt.md"
+    },
+    {
+      "source": "smart_study_router.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level4_prompt.md"
+    },
+    {
+      "source": "smart_study_router.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level5_prompt.md"
+    },
+    {
+      "source": "smart_study_router.md",
+      "target": "backlog_registry.yaml"
+    },
+    {
+      "source": "smart_study_router.md",
+      "target": "closed_iterations.md"
+    },
+    {
+      "source": "smart_study_router.md",
+      "target": "presentations/defense_killer_feature_smart_assistant.md"
+    },
+    {
+      "source": "smart_study_router.md",
+      "target": "presentations/defense_user_router_breakthrough.md"
+    },
+    {
+      "source": "ssr_ml_production_readiness.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md"
+    },
+    {
+      "source": "ssr_ml_production_readiness.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_wave1_audit_summary.md"
+    },
+    {
+      "source": "tail_sweep.md",
+      "target": "roadmap_governance.md"
+    },
+    {
+      "source": "tail_sweep.md",
+      "target": "backlog_registry.yaml"
+    },
+    {
+      "source": "tail_sweep.md",
+      "target": "tasklist.md"
+    },
+    {
+      "source": "tasklist.md",
+      "target": "closed_iterations.md"
+    },
+    {
+      "source": "tasklist.md",
+      "target": "archive/tasklist_historical.md"
+    },
+    {
+      "source": "user_guide.md",
+      "target": "quickstart.md"
+    },
+    {
+      "source": "user_guide.md",
+      "target": "quickstart_demo.md"
+    },
+    {
+      "source": "user_guide.md",
+      "target": "user_scenarios.md"
+    },
+    {
+      "source": "user_guide.md",
+      "target": "personalized_learner_model.md"
+    },
+    {
+      "source": "user_guide.md",
+      "target": "user_guide_details.md"
+    },
+    {
+      "source": "user_guide.md",
+      "target": "prompts_catalog.md"
+    },
+    {
+      "source": "user_guide.md",
+      "target": "prompts_usage_guide.md"
+    },
+    {
+      "source": "user_guide.md",
+      "target": "ssr_llm_profiling.md"
+    },
+    {
+      "source": "user_guide.md",
+      "target": "glossary.md"
+    },
+    {
+      "source": "user_guide.md",
+      "target": "presentations/defense_deploy_plan.md"
+    },
+    {
+      "source": "user_guide.md",
+      "target": "kilo_proxy_relay.md"
+    },
+    {
+      "source": "user_guide.md",
+      "target": "api_reference.md"
+    },
+    {
+      "source": "user_guide.md",
+      "target": "pitch.md"
+    },
+    {
+      "source": "user_guide.md",
+      "target": "presenter_script.md"
+    },
+    {
+      "source": "user_guide.md",
+      "target": "eval_experimenter_runbook.md"
+    },
+    {
+      "source": "user_guide_details.md",
+      "target": "quickstart.md"
+    },
+    {
+      "source": "user_guide_details.md",
+      "target": "user_scenarios.md"
+    },
+    {
+      "source": "user_guide_details.md",
+      "target": "presentations/defense_deploy_plan.md"
+    },
+    {
+      "source": "user_guide_details.md",
+      "target": "eval_experimenter_runbook.md"
+    },
+    {
+      "source": "user_guide_details.md",
+      "target": "ssr_llm_profiling.md"
+    },
+    {
+      "source": "user_guide_details.md",
+      "target": "user_guide.md"
+    },
+    {
+      "source": "user_guide_details.md",
+      "target": "quickstart_demo.md"
+    },
+    {
+      "source": "user_guide_details.md",
+      "target": "api_reference.md"
+    },
+    {
+      "source": "user_guide_details.md",
+      "target": "personalized_learner_model.md"
+    },
+    {
+      "source": "user_guide_details.md",
+      "target": "cjm.md"
+    },
+    {
+      "source": "user_scenarios.md",
+      "target": "smart_study_router.md"
+    },
+    {
+      "source": "user_scenarios.md",
+      "target": "presentations/defense_presentation_v2.md"
+    },
+    {
+      "source": "user_scenarios.md",
+      "target": "cjm.md"
+    },
+    {
+      "source": "user_scenarios.md",
+      "target": "user_guide.md"
+    },
+    {
+      "source": "user_scenarios.md",
+      "target": "user_guide_details.md"
+    },
+    {
+      "source": "user_scenarios.md",
+      "target": "presentations/defense_deploy_plan.md"
+    },
+    {
+      "source": "user_scenarios.md",
+      "target": "quickstart_demo.md"
+    },
+    {
+      "source": "user_scenarios.md",
+      "target": "personalized_learner_model.md"
+    },
+    {
+      "source": "user_scenarios.md",
+      "target": "api_reference.md"
+    },
+    {
+      "source": "user_stories.md",
+      "target": "smart_study_router.md"
+    },
+    {
+      "source": "vision.md",
+      "target": "roadmap.md"
+    },
+    {
+      "source": "archive/architectural_refactoring.md",
+      "target": "archive/adr_rag_architecture.md"
+    },
+    {
+      "source": "next/BREAKTHROUGH_SUMMARY.md",
+      "target": "next/localhost_balance_course_delight_breakthrough.md"
+    },
+    {
+      "source": "next/DEFENSE_TALKING_POINTS.md",
+      "target": "next/localhost_balance_course_delight_breakthrough.md"
+    },
+    {
+      "source": "next/DEFENSE_TALKING_POINTS.md",
+      "target": "next/BREAKTHROUGH_VISUAL.md"
+    },
+    {
+      "source": "next/DEFENSE_TALKING_POINTS.md",
+      "target": "next/BREAKTHROUGH_SUMMARY.md"
+    },
+    {
+      "source": "next/localhost_balance_course_delight_plan.md",
+      "target": "adr.md"
+    },
+    {
+      "source": "presentations/defense_expert_panel.md",
+      "target": "presentations/defense_presentation.md"
+    },
+    {
+      "source": "presentations/defense_killer_demo_v2_with_smart_assistant.md",
+      "target": "presentations/defense_killer_feature_smart_assistant.md"
+    },
+    {
+      "source": "presentations/defense_killer_demo_v2_with_smart_assistant.md",
+      "target": "presentations/defense_killer_demo.md"
+    },
+    {
+      "source": "presentations/defense_killer_demo_v2_with_smart_assistant.md",
+      "target": "presentations/defense_killer_demo_storyboard.md"
+    },
+    {
+      "source": "presentations/defense_killer_demo_v2_with_smart_assistant.md",
+      "target": "presentations/defense_killer_demo_cheatsheet.md"
+    },
+    {
+      "source": "presentations/defense_presentation_improvements.md",
+      "target": "presentations/defense_presentation.md"
+    },
+    {
+      "source": "presentations/defense_presentation_improvements.md",
+      "target": "presentations/defense_killer_demo.md"
+    },
+    {
+      "source": "presentations/defense_presentation_improvements.md",
+      "target": "presentations/defense_virtual_defense.md"
+    },
+    {
+      "source": "presentations/defense_presentation_README.md",
+      "target": "presentations/defense_presentation.md"
+    },
+    {
+      "source": "presentations/defense_presentation_README.md",
+      "target": "presentations/defense_presentation_improvements.md"
+    },
+    {
+      "source": "presentations/defense_presentation_README.md",
+      "target": "presentations/defense_presentation_CHANGELOG.md"
+    },
+    {
+      "source": "presentations/defense_presentation_README.md",
+      "target": "presentations/defense_killer_demo.md"
+    },
+    {
+      "source": "presentations/defense_presentation_README.md",
+      "target": "presentations/defense_virtual_defense.md"
+    },
+    {
+      "source": "presentations/defense_presentation_v2.md",
+      "target": "kilo_proxy_relay.md"
+    },
+    {
+      "source": "presentations/defense_README.md",
+      "target": "presentations/defense_presentation.md"
+    },
+    {
+      "source": "presentations/defense_README.md",
+      "target": "presentations/defense_virtual_defense.md"
+    },
+    {
+      "source": "presentations/defense_README.md",
+      "target": "presentations/defense_expert_panel.md"
+    },
+    {
+      "source": "presentations/defense_README.md",
+      "target": "presentations/defense_user_panel.md"
+    },
+    {
+      "source": "presentations/defense_README.md",
+      "target": "presentations/defense_killer_demo.md"
+    },
+    {
+      "source": "presentations/defense_README.md",
+      "target": "presentations/defense_killer_demo_storyboard.md"
+    },
+    {
+      "source": "presentations/defense_README.md",
+      "target": "presentations/defense_killer_demo_cheatsheet.md"
+    },
+    {
+      "source": "presentations/defense_README.md",
+      "target": "presentations/defense_summary.md"
+    },
+    {
+      "source": "presentations/defense_README.md",
+      "target": "presentations/defense_improvements_log.md"
+    },
+    {
+      "source": "presentations/defense_README.md",
+      "target": "presentations/defense_user_router_breakthrough.md"
+    },
+    {
+      "source": "presentations/defense_summary.md",
+      "target": "presentations/defense_virtual_defense.md"
+    },
+    {
+      "source": "presentations/defense_summary.md",
+      "target": "presentations/defense_expert_panel.md"
+    },
+    {
+      "source": "presentations/defense_summary.md",
+      "target": "presentations/defense_user_panel.md"
+    },
+    {
+      "source": "presentations/defense_summary.md",
+      "target": "presentations/defense_killer_demo.md"
+    },
+    {
+      "source": "presentations/defense_summary.md",
+      "target": "presentations/defense_presentation.md"
+    },
+    {
+      "source": "presentations/defense_user_panel.md",
+      "target": "presentations/defense_presentation.md"
+    },
+    {
+      "source": "presentations/defense_user_router_breakthrough.md",
+      "target": "presentations/defense_user_panel.md"
+    },
+    {
+      "source": "presentations/defense_virtual_defense.md",
+      "target": "presentations/defense_presentation.md"
+    },
+    {
+      "source": "scenarios/README.md",
+      "target": "user_scenarios.md"
+    },
+    {
+      "source": "team_workflow/analyst.md",
+      "target": "team_workflow/process.md"
+    },
+    {
+      "source": "team_workflow/analyst.md",
+      "target": "team_workflow/architect.md"
+    },
+    {
+      "source": "team_workflow/analyst.md",
+      "target": "team_workflow/designer.md"
+    },
+    {
+      "source": "team_workflow/architect.md",
+      "target": "team_workflow/process.md"
+    },
+    {
+      "source": "team_workflow/architect.md",
+      "target": "team_workflow/developer.md"
+    },
+    {
+      "source": "team_workflow/automation.md",
+      "target": "team_workflow/process.md"
+    },
+    {
+      "source": "team_workflow/automation.md",
+      "target": "team_workflow/workflow_router.md"
+    },
+    {
+      "source": "team_workflow/designer.md",
+      "target": "team_workflow/process.md"
+    },
+    {
+      "source": "team_workflow/designer.md",
+      "target": "team_workflow/developer.md"
+    },
+    {
+      "source": "team_workflow/developer.md",
+      "target": "team_workflow/process.md"
+    },
+    {
+      "source": "team_workflow/developer.md",
+      "target": "team_workflow/tester.md"
+    },
+    {
+      "source": "team_workflow/developer.md",
+      "target": "agent_workflow_templates.md"
+    },
+    {
+      "source": "team_workflow/generate_audit_closed_packages_prompt.md",
+      "target": "team_workflow/_common_rules.md"
+    },
+    {
+      "source": "team_workflow/generate_audit_closed_packages_prompt.md",
+      "target": "team_workflow/generate_orchestration_prompt.md"
+    },
+    {
+      "source": "team_workflow/generate_audit_closed_packages_prompt.md",
+      "target": "team_workflow/generate_resume_prompt.md"
+    },
+    {
+      "source": "team_workflow/generate_audit_closed_packages_prompt.md",
+      "target": "team_workflow/generate_plan_next_prompt.md"
+    },
+    {
+      "source": "team_workflow/generate_audit_closed_packages_prompt.md",
+      "target": "team_workflow/tester.md"
+    },
+    {
+      "source": "team_workflow/generate_audit_closed_packages_prompt.md",
+      "target": "team_workflow/reopen_package_step_c_prompt.md"
+    },
+    {
+      "source": "team_workflow/generate_audit_closed_packages_prompt.md",
+      "target": "team_workflow/orchestrator_template.md"
+    },
+    {
+      "source": "team_workflow/generate_bottleneck_analysis_prompt.md",
+      "target": "team_workflow/workflow_router.md"
+    },
+    {
+      "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+      "target": "team_workflow/_common_rules.md"
+    },
+    {
+      "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+      "target": "team_workflow/generate_plan_next_prompt.md"
+    },
+    {
+      "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+      "target": "team_workflow/product_owner_plan_package_prompt.md"
+    },
+    {
+      "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+      "target": "team_workflow/designer.md"
+    },
+    {
+      "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+      "target": "backlog_registry.yaml"
+    },
+    {
+      "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+      "target": "team_workflow/generate_orchestration_prompt.md"
+    },
+    {
+      "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+      "target": "team_workflow/generate_resume_prompt.md"
+    },
+    {
+      "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+      "target": "smart_study_router.md"
+    },
+    {
+      "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+      "target": "cjm.md"
+    },
+    {
+      "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+      "target": "user_stories.md"
+    },
+    {
+      "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+      "target": "user_stories/README.md"
+    },
+    {
+      "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+      "target": "tasklist.md"
+    },
+    {
+      "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+      "target": "team_workflow/workflow_router.md"
+    },
+    {
+      "source": "team_workflow/generate_execution_prompt_auto.md",
+      "target": "team_workflow/generate_plan_next_prompt.md"
+    },
+    {
+      "source": "team_workflow/generate_execution_prompt_auto.md",
+      "target": "team_workflow/generate_resume_prompt.md"
+    },
+    {
+      "source": "team_workflow/generate_execution_prompt_auto.md",
+      "target": "team_workflow/generate_orchestration_prompt.md"
+    },
+    {
+      "source": "team_workflow/generate_execution_prompt_auto.md",
+      "target": "backlog_registry.yaml"
+    },
+    {
+      "source": "team_workflow/generate_execution_prompt_auto.md",
+      "target": "tasklist.md"
+    },
+    {
+      "source": "team_workflow/generate_orchestration_prompt.md",
+      "target": "team_workflow/_common_rules.md"
+    },
+    {
+      "source": "team_workflow/generate_orchestration_prompt.md",
+      "target": "team_workflow/rag_llm_ops_project_document.md"
+    },
+    {
+      "source": "team_workflow/generate_plan_next_prompt.md",
+      "target": "backlog_registry.yaml"
+    },
+    {
+      "source": "team_workflow/generate_plan_next_prompt.md",
+      "target": "tasklist.md"
+    },
+    {
+      "source": "team_workflow/generate_plan_next_prompt.md",
+      "target": "team_workflow/workflow_router.md"
+    },
+    {
+      "source": "team_workflow/generate_plan_next_prompt.md",
+      "target": "team_workflow/generate_orchestration_prompt.md"
+    },
+    {
+      "source": "team_workflow/generate_plan_next_prompt.md",
+      "target": "team_workflow/generate_resume_prompt.md"
+    },
+    {
+      "source": "team_workflow/generate_plan_next_prompt.md",
+      "target": "team_workflow/_common_rules.md"
+    },
+    {
+      "source": "team_workflow/generate_plan_next_prompt.md",
+      "target": "team_workflow/generate_breakthrough_ideation_prompt.md"
+    },
+    {
+      "source": "team_workflow/generate_plan_next_prompt.md",
+      "target": "team_workflow/product_owner_plan_package_prompt.md"
+    },
+    {
+      "source": "team_workflow/generate_plan_next_prompt.md",
+      "target": "prompts_usage_guide.md"
+    },
+    {
+      "source": "team_workflow/generate_plan_next_prompt.md",
+      "target": "cjm.md"
+    },
+    {
+      "source": "team_workflow/generate_plan_next_prompt.md",
+      "target": "user_stories.md"
+    },
+    {
+      "source": "team_workflow/generate_plan_next_prompt.md",
+      "target": "future_roadmap.md"
+    },
+    {
+      "source": "team_workflow/generate_plan_next_prompt.md",
+      "target": "closed_iterations.md"
+    },
+    {
+      "source": "team_workflow/generate_resume_prompt.md",
+      "target": "team_workflow/generate_orchestration_prompt.md"
+    },
+    {
+      "source": "team_workflow/generate_resume_prompt.md",
+      "target": "team_workflow/_common_rules.md"
+    },
+    {
+      "source": "team_workflow/generate_resume_prompt.md",
+      "target": "team_workflow/orchestrator_template.md"
+    },
+    {
+      "source": "team_workflow/generate_resume_prompt.md",
+      "target": "team_workflow/guides/agent_adapter_claude_code.md"
+    },
+    {
+      "source": "team_workflow/generate_resume_prompt.md",
+      "target": "team_workflow/guides/agent_adapter_codex.md"
+    },
+    {
+      "source": "team_workflow/generate_resume_prompt.md",
+      "target": "team_workflow/guides/agent_adapter_cursor_ai.md"
+    },
+    {
+      "source": "team_workflow/generate_roadmap_epoch_waves_prompt.md",
+      "target": "team_workflow/generate_breakthrough_ideation_prompt.md"
+    },
+    {
+      "source": "team_workflow/generate_roadmap_epoch_waves_prompt.md",
+      "target": "team_workflow/product_owner_plan_package_prompt.md"
+    },
+    {
+      "source": "team_workflow/generate_roadmap_epoch_waves_prompt.md",
+      "target": "team_workflow/_common_rules.md"
+    },
+    {
+      "source": "team_workflow/llmops_engineer.md",
+      "target": "team_workflow/rag_llm_ops_project_document.md"
+    },
+    {
+      "source": "team_workflow/llmops_engineer.md",
+      "target": "next/localhost_balance_course_delight_plan.md"
+    },
+    {
+      "source": "team_workflow/llmops_engineer.md",
+      "target": "team_workflow/process.md"
+    },
+    {
+      "source": "team_workflow/mlops_engineer.md",
+      "target": "team_workflow/rag_llm_ops_project_document.md"
+    },
+    {
+      "source": "team_workflow/mlops_engineer.md",
+      "target": "next/localhost_balance_course_delight_plan.md"
+    },
+    {
+      "source": "team_workflow/mlops_engineer.md",
+      "target": "team_workflow/process.md"
+    },
+    {
+      "source": "team_workflow/orchestrator_template.md",
+      "target": "team_workflow/generate_orchestration_prompt.md"
+    },
+    {
+      "source": "team_workflow/orchestrator_template.md",
+      "target": "team_workflow/guides/agent_adapter_claude_code.md"
+    },
+    {
+      "source": "team_workflow/orchestrator_template.md",
+      "target": "team_workflow/guides/agent_adapter_codex.md"
+    },
+    {
+      "source": "team_workflow/orchestrator_template.md",
+      "target": "team_workflow/guides/agent_adapter_cursor_ai.md"
+    },
+    {
+      "source": "team_workflow/orchestrator_template.md",
+      "target": "team_workflow/guides/agent_adapter_kilo.md"
+    },
+    {
+      "source": "team_workflow/orchestrator_template.md",
+      "target": "team_workflow/guides/agent_adapter_continue.md"
+    },
+    {
+      "source": "team_workflow/orchestrator_template.md",
+      "target": "team_workflow/examples/example_e15a_orchestration_level3_in_agent_claude_code.md"
+    },
+    {
+      "source": "team_workflow/orchestrator_template.md",
+      "target": "team_workflow/examples/example_e15a_orchestration_level3_in_agent_codex.md"
+    },
+    {
+      "source": "team_workflow/orchestrator_template.md",
+      "target": "team_workflow/examples/example_e15a_orchestration_level3_in_agent_cursor_ai.md"
+    },
+    {
+      "source": "team_workflow/orchestrator_template.md",
+      "target": "team_workflow/rag_llm_ops_project_document.md"
+    },
+    {
+      "source": "team_workflow/performance_devops.md",
+      "target": "team_workflow/rag_llm_ops_project_document.md"
+    },
+    {
+      "source": "team_workflow/performance_devops.md",
+      "target": "next/localhost_balance_course_delight_plan.md"
+    },
+    {
+      "source": "team_workflow/performance_devops.md",
+      "target": "team_workflow/budget_health_prompt.md"
+    },
+    {
+      "source": "team_workflow/performance_devops.md",
+      "target": "team_workflow/generate_bottleneck_analysis_prompt.md"
+    },
+    {
+      "source": "team_workflow/performance_devops.md",
+      "target": "team_workflow/process.md"
+    },
+    {
+      "source": "team_workflow/po_router_anti_patterns.md",
+      "target": "team_workflow/product_owner_router.md"
+    },
+    {
+      "source": "team_workflow/po_router_conflicts.md",
+      "target": "team_workflow/product_owner_router.md"
+    },
+    {
+      "source": "team_workflow/po_router_escape_hatches.md",
+      "target": "team_workflow/product_owner_router.md"
+    },
+    {
+      "source": "team_workflow/po_router_evaluation_gate.md",
+      "target": "team_workflow/product_owner_router.md"
+    },
+    {
+      "source": "team_workflow/po_router_evaluation_gate.md",
+      "target": "team_workflow/product_owner_plan_package_prompt.md"
+    },
+    {
+      "source": "team_workflow/po_router_handoffs.md",
+      "target": "team_workflow/product_owner_router.md"
+    },
+    {
+      "source": "team_workflow/po_router_handoffs.md",
+      "target": "team_workflow/workflow_router.md"
+    },
+    {
+      "source": "team_workflow/po_router_parallel_waves.md",
+      "target": "team_workflow/product_owner_router.md"
+    },
+    {
+      "source": "team_workflow/po_router_retrospectives.md",
+      "target": "team_workflow/product_owner_router.md"
+    },
+    {
+      "source": "team_workflow/po_router_scope_matrix.md",
+      "target": "team_workflow/product_owner_router.md"
+    },
+    {
+      "source": "team_workflow/po_router_scope_matrix.md",
+      "target": "team_workflow/po_router_evaluation_gate.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "prompts_usage_guide.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/workflow_decision_tree.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/workflow_router.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/generate_plan_next_prompt.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/generate_orchestration_prompt.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/generate_resume_prompt.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/product_owner.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/analyst.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/architect.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/designer.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/ragops_engineer.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/llmops_engineer.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/mlops_engineer.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/developer.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/tester.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/orchestrator_template.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/performance_devops.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/rag_llm_ops_project_document.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/budget_health_prompt.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/generate_bottleneck_analysis_prompt.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/run_audit_chain_prompt.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/generate_audit_closed_packages_prompt.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/generate_audit_packages_coverage_prompt.md"
+    },
+    {
+      "source": "team_workflow/process.md",
+      "target": "team_workflow/automation.md"
+    },
+    {
+      "source": "team_workflow/product_owner.md",
+      "target": "team_workflow/product_owner_router.md"
+    },
+    {
+      "source": "team_workflow/product_owner.md",
+      "target": "team_workflow/process.md"
+    },
+    {
+      "source": "team_workflow/product_owner.md",
+      "target": "team_workflow/analyst.md"
+    },
+    {
+      "source": "team_workflow/product_owner.md",
+      "target": "team_workflow/generate_orchestration_prompt.md"
+    },
+    {
+      "source": "team_workflow/product_owner.md",
+      "target": "team_workflow/product_owner_plan_package_prompt.md"
+    },
+    {
+      "source": "team_workflow/product_owner.md",
+      "target": "team_workflow/generate_breakthrough_ideation_prompt.md"
+    },
+    {
+      "source": "team_workflow/product_owner.md",
+      "target": "team_workflow/generate_roadmap_epoch_waves_prompt.md"
+    },
+    {
+      "source": "team_workflow/product_owner.md",
+      "target": "team_workflow/workflow_router.md"
+    },
+    {
+      "source": "team_workflow/product_owner_plan_ml_package_prompt.md",
+      "target": "team_workflow/po_router_evaluation_gate.md"
+    },
+    {
+      "source": "team_workflow/product_owner_plan_ml_package_prompt.md",
+      "target": "backlog_registry.yaml"
+    },
+    {
+      "source": "team_workflow/product_owner_plan_ml_package_prompt.md",
+      "target": "team_workflow/product_owner_plan_package_prompt.md"
+    },
+    {
+      "source": "team_workflow/product_owner_plan_package_prompt.md",
+      "target": "team_workflow/product_owner_router.md"
+    },
+    {
+      "source": "team_workflow/product_owner_plan_package_prompt.md",
+      "target": "team_workflow/generate_plan_next_prompt.md"
+    },
+    {
+      "source": "team_workflow/product_owner_plan_package_prompt.md",
+      "target": "team_workflow/generate_breakthrough_ideation_prompt.md"
+    },
+    {
+      "source": "team_workflow/product_owner_plan_package_prompt.md",
+      "target": "backlog_registry.yaml"
+    },
+    {
+      "source": "team_workflow/product_owner_plan_package_prompt.md",
+      "target": "team_workflow/_common_rules.md"
+    },
+    {
+      "source": "team_workflow/product_owner_plan_package_prompt.md",
+      "target": "prompts_usage_guide.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "team_workflow/po_router_conflicts.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "team_workflow/po_router_scope_matrix.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "team_workflow/po_router_evaluation_gate.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "team_workflow/product_owner_plan_ml_package_prompt.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "team_workflow/po_router_escape_hatches.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "team_workflow/po_router_anti_patterns.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "team_workflow/po_router_handoffs.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "team_workflow/po_router_parallel_waves.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "team_workflow/po_router_retrospectives.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "team_workflow/generate_breakthrough_ideation_prompt.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "team_workflow/product_owner_plan_package_prompt.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "team_workflow/generate_roadmap_epoch_waves_prompt.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "team_workflow/archive/product_owner_router_ai_vision_enhancement.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level1_prompt.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_prompt.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level3_prompt.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level4_prompt.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level5_prompt.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "team_workflow/workflow_router.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "roadmap.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "backlog_registry.yaml"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "cjm.md"
+    },
+    {
+      "source": "team_workflow/product_owner_router.md",
+      "target": "user_stories_index.json"
+    },
+    {
+      "source": "team_workflow/ragops_engineer.md",
+      "target": "team_workflow/rag_llm_ops_project_document.md"
+    },
+    {
+      "source": "team_workflow/ragops_engineer.md",
+      "target": "next/localhost_balance_course_delight_plan.md"
+    },
+    {
+      "source": "team_workflow/ragops_engineer.md",
+      "target": "team_workflow/process.md"
+    },
+    {
+      "source": "team_workflow/rag_llm_ops_project_document.md",
+      "target": "next/localhost_balance_course_delight_plan.md"
+    },
+    {
+      "source": "team_workflow/rag_llm_ops_project_document.md",
+      "target": "adr.md"
+    },
+    {
+      "source": "team_workflow/rag_llm_ops_project_document.md",
+      "target": "team_workflow/designer.md"
+    },
+    {
+      "source": "team_workflow/rag_llm_ops_project_document.md",
+      "target": "conventions.md"
+    },
+    {
+      "source": "team_workflow/rag_llm_ops_project_document.md",
+      "target": "team_workflow/orchestrator_template.md"
+    },
+    {
+      "source": "team_workflow/rag_llm_ops_project_document.md",
+      "target": "team_workflow/mlops_engineer.md"
+    },
+    {
+      "source": "team_workflow/rag_llm_ops_project_document.md",
+      "target": "team_workflow/llmops_engineer.md"
+    },
+    {
+      "source": "team_workflow/rag_llm_ops_project_document.md",
+      "target": "team_workflow/ragops_engineer.md"
+    },
+    {
+      "source": "team_workflow/rag_llm_ops_project_document.md",
+      "target": "team_workflow/performance_devops.md"
+    },
+    {
+      "source": "team_workflow/README.md",
+      "target": "team_workflow/_common_rules.md"
+    },
+    {
+      "source": "team_workflow/README.md",
+      "target": "team_workflow/workflow_router.md"
+    },
+    {
+      "source": "team_workflow/README.md",
+      "target": "team_workflow/workflow_decision_tree.md"
+    },
+    {
+      "source": "team_workflow/README.md",
+      "target": "team_workflow/product_owner_router.md"
+    },
+    {
+      "source": "team_workflow/README.md",
+      "target": "team_workflow/process.md"
+    },
+    {
+      "source": "team_workflow/README.md",
+      "target": "team_workflow/product_owner_plan_package_prompt.md"
+    },
+    {
+      "source": "team_workflow/README.md",
+      "target": "team_workflow/generate_breakthrough_ideation_prompt.md"
+    },
+    {
+      "source": "team_workflow/README.md",
+      "target": "team_workflow/generate_roadmap_epoch_waves_prompt.md"
+    },
+    {
+      "source": "team_workflow/README.md",
+      "target": "team_workflow/reopen_package_step_c_prompt.md"
+    },
+    {
+      "source": "team_workflow/README.md",
+      "target": "team_workflow/demo_scenarios_prompt_bundle.md"
+    },
+    {
+      "source": "team_workflow/README.md",
+      "target": "team_workflow/run_audit_chain_prompt.md"
+    },
+    {
+      "source": "team_workflow/README.md",
+      "target": "team_workflow/generate_audit_closed_packages_prompt.md"
+    },
+    {
+      "source": "team_workflow/README.md",
+      "target": "team_workflow/generate_audit_packages_coverage_prompt.md"
+    },
+    {
+      "source": "team_workflow/reopen_package_step_c_prompt.md",
+      "target": "current_task.md"
+    },
+    {
+      "source": "team_workflow/reopen_package_step_c_prompt.md",
+      "target": "team_workflow/generate_audit_closed_packages_prompt.md"
+    },
+    {
+      "source": "team_workflow/reopen_package_step_c_prompt.md",
+      "target": "team_workflow/reopen_prompt_closed_window_template.md"
+    },
+    {
+      "source": "team_workflow/reopen_package_step_c_prompt.md",
+      "target": "team_workflow/archive/epoch_demo_post_agent_smoke.md"
+    },
+    {
+      "source": "team_workflow/reopen_package_step_c_prompt.md",
+      "target": "team_workflow/generate_orchestration_prompt.md"
+    },
+    {
+      "source": "team_workflow/reopen_prompt_closed_window_template.md",
+      "target": "team_workflow/generate_audit_closed_packages_prompt.md"
+    },
+    {
+      "source": "team_workflow/reopen_prompt_closed_window_template.md",
+      "target": "team_workflow/generate_orchestration_prompt.md"
+    },
+    {
+      "source": "team_workflow/run_autonomous_prompt.md",
+      "target": "team_workflow/_common_rules.md"
+    },
+    {
+      "source": "team_workflow/run_autonomous_runbook.md",
+      "target": "team_workflow/run_autonomous_prompt.md"
+    },
+    {
+      "source": "team_workflow/start_workflow.md",
+      "target": "team_workflow/workflow_router.md"
+    },
+    {
+      "source": "team_workflow/tester.md",
+      "target": "team_workflow/process.md"
+    },
+    {
+      "source": "team_workflow/tester.md",
+      "target": "team_workflow/product_owner.md"
+    },
+    {
+      "source": "team_workflow/tester.md",
+      "target": "team_workflow/developer.md"
+    },
+    {
+      "source": "team_workflow/workflow_decision_tree.md",
+      "target": "team_workflow/process.md"
+    },
+    {
+      "source": "team_workflow/workflow_decision_tree.md",
+      "target": "prompts_usage_guide.md"
+    },
+    {
+      "source": "team_workflow/workflow_decision_tree.md",
+      "target": "team_workflow/workflow_router.md"
+    },
+    {
+      "source": "team_workflow/workflow_decision_tree.md",
+      "target": "agent_workflow_templates.md"
+    },
+    {
+      "source": "team_workflow/workflow_decision_tree.md",
+      "target": "team_workflow/developer.md"
+    },
+    {
+      "source": "team_workflow/workflow_decision_tree.md",
+      "target": "team_workflow/tester.md"
+    },
+    {
+      "source": "team_workflow/workflow_decision_tree.md",
+      "target": "team_workflow/generate_plan_next_prompt.md"
+    },
+    {
+      "source": "team_workflow/workflow_decision_tree.md",
+      "target": "team_workflow/generate_orchestration_prompt.md"
+    },
+    {
+      "source": "team_workflow/workflow_decision_tree.md",
+      "target": "team_workflow/product_owner_plan_package_prompt.md"
+    },
+    {
+      "source": "team_workflow/workflow_decision_tree.md",
+      "target": "team_workflow/generate_resume_prompt.md"
+    },
+    {
+      "source": "team_workflow/workflow_decision_tree.md",
+      "target": "team_workflow/run_audit_chain_prompt.md"
+    },
+    {
+      "source": "team_workflow/workflow_decision_tree.md",
+      "target": "team_workflow/generate_audit_closed_packages_prompt.md"
+    },
+    {
+      "source": "team_workflow/workflow_decision_tree.md",
+      "target": "token_safety.md"
+    },
+    {
+      "source": "team_workflow/workflow_router.md",
+      "target": "team_workflow/workflow_decision_tree.md"
+    },
+    {
+      "source": "team_workflow/workflow_router.md",
+      "target": "team_workflow/process.md"
+    },
+    {
+      "source": "team_workflow/workflow_router.md",
+      "target": "team_workflow/generate_orchestration_prompt.md"
+    },
+    {
+      "source": "team_workflow/workflow_router.md",
+      "target": "team_workflow/guides/workflow_cursor_sdk_trigger_guide.md"
+    },
+    {
+      "source": "team_workflow/workflow_router.md",
+      "target": "team_workflow/guides/workflow_deepseek_api_trigger_guide.md"
+    },
+    {
+      "source": "team_workflow/workflow_router.md",
+      "target": "team_workflow/guides/workflow_deepseek_tui_trigger_guide.md"
+    },
+    {
+      "source": "team_workflow/workflow_router.md",
+      "target": "team_workflow/_common_rules.md"
+    },
+    {
+      "source": "team_workflow/workflow_router.md",
+      "target": "team_workflow/generate_plan_next_prompt.md"
+    },
+    {
+      "source": "team_workflow/workflow_router.md",
+      "target": "team_workflow/guides/workflow_deepseek_tui_trigger_implementation_plan.md"
+    },
+    {
+      "source": "team_workflow/_common_rules.md",
+      "target": "AGENTS.md"
+    },
+    {
+      "source": "team_workflow/_common_rules.md",
+      "target": "token_safety.md"
+    },
+    {
+      "source": "user_stories/README.md",
+      "target": "user_stories.md"
+    },
+    {
+      "source": "team_workflow/archive/audit_prompt_epic20-smart-study-router_codex.md",
+      "target": "smart_study_router.md"
+    },
+    {
+      "source": "team_workflow/archive/audit_prompt_epic20-smart-study-router_codex.md",
+      "target": "team_workflow/archive/audit_coverage_prompt_epic20-smart-study-router_codex.md"
+    },
+    {
+      "source": "team_workflow/archive/epoch_demo_post_agent_smoke.md",
+      "target": "AGENTS.md"
+    },
+    {
+      "source": "team_workflow/guides/workflow_cursor_sdk_trigger_guide.md",
+      "target": "team_workflow/workflow_router.md"
+    },
+    {
+      "source": "team_workflow/guides/workflow_cursor_sdk_trigger_guide.md",
+      "target": "team_workflow/guides/workflow_deepseek_api_trigger_guide.md"
+    },
+    {
+      "source": "team_workflow/guides/workflow_deepseek_api_trigger_guide.md",
+      "target": "team_workflow/workflow_router.md"
+    },
+    {
+      "source": "team_workflow/guides/workflow_deepseek_api_trigger_guide.md",
+      "target": "team_workflow/guides/agent_adapter_continue.md"
+    },
+    {
+      "source": "team_workflow/guides/workflow_deepseek_api_trigger_guide.md",
+      "target": "team_workflow/guides/workflow_deepseek_tui_trigger_implementation_plan.md"
+    },
+    {
+      "source": "team_workflow/guides/workflow_deepseek_api_trigger_guide.md",
+      "target": "team_workflow/guides/workflow_cursor_sdk_trigger_guide.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_level3_5_report.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_report_2026-05-09.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_level3_5_report.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_level3_5_corrections.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_level3_5_report.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_level3_5_report.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level3_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_level3_5_report.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level4_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_level3_5_report.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level5_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_report_2026-05-09.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_report_2026-05-09.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level1_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_report_2026-05-09.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level1_prompt.md",
+      "target": "team_workflow/archive/product_owner_router_ai_vision_enhancement.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level1_prompt.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_prompt.md",
+      "target": "team_workflow/archive/product_owner_router_ai_vision_enhancement.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_prompt.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level1_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_prompt.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level3_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level3_prompt.md",
+      "target": "team_workflow/archive/product_owner_router_ai_vision_enhancement.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level3_prompt.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level3_prompt.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level4_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level4_prompt.md",
+      "target": "team_workflow/archive/product_owner_router_ai_vision_enhancement.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level4_prompt.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level3_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level4_prompt.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level5_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level5_prompt.md",
+      "target": "team_workflow/archive/product_owner_router_ai_vision_enhancement.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level5_prompt.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level4_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_roadmap_visual.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+      "target": "backlog_registry.yaml"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+      "target": "team_workflow/product_owner_router.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+      "target": "team_workflow/po_router_evaluation_gate.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+      "target": "team_workflow/product_owner_plan_ml_package_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+      "target": "team_workflow/po_router_scope_matrix.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+      "target": "smart_study_router.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level1_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level3_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level4_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level5_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_all_levels_quick_start.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_level1_quick_start.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_all_levels_quick_start.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_all_levels_quick_start.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level3_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_all_levels_quick_start.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level4_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_all_levels_quick_start.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level5_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_all_levels_quick_start.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_all_levels_quick_start.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level1_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_code_templates.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_code_templates.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_all_levels_quick_start.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_level1_quick_start.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level1_prompt.md"
+    },
+    {
+      "source": "team_workflow/ssr_ai_vision/ssr_wave1_audit_summary.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md"
+    }
+  ]
+}

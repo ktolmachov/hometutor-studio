@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "description": "Contract keys for GET /kb/graph/next-best-actions (17 Core Extension NBA)",
+  "required_response_keys": [
+    "schema_version",
+    "limit",
+    "actions",
+    "topological_order_ok",
+    "prerequisite_cycles"
+  ]
+}

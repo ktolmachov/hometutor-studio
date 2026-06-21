@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "budget": 12000,
+  "overhead_reserved": 3000,
+  "available": 9000,
+  "tokens_used": 7961,
+  "included": [
+    {
+      "path": "app/config.py",
+      "tokens": 4098,
+      "tokens_charged": 4098,
+      "strategy": "full"
+    },
+    {
+      "path": "doc/backlog_registry.yaml",
+      "tokens": 3863,
+      "tokens_charged": 3863,
+      "strategy": "full"
+    }
+  ],
+  "excluded": []
+}

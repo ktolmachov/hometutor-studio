@@ -1,0 +1,933 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-04-20T12:32:19.494177+00:00",
+  "mode": "mock",
+  "judge_mode": "skipped",
+  "dataset_path": "tests/eval/golden_qa.jsonl",
+  "thresholds_path": "tests/eval/thresholds.json",
+  "eval_corpus_path": null,
+  "comparable_to_baseline": false,
+  "summary": {
+    "cases_total": 20,
+    "cases_completed": 20,
+    "cases_failed": 0,
+    "source_precision_at_3": 1.0,
+    "latency_p95_sec": 0.05,
+    "answer_groundedness": null,
+    "tutor_coherence": null,
+    "out_of_corpus_graceful_rate": 1.0
+  },
+  "cases": [
+    {
+      "id": "gqa01",
+      "question": "What is RAG in simple terms and why is it needed?",
+      "difficulty": "easy",
+      "tags": [
+        "factual",
+        "rag"
+      ],
+      "query_mode": "qa",
+      "status_code": 200,
+      "status": "pass",
+      "expected_sources": [
+        {
+          "relative_path": "alpha_rag_intro.md",
+          "file_name": "alpha_rag_intro.md"
+        }
+      ],
+      "expected_concepts": [
+        "retrieval-augmented generation",
+        "context for LLM"
+      ],
+      "retrieved_sources": [
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md"
+      ],
+      "retrieved_sources_top3": [
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md"
+      ],
+      "matched_sources": [
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md"
+      ],
+      "source_precision_at_3": 1.0,
+      "latency_sec": 0.035,
+      "answer_groundedness": null,
+      "tutor_coherence": null,
+      "out_of_corpus_graceful": null,
+      "component_status": {
+        "retrieval": "pass",
+        "generation": "pass",
+        "latency": "pass"
+      }
+    },
+    {
+      "id": "gqa02",
+      "question": "Why is Chroma described as an embedded vector database?",
+      "difficulty": "easy",
+      "tags": [
+        "factual",
+        "vector-db"
+      ],
+      "query_mode": "qa",
+      "status_code": 200,
+      "status": "pass",
+      "expected_sources": [
+        {
+          "relative_path": "beta_vector_db.md",
+          "file_name": "beta_vector_db.md"
+        }
+      ],
+      "expected_concepts": [
+        "Chroma",
+        "embedded",
+        "vector store"
+      ],
+      "retrieved_sources": [
+        "beta_vector_db.md",
+        "beta_vector_db.md",
+        "beta_vector_db.md"
+      ],
+      "retrieved_sources_top3": [
+        "beta_vector_db.md",
+        "beta_vector_db.md",
+        "beta_vector_db.md"
+      ],
+      "matched_sources": [
+        "beta_vector_db.md",
+        "beta_vector_db.md",
+        "beta_vector_db.md"
+      ],
+      "source_precision_at_3": 1.0,
+      "latency_sec": 0.035,
+      "answer_groundedness": null,
+      "tutor_coherence": null,
+      "out_of_corpus_graceful": null,
+      "component_status": {
+        "retrieval": "pass",
+        "generation": "pass",
+        "latency": "pass"
+      }
+    },
+    {
+      "id": "gqa03",
+      "question": "Where does Chroma store data and what is persistence?",
+      "difficulty": "easy",
+      "tags": [
+        "factual",
+        "storage"
+      ],
+      "query_mode": "qa",
+      "status_code": 200,
+      "status": "pass",
+      "expected_sources": [
+        {
+          "relative_path": "beta_vector_db.md",
+          "file_name": "beta_vector_db.md"
+        }
+      ],
+      "expected_concepts": [
+        "chroma_db",
+        "persistence"
+      ],
+      "retrieved_sources": [
+        "beta_vector_db.md",
+        "beta_vector_db.md",
+        "beta_vector_db.md"
+      ],
+      "retrieved_sources_top3": [
+        "beta_vector_db.md",
+        "beta_vector_db.md",
+        "beta_vector_db.md"
+      ],
+      "matched_sources": [
+        "beta_vector_db.md",
+        "beta_vector_db.md",
+        "beta_vector_db.md"
+      ],
+      "source_precision_at_3": 1.0,
+      "latency_sec": 0.035,
+      "answer_groundedness": null,
+      "tutor_coherence": null,
+      "out_of_corpus_graceful": null,
+      "component_status": {
+        "retrieval": "pass",
+        "generation": "pass",
+        "latency": "pass"
+      }
+    },
+    {
+      "id": "gqa04",
+      "question": "How does hybrid search combine BM25 and vector search?",
+      "difficulty": "medium",
+      "tags": [
+        "factual",
+        "hybrid-retrieval"
+      ],
+      "query_mode": "qa",
+      "status_code": 200,
+      "status": "pass",
+      "expected_sources": [
+        {
+          "relative_path": "gamma_hybrid.md",
+          "file_name": "gamma_hybrid.md"
+        }
+      ],
+      "expected_concepts": [
+        "BM25",
+        "hybrid retrieval"
+      ],
+      "retrieved_sources": [
+        "gamma_hybrid.md",
+        "gamma_hybrid.md",
+        "gamma_hybrid.md"
+      ],
+      "retrieved_sources_top3": [
+        "gamma_hybrid.md",
+        "gamma_hybrid.md",
+        "gamma_hybrid.md"
+      ],
+      "matched_sources": [
+        "gamma_hybrid.md",
+        "gamma_hybrid.md",
+        "gamma_hybrid.md"
+      ],
+      "source_precision_at_3": 1.0,
+      "latency_sec": 0.035,
+      "answer_groundedness": null,
+      "tutor_coherence": null,
+      "out_of_corpus_graceful": null,
+      "component_status": {
+        "retrieval": "pass",
+        "generation": "pass",
+        "latency": "pass"
+      }
+    },
+    {
+      "id": "gqa05",
+      "question": "What is RRF in hybrid search and how is the score calculated?",
+      "difficulty": "medium",
+      "tags": [
+        "factual",
+        "rrf"
+      ],
+      "query_mode": "qa",
+      "status_code": 200,
+      "status": "pass",
+      "expected_sources": [
+        {
+          "relative_path": "gamma_hybrid.md",
+          "file_name": "gamma_hybrid.md"
+        }
+      ],
+      "expected_concepts": [
+        "RRF",
+        "Reciprocal Rank Fusion"
+      ],
+      "retrieved_sources": [
+        "gamma_hybrid.md",
+        "gamma_hybrid.md",
+        "gamma_hybrid.md"
+      ],
+      "retrieved_sources_top3": [
+        "gamma_hybrid.md",
+        "gamma_hybrid.md",
+        "gamma_hybrid.md"
+      ],
+      "matched_sources": [
+        "gamma_hybrid.md",
+        "gamma_hybrid.md",
+        "gamma_hybrid.md"
+      ],
+      "source_precision_at_3": 1.0,
+      "latency_sec": 0.035,
+      "answer_groundedness": null,
+      "tutor_coherence": null,
+      "out_of_corpus_graceful": null,
+      "component_status": {
+        "retrieval": "pass",
+        "generation": "pass",
+        "latency": "pass"
+      }
+    },
+    {
+      "id": "gqa06",
+      "question": "Why are guardrails needed in the pipeline and what do they check?",
+      "difficulty": "medium",
+      "tags": [
+        "factual",
+        "safety"
+      ],
+      "query_mode": "qa",
+      "status_code": 200,
+      "status": "pass",
+      "expected_sources": [
+        {
+          "relative_path": "epsilon_guardrails.md",
+          "file_name": "epsilon_guardrails.md"
+        }
+      ],
+      "expected_concepts": [
+        "guardrails",
+        "output safety"
+      ],
+      "retrieved_sources": [
+        "epsilon_guardrails.md",
+        "epsilon_guardrails.md",
+        "epsilon_guardrails.md"
+      ],
+      "retrieved_sources_top3": [
+        "epsilon_guardrails.md",
+        "epsilon_guardrails.md",
+        "epsilon_guardrails.md"
+      ],
+      "matched_sources": [
+        "epsilon_guardrails.md",
+        "epsilon_guardrails.md",
+        "epsilon_guardrails.md"
+      ],
+      "source_precision_at_3": 1.0,
+      "latency_sec": 0.035,
+      "answer_groundedness": null,
+      "tutor_coherence": null,
+      "out_of_corpus_graceful": null,
+      "component_status": {
+        "retrieval": "pass",
+        "generation": "pass",
+        "latency": "pass"
+      }
+    },
+    {
+      "id": "gqa07",
+      "question": "What unique marker is in the RAG file?",
+      "difficulty": "easy",
+      "tags": [
+        "factual",
+        "anchors"
+      ],
+      "query_mode": "qa",
+      "status_code": 200,
+      "status": "pass",
+      "expected_sources": [
+        {
+          "relative_path": "alpha_rag_intro.md",
+          "file_name": "alpha_rag_intro.md"
+        }
+      ],
+      "expected_concepts": [
+        "RAG_ALPHA_UNIQUE_7741"
+      ],
+      "retrieved_sources": [
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md"
+      ],
+      "retrieved_sources_top3": [
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md"
+      ],
+      "matched_sources": [
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md"
+      ],
+      "source_precision_at_3": 1.0,
+      "latency_sec": 0.035,
+      "answer_groundedness": null,
+      "tutor_coherence": null,
+      "out_of_corpus_graceful": null,
+      "component_status": {
+        "retrieval": "pass",
+        "generation": "pass",
+        "latency": "pass"
+      }
+    },
+    {
+      "id": "gqa08",
+      "question": "What unique marker is in the Chroma file?",
+      "difficulty": "easy",
+      "tags": [
+        "factual",
+        "anchors"
+      ],
+      "query_mode": "qa",
+      "status_code": 200,
+      "status": "pass",
+      "expected_sources": [
+        {
+          "relative_path": "beta_vector_db.md",
+          "file_name": "beta_vector_db.md"
+        }
+      ],
+      "expected_concepts": [
+        "CHROMA_BETA_UNIQUE_5520"
+      ],
+      "retrieved_sources": [
+        "beta_vector_db.md",
+        "beta_vector_db.md",
+        "beta_vector_db.md"
+      ],
+      "retrieved_sources_top3": [
+        "beta_vector_db.md",
+        "beta_vector_db.md",
+        "beta_vector_db.md"
+      ],
+      "matched_sources": [
+        "beta_vector_db.md",
+        "beta_vector_db.md",
+        "beta_vector_db.md"
+      ],
+      "source_precision_at_3": 1.0,
+      "latency_sec": 0.035,
+      "answer_groundedness": null,
+      "tutor_coherence": null,
+      "out_of_corpus_graceful": null,
+      "component_status": {
+        "retrieval": "pass",
+        "generation": "pass",
+        "latency": "pass"
+      }
+    },
+    {
+      "id": "gqa09",
+      "question": "Connect two ideas: why does RAG mix external fragments into LLM and how do guardrails reduce the risk of incorrect answers.",
+      "difficulty": "hard",
+      "tags": [
+        "multi-hop",
+        "synthesis"
+      ],
+      "query_mode": "qa",
+      "status_code": 200,
+      "status": "pass",
+      "expected_sources": [
+        {
+          "relative_path": "alpha_rag_intro.md",
+          "file_name": "alpha_rag_intro.md"
+        },
+        {
+          "relative_path": "epsilon_guardrails.md",
+          "file_name": "epsilon_guardrails.md"
+        }
+      ],
+      "expected_concepts": [
+        "RAG",
+        "guardrails",
+        "output control"
+      ],
+      "retrieved_sources": [
+        "alpha_rag_intro.md",
+        "epsilon_guardrails.md",
+        "epsilon_guardrails.md"
+      ],
+      "retrieved_sources_top3": [
+        "alpha_rag_intro.md",
+        "epsilon_guardrails.md",
+        "epsilon_guardrails.md"
+      ],
+      "matched_sources": [
+        "alpha_rag_intro.md",
+        "epsilon_guardrails.md",
+        "epsilon_guardrails.md"
+      ],
+      "source_precision_at_3": 1.0,
+      "latency_sec": 0.035,
+      "answer_groundedness": null,
+      "tutor_coherence": null,
+      "out_of_corpus_graceful": null,
+      "component_status": {
+        "retrieval": "pass",
+        "generation": "pass",
+        "latency": "pass"
+      }
+    },
+    {
+      "id": "gqa10",
+      "question": "How does storing embeddings in Chroma logically connect with the context retrieval stage in RAG?",
+      "difficulty": "hard",
+      "tags": [
+        "multi-hop",
+        "architecture"
+      ],
+      "query_mode": "qa",
+      "status_code": 200,
+      "status": "pass",
+      "expected_sources": [
+        {
+          "relative_path": "beta_vector_db.md",
+          "file_name": "beta_vector_db.md"
+        },
+        {
+          "relative_path": "alpha_rag_intro.md",
+          "file_name": "alpha_rag_intro.md"
+        }
+      ],
+      "expected_concepts": [
+        "Chroma",
+        "retrieval",
+        "RAG"
+      ],
+      "retrieved_sources": [
+        "beta_vector_db.md",
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md"
+      ],
+      "retrieved_sources_top3": [
+        "beta_vector_db.md",
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md"
+      ],
+      "matched_sources": [
+        "beta_vector_db.md",
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md"
+      ],
+      "source_precision_at_3": 1.0,
+      "latency_sec": 0.035,
+      "answer_groundedness": null,
+      "tutor_coherence": null,
+      "out_of_corpus_graceful": null,
+      "component_status": {
+        "retrieval": "pass",
+        "generation": "pass",
+        "latency": "pass"
+      }
+    },
+    {
+      "id": "gqa11",
+      "question": "Compare: how does hybrid search (BM25 + vector) and guardrails solve different classes of errors when answering users?",
+      "difficulty": "hard",
+      "tags": [
+        "multi-hop",
+        "quality"
+      ],
+      "query_mode": "qa",
+      "status_code": 200,
+      "status": "pass",
+      "expected_sources": [
+        {
+          "relative_path": "gamma_hybrid.md",
+          "file_name": "gamma_hybrid.md"
+        },
+        {
+          "relative_path": "epsilon_guardrails.md",
+          "file_name": "epsilon_guardrails.md"
+        }
+      ],
+      "expected_concepts": [
+        "hybrid retrieval",
+        "guardrails",
+        "quality and safety"
+      ],
+      "retrieved_sources": [
+        "gamma_hybrid.md",
+        "epsilon_guardrails.md",
+        "epsilon_guardrails.md"
+      ],
+      "retrieved_sources_top3": [
+        "gamma_hybrid.md",
+        "epsilon_guardrails.md",
+        "epsilon_guardrails.md"
+      ],
+      "matched_sources": [
+        "gamma_hybrid.md",
+        "epsilon_guardrails.md",
+        "epsilon_guardrails.md"
+      ],
+      "source_precision_at_3": 1.0,
+      "latency_sec": 0.035,
+      "answer_groundedness": null,
+      "tutor_coherence": null,
+      "out_of_corpus_graceful": null,
+      "component_status": {
+        "retrieval": "pass",
+        "generation": "pass",
+        "latency": "pass"
+      }
+    },
+    {
+      "id": "gqa12",
+      "question": "Why is spaced repetition appropriate as a reinforcement strategy after the system has already provided an explanation with sources?",
+      "difficulty": "hard",
+      "tags": [
+        "multi-hop",
+        "learning-loop"
+      ],
+      "query_mode": "qa",
+      "status_code": 200,
+      "status": "pass",
+      "expected_sources": [
+        {
+          "relative_path": "delta_srs.md",
+          "file_name": "delta_srs.md"
+        },
+        {
+          "relative_path": "alpha_rag_intro.md",
+          "file_name": "alpha_rag_intro.md"
+        }
+      ],
+      "expected_concepts": [
+        "SRS",
+        "reinforcement",
+        "learning after answer"
+      ],
+      "retrieved_sources": [
+        "delta_srs.md",
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md"
+      ],
+      "retrieved_sources_top3": [
+        "delta_srs.md",
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md"
+      ],
+      "matched_sources": [
+        "delta_srs.md",
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md"
+      ],
+      "source_precision_at_3": 1.0,
+      "latency_sec": 0.035,
+      "answer_groundedness": null,
+      "tutor_coherence": null,
+      "out_of_corpus_graceful": null,
+      "component_status": {
+        "retrieval": "pass",
+        "generation": "pass",
+        "latency": "pass"
+      }
+    },
+    {
+      "id": "gqa13",
+      "question": "Describe step-by-step setup of fictional protocol TelepathySync v0 for home assistant integration.",
+      "difficulty": "medium",
+      "tags": [
+        "out-of-corpus",
+        "fiction"
+      ],
+      "query_mode": "qa",
+      "status_code": 200,
+      "status": "pass",
+      "expected_sources": [],
+      "expected_concepts": [
+        "not in corpus"
+      ],
+      "retrieved_sources": [],
+      "retrieved_sources_top3": [],
+      "matched_sources": [],
+      "source_precision_at_3": null,
+      "latency_sec": 0.035,
+      "answer_groundedness": null,
+      "tutor_coherence": null,
+      "out_of_corpus_graceful": true,
+      "component_status": {
+        "retrieval": "pass",
+        "generation": "pass",
+        "latency": "pass"
+      }
+    },
+    {
+      "id": "gqa14",
+      "question": "What were FabricatedCorp stock quotes on Neptune exchange in 2077?",
+      "difficulty": "easy",
+      "tags": [
+        "out-of-corpus",
+        "finance-fiction"
+      ],
+      "query_mode": "qa",
+      "status_code": 200,
+      "status": "pass",
+      "expected_sources": [],
+      "expected_concepts": [
+        "finance outside database"
+      ],
+      "retrieved_sources": [],
+      "retrieved_sources_top3": [],
+      "matched_sources": [],
+      "source_precision_at_3": null,
+      "latency_sec": 0.035,
+      "answer_groundedness": null,
+      "tutor_coherence": null,
+      "out_of_corpus_graceful": true,
+      "component_status": {
+        "retrieval": "pass",
+        "generation": "pass",
+        "latency": "pass"
+      }
+    },
+    {
+      "id": "gqa15",
+      "question": "Provide the full RFC text for protocol DEFINITELY_NOT_IN_CORPUS_42.",
+      "difficulty": "medium",
+      "tags": [
+        "out-of-corpus",
+        "standards-fiction"
+      ],
+      "query_mode": "qa",
+      "status_code": 200,
+      "status": "pass",
+      "expected_sources": [],
+      "expected_concepts": [
+        "RFC",
+        "non-existent standard"
+      ],
+      "retrieved_sources": [],
+      "retrieved_sources_top3": [],
+      "matched_sources": [],
+      "source_precision_at_3": null,
+      "latency_sec": 0.035,
+      "answer_groundedness": null,
+      "tutor_coherence": null,
+      "out_of_corpus_graceful": true,
+      "component_status": {
+        "retrieval": "pass",
+        "generation": "pass",
+        "latency": "pass"
+      }
+    },
+    {
+      "id": "gqa16",
+      "question": "Lets break it down in class: explain step by step how a user question becomes an answer with document support in RAG.",
+      "difficulty": "medium",
+      "tags": [
+        "tutor-mode",
+        "explainer"
+      ],
+      "query_mode": "tutor",
+      "status_code": 200,
+      "status": "pass",
+      "expected_sources": [
+        {
+          "relative_path": "alpha_rag_intro.md",
+          "file_name": "alpha_rag_intro.md"
+        }
+      ],
+      "expected_concepts": [
+        "RAG pipeline",
+        "retrieval",
+        "generation"
+      ],
+      "retrieved_sources": [
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md"
+      ],
+      "retrieved_sources_top3": [
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md"
+      ],
+      "matched_sources": [
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md",
+        "alpha_rag_intro.md"
+      ],
+      "source_precision_at_3": 1.0,
+      "latency_sec": 0.05,
+      "answer_groundedness": null,
+      "tutor_coherence": null,
+      "out_of_corpus_graceful": null,
+      "component_status": {
+        "retrieval": "pass",
+        "generation": "pass",
+        "latency": "pass"
+      }
+    },
+    {
+      "id": "gqa17",
+      "question": "Lets go slowly: why is RRF used in hybrid retrieval and how do fast and quality modes differ?",
+      "difficulty": "medium",
+      "tags": [
+        "tutor-mode",
+        "hybrid"
+      ],
+      "query_mode": "tutor",
+      "status_code": 200,
+      "status": "pass",
+      "expected_sources": [
+        {
+          "relative_path": "gamma_hybrid.md",
+          "file_name": "gamma_hybrid.md"
+        }
+      ],
+      "expected_concepts": [
+        "RRF",
+        "fast",
+        "quality"
+      ],
+      "retrieved_sources": [
+        "gamma_hybrid.md",
+        "gamma_hybrid.md",
+        "gamma_hybrid.md"
+      ],
+      "retrieved_sources_top3": [
+        "gamma_hybrid.md",
+        "gamma_hybrid.md",
+        "gamma_hybrid.md"
+      ],
+      "matched_sources": [
+        "gamma_hybrid.md",
+        "gamma_hybrid.md",
+        "gamma_hybrid.md"
+      ],
+      "source_precision_at_3": 1.0,
+      "latency_sec": 0.05,
+      "answer_groundedness": null,
+      "tutor_coherence": null,
+      "out_of_corpus_graceful": null,
+      "component_status": {
+        "retrieval": "pass",
+        "generation": "pass",
+        "latency": "pass"
+      }
+    },
+    {
+      "id": "gqa18",
+      "question": "As a tutor: what is ease factor in SM-2 and how does it affect repetition intervals?",
+      "difficulty": "hard",
+      "tags": [
+        "tutor-mode",
+        "sm2"
+      ],
+      "query_mode": "tutor",
+      "status_code": 200,
+      "status": "pass",
+      "expected_sources": [
+        {
+          "relative_path": "delta_srs.md",
+          "file_name": "delta_srs.md"
+        }
+      ],
+      "expected_concepts": [
+        "SM-2",
+        "ease factor",
+        "intervals"
+      ],
+      "retrieved_sources": [
+        "delta_srs.md",
+        "delta_srs.md",
+        "delta_srs.md"
+      ],
+      "retrieved_sources_top3": [
+        "delta_srs.md",
+        "delta_srs.md",
+        "delta_srs.md"
+      ],
+      "matched_sources": [
+        "delta_srs.md",
+        "delta_srs.md",
+        "delta_srs.md"
+      ],
+      "source_precision_at_3": 1.0,
+      "latency_sec": 0.05,
+      "answer_groundedness": null,
+      "tutor_coherence": null,
+      "out_of_corpus_graceful": null,
+      "component_status": {
+        "retrieval": "pass",
+        "generation": "pass",
+        "latency": "pass"
+      }
+    },
+    {
+      "id": "gqa19",
+      "question": "HYBRID_GAMMA_UNIQUE_8833",
+      "difficulty": "easy",
+      "tags": [
+        "edge",
+        "minimal-query"
+      ],
+      "query_mode": "qa",
+      "status_code": 200,
+      "status": "pass",
+      "expected_sources": [
+        {
+          "relative_path": "gamma_hybrid.md",
+          "file_name": "gamma_hybrid.md"
+        }
+      ],
+      "expected_concepts": [
+        "anchor token",
+        "gamma_hybrid"
+      ],
+      "retrieved_sources": [
+        "gamma_hybrid.md",
+        "gamma_hybrid.md",
+        "gamma_hybrid.md"
+      ],
+      "retrieved_sources_top3": [
+        "gamma_hybrid.md",
+        "gamma_hybrid.md",
+        "gamma_hybrid.md"
+      ],
+      "matched_sources": [
+        "gamma_hybrid.md",
+        "gamma_hybrid.md",
+        "gamma_hybrid.md"
+      ],
+      "source_precision_at_3": 1.0,
+      "latency_sec": 0.035,
+      "answer_groundedness": null,
+      "tutor_coherence": null,
+      "out_of_corpus_graceful": null,
+      "component_status": {
+        "retrieval": "pass",
+        "generation": "pass",
+        "latency": "pass"
+      }
+    },
+    {
+      "id": "gqa20",
+      "question": "  CHROMA_BETA_UNIQUE_5520  ",
+      "difficulty": "easy",
+      "tags": [
+        "edge",
+        "whitespace"
+      ],
+      "query_mode": "qa",
+      "status_code": 200,
+      "status": "pass",
+      "expected_sources": [
+        {
+          "relative_path": "beta_vector_db.md",
+          "file_name": "beta_vector_db.md"
+        }
+      ],
+      "expected_concepts": [
+        "query normalization",
+        "anchor token"
+      ],
+      "retrieved_sources": [
+        "beta_vector_db.md",
+        "beta_vector_db.md",
+        "beta_vector_db.md"
+      ],
+      "retrieved_sources_top3": [
+        "beta_vector_db.md",
+        "beta_vector_db.md",
+        "beta_vector_db.md"
+      ],
+      "matched_sources": [
+        "beta_vector_db.md",
+        "beta_vector_db.md",
+        "beta_vector_db.md"
+      ],
+      "source_precision_at_3": 1.0,
+      "latency_sec": 0.035,
+      "answer_groundedness": null,
+      "tutor_coherence": null,
+      "out_of_corpus_graceful": null,
+      "component_status": {
+        "retrieval": "pass",
+        "generation": "pass",
+        "latency": "pass"
+      }
+    }
+  ],
+  "pass": true,
+  "note": "OPENAI_API_KEY missing or --mock requested; judge metrics skipped."
+}

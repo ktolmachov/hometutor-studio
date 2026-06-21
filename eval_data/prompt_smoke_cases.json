@@ -1,0 +1,351 @@
+{
+  "version": 1,
+  "description": "Эталонные кейсы для prompt smoke: тот же mini-KB, что quality_benchmark_kb. Прогон: scripts/run_prompt_smoke.py. Поля expect — лёгкие эвристики; review_ru — для человека. Для tutor-кейсов min/max_answer_chars меряются по tutor_answer.teaching_summary (без markdown-скаффолда format_tutor_v2_markdown); подстрочные проверки — по полному видимому ответу.",
+  "kb_note": "Используйте --kb-dir eval_data/quality_benchmark_kb (default) и индексацию как в run_quality_benchmark.py",
+  "cases": [
+    {
+      "id": "ps_qa_01",
+      "query_mode": "qa",
+      "question": "Что такое RAG и какой типичный пайплайн?",
+      "expect": {
+        "min_answer_chars": 80,
+        "min_source_count": 1,
+        "required_debug_keys": [
+          "total_answer_ms",
+          "token_usage"
+        ]
+      },
+      "review_ru": "Ответ опирается на конспект; структура запрос→поиск→генерация."
+    },
+    {
+      "id": "ps_qa_02",
+      "query_mode": "qa",
+      "question": "Зачем нужен уникальный якорь RAG_ALPHA_UNIQUE_7741?",
+      "expect": {
+        "min_answer_chars": 40,
+        "any_of_substrings": [
+          "RAG_ALPHA_UNIQUE_7741",
+          "7741"
+        ],
+        "min_source_count": 1
+      },
+      "review_ru": "Должен попасть чанк alpha_rag_intro."
+    },
+    {
+      "id": "ps_qa_03",
+      "query_mode": "qa",
+      "question": "Что такое гибридный retrieval в этом проекте?",
+      "expect": {
+        "min_answer_chars": 60,
+        "any_of_substrings": [
+          "BM25",
+          "вектор",
+          "vector",
+          "гибрид"
+        ],
+        "min_source_count": 1
+      },
+      "review_ru": "Смысл гибрида BM25 + dense."
+    },
+    {
+      "id": "ps_qa_04",
+      "query_mode": "qa",
+      "question": "Что делает алгоритм SM-2?",
+      "expect": {
+        "min_answer_chars": 50,
+        "min_source_count": 1
+      },
+      "review_ru": "SRS / интервалы / ease factor."
+    },
+    {
+      "id": "ps_qa_05",
+      "query_mode": "qa",
+      "question": "Зачем guardrails в ответах модели?",
+      "expect": {
+        "min_answer_chars": 40,
+        "min_source_count": 1
+      },
+      "review_ru": "Безопасность / снижение токсичности / границы ответа."
+    },
+    {
+      "id": "ps_qa_06",
+      "query_mode": "qa",
+      "question": "CHROMA_BETA_UNIQUE_5520 где описан?",
+      "expect": {
+        "min_answer_chars": 30,
+        "any_of_substrings": [
+          "CHROMA_BETA_UNIQUE_5520",
+          "5520",
+          "beta_vector"
+        ],
+        "min_source_count": 1
+      },
+      "review_ru": "Проверка попадания в beta_vector_db."
+    },
+    {
+      "id": "ps_tutor_01",
+      "query_mode": "tutor",
+      "session_id": "prompt_smoke_tutor_01",
+      "question": "Кратко объясни, зачем в RAG нужен retrieval перед генерацией.",
+      "expect": {
+        "min_answer_chars": 60,
+        "max_answer_chars": 2000,
+        "min_source_count": 1,
+        "require_system_user": true
+      },
+      "review_ru": "Tutor-промпт: ясность, без воды. Длина меряется по teaching_summary (модельный текст без markdown-скаффолда), лимит 2000 снова строгий."
+    },
+    {
+      "id": "ps_tutor_02",
+      "query_mode": "tutor",
+      "session_id": "prompt_smoke_tutor_02",
+      "question": "Как BM25 и векторный поиск дополняют друг друга в гибриде?",
+      "expect": {
+        "min_answer_chars": 70,
+        "max_answer_chars": 1800,
+        "min_source_count": 1,
+        "require_system_user": true
+      },
+      "review_ru": "Tutor + тема hybrid из KB."
+    },
+    {
+      "id": "ps_tutor_03",
+      "query_mode": "tutor",
+      "session_id": "prompt_smoke_tutor_03",
+      "homework_mode": true,
+      "assistance_level": "hint",
+      "question": "Дай только подсказку, не полное решение: как оценивать качество ответа RAG?",
+      "expect": {
+        "min_answer_chars": 40,
+        "max_answer_chars": 1400,
+        "forbidden_substrings": [
+          "```"
+        ],
+        "min_source_count": 1,
+        "require_system_user": true
+      },
+      "review_ru": "Режим hint: без больших блоков кода (эвристика ```)."
+    },
+    {
+      "id": "ps_tutor_04",
+      "query_mode": "tutor",
+      "session_id": "prompt_smoke_tutor_04",
+      "question": "Повтори ключевую идею про SM-2 одним абзацем.",
+      "expect": {
+        "min_answer_chars": 50,
+        "max_answer_chars": 1600,
+        "min_source_count": 1,
+        "require_system_user": true
+      },
+      "review_ru": "Короткий конспективный ответ. max_answer_chars увеличен до 1600: с ChatPromptTemplate модель чуть более развёрнута (~1258 символов на SM-2)."
+    },
+    {
+      "id": "ps_qa_07",
+      "query_mode": "qa",
+      "question": "Политики guardrails могут требовать что для ответа?",
+      "expect": {
+        "min_answer_chars": 30,
+        "min_source_count": 1
+      },
+      "review_ru": "Цитирование / длина / безопасность — по epsilon_guardrails."
+    },
+    {
+      "id": "ps_qa_08",
+      "query_mode": "qa",
+      "question": "Какие шаги у типичного RAG после вопроса пользователя?",
+      "expect": {
+        "min_answer_chars": 60,
+        "min_source_count": 1
+      },
+      "review_ru": "Базовый QA pipeline, полнота шагов."
+    },
+    {
+      "id": "lms_config_a",
+      "query_mode": "qa",
+      "question": "Какая локальная модель выбрана для home_rag и какой retrieval-профиль используется?",
+      "expect": {
+        "min_answer_chars": 60,
+        "min_source_count": 1,
+        "any_of_substrings": [
+          "qwopus",
+          "35b",
+          "mtp"
+        ],
+        "required_debug_keys": [
+          "total_answer_ms",
+          "token_usage"
+        ],
+        "require_no_fallback": true,
+        "require_model": [
+          "qwen/qwen3.6-27b",
+          "qwopus3.6-35b-a3b-v1-mtp"
+        ],
+        "max_reasoning_tokens": 0,
+        "allow_missing_reasoning_tokens": true,
+        "require_system_user": true
+      },
+      "review_ru": "Тест A (LM Studio): ответ содержит accepted single-model id и hybrid/quality-профиль. Только по KB, без внешних знаний."
+    },
+    {
+      "id": "lms_workstation_b",
+      "query_mode": "qa",
+      "question": "Какая конфигурация AI workstation описана в документах?",
+      "expect": {
+        "min_answer_chars": 80,
+        "min_source_count": 1,
+        "any_of_substrings": [
+          "X870E",
+          "5070 Ti",
+          "9900X3D",
+          "Taichi"
+        ],
+        "forbidden_substrings": [
+          "температур",
+          "BIOS 3",
+          "стоит ",
+          "цена",
+          "скачать"
+        ],
+        "require_no_fallback": true,
+        "require_model": [
+          "qwen/qwen3.6-27b",
+          "qwopus3.6-35b-a3b-v1-mtp"
+        ],
+        "max_reasoning_tokens": 0,
+        "allow_missing_reasoning_tokens": true,
+        "require_system_user": true
+      },
+      "review_ru": "Тест B (LM Studio): specs из документа без выдуманных температур/BIOS/цен."
+    },
+    {
+      "id": "lms_profiles_c",
+      "query_mode": "qa",
+      "question": "Чем отличается fast-профиль от quality-профиля в настройках retrieval?",
+      "expect": {
+        "min_answer_chars": 60,
+        "max_answer_chars": 1800,
+        "min_source_count": 1,
+        "any_of_substrings": [
+          "reranker",
+          "rerank",
+          "hybrid",
+          "vector_only",
+          "быстр",
+          "fast",
+          "quality",
+          "вектор",
+          "vector",
+          "профил"
+        ],
+        "require_no_fallback": true,
+        "require_model": [
+          "qwen/qwen3.6-27b",
+          "qwopus3.6-35b-a3b-v1-mtp"
+        ],
+        "max_reasoning_tokens": 0,
+        "allow_missing_reasoning_tokens": true,
+        "require_system_user": true
+      },
+      "review_ru": "Тест C (LM Studio): короткое объяснение из KB, без придуманных параметров."
+    },
+    {
+      "id": "lms_neg_d",
+      "query_mode": "qa",
+      "question": "Какая последняя версия BIOS для ASRock X870E Taichi?",
+      "expect": {
+        "min_answer_chars": 10,
+        "max_answer_chars": 400,
+        "any_of_substrings": [
+          "контексте",
+          "нет",
+          "отсутствует",
+          "отсутствуют",
+          "не найден",
+          "не содержат",
+          "не могу подтвердить",
+          "недостаточно",
+          "материалах"
+        ],
+        "forbidden_substrings": [
+          "BIOS 3.",
+          "версия 3",
+          "скачать с сайта",
+          "ASRock.com"
+        ],
+        "require_no_fallback": true,
+        "require_model": [
+          "qwen/qwen3.6-27b",
+          "qwopus3.6-35b-a3b-v1-mtp"
+        ],
+        "max_reasoning_tokens": 0,
+        "allow_missing_reasoning_tokens": true,
+        "require_system_user": true
+      },
+      "review_ru": "Тест D (LM Studio, negative): BIOS-версии нет в KB. Модель обязана сказать об отсутствии факта, не выдумывать версию. any_of расширен: модель может использовать 'отсутствуют', 'не содержат', 'недостаточно', 'материалах'."
+    },
+    {
+      "id": "lms_neg_e",
+      "query_mode": "qa",
+      "question": "Какая цена RTX 5070 Ti в магазине DNS?",
+      "expect": {
+        "min_answer_chars": 10,
+        "max_answer_chars": 400,
+        "any_of_substrings": [
+          "контексте",
+          "нет",
+          "отсутствует",
+          "отсутствуют",
+          "не найден",
+          "не содержат",
+          "не могу подтвердить",
+          "недостаточно",
+          "материалах"
+        ],
+        "forbidden_substrings": [
+          "руб",
+          "₽",
+          " тыс",
+          "000 ",
+          "DNS.ru",
+          "dns-shop"
+        ],
+        "require_no_fallback": true,
+        "require_model": [
+          "qwen/qwen3.6-27b",
+          "qwopus3.6-35b-a3b-v1-mtp"
+        ],
+        "max_reasoning_tokens": 0,
+        "allow_missing_reasoning_tokens": true,
+        "require_system_user": true
+      },
+      "review_ru": "Тест E (LM Studio, negative): цены в DNS нет в KB. Модель не должна придумывать цену или предлагать сайт. any_of расширен аналогично lms_neg_d."
+    },
+    {
+      "id": "lms_quiz_f",
+      "query_mode": "tutor",
+      "session_id": "lms_quiz_f_session",
+      "question": "На основе описания retrieval-профилей: кратко объясни SIMILARITY_TOP_K и RERANK_TOP_N, а затем составь 3 коротких вопроса для самопроверки.",
+      "expect": {
+        "min_answer_chars": 100,
+        "max_answer_chars": 2500,
+        "min_source_count": 1,
+        "any_of_substrings": [
+          "TOP_K",
+          "TOP_N",
+          "RERANK",
+          "?",
+          "вопрос"
+        ],
+        "require_no_fallback": true,
+        "require_model": [
+          "qwen/qwen3.6-27b",
+          "qwopus3.6-35b-a3b-v1-mtp"
+        ],
+        "max_reasoning_tokens": 0,
+        "allow_missing_reasoning_tokens": true,
+        "require_system_user": true
+      },
+      "review_ru": "Тест F (LM Studio, tutor/quiz): объяснение + 3 вопроса только по контексту KB. Нет вопросов о фактах, которых нет в документах."
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+id: scenario_02
+title: "Home Mode Selector: навигация за 30 секунд"
+level: "🟢 Первые шаги"
+persona: "Максим, пользователь второго дня. Проверяет, где что лежит."
+duration_min: 1
+why: |
+  Показать, что главный экран — это сетка режимов с ясной навигацией, а не набор
+  виджетов-конкурентов.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+wow_moment: |
+  Два клика — и ты в нужном режиме.
+takeaway: |
+  Home Mode Selector решает pain «10 равных действий вместо одного next step»
+  (см. CJM moment of truth #10 и #13).
+scenario_link: "user_scenarios.md"
+
+shots:
+  - slug: "01_home_initial"
+    caption: "Главный экран: карточки режимов"
+    narration: "Первое, что видит пользователь — основные режимы."
+    duration_sec: 3
+  - slug: "02_click_topics"
+    caption: "Переход к разделу «Темы»"
+    narration: "Один клик — одна цель."
+    duration_sec: 3
+  - slug: "03_back_to_home"
+    caption: "Возврат на Home"
+    narration: "Переключение между режимами — через селектор разделов."
+    duration_sec: 2
+  - slug: "04_click_progress"
+    caption: "Переход в раздел «Прогресс обучения»"
+    narration: "Прогресс — в одном клике."
+    duration_sec: 3
+  - slug: "05_ssr_banner"
+    caption: "SSR Banner на главном экране"
+    narration: "Главный экран также подсказывает следующий оптимальный шаг обучения."
+    duration_sec: 3

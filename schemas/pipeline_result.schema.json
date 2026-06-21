@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://home-rag.local/schemas/pipeline_result.schema.json",
+  "title": "PipelineResult",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["run_id", "exit_code", "finished_at"],
+  "properties": {
+    "run_id": { "type": "string", "minLength": 1 },
+    "exit_code": { "type": "integer" },
+    "finished_at": { "type": "string", "minLength": 1 },
+    "package_id": { "type": ["string", "null"] },
+    "failure_class": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["exit_code", "name", "severity", "next_action", "retryable"],
+      "properties": {
+        "exit_code": { "type": "integer" },
+        "name": { "type": "string", "minLength": 1 },
+        "severity": { "type": "string", "minLength": 1 },
+        "next_action": { "type": "string", "minLength": 1 },
+        "retryable": { "type": "boolean" }
+      }
+    },
+    "argv": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

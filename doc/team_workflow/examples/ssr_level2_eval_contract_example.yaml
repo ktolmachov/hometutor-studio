@@ -1,0 +1,46 @@
+evaluation_contract:
+  feature: "SSR Level 2 - LLM-Enhanced Explanation"
+  owner_decision: "proposed"
+
+  metrics:
+    primary:
+      name: "explanation_clarity_score"
+      type: "human_eval"
+      baseline: "3.2/5 current template-based explanation"
+      target: ">= 4.0/5"
+      test_set: "50 SSR recommendation scenarios x 3 raters"
+    secondary:
+      - name: "explanation_length_words"
+        target: "< 150"
+      - name: "llm_latency_p95"
+        target: "< 2s"
+      - name: "token_cost_per_explanation"
+        target: "< 500 tokens"
+      - name: "route_priority_regression"
+        target: "0 changes to chosen deterministic route"
+
+  test_harness:
+    script: "tests/eval/test_ssr_llm_explanation.py"
+    data: "tests/eval/ssr_explanation_test_cases.json"
+    rubric: "doc/eval/ssr_explanation_rubric.md"
+    command: ".\\.venv\\Scripts\\python.exe -m pytest tests/eval/test_ssr_llm_explanation.py -v"
+
+  success_criteria:
+    - "clarity score reaches target"
+    - "all secondary metrics stay within bounds"
+    - "LLM explains the deterministic route and does not choose a different route"
+    - "fallback template is used on timeout, provider failure, or unsafe output"
+
+  failure_plan:
+    - condition: "clarity < 3.5"
+      action: "iterate prompt rubric once before PO review"
+    - condition: "latency > 2s p95"
+      action: "switch to cached/template explanation or smaller model"
+    - condition: "token cost > 500"
+      action: "compress prompt context or abort LLM path"
+
+  fallback:
+    mode: "template_based"
+    trigger: "timeout, provider error, unsafe output, or metric regression"
+    user_visible_trace: "show deterministic why_now explanation and note that personalized explanation was unavailable"
+

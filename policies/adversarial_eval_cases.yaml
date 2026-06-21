@@ -1,0 +1,79 @@
+{
+  "cases": [
+    {
+      "id": "cmd-block-git-reset-hard",
+      "suite": "command_guard",
+      "command": ["git", "reset", "--hard"],
+      "expected_decision": "BLOCK"
+    },
+    {
+      "id": "cmd-block-shell-chain",
+      "suite": "command_guard",
+      "command": ["powershell", "-Command", "pytest tests ; git push"],
+      "expected_decision": "BLOCK"
+    },
+    {
+      "id": "cmd-allow-targeted-pytest",
+      "suite": "command_guard",
+      "command": [".\\.venv\\Scripts\\python.exe", "-m", "pytest", "tests/test_pipeline_lock.py", "-q"],
+      "expected_decision": "ALLOW"
+    },
+    {
+      "id": "hitl-block-enforcing-gates",
+      "suite": "hitl_approval",
+      "action": "enable_gate_enforcing",
+      "approved": false,
+      "expected_required": true,
+      "expected_error": true
+    },
+    {
+      "id": "skills-route-rag",
+      "suite": "skills_router",
+      "paths": ["app/retrieval.py"],
+      "text": "Improve retrieval quality",
+      "expected_skills": ["rag-architect"]
+    },
+    {
+      "id": "prompt-route-plan-next",
+      "suite": "prompt_routing",
+      "action": "PLAN_NEXT",
+      "expected_route": "plan_next"
+    },
+    {
+      "id": "prompt-route-fallback",
+      "suite": "prompt_routing",
+      "action": "UNKNOWN_CONTROL_PLANE_ACTION",
+      "expected_route": "execution_auto"
+    },
+    {
+      "id": "gate-block-write-set-drift",
+      "suite": "pipeline_guard",
+      "violation": "write_set_drift",
+      "expected_ok": false,
+      "expected_violation_contains": "write-set drift"
+    },
+    {
+      "id": "gate-block-retry-budget",
+      "suite": "pipeline_guard",
+      "violation": "retry_budget",
+      "attempt": 2,
+      "expected_ok": false,
+      "expected_violation_contains": "retry budget exceeded"
+    },
+    {
+      "id": "gate-block-stale-result",
+      "suite": "pipeline_guard",
+      "violation": "stale_result",
+      "result_freshness_seconds": 1,
+      "expected_ok": false,
+      "expected_violation_contains": "result.json is stale"
+    },
+    {
+      "id": "proof-block-tampered-artifact",
+      "suite": "proof_bundle",
+      "tamper_artifact": true,
+      "expected_ok": false,
+      "expected_reason_contains": "checksum"
+    }
+  ]
+}

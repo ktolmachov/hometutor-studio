@@ -1,0 +1,49 @@
+name: Eval Loop Gate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+concurrency:
+  group: eval-loop-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  run-eval-loop:
+    name: Unified Eval Loop
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Run eval loop CI profile
+        run: |
+          python scripts/run_eval_loop.py \
+            --profile ci \
+            --report-json unified_eval_report.json
+
+      - name: Upload unified eval report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unified-eval-report
+          if-no-files-found: warn
+          retention-days: 14
+          path: unified_eval_report.json

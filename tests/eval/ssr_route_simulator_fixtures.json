@@ -1,0 +1,90 @@
+[
+    {
+        "label": "due_debt_cards",
+        "rec_params": {
+            "surface": "home",
+            "flashcard_due_n": 3,
+            "sm2_due_n": 2,
+            "quiz_feedback_status": null,
+            "has_tutor_resume": false,
+            "tutor_topic": null,
+            "has_last_answer_qa": false,
+            "has_reading_resume": false,
+            "first_weak_concept": null,
+            "plan_primary_block": null,
+            "retrieval_confidence": "high",
+            "source_evidence_count": 5
+        },
+        "secondary_action_id": "tutor_simpler"
+    },
+    {
+        "label": "weak_concept_resume",
+        "rec_params": {
+            "surface": "home",
+            "flashcard_due_n": 0,
+            "sm2_due_n": 0,
+            "quiz_feedback_status": null,
+            "has_tutor_resume": true,
+            "tutor_topic": "Энтропия",
+            "has_last_answer_qa": false,
+            "has_reading_resume": false,
+            "first_weak_concept": null,
+            "plan_primary_block": null,
+            "retrieval_confidence": "high",
+            "source_evidence_count": 8
+        },
+        "secondary_action_id": "qa_sources"
+    },
+    {
+        "label": "answer_ready_quiz_whatif",
+        "rec_params": {
+            "surface": "home",
+            "flashcard_due_n": 0,
+            "sm2_due_n": 0,
+            "quiz_feedback_status": null,
+            "has_tutor_resume": false,
+            "tutor_topic": null,
+            "has_last_answer_qa": true,
+            "has_reading_resume": false,
+            "first_weak_concept": null,
+            "plan_primary_block": null,
+            "retrieval_confidence": "high",
+            "source_evidence_count": 10
+        },
+        "secondary_action_id": "quiz_nav"
+    },
+    {
+        "label": "thin_sources_low_signals",
+        "rec_params": {
+            "surface": "home",
+            "flashcard_due_n": 0,
+            "sm2_due_n": 0,
+            "quiz_feedback_status": null,
+            "has_tutor_resume": false,
+            "tutor_topic": null,
+            "has_last_answer_qa": false,
+            "has_reading_resume": false,
+            "first_weak_concept": null,
+            "plan_primary_block": null,
+            "retrieval_confidence": "low",
+            "source_evidence_count": 0
+        },
+        "secondary_action_id": "quiz_nav"
+    },
+    {
+        "label": "unknown_secondary_id",
+        "rec_params": {
+            "surface": "home",
+            "flashcard_due_n": 2,
+            "sm2_due_n": 0,
+            "quiz_feedback_status": null,
+            "has_tutor_resume": false,
+            "tutor_topic": null,
+            "has_last_answer_qa": false,
+            "has_reading_resume": false,
+            "first_weak_concept": null,
+            "plan_primary_block": null
+        },
+        "secondary_action_id": "unknown_mode"
+    }
+]

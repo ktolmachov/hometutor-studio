@@ -1,0 +1,41 @@
+evaluation_contract:
+  feature: "<feature title>"
+  owner_decision: "proposed"
+
+  metrics:
+    primary:
+      name: "<primary_metric>"
+      type: "offline_eval"
+      baseline: "<current or random baseline>"
+      target: "<target>"
+      test_set: "<local test set path and size>"
+    secondary:
+      - name: "latency_p95"
+        target: "<p95 bound>"
+      - name: "cost_per_call"
+        target: "<token/runtime budget>"
+      - name: "fallback_rate"
+        target: "<acceptable percentage>"
+
+  test_harness:
+    script: "tests/eval/<feature>_eval.py"
+    data: "tests/eval/<feature>_cases.json"
+    rubric: "doc/eval/<feature>_rubric.md"
+    command: ".\\.venv\\Scripts\\python.exe -m pytest tests/eval/<feature>_eval.py -v"
+
+  success_criteria:
+    - "primary metric hits target"
+    - "all secondary metrics stay within bounds"
+    - "deterministic fallback behavior does not regress"
+
+  failure_plan:
+    - condition: "primary metric below target"
+      action: "iterate data/prompt/model once, then return to PO review"
+    - condition: "latency or cost exceeds bound"
+      action: "switch to smaller model, cache, or disable AI path"
+
+  fallback:
+    mode: "rule_based"
+    trigger: "model unavailable, low confidence, timeout, or eval regression"
+    user_visible_trace: "show baseline rule reason and AI adjustment status"
+

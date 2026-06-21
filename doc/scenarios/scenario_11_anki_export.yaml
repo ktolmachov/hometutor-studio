@@ -1,0 +1,31 @@
+id: scenario_11
+title: "Flashcards → экспорт в Anki"
+level: "🔵 Учебный ритм"
+persona: "Аня хочет забрать колоду в Anki для внешнего повторения."
+duration_min: 3
+why: |
+  Показать end-to-end путь от локальной колоды к экспорту, без потери структуры карточек.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+  e2e_env:
+    HOME_RAG_E2E_OFFLINE: "1"
+wow_moment: |
+  Один клик формирует пакет экспорта, который готов к импорту в Anki.
+takeaway: |
+  Локальная практика и внешний инструмент повторения работают в одной цепочке.
+scenario_link: "user_scenarios.md#сценарий-11--anki-export"
+
+shots:
+  - slug: "01_flashcards_deck_ready"
+    caption: "Колода готова к экспорту"
+    narration: "Карточки уже сохранены и доступны для выгрузки."
+    duration_sec: 3
+  - slug: "02_export_button"
+    caption: "Кнопка экспорта в Anki"
+    narration: "Экспорт запускается из интерфейса без дополнительных шагов."
+    duration_sec: 3
+  - slug: "03_export_success"
+    caption: "Подтверждение успешного экспорта"
+    narration: "Система сообщает, что пакет для Anki сформирован."
+    duration_sec: 3

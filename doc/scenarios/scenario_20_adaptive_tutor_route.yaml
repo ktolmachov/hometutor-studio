@@ -1,0 +1,32 @@
+id: scenario_20
+title: "Адаптивный маршрут тьютора"
+level: "🔴 Mastery"
+persona: "Аня в середине курса, уже с накопленным mastery и историей quiz."
+duration_min: 3
+why: |
+  Показать отличие PedagogicalRouter от Smart Study Router: тьютор выбирает
+  следующий turn внутри сессии, а SSR выбирает следующий шаг между сессиями.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+wow_moment: |
+  После ошибки пользователь получает hint и следующий учебный ход, а не тупик
+  или случайное переключение режима.
+takeaway: |
+  Адаптивный тьютор удерживает учебную сессию в цикле explain → quiz → review,
+  не заставляя пользователя вручную выбирать педагогическую тактику.
+scenario_link: "user_scenarios.md#сценарий-20--адаптивный-маршрут-тьютора"
+
+shots:
+  - slug: "01_open_tutor_with_topic"
+    caption: "Tutor открыт с активной темой"
+    narration: "Пользователь приходит не в пустой чат, а в учебную сессию с контекстом."
+    duration_sec: 4
+  - slug: "02_micro_quiz_or_explanation"
+    caption: "Педагогический роутер выбирает turn"
+    narration: "Система предлагает объяснение, проверку или разбор в зависимости от состояния."
+    duration_sec: 5
+  - slug: "03_after_answer_next_step"
+    caption: "После ответа есть следующий шаг"
+    narration: "Ошибка ведёт к hint и recovery, а успех — к закреплению или новой теме."
+    duration_sec: 5

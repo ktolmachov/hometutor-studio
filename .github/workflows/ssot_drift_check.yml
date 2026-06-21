@@ -1,0 +1,36 @@
+﻿name: SSoT drift check
+
+on:
+  push:
+    paths:
+      - 'doc/backlog_registry.yaml'
+      - 'doc/tasklist.md'
+      - 'doc/user_stories_index.json'
+      - 'doc/user_stories/*.md'
+      - 'scripts/backlog_registry_lint.py'
+  pull_request:
+    paths:
+      - 'doc/backlog_registry.yaml'
+      - 'doc/tasklist.md'
+      - 'doc/user_stories_index.json'
+      - 'doc/user_stories/*.md'
+      - 'scripts/backlog_registry_lint.py'
+
+jobs:
+  drift-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install pyyaml
+
+      - name: SSoT drift check (tasklist.md, user_stories_index.json, cjm.md)
+        run: |
+          python scripts/backlog_registry_lint.py --ci
+          echo "PASS: no SSoT drift detected"

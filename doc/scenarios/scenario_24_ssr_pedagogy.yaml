@@ -1,0 +1,33 @@
+id: scenario_24
+title: "SSR Pedagogy: Управляемая педагогика"
+level: "🔴 Orchestration"
+persona: "Аня готовится к экзамену и хочет управлять балансом повторения, восстановления и нового материала."
+duration_min: 3
+why: |
+  Показать педагогический слой Smart Study Router: пользователь должен видеть,
+  зачем система предлагает действие и какие последствия будут у смены
+  приоритетов.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+wow_moment: |
+  SSR объясняет не только «почему сейчас», но и «зачем педагогически»: закрепить
+  старое, восстановить пробел или начать новую тему.
+takeaway: |
+  SSR Pedagogy делает маршрут управляемым: learner может сдвигать баланс
+  retention vs new learning и видеть tradeoffs до действия.
+scenario_link: "user_scenarios.md#сценарий-24--ssr-pedagogy-управляемая-педагогика"
+
+shots:
+  - slug: "01_pedagogy_label"
+    caption: "Педагогическая метка на SSR-карточке"
+    narration: "Рекомендация сразу показывает тип действия: retention, recovery или new learning."
+    duration_sec: 4
+  - slug: "02_tradeoff_explanation"
+    caption: "Visible tradeoffs"
+    narration: "Система объясняет, что произойдёт, если отложить повторение или выбрать новую тему."
+    duration_sec: 5
+  - slug: "03_learner_steering"
+    caption: "Learner steering"
+    narration: "Пользователь меняет приоритеты и видит обновлённую рекомендацию."
+    duration_sec: 5

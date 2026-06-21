@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://home-rag.local/schemas/pipeline_status_observability.schema.json",
+  "title": "PipelineStatusObservability",
+  "description": "Subset of pipeline_status.py --json: runs[] + stats{} (Wave 2 autonomous observability)",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["runs", "stats"],
+  "properties": {
+    "runs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "run_id",
+          "package_id",
+          "exit_code",
+          "duration_s",
+          "phase",
+          "proof_ok",
+          "started_at"
+        ],
+        "properties": {
+          "run_id": { "type": "string" },
+          "package_id": { "type": ["string", "null"] },
+          "exit_code": { "type": ["integer", "null"] },
+          "duration_s": { "type": "number" },
+          "phase": { "type": ["string", "null"] },
+          "proof_ok": { "type": "boolean" },
+          "started_at": { "type": ["string", "null"] },
+          "finished_at": { "type": ["string", "null"] },
+          "failure_class": {}
+        }
+      }
+    },
+    "stats": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "closure_success_rate",
+        "false_closure_rate",
+        "prompt_injection_block_rate",
+        "median_duration_s"
+      ],
+      "properties": {
+        "closure_success_rate": { "type": "number" },
+        "false_closure_rate": { "type": "number" },
+        "prompt_injection_block_rate": { "type": "number" },
+        "median_duration_s": { "type": "number" },
+        "closed_runs": { "type": "integer" },
+        "total_runs": { "type": "integer" },
+        "sandbox_blocks_total": { "type": "integer" },
+        "sandbox_escape_total": { "type": "integer" },
+        "failure_class_counts": {
+          "type": "object",
+          "additionalProperties": { "type": "integer" }
+        }
+      }
+    }
+  }
+}

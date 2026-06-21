@@ -1,0 +1,38 @@
+id: scenario_16
+title: "Интерактивный тур: 5 глав и сохранение прогресса"
+level: "🟢 Первые шаги"
+persona: "Аня в первый день — хочет понять продукт без длинного README."
+duration_min: 4
+why: |
+  Показать guided onboarding: overlay с главами, шагами внутри главы и возобновление тура
+  после перезагрузки страницы.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+wow_moment: |
+  Лента «Тур: глава N из 5» и кнопка «Продолжить тур» после reload — доказательство persistence.
+takeaway: |
+  Онбординг не одноразовый экран: это сопровождение с прогрессом между сессиями.
+scenario_link: "user_scenarios.md#сценарий-16--интерактивный-тур-5-глав"
+
+shots:
+  - slug: "01_home_tour_entry"
+    caption: "Главная: лента тура и CTA «Пройти интерактивный тур»"
+    narration: "Система сама предлагает структурированный путь из пяти глав."
+    duration_sec: 3
+  - slug: "02_chapter1_practice_step"
+    caption: "Глава 1: пример вопроса в Quick Answer"
+    narration: "Тур ведёт через реальный сценарий первого ответа, а не через текст инструкции."
+    duration_sec: 4
+  - slug: "03_chapter1_trust_step"
+    caption: "Глава 1: шаг про источники и доверие"
+    narration: "Пользователь видит, что ответ нужно проверять по фрагментам и confidence."
+    duration_sec: 4
+  - slug: "04_chapter2_overlay"
+    caption: "Глава 2: переход к обучению с тьютором"
+    narration: "После первого ответа — логичный мост к учебному режиму."
+    duration_sec: 4
+  - slug: "05_resume_after_reload"
+    caption: "После перезагрузки: прогресс главы 2 сохранён"
+    narration: "Продолжение тура с того же места — без потери контекста."
+    duration_sec: 4

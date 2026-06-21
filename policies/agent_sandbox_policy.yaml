@@ -1,0 +1,28 @@
+{
+  "blocked_commands": [
+    {
+      "prefix": ["git", "reset", "--hard"],
+      "reason": "destructive git reset is not allowed for agent-controlled commands"
+    },
+    {
+      "prefix": ["git", "clean"],
+      "reason": "destructive git clean is not allowed for agent-controlled commands"
+    },
+    {
+      "prefix": ["git", "branch", "-D"],
+      "reason": "force-deleting branches is not allowed for agent-controlled commands"
+    },
+    {
+      "prefix": ["git", "push"],
+      "reason": "git push requires an explicit human-controlled step"
+    }
+  ],
+  "blocked_arg_fragments": [
+    ".env",
+    "secrets/",
+    "secrets\\",
+    "id_rsa",
+    "id_ed25519"
+  ],
+  "blocked_shell_tokens": ["&&", "||", ";", "|", ">", ">>", "<"]
+}

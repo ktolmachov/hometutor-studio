@@ -1,0 +1,27 @@
+  {
+  "files.exclude": {
+    "**/.venv": true,
+    "**/.python": true,
+    "**/chroma_db": true,
+    "**/.git": true,
+    "**/node_modules": true,
+    "**/__pycache__": true,
+    "**/.pytest_cache": true
+  },
+  "search.exclude": {
+    "**/.venv": true,
+    "**/.python": true,
+    "**/chroma_db": true,
+    "**/data": true,
+    "**/logs": true,
+    "**/eval_results": true,
+    "**/eval_data": true,
+    "**/test-results": true,
+    "**/playwright-report": true,
+    "**/doc": true,
+    "**/*.jsonl": true,
+    "**/*.bin": true,
+    "**/*.sqlite3": true
+  },
+  "python.terminal.useEnvFile": true
+}

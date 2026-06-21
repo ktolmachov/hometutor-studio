@@ -1,0 +1,51 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rg:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(sed:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(pytest:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(python -m unittest:*)",
+      "Bash(python -m compileall:*)",
+      "Bash(python -m flake8:*)",
+      "Bash(python -m ruff:*)",
+      "Bash(python -m mypy:*)",
+      "Bash(xargs -I {} basename {})",
+      "Bash(bash /tmp/analyze_tests.sh)",
+      "Bash(read f *)",
+      "Bash(npx tsc *)",
+      "Bash(npx playwright *)",
+      "Bash(.venv/Scripts/python -m pytest tests/test_provider.py tests/test_ingestion_reindex.py -x -q)",
+      "Bash(python3 -c ' *)",
+      "Bash(python scripts/validate_token_budget.py:*)",
+      "Bash(pip show *)"
+    ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python scripts/validate_token_budget.py",
+            "timeout": 10,
+            "statusMessage": "🔍 Validating token budget...",
+            "asyncRewake": true,
+            "rewakeSummary": "Token validation complete"
+          }
+        ]
+      }
+    ]
+  }
+}

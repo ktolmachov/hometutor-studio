@@ -1,0 +1,42 @@
+# === Python virtual environments ===
+.venv/
+.python/
+
+# === Database / vector store ===
+chroma_db/
+data/
+
+# === Logs and reports ===
+logs/
+eval_results/
+eval_data/
+test-results/
+playwright-report/
+
+# === IDE / tool configs ===
+.idea/
+.cursor/
+.claude/
+.agents/
+.vscode/
+.e2e/
+.streamlit/
+.github/
+.gemini/
+.pytest_cache/
+
+# === Binary / generated files ===
+*.pyc
+*.bin
+*.sqlite3
+*.dll
+*.pyd
+*.lib
+*.map
+*.jsonl
+
+# === Generated JSON ===
+package-lock.json
+index_meta.json
+index_registry.json
+skills-lock.json

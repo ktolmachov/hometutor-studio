@@ -1,0 +1,52 @@
+{
+  "course": "ii_agenty_mock",
+  "by_doc_id": {
+    "agents/lesson1.md": {
+      "concepts": [
+        {"label": "Agent Loop", "normalized_label": "Agent Loop", "aliases": ["цикл агента"], "description": "Observe-plan-act cycle", "source_doc_id": "agents/lesson1.md", "source_chunk_id": "agents/lesson1.md#c1"},
+        {"label": "Tools", "normalized_label": "Tools", "aliases": [], "description": "External capabilities", "source_doc_id": "agents/lesson1.md", "source_chunk_id": "agents/lesson1.md#c2"},
+        {"label": "Memory", "normalized_label": "Memory", "aliases": ["память"], "description": "State retention", "source_doc_id": "agents/lesson1.md", "source_chunk_id": "agents/lesson1.md#c3"},
+        {"label": "Guardrails", "normalized_label": "Guardrails", "aliases": [], "description": "Safety constraints", "source_doc_id": "agents/lesson1.md", "source_chunk_id": "agents/lesson1.md#c4"},
+        {"label": "Observability", "normalized_label": "Observability", "aliases": [], "description": "Tracing and metrics", "source_doc_id": "agents/lesson1.md", "source_chunk_id": "agents/lesson1.md#c5"}
+      ],
+      "relations": [
+        {"source": "Tools", "target": "Agent Loop", "type": "uses", "evidence_doc_id": "agents/lesson1.md", "evidence_chunk_id": "agents/lesson1.md#c1", "confidence": 0.9},
+        {"source": "Memory", "target": "Agent Loop", "type": "part_of", "evidence_doc_id": "agents/lesson1.md", "evidence_chunk_id": "agents/lesson1.md#c1", "confidence": 0.88},
+        {"source": "Guardrails", "target": "Agent Loop", "type": "extends", "evidence_doc_id": "agents/lesson1.md", "evidence_chunk_id": "agents/lesson1.md#c4", "confidence": 0.86},
+        {"source": "Observability", "target": "Agent Loop", "type": "related", "evidence_doc_id": "agents/lesson1.md", "evidence_chunk_id": "agents/lesson1.md#c5", "confidence": 0.5},
+        {"source": "Tools", "target": "Memory", "type": "related", "evidence_doc_id": "agents/lesson1.md", "evidence_chunk_id": "agents/lesson1.md#c2", "confidence": 0.84},
+        {"source": "Guardrails", "target": "Observability", "type": "uses", "evidence_doc_id": "agents/lesson1.md", "evidence_chunk_id": "agents/lesson1.md#c4", "confidence": 0.83}
+      ]
+    },
+    "agents/lesson2.md": {
+      "concepts": [
+        {"label": "Multi-Agent Coordination", "normalized_label": "Multi-Agent Coordination", "aliases": [], "description": "Cooperating agents", "source_doc_id": "agents/lesson2.md", "source_chunk_id": "agents/lesson2.md#c1"},
+        {"label": "Planning", "normalized_label": "Planning", "aliases": [], "description": "Task decomposition", "source_doc_id": "agents/lesson2.md", "source_chunk_id": "agents/lesson2.md#c2"},
+        {"label": "Retrieval Augmentation", "normalized_label": "Retrieval Augmentation", "aliases": ["RAG"], "description": "External knowledge", "source_doc_id": "agents/lesson2.md", "source_chunk_id": "agents/lesson2.md#c3"},
+        {"label": "Prompt Engineering", "normalized_label": "Prompt Engineering", "aliases": [], "description": "Instruction design", "source_doc_id": "agents/lesson2.md", "source_chunk_id": "agents/lesson2.md#c4"}
+      ],
+      "relations": [
+        {"source": "Agent Loop", "target": "Planning", "type": "prerequisite", "evidence_doc_id": "agents/lesson2.md", "evidence_chunk_id": "agents/lesson2.md#c2", "confidence": 0.92},
+        {"source": "Planning", "target": "Multi-Agent Coordination", "type": "prerequisite", "evidence_doc_id": "agents/lesson2.md", "evidence_chunk_id": "agents/lesson2.md#c1", "confidence": 0.9},
+        {"source": "Retrieval Augmentation", "target": "Tools", "type": "uses", "evidence_doc_id": "agents/lesson2.md", "evidence_chunk_id": "agents/lesson2.md#c3", "confidence": 0.87},
+        {"source": "Prompt Engineering", "target": "Agent Loop", "type": "extends", "evidence_doc_id": "agents/lesson2.md", "evidence_chunk_id": "agents/lesson2.md#c4", "confidence": 0.85},
+        {"source": "Retrieval Augmentation", "target": "Prompt Engineering", "type": "uses", "evidence_doc_id": "agents/lesson2.md", "evidence_chunk_id": "agents/lesson2.md#c3", "confidence": 0.86}
+      ]
+    },
+    "agents/lesson3.md": {
+      "concepts": [
+        {"label": "Evaluation", "normalized_label": "Evaluation", "aliases": [], "description": "Quality measurement", "source_doc_id": "agents/lesson3.md", "source_chunk_id": "agents/lesson3.md#c1"},
+        {"label": "Human Feedback", "normalized_label": "Human Feedback", "aliases": [], "description": "RLHF loop", "source_doc_id": "agents/lesson3.md", "source_chunk_id": "agents/lesson3.md#c2"},
+        {"label": "Deployment", "normalized_label": "Deployment", "aliases": [], "description": "Production rollout", "source_doc_id": "agents/lesson3.md", "source_chunk_id": "agents/lesson3.md#c3"}
+      ],
+      "relations": [
+        {"source": "Observability", "target": "Evaluation", "type": "prerequisite", "evidence_doc_id": "agents/lesson3.md", "evidence_chunk_id": "agents/lesson3.md#c1", "confidence": 0.91},
+        {"source": "Evaluation", "target": "Human Feedback", "type": "extends", "evidence_doc_id": "agents/lesson3.md", "evidence_chunk_id": "agents/lesson3.md#c2", "confidence": 0.89},
+        {"source": "Guardrails", "target": "Deployment", "type": "prerequisite", "evidence_doc_id": "agents/lesson3.md", "evidence_chunk_id": "agents/lesson3.md#c3", "confidence": 0.93},
+        {"source": "Multi-Agent Coordination", "target": "Deployment", "type": "uses", "evidence_doc_id": "agents/lesson3.md", "evidence_chunk_id": "agents/lesson3.md#c3", "confidence": 0.88},
+        {"source": "Human Feedback", "target": "Deployment", "type": "part_of", "evidence_doc_id": "agents/lesson3.md", "evidence_chunk_id": "agents/lesson3.md#c2", "confidence": 0.87},
+        {"source": "Evaluation", "target": "Deployment", "type": "prerequisite", "evidence_doc_id": "agents/lesson3.md", "evidence_chunk_id": "agents/lesson3.md#c1", "confidence": 0.9}
+      ]
+    }
+  }
+}

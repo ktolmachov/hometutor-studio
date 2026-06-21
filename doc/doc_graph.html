@@ -1,0 +1,6245 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>home-rag_v2 — Граф Документации</title>
+<style>
+  :root {
+    --bg-primary: #0a0a0f; --bg-glass: rgba(255,255,255,0.04);
+    --border-glass: rgba(255,255,255,0.08); --text-primary: #e8e8f0;
+    --text-secondary: #8888a0; --text-muted: #555570;
+    --accent-purple: #8b5cf6; --accent-blue: #4a9eff;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Inter',sans-serif; background:var(--bg-primary); color:var(--text-primary); overflow:hidden; height:100vh; }
+  .header { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; gap:16px; padding:12px 24px; background:rgba(10,10,15,0.92); backdrop-filter:blur(20px); border-bottom:1px solid var(--border-glass); }
+  .header h1 { font-size:18px; font-weight:700; background:linear-gradient(135deg,var(--accent-purple),var(--accent-blue)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; white-space:nowrap; }
+  .header .subtitle { font-size:12px; color:var(--text-muted); white-space:nowrap; }
+  .header .gen-badge { font-size:10px; color:var(--text-muted); background:var(--bg-glass); padding:2px 8px; border-radius:6px; border:1px solid var(--border-glass); white-space:nowrap; }
+  .search-wrap { position:relative; flex:1; max-width:360px; margin-left:auto; }
+  .search-wrap input { width:100%; padding:8px 12px 8px 36px; background:var(--bg-glass); border:1px solid var(--border-glass); border-radius:10px; color:var(--text-primary); font-family:inherit; font-size:13px; outline:none; transition:border-color 0.2s; }
+  .search-wrap input:focus { border-color:var(--accent-purple); }
+  .search-wrap::before { content:'🔍'; position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:14px; pointer-events:none; }
+  .stats { font-size:11px; color:var(--text-muted); white-space:nowrap; }
+  /* search dropdown */
+  .search-drop { position:fixed; top:56px; right:0; left:300px; z-index:160; background:rgba(8,8,14,0.98); backdrop-filter:blur(20px); border-bottom:1px solid var(--border-glass); max-height:220px; overflow-y:auto; display:none; }
+  .search-drop.visible { display:block; }
+  .sd-item { display:flex; align-items:center; gap:8px; padding:7px 20px; font-size:12px; cursor:pointer; color:var(--text-secondary); transition:background 0.1s; }
+  .sd-item:hover,.sd-item.active { background:rgba(139,92,246,0.14); color:var(--text-primary); }
+  .sd-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  /* sidebar */
+  .sidebar { position:fixed; top:56px; left:0; bottom:0; width:300px; z-index:90; background:rgba(10,10,15,0.95); backdrop-filter:blur(20px); border-right:1px solid var(--border-glass); overflow-y:auto; padding:16px; transition:transform 0.3s ease; }
+  .sidebar.collapsed { transform:translateX(-300px); }
+  .sidebar-toggle { position:fixed; top:68px; left:8px; z-index:91; width:32px; height:32px; border-radius:8px; background:var(--bg-glass); border:1px solid var(--border-glass); color:var(--text-secondary); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px; transition:all 0.2s; }
+  .sidebar-toggle:hover { background:rgba(255,255,255,0.08); color:var(--text-primary); }
+  .sidebar.collapsed ~ .sidebar-toggle { left:8px; }
+  .sidebar:not(.collapsed) ~ .sidebar-toggle { left:308px; }
+  .section-title { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-muted); margin:16px 0 8px; padding-bottom:4px; border-bottom:1px solid var(--border-glass); }
+  .section-title:first-child { margin-top:0; }
+  .role-btn { display:flex; align-items:center; gap:8px; width:100%; padding:8px 10px; margin:3px 0; background:var(--bg-glass); border:1px solid transparent; border-radius:8px; color:var(--text-secondary); font-family:inherit; font-size:12px; cursor:pointer; transition:all 0.2s; text-align:left; }
+  .role-btn:hover { background:rgba(255,255,255,0.06); color:var(--text-primary); }
+  .role-btn.active { border-color:var(--accent-purple); background:rgba(139,92,246,0.12); color:var(--text-primary); }
+  .role-btn .emoji { font-size:16px; width:24px; text-align:center; }
+  .cat-item { display:flex; align-items:center; gap:8px; padding:5px 8px; margin:2px 0; border-radius:6px; cursor:pointer; font-size:11px; color:var(--text-secondary); transition:all 0.15s; }
+  .cat-item:hover { background:rgba(255,255,255,0.04); color:var(--text-primary); }
+  .cat-item.dimmed { opacity:0.3; }
+  .cat-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+  .cat-count { margin-left:auto; font-size:10px; background:rgba(255,255,255,0.06); padding:1px 6px; border-radius:8px; }
+  .fresh-row { display:flex; align-items:center; gap:6px; font-size:10px; color:var(--text-muted); margin:2px 0; }
+  .fresh-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  /* graph */
+  #graph-container { position:fixed; top:56px; left:300px; right:0; bottom:0; transition:left 0.3s ease; }
+  .sidebar.collapsed ~ #graph-container { left:0; }
+  #graph-container svg { width:100%; height:100%; }
+  /* tooltip */
+  .tooltip { position:fixed; z-index:200; pointer-events:none; max-width:380px; padding:14px 18px; background:rgba(18,18,28,0.96); backdrop-filter:blur(24px); border:1px solid rgba(255,255,255,0.1); border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.5); opacity:0; transition:opacity 0.15s; font-size:12px; line-height:1.5; }
+  .tooltip.visible { opacity:1; }
+  .tooltip h3 { font-size:14px; font-weight:600; margin-bottom:4px; }
+  .tooltip .cat-label { display:inline-block; padding:2px 8px; border-radius:6px; font-size:10px; font-weight:600; margin-bottom:6px; }
+  .tooltip .desc { color:var(--text-secondary); margin-bottom:6px; }
+  .tooltip .links-label { color:var(--text-muted); font-size:10px; font-weight:600; letter-spacing:0.5px; text-transform:uppercase; }
+  .tooltip .link-list { color:var(--accent-blue); margin-top:2px; }
+  /* diff banner */
+  .diff-banner { position:fixed; top:56px; left:0; right:0; z-index:85; padding:5px 20px; background:rgba(16,185,129,0.1); border-bottom:1px solid rgba(16,185,129,0.2); font-size:11px; color:#6ee7b7; display:none; }
+  /* detail panel */
+  .detail-panel { position:fixed; top:56px; right:0; bottom:0; width:360px; z-index:95; background:rgba(10,10,15,0.97); backdrop-filter:blur(20px); border-left:1px solid var(--border-glass); overflow-y:auto; padding:20px; transform:translateX(360px); transition:transform 0.3s ease; }
+  .detail-panel.open { transform:translateX(0); }
+  .detail-close { position:absolute; top:12px; right:12px; width:28px; height:28px; border-radius:8px; background:var(--bg-glass); border:1px solid var(--border-glass); color:var(--text-secondary); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; transition:all 0.2s; }
+  .detail-close:hover { background:rgba(255,255,255,0.08); color:var(--text-primary); }
+  .detail-panel h2 { font-size:16px; font-weight:700; margin-bottom:4px; padding-right:36px; }
+  .detail-panel .meta { font-size:11px; color:var(--text-muted); margin-bottom:10px; }
+  .detail-panel .desc-full { font-size:13px; color:var(--text-secondary); line-height:1.6; margin-bottom:16px; }
+  .detail-panel .conn-title { font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px; }
+  .detail-panel .conn-item { display:flex; align-items:center; gap:8px; padding:6px 8px; margin:2px 0; background:var(--bg-glass); border-radius:6px; font-size:12px; cursor:pointer; transition:background 0.15s; }
+  .detail-panel .conn-item:hover { background:rgba(255,255,255,0.06); }
+  /* action buttons */
+  .detail-actions { display:flex; gap:5px; margin-bottom:14px; flex-wrap:wrap; }
+  .action-btn { flex:1; min-width:80px; display:flex; align-items:center; justify-content:center; gap:4px; padding:7px 6px; border-radius:8px; font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; transition:all 0.2s; text-decoration:none; border:1px solid; white-space:nowrap; }
+  .action-btn.obs { background:rgba(99,102,241,0.1); border-color:rgba(99,102,241,0.28); color:#a5b4fc; }
+  .action-btn.obs:hover { background:rgba(99,102,241,0.22); border-color:rgba(99,102,241,0.55); color:#c7d2fe; }
+  .action-btn.vsc { background:rgba(0,122,204,0.1); border-color:rgba(0,122,204,0.28); color:#60b0f4; }
+  .action-btn.vsc:hover { background:rgba(0,122,204,0.22); border-color:rgba(0,122,204,0.55); color:#93c5fd; }
+  .action-btn.cpy { background:rgba(16,185,129,0.1); border-color:rgba(16,185,129,0.28); color:#6ee7b7; }
+  .action-btn.cpy:hover { background:rgba(16,185,129,0.22); border-color:rgba(16,185,129,0.55); color:#a7f3d0; }
+  /* badges */
+  .node-badge { display:inline-flex; align-items:center; gap:3px; padding:1px 6px; border-radius:4px; font-size:10px; font-weight:600; margin-left:4px; }
+  .bdg-orphan { background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3); }
+  .bdg-broken { background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3); }
+  .bdg-new { background:rgba(16,185,129,0.15); color:#6ee7b7; border:1px solid rgba(16,185,129,0.3); }
+  .bdg-removed { background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3); opacity:0.7; }
+  /* onboarding bar */
+  .onboarding-bar { position:fixed; bottom:52px; left:50%; transform:translateX(-50%); z-index:120; display:flex; align-items:center; gap:12px; padding:10px 20px; background:rgba(18,18,28,0.95); backdrop-filter:blur(20px); border:1px solid var(--border-glass); border-radius:16px; box-shadow:0 8px 32px rgba(0,0,0,0.4); opacity:0; pointer-events:none; transition:opacity 0.3s; }
+  .onboarding-bar.visible { opacity:1; pointer-events:auto; }
+  .onboarding-bar .path-label { font-size:12px; font-weight:600; color:var(--accent-purple); white-space:nowrap; }
+  .onboarding-bar .path-steps { display:flex; align-items:center; gap:4px; font-size:12px; }
+  .path-step { padding:4px 10px; border-radius:6px; background:var(--bg-glass); border:1px solid var(--border-glass); color:var(--text-secondary); cursor:pointer; transition:all 0.2s; white-space:nowrap; }
+  .path-step.active { background:rgba(139,92,246,0.2); border-color:var(--accent-purple); color:var(--text-primary); }
+  .path-step:hover { background:rgba(255,255,255,0.06); }
+  .path-arrow { color:var(--text-muted); font-size:14px; }
+  .onboarding-dismiss { margin-left:8px; width:24px; height:24px; border-radius:6px; border:none; background:rgba(255,255,255,0.06); color:var(--text-muted); cursor:pointer; font-size:12px; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
+  .onboarding-dismiss:hover { background:rgba(255,255,255,0.1); color:var(--text-primary); }
+  /* keyboard hint bar */
+  .kbd-bar { position:fixed; bottom:16px; left:310px; z-index:70; display:flex; gap:10px; padding:5px 14px; background:rgba(18,18,28,0.82); backdrop-filter:blur(12px); border:1px solid var(--border-glass); border-radius:10px; font-size:10px; color:var(--text-muted); pointer-events:none; }
+  .kbd { display:inline-block; padding:1px 5px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.14); border-radius:4px; font-family:monospace; font-size:9px; color:var(--text-secondary); }
+  /* minimap */
+  .minimap { position:fixed; bottom:16px; right:16px; z-index:80; width:160px; height:120px; background:rgba(18,18,28,0.8); border:1px solid var(--border-glass); border-radius:10px; overflow:hidden; }
+  .minimap canvas { width:100%; height:100%; }
+  ::-webkit-scrollbar { width:5px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:3px; }
+</style>
+</head>
+<body>
+<header class="header">
+  <h1>🧭 Граф Документации</h1>
+  <span class="subtitle">home-rag_v2</span>
+  <span class="gen-badge">auto-generated</span>
+  <div class="search-wrap"><input type="text" id="search" placeholder="Поиск... (/ или ↑↓Enter)" autocomplete="off"></div>
+  <div class="stats" id="stats"></div>
+</header>
+<div class="search-drop" id="search-drop"></div>
+<div class="diff-banner" id="diff-banner"></div>
+<aside class="sidebar" id="sidebar">
+  <div class="section-title">🎯 Онбординг по роли</div>
+  <div id="role-buttons"></div>
+  <button class="role-btn" data-role="all"><span class="emoji">🌐</span> Показать всё</button>
+  <div class="section-title">📂 Категории</div>
+  <div id="category-legend"></div>
+  <div class="section-title">🕐 Свежесть (кольцо)</div>
+  <div id="freshness-legend"></div>
+  <div class="section-title">📊 Статистика</div>
+  <div id="sidebar-stats" style="font-size:11px;color:var(--text-secondary);line-height:1.9;"></div>
+</aside>
+<button class="sidebar-toggle" id="sidebar-toggle" title="Свернуть/развернуть">☰</button>
+<div id="graph-container"></div>
+<div class="tooltip" id="tooltip"></div>
+<div class="detail-panel" id="detail-panel">
+  <button class="detail-close" id="detail-close">✕</button>
+  <div id="detail-content"></div>
+</div>
+<div class="onboarding-bar" id="onboarding-bar">
+  <span class="path-label" id="path-label"></span>
+  <div class="path-steps" id="path-steps"></div>
+  <button class="onboarding-dismiss" id="onboarding-dismiss">✕</button>
+</div>
+<div class="minimap" id="minimap"><canvas id="minimap-canvas"></canvas></div>
+<div class="kbd-bar">
+  <span><span class="kbd">/</span> поиск</span>
+  <span><span class="kbd">↑↓</span> выбор</span>
+  <span><span class="kbd">Enter</span> фокус</span>
+  <span><span class="kbd">O</span> Obsidian</span>
+  <span><span class="kbd">2×клик</span> Obsidian</span>
+  <span><span class="kbd">Esc</span> сброс</span>
+</div>
+
+<script src="assets/d3.v7.min.js"></script>
+<script>
+const CATEGORIES = {
+  "entry": {
+    "label": "📍 Точки входа",
+    "color": "#fbbf24"
+  },
+  "vision": {
+    "label": "🌟 Продуктовое видение",
+    "color": "#8b5cf6"
+  },
+  "ux": {
+    "label": "📚 Пользовательский опыт",
+    "color": "#ec4899"
+  },
+  "arch": {
+    "label": "🏛️ Архитектура и спеки",
+    "color": "#4a9eff"
+  },
+  "conventions": {
+    "label": "🛠️ Конвенции",
+    "color": "#06b6d4"
+  },
+  "backlog": {
+    "label": "📋 Бэклог и планирование",
+    "color": "#f59e0b"
+  },
+  "workflow": {
+    "label": "🤖 Workflow и агенты",
+    "color": "#10b981"
+  },
+  "token": {
+    "label": "🛡️ Token Safety",
+    "color": "#ef4444"
+  },
+  "history": {
+    "label": "📜 История и эволюция",
+    "color": "#6366f1"
+  },
+  "prompts": {
+    "label": "📚 Промпты",
+    "color": "#f97316"
+  },
+  "next": {
+    "label": "🚀 Следующий прорыв",
+    "color": "#a855f7"
+  },
+  "scenarios": {
+    "label": "🎬 Сценарии",
+    "color": "#14b8a6"
+  },
+  "presentations": {
+    "label": "🎤 Презентации",
+    "color": "#fb7185"
+  },
+  "user-stories": {
+    "label": "📖 User Stories",
+    "color": "#c084fc"
+  },
+  "archive": {
+    "label": "🗄️ Архив",
+    "color": "#555570"
+  },
+  "other": {
+    "label": "📄 Прочее",
+    "color": "#888"
+  }
+};
+const NODES = [
+  {
+    "id": "AGENTS.md",
+    "label": "AGENTS.md",
+    "cat": "other",
+    "desc": "home-rag_v2 — Agent Instructions",
+    "broken_refs": 0,
+    "mtime_days": 23,
+    "centrality": 0.0005,
+    "cluster": 0
+  },
+  {
+    "id": "CLAUDE.md",
+    "label": "CLAUDE.md",
+    "cat": "other",
+    "desc": "CLAUDE.md",
+    "broken_refs": 0,
+    "mtime_days": 17,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "adr.md",
+    "label": "adr.md",
+    "cat": "arch",
+    "desc": "Журнал Архитектурных Решений",
+    "broken_refs": 0,
+    "mtime_days": 3,
+    "centrality": 0.0931,
+    "cluster": 0
+  },
+  {
+    "id": "adr_021_smart_router_rag_modes.md",
+    "label": "adr_021_smart_router_rag_modes.md",
+    "cat": "arch",
+    "desc": "ADR-021: Smart Router RAG modes and bounded GraphRAG analytics",
+    "broken_refs": 0,
+    "mtime_days": 19,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "adr_021a_global_analytics_design.md",
+    "label": "adr_021a_global_analytics_design.md",
+    "cat": "arch",
+    "desc": "ADR-021 Appendix A: Global Analytics Design",
+    "broken_refs": 0,
+    "mtime_days": 17,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "adr_021a_smart_router_architecture_lifts.md",
+    "label": "…/adr_021a_smart_router_architecture_lifts.md",
+    "cat": "arch",
+    "desc": "ADR-021a: Audit architecture lifts — amendment to ADR-021",
+    "broken_refs": 0,
+    "mtime_days": 17,
+    "centrality": 0.0004,
+    "cluster": 0
+  },
+  {
+    "id": "adr_022_ssr_ai_eval_harness.md",
+    "label": "adr_022_ssr_ai_eval_harness.md",
+    "cat": "arch",
+    "desc": "ADR-022: SSR-AI eval harness and local artifact contract",
+    "broken_refs": 0,
+    "mtime_days": 16,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "adr_023_ssr_graph_routing.md",
+    "label": "adr_023_ssr_graph_routing.md",
+    "cat": "arch",
+    "desc": "ADR-023: SSR Graph Routing — Prerequisite-Aware Weak-Concept Ordering",
+    "broken_refs": 0,
+    "mtime_days": 5,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "agent_workflow.md",
+    "label": "agent_workflow.md",
+    "cat": "workflow",
+    "desc": "Workflow Для Агентов",
+    "broken_refs": 0,
+    "mtime_days": 31,
+    "centrality": 0.0134,
+    "cluster": 0
+  },
+  {
+    "id": "agent_workflow_arch_review.md",
+    "label": "agent_workflow_arch_review.md",
+    "cat": "workflow",
+    "desc": "Workflow Для Агентов — Architecture Review",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0035,
+    "cluster": 0
+  },
+  {
+    "id": "agent_workflow_cycle.md",
+    "label": "agent_workflow_cycle.md",
+    "cat": "workflow",
+    "desc": "Workflow Для Агентов — Work Cycle",
+    "broken_refs": 0,
+    "mtime_days": 43,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "agent_workflow_rules.md",
+    "label": "agent_workflow_rules.md",
+    "cat": "workflow",
+    "desc": "Workflow Для Агентов — Rules (Token Budget & Retry Safety)",
+    "broken_refs": 0,
+    "mtime_days": 43,
+    "centrality": 0.0001,
+    "cluster": 0
+  },
+  {
+    "id": "agent_workflow_templates.md",
+    "label": "agent_workflow_templates.md",
+    "cat": "workflow",
+    "desc": "Workflow Для Агентов — Prompt Templates",
+    "broken_refs": 0,
+    "mtime_days": 32,
+    "centrality": 0.0083,
+    "cluster": 0
+  },
+  {
+    "id": "agent_workflow_test_bundles.md",
+    "label": "agent_workflow_test_bundles.md",
+    "cat": "workflow",
+    "desc": "Workflow Для Агентов — Test Bundles + Low-Budget Templates",
+    "broken_refs": 0,
+    "mtime_days": 32,
+    "centrality": 0.0041,
+    "cluster": 0
+  },
+  {
+    "id": "api_reference.md",
+    "label": "api_reference.md",
+    "cat": "arch",
+    "desc": "HTTP API",
+    "broken_refs": 0,
+    "mtime_days": 14,
+    "centrality": 0.0255,
+    "cluster": 0
+  },
+  {
+    "id": "architecture.md",
+    "label": "architecture.md",
+    "cat": "arch",
+    "desc": "Архитектура `home-rag_v2`",
+    "broken_refs": 0,
+    "mtime_days": 2,
+    "centrality": 0.0047,
+    "cluster": 0
+  },
+  {
+    "id": "archive/adr_rag_architecture.md",
+    "label": "archive/adr_rag_architecture.md",
+    "cat": "arch",
+    "desc": "ADR По RAG-Архитектуре",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "archive/arch_review_baseline.yaml",
+    "label": "archive/arch_review_baseline.yaml",
+    "cat": "archive",
+    "desc": "archive/arch_review_baseline.yaml",
+    "broken_refs": 0,
+    "mtime_days": 2,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "archive/arch_review_incremental_2026-05-31.md",
+    "label": "…/arch_review_incremental_2026-05-31.md",
+    "cat": "archive",
+    "desc": "Incremental Architecture Review — 2026-05-31",
+    "broken_refs": 0,
+    "mtime_days": 2,
+    "centrality": 0.0,
+    "cluster": 1
+  },
+  {
+    "id": "archive/arch_review_phase1_2026-04-29.md",
+    "label": "…/arch_review_phase1_2026-04-29.md",
+    "cat": "archive",
+    "desc": "Architecture Review — Phase 1 (Conventions)",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 2
+  },
+  {
+    "id": "archive/architectural_refactoring.md",
+    "label": "…/architectural_refactoring.md",
+    "cat": "archive",
+    "desc": "Архитектурный рефакторинг home-rag_v2: от Q&A RAG к модульной системе с графом знаний и диалогами",
+    "broken_refs": 14,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "archive/architecture_review_2026-04-24.md",
+    "label": "…/architecture_review_2026-04-24.md",
+    "cat": "archive",
+    "desc": "Architecture Review — 2026-04-24 (Incremental)",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "archive/blue_green_reindex_design.md",
+    "label": "…/blue_green_reindex_design.md",
+    "cat": "archive",
+    "desc": "Дизайн Blue-Green Reindex",
+    "broken_refs": 7,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "archive/blue_green_reindex_implementation_plan.md",
+    "label": "…/blue_green_reindex_implementation_plan.md",
+    "cat": "archive",
+    "desc": "План Внедрения Blue-Green Reindex",
+    "broken_refs": 1,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "archive/handoff_next_level.md",
+    "label": "archive/handoff_next_level.md",
+    "cat": "archive",
+    "desc": "Hand-off: следующий уровень demo-пакета для конкурса",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "archive/IMPLEMENTATION_COMPLETE.md",
+    "label": "archive/IMPLEMENTATION_COMPLETE.md",
+    "cat": "archive",
+    "desc": "Implementation Complete: Token Optimization v1.0 (2026-04-19)",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "archive/IMPLEMENTATION_P0_P1.md",
+    "label": "archive/IMPLEMENTATION_P0_P1.md",
+    "cat": "archive",
+    "desc": "Implementation: P0 Guards + P1 Cost Logging",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "archive/kilo_budget_remediation_plan.md",
+    "label": "…/kilo_budget_remediation_plan.md",
+    "cat": "token",
+    "desc": "Kilo Budget Stack — Remediation Plan (Wave 4)",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "archive/README.md",
+    "label": "archive/README.md",
+    "cat": "entry",
+    "desc": "📦 Архив Документации",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 3
+  },
+  {
+    "id": "archive/tasklist_historical.md",
+    "label": "archive/tasklist_historical.md",
+    "cat": "backlog",
+    "desc": "Tasklist: исторические exit criteria и журнал This Week",
+    "broken_refs": 7,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "archive/token_optimization_checklist.md",
+    "label": "…/token_optimization_checklist.md",
+    "cat": "token",
+    "desc": "Token Optimization Checklist (2026-04-20)",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "archive/token_optimization_plan.md",
+    "label": "archive/token_optimization_plan.md",
+    "cat": "token",
+    "desc": "План оптимизации входных токенов LLM",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "archive/workflow_hardening_plan_2026-04-24.md",
+    "label": "…/workflow_hardening_plan_2026-04-24.md",
+    "cat": "archive",
+    "desc": "Workflow Hardening Plan — 2026-04-24",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "backlog_registry.yaml",
+    "label": "backlog_registry.yaml",
+    "cat": "backlog",
+    "desc": "Backlog Registry (PoC)",
+    "broken_refs": 0,
+    "mtime_days": 2,
+    "centrality": 0.0744,
+    "cluster": 0
+  },
+  {
+    "id": "changelog.md",
+    "label": "changelog.md",
+    "cat": "history",
+    "desc": "Журнал Изменений",
+    "broken_refs": 0,
+    "mtime_days": 0,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "cjm.md",
+    "label": "cjm.md",
+    "cat": "vision",
+    "desc": "Customer Journey Map — Карта пути ученика",
+    "broken_refs": 0,
+    "mtime_days": 11,
+    "centrality": 0.0218,
+    "cluster": 0
+  },
+  {
+    "id": "closed_iterations.md",
+    "label": "closed_iterations.md",
+    "cat": "history",
+    "desc": "Закрытые Итерации",
+    "broken_refs": 0,
+    "mtime_days": 3,
+    "centrality": 0.2511,
+    "cluster": 0
+  },
+  {
+    "id": "conventions.md",
+    "label": "conventions.md",
+    "cat": "entry",
+    "desc": "Правила и соглашения по разработке",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0089,
+    "cluster": 0
+  },
+  {
+    "id": "conventions_architecture.md",
+    "label": "conventions_architecture.md",
+    "cat": "arch",
+    "desc": "Соглашения: архитектура и дерево проекта",
+    "broken_refs": 0,
+    "mtime_days": 17,
+    "centrality": 0.0099,
+    "cluster": 0
+  },
+  {
+    "id": "conventions_reference.md",
+    "label": "conventions_reference.md",
+    "cat": "conventions",
+    "desc": "Соглашения: промпты, API, ошибки, тесты, документация",
+    "broken_refs": 0,
+    "mtime_days": 22,
+    "centrality": 0.0004,
+    "cluster": 0
+  },
+  {
+    "id": "current_task.md",
+    "label": "current_task.md",
+    "cat": "backlog",
+    "desc": "TASK: Post-Closure SSoT Audit for epoch-micro-quiz-progress-bridge-v1",
+    "broken_refs": 0,
+    "mtime_days": 3,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "data_governance.md",
+    "label": "data_governance.md",
+    "cat": "arch",
+    "desc": "Управление локальными данными (data governance)",
+    "broken_refs": 0,
+    "mtime_days": 28,
+    "centrality": 0.0,
+    "cluster": 4
+  },
+  {
+    "id": "documentation_onboarding_guide.md",
+    "label": "documentation_onboarding_guide.md",
+    "cat": "other",
+    "desc": "Онбординг в документацию home-rag_v2",
+    "broken_refs": 0,
+    "mtime_days": 0,
+    "centrality": 0.0963,
+    "cluster": 0
+  },
+  {
+    "id": "epochs/epoch_adr_.md",
+    "label": "epochs/epoch_adr_.md",
+    "cat": "arch",
+    "desc": "Закрытые Итерации",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "epochs/epoch_exception_hygiene.md",
+    "label": "epochs/epoch_exception_hygiene.md",
+    "cat": "history",
+    "desc": "Закрытые Итерации",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "epochs/epoch_learning_route_continuity.md",
+    "label": "…/epoch_learning_route_continuity.md",
+    "cat": "history",
+    "desc": "Закрытые Итерации",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "epochs/epoch_local_cors_defaults.md",
+    "label": "epochs/epoch_local_cors_defaults.md",
+    "cat": "history",
+    "desc": "Закрытые Итерации",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "epochs/epoch_local_store_contracts.md",
+    "label": "…/epoch_local_store_contracts.md",
+    "cat": "history",
+    "desc": "Закрытые Итерации",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "epochs/epoch_metrics_decomposition.md",
+    "label": "…/epoch_metrics_decomposition.md",
+    "cat": "history",
+    "desc": "Закрытые Итерации",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "epochs/epoch_query_service_decomposition.md",
+    "label": "…/epoch_query_service_decomposition.md",
+    "cat": "history",
+    "desc": "Закрытые Итерации",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "epochs/epoch_ui_refactoring.md",
+    "label": "epochs/epoch_ui_refactoring.md",
+    "cat": "history",
+    "desc": "Закрытые Итерации",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "epochs/ingest_acceleration.md",
+    "label": "epochs/ingest_acceleration.md",
+    "cat": "history",
+    "desc": "Epoch: Ingest Acceleration",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "epochs/ops_stability_hybrid_embeddings.md",
+    "label": "…/ops_stability_hybrid_embeddings.md",
+    "cat": "history",
+    "desc": "Закрытые Итерации",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "eval_experimenter_runbook.md",
+    "label": "eval_experimenter_runbook.md",
+    "cat": "arch",
+    "desc": "Runbook: Eval Experimenter",
+    "broken_refs": 0,
+    "mtime_days": 14,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "expert_controls_recommendations.md",
+    "label": "expert_controls_recommendations.md",
+    "cat": "ux",
+    "desc": "Expert Controls Recommendations",
+    "broken_refs": 0,
+    "mtime_days": 20,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "future_roadmap.md",
+    "label": "future_roadmap.md",
+    "cat": "vision",
+    "desc": "Future Roadmap",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0105,
+    "cluster": 0
+  },
+  {
+    "id": "gemma4b_quality_assessment.md",
+    "label": "gemma4b_quality_assessment.md",
+    "cat": "other",
+    "desc": "Gemma 4B Quality Assessment Plan",
+    "broken_refs": 0,
+    "mtime_days": 21,
+    "centrality": 0.0,
+    "cluster": 5
+  },
+  {
+    "id": "gemma4b_test_checklist.md",
+    "label": "gemma4b_test_checklist.md",
+    "cat": "other",
+    "desc": "Gemma 4B Quick Quality Checklist",
+    "broken_refs": 0,
+    "mtime_days": 21,
+    "centrality": 0.0,
+    "cluster": 6
+  },
+  {
+    "id": "glossary.md",
+    "label": "glossary.md",
+    "cat": "vision",
+    "desc": "Глоссарий home-rag",
+    "broken_refs": 0,
+    "mtime_days": 21,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "index.md",
+    "label": "index.md",
+    "cat": "entry",
+    "desc": "🧭 Навигатор Документации home-rag_v2",
+    "broken_refs": 2,
+    "mtime_days": 0,
+    "centrality": 1.0,
+    "cluster": 0
+  },
+  {
+    "id": "index_lifecycle.md",
+    "label": "index_lifecycle.md",
+    "cat": "arch",
+    "desc": "Индекс: резервное копирование и жизненный цикл артефактов",
+    "broken_refs": 0,
+    "mtime_days": 56,
+    "centrality": 0.0001,
+    "cluster": 0
+  },
+  {
+    "id": "kg_completeness_report.md",
+    "label": "kg_completeness_report.md",
+    "cat": "other",
+    "desc": "KG completeness audit (SSR L4 gate)",
+    "broken_refs": 0,
+    "mtime_days": 17,
+    "centrality": 0.0,
+    "cluster": 7
+  },
+  {
+    "id": "kilo_budget_capture_runbook.md",
+    "label": "kilo_budget_capture_runbook.md",
+    "cat": "token",
+    "desc": "Capturing a real Kilo injection fixture",
+    "broken_refs": 0,
+    "mtime_days": 23,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "kilo_budget_gate.md",
+    "label": "kilo_budget_gate.md",
+    "cat": "token",
+    "desc": "Kilo Budget Gate — predict-and-prevent regression guard",
+    "broken_refs": 0,
+    "mtime_days": 40,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "kilo_budget_system.md",
+    "label": "kilo_budget_system.md",
+    "cat": "token",
+    "desc": "Kilo Budget System — Master Reference",
+    "broken_refs": 0,
+    "mtime_days": 23,
+    "centrality": 0.0029,
+    "cluster": 0
+  },
+  {
+    "id": "kilo_proxy_relay.md",
+    "label": "kilo_proxy_relay.md",
+    "cat": "token",
+    "desc": "Локальный релей `kilo_proxy_relay.py`",
+    "broken_refs": 0,
+    "mtime_days": 23,
+    "centrality": 0.0065,
+    "cluster": 0
+  },
+  {
+    "id": "local_llm_quickstart.md",
+    "label": "local_llm_quickstart.md",
+    "cat": "ux",
+    "desc": "Local LLM Quick Start — Get Profit from Home-RAG v2",
+    "broken_refs": 0,
+    "mtime_days": 21,
+    "centrality": 0.0,
+    "cluster": 8
+  },
+  {
+    "id": "local_llm_runbook.md",
+    "label": "local_llm_runbook.md",
+    "cat": "ux",
+    "desc": "Local LLM Runbook — Smart Study Router («Почему сейчас»)",
+    "broken_refs": 0,
+    "mtime_days": 21,
+    "centrality": 0.0,
+    "cluster": 9
+  },
+  {
+    "id": "loop_metrics_gate_runbook.md",
+    "label": "loop_metrics_gate_runbook.md",
+    "cat": "token",
+    "desc": "Loop Metrics Gate Runbook (US-14.4)",
+    "broken_refs": 0,
+    "mtime_days": 43,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "MICROPLAN_USAGE.md",
+    "label": "MICROPLAN_USAGE.md",
+    "cat": "token",
+    "desc": "Micro-Plan: Как использовать (Real Usage)",
+    "broken_refs": 0,
+    "mtime_days": 44,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "next/Autonomous Delivery Control Plane v3.md",
+    "label": "…/Autonomous Delivery Control Plane v3.md",
+    "cat": "next",
+    "desc": "next/Autonomous Delivery Control Plane v3.md",
+    "broken_refs": 0,
+    "mtime_days": 37,
+    "centrality": 0.0,
+    "cluster": 10
+  },
+  {
+    "id": "next/autonomous_delivery_control_plane_final.md",
+    "label": "…/autonomous_delivery_control_plane_final.md",
+    "cat": "next",
+    "desc": "Autonomous Delivery Control Plane v3 — Final Master Plan",
+    "broken_refs": 0,
+    "mtime_days": 31,
+    "centrality": 0.0,
+    "cluster": 11
+  },
+  {
+    "id": "next/BREAKTHROUGH_SUMMARY.md",
+    "label": "next/BREAKTHROUGH_SUMMARY.md",
+    "cat": "next",
+    "desc": "🚀 Localhost Balance + Course Delight Loop — Executive Summary",
+    "broken_refs": 0,
+    "mtime_days": 3,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "next/BREAKTHROUGH_VISUAL.md",
+    "label": "next/BREAKTHROUGH_VISUAL.md",
+    "cat": "next",
+    "desc": "🎨 Localhost Balance + Course Delight Loop — Visual Guide",
+    "broken_refs": 0,
+    "mtime_days": 3,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "next/DEFENSE_TALKING_POINTS.md",
+    "label": "next/DEFENSE_TALKING_POINTS.md",
+    "cat": "next",
+    "desc": "🎤 Defense Talking Points: Localhost Balance + Course Delight Loop",
+    "broken_refs": 0,
+    "mtime_days": 3,
+    "centrality": 0.0001,
+    "cluster": 0
+  },
+  {
+    "id": "next/dreamy-churning-thompson.md",
+    "label": "next/dreamy-churning-thompson.md",
+    "cat": "next",
+    "desc": "Autonomous Delivery Control Plane v2 — Implementation Plan",
+    "broken_refs": 0,
+    "mtime_days": 37,
+    "centrality": 0.0,
+    "cluster": 12
+  },
+  {
+    "id": "next/LLM_Provider_Router_home_rag_v2.md",
+    "label": "…/LLM_Provider_Router_home_rag_v2.md",
+    "cat": "next",
+    "desc": "next/LLM_Provider_Router_home_rag_v2.md",
+    "broken_refs": 0,
+    "mtime_days": 10,
+    "centrality": 0.0,
+    "cluster": 13
+  },
+  {
+    "id": "next/localhost_balance_course_delight_breakthrough.md",
+    "label": "…/localhost_balance_course_delight_breakthrough.md",
+    "cat": "next",
+    "desc": "Localhost Balance + Course Delight Loop: Breakthrough Analysis",
+    "broken_refs": 0,
+    "mtime_days": 0,
+    "centrality": 0.0004,
+    "cluster": 0
+  },
+  {
+    "id": "next/localhost_balance_course_delight_plan.md",
+    "label": "…/localhost_balance_course_delight_plan.md",
+    "cat": "next",
+    "desc": "Localhost Balance + Course Delight Loop",
+    "broken_refs": 4,
+    "mtime_days": 10,
+    "centrality": 0.0032,
+    "cluster": 0
+  },
+  {
+    "id": "next/model_role_contract_audit.md",
+    "label": "next/model_role_contract_audit.md",
+    "cat": "next",
+    "desc": "Model-Role Contract Audit",
+    "broken_refs": 0,
+    "mtime_days": 0,
+    "centrality": 0.0,
+    "cluster": 14
+  },
+  {
+    "id": "next/model_role_registry.md",
+    "label": "next/model_role_registry.md",
+    "cat": "next",
+    "desc": "Model Role Registry",
+    "broken_refs": 0,
+    "mtime_days": 0,
+    "centrality": 0.0,
+    "cluster": 15
+  },
+  {
+    "id": "observability_slo.md",
+    "label": "observability_slo.md",
+    "cat": "arch",
+    "desc": "SLO И Наблюдаемость",
+    "broken_refs": 0,
+    "mtime_days": 52,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "performance_optimization_2026_05_14_report.md",
+    "label": "…/performance_optimization_2026_05_14_report.md",
+    "cat": "other",
+    "desc": "Performance Optimization Report",
+    "broken_refs": 0,
+    "mtime_days": 20,
+    "centrality": 0.0,
+    "cluster": 16
+  },
+  {
+    "id": "personalized_learner_model.md",
+    "label": "personalized_learner_model.md",
+    "cat": "arch",
+    "desc": "Персонализированная модель ученика — твой учебный автопилот",
+    "broken_refs": 0,
+    "mtime_days": 32,
+    "centrality": 0.0002,
+    "cluster": 0
+  },
+  {
+    "id": "pitch.md",
+    "label": "pitch.md",
+    "cat": "vision",
+    "desc": "home-rag — personal tutor from your own notes",
+    "broken_refs": 2,
+    "mtime_days": 42,
+    "centrality": 0.0008,
+    "cluster": 0
+  },
+  {
+    "id": "presentations/defense_deploy_plan.md",
+    "label": "…/defense_deploy_plan.md",
+    "cat": "presentations",
+    "desc": "План доработок к защите — 6 задач",
+    "broken_refs": 0,
+    "mtime_days": 14,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "presentations/defense_expert_panel.md",
+    "label": "…/defense_expert_panel.md",
+    "cat": "presentations",
+    "desc": "home-rag_v2 — Экспертная RAG/AI-защита",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "presentations/defense_expert_panel_v3.md",
+    "label": "…/defense_expert_panel_v3.md",
+    "cat": "presentations",
+    "desc": "ИИ-тьютор с RAG — Экспертная техническая защита",
+    "broken_refs": 0,
+    "mtime_days": 12,
+    "centrality": 0.0,
+    "cluster": 17
+  },
+  {
+    "id": "presentations/defense_glossary.md",
+    "label": "presentations/defense_glossary.md",
+    "cat": "vision",
+    "desc": "📖 Словарь терминов для презентации защиты",
+    "broken_refs": 0,
+    "mtime_days": 25,
+    "centrality": 0.0,
+    "cluster": 18
+  },
+  {
+    "id": "presentations/defense_improvements_log.md",
+    "label": "…/defense_improvements_log.md",
+    "cat": "presentations",
+    "desc": "Лог улучшений презентации после виртуальных защит",
+    "broken_refs": 1,
+    "mtime_days": 26,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "presentations/defense_killer_demo.md",
+    "label": "…/defense_killer_demo.md",
+    "cat": "presentations",
+    "desc": "🎬 Killer Demo: \"От вопроса до mastery за 3 минуты\"",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0306,
+    "cluster": 0
+  },
+  {
+    "id": "presentations/defense_killer_demo_cheatsheet.md",
+    "label": "…/defense_killer_demo_cheatsheet.md",
+    "cat": "presentations",
+    "desc": "🎯 Killer Demo Cheatsheet — Шпаргалка на один лист",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0004,
+    "cluster": 0
+  },
+  {
+    "id": "presentations/defense_killer_demo_storyboard.md",
+    "label": "…/defense_killer_demo_storyboard.md",
+    "cat": "presentations",
+    "desc": "🎨 Killer Demo Storyboard: Визуальная раскадровка",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0004,
+    "cluster": 0
+  },
+  {
+    "id": "presentations/defense_killer_demo_v2_with_smart_assistant.md",
+    "label": "…/defense_killer_demo_v2_with_smart_assistant.md",
+    "cat": "presentations",
+    "desc": "🎬 Killer Demo v2: \"От вопроса до mastery за 3 минуты\" + 🧭 Умный помощник",
+    "broken_refs": 13,
+    "mtime_days": 26,
+    "centrality": 0.0508,
+    "cluster": 0
+  },
+  {
+    "id": "presentations/defense_killer_feature_smart_assistant.md",
+    "label": "…/defense_killer_feature_smart_assistant.md",
+    "cat": "presentations",
+    "desc": "🧭 Killer Feature: Умный помощник (Smart Study Router)",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0724,
+    "cluster": 0
+  },
+  {
+    "id": "presentations/defense_presentation.md",
+    "label": "…/defense_presentation.md",
+    "cat": "presentations",
+    "desc": "🎓 home-rag_v2 — Академическая защита проектной работы",
+    "broken_refs": 28,
+    "mtime_days": 25,
+    "centrality": 0.0297,
+    "cluster": 0
+  },
+  {
+    "id": "presentations/defense_presentation_CHANGELOG.md",
+    "label": "…/defense_presentation_CHANGELOG.md",
+    "cat": "history",
+    "desc": "Defense Presentation Changelog",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "presentations/defense_presentation_code_alignment.md",
+    "label": "…/defense_presentation_code_alignment.md",
+    "cat": "presentations",
+    "desc": "✅ Выравнивание презентации с реальным кодом",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0,
+    "cluster": 19
+  },
+  {
+    "id": "presentations/defense_presentation_compact.md",
+    "label": "…/defense_presentation_compact.md",
+    "cat": "presentations",
+    "desc": "home-rag_v2 — Академическая защита",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0,
+    "cluster": 20
+  },
+  {
+    "id": "presentations/defense_presentation_fixes_summary.md",
+    "label": "…/defense_presentation_fixes_summary.md",
+    "cat": "presentations",
+    "desc": "✅ Исправления презентации — Summary",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0,
+    "cluster": 21
+  },
+  {
+    "id": "presentations/defense_presentation_images_fix.md",
+    "label": "…/defense_presentation_images_fix.md",
+    "cat": "presentations",
+    "desc": "✅ Исправление ссылок на изображения",
+    "broken_refs": 10,
+    "mtime_days": 26,
+    "centrality": 0.0,
+    "cluster": 22
+  },
+  {
+    "id": "presentations/defense_presentation_improvements.md",
+    "label": "…/defense_presentation_improvements.md",
+    "cat": "presentations",
+    "desc": "Улучшения презентации defense_presentation.pdf",
+    "broken_refs": 1,
+    "mtime_days": 26,
+    "centrality": 0.0001,
+    "cluster": 0
+  },
+  {
+    "id": "presentations/defense_presentation_README.md",
+    "label": "…/defense_presentation_README.md",
+    "cat": "entry",
+    "desc": "Defense Presentation - README",
+    "broken_refs": 1,
+    "mtime_days": 26,
+    "centrality": 0.0253,
+    "cluster": 0
+  },
+  {
+    "id": "presentations/defense_presentation_slides.md",
+    "label": "…/defense_presentation_slides.md",
+    "cat": "presentations",
+    "desc": "home-rag_v2 — Академическая защита",
+    "broken_refs": 10,
+    "mtime_days": 26,
+    "centrality": 0.0,
+    "cluster": 23
+  },
+  {
+    "id": "presentations/defense_presentation_speech_script.md",
+    "label": "…/defense_presentation_speech_script.md",
+    "cat": "presentations",
+    "desc": "🎤 Скрипт выступления для защиты курсовой работы",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0,
+    "cluster": 24
+  },
+  {
+    "id": "presentations/defense_presentation_v2.md",
+    "label": "…/defense_presentation_v2.md",
+    "cat": "presentations",
+    "desc": "🎓 home-rag_v2 — Академическая защита проектной работы",
+    "broken_refs": 22,
+    "mtime_days": 22,
+    "centrality": 0.0001,
+    "cluster": 0
+  },
+  {
+    "id": "presentations/defense_presentation_v3.md",
+    "label": "…/defense_presentation_v3.md",
+    "cat": "presentations",
+    "desc": "ИИ-тьютор с RAG: персонализированное обучение на собственных документах",
+    "broken_refs": 1,
+    "mtime_days": 3,
+    "centrality": 0.0,
+    "cluster": 25
+  },
+  {
+    "id": "presentations/defense_presenter_script.md",
+    "label": "…/defense_presenter_script.md",
+    "cat": "presentations",
+    "desc": "Скрипт выступления на академической защите — home-rag_v2",
+    "broken_refs": 15,
+    "mtime_days": 26,
+    "centrality": 0.0,
+    "cluster": 26
+  },
+  {
+    "id": "presentations/defense_README.md",
+    "label": "presentations/defense_README.md",
+    "cat": "entry",
+    "desc": "🎓 Материалы для академической защиты проекта home-rag_v2",
+    "broken_refs": 9,
+    "mtime_days": 26,
+    "centrality": 0.1763,
+    "cluster": 0
+  },
+  {
+    "id": "presentations/defense_speech.md",
+    "label": "presentations/defense_speech.md",
+    "cat": "presentations",
+    "desc": "Текст выступления для защиты",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0,
+    "cluster": 27
+  },
+  {
+    "id": "presentations/defense_summary.md",
+    "label": "presentations/defense_summary.md",
+    "cat": "presentations",
+    "desc": "home-rag_v2 — Итоговое резюме трёх виртуальных защит",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0005,
+    "cluster": 0
+  },
+  {
+    "id": "presentations/defense_user_panel.md",
+    "label": "presentations/defense_user_panel.md",
+    "cat": "presentations",
+    "desc": "home-rag_v2 — Защита перед пользователями продукта",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0376,
+    "cluster": 0
+  },
+  {
+    "id": "presentations/defense_user_panel_v3.md",
+    "label": "…/defense_user_panel_v3.md",
+    "cat": "presentations",
+    "desc": "ИИ-тьютор с RAG — Защита перед пользователями продукта",
+    "broken_refs": 0,
+    "mtime_days": 12,
+    "centrality": 0.0,
+    "cluster": 28
+  },
+  {
+    "id": "presentations/defense_user_router_breakthrough.md",
+    "label": "…/defense_user_router_breakthrough.md",
+    "cat": "presentations",
+    "desc": "Прорыв после пользовательской панели: Smart Study Router",
+    "broken_refs": 1,
+    "mtime_days": 26,
+    "centrality": 0.2546,
+    "cluster": 0
+  },
+  {
+    "id": "presentations/defense_virtual_defense.md",
+    "label": "…/defense_virtual_defense.md",
+    "cat": "presentations",
+    "desc": "home-rag_v2 — Виртуальная защита проектной работы",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0147,
+    "cluster": 0
+  },
+  {
+    "id": "presentations/defense_virtual_defense_v3.md",
+    "label": "…/defense_virtual_defense_v3.md",
+    "cat": "presentations",
+    "desc": "ИИ-тьютор с RAG — Виртуальная защита перед комиссией",
+    "broken_refs": 0,
+    "mtime_days": 12,
+    "centrality": 0.0,
+    "cluster": 29
+  },
+  {
+    "id": "presentations/README_glossary.md",
+    "label": "presentations/README_glossary.md",
+    "cat": "vision",
+    "desc": "📖 Как использовать словарь терминов",
+    "broken_refs": 0,
+    "mtime_days": 25,
+    "centrality": 0.0,
+    "cluster": 30
+  },
+  {
+    "id": "presentations/README_v2.md",
+    "label": "presentations/README_v2.md",
+    "cat": "presentations",
+    "desc": "Defense Presentation v2.0 — SSR AI Vision Edition",
+    "broken_refs": 0,
+    "mtime_days": 22,
+    "centrality": 0.0,
+    "cluster": 31
+  },
+  {
+    "id": "presenter_script.md",
+    "label": "presenter_script.md",
+    "cat": "presentations",
+    "desc": "Presenter Script — выступление на конкурсе (3 минуты)",
+    "broken_refs": 0,
+    "mtime_days": 42,
+    "centrality": 0.0007,
+    "cluster": 0
+  },
+  {
+    "id": "product_idea.md",
+    "label": "product_idea.md",
+    "cat": "vision",
+    "desc": "Продуктовая Идея",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.008,
+    "cluster": 0
+  },
+  {
+    "id": "prompts_catalog.md",
+    "label": "prompts_catalog.md",
+    "cat": "prompts",
+    "desc": "📚 Каталог Промптов",
+    "broken_refs": 3,
+    "mtime_days": 3,
+    "centrality": 0.7098,
+    "cluster": 0
+  },
+  {
+    "id": "prompts_usage_guide.md",
+    "label": "prompts_usage_guide.md",
+    "cat": "prompts",
+    "desc": "🧭 Руководство по Использованию Промптов (Prompts Usage Guide)",
+    "broken_refs": 2,
+    "mtime_days": 2,
+    "centrality": 0.0966,
+    "cluster": 0
+  },
+  {
+    "id": "QUICK_READSET_REFERENCE.md",
+    "label": "QUICK_READSET_REFERENCE.md",
+    "cat": "token",
+    "desc": "Быстрая Справка: Check ReadSet (1-минутная версия)",
+    "broken_refs": 0,
+    "mtime_days": 45,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "quickstart.md",
+    "label": "quickstart.md",
+    "cat": "ux",
+    "desc": "Быстрый старт — от папки до учебного цикла за 5 минут",
+    "broken_refs": 0,
+    "mtime_days": 11,
+    "centrality": 0.0332,
+    "cluster": 0
+  },
+  {
+    "id": "quickstart_demo.md",
+    "label": "quickstart_demo.md",
+    "cat": "ux",
+    "desc": "Smart Demo — автоматически снятые кадры сценариев",
+    "broken_refs": 0,
+    "mtime_days": 18,
+    "centrality": 0.0083,
+    "cluster": 0
+  },
+  {
+    "id": "quickstart_demo.preview.md",
+    "label": "quickstart_demo.preview.md",
+    "cat": "ux",
+    "desc": "Smart Demo — автоматически снятые кадры сценариев",
+    "broken_refs": 8,
+    "mtime_days": 39,
+    "centrality": 0.0005,
+    "cluster": 0
+  },
+  {
+    "id": "readme.md",
+    "label": "readme.md",
+    "cat": "entry",
+    "desc": "Документация `doc/`",
+    "broken_refs": 0,
+    "mtime_days": 14,
+    "centrality": 0.0497,
+    "cluster": 0
+  },
+  {
+    "id": "roadmap.md",
+    "label": "roadmap.md",
+    "cat": "vision",
+    "desc": "Roadmap — История Прорывов и Карта Развития",
+    "broken_refs": 0,
+    "mtime_days": 3,
+    "centrality": 0.1273,
+    "cluster": 0
+  },
+  {
+    "id": "roadmap_governance.md",
+    "label": "roadmap_governance.md",
+    "cat": "vision",
+    "desc": "Roadmap Governance",
+    "broken_refs": 0,
+    "mtime_days": 30,
+    "centrality": 0.0011,
+    "cluster": 0
+  },
+  {
+    "id": "scenarios/README.md",
+    "label": "scenarios/README.md",
+    "cat": "entry",
+    "desc": "Манифесты сценариев",
+    "broken_refs": 0,
+    "mtime_days": 42,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "session_2026_05_13_summary.md",
+    "label": "session_2026_05_13_summary.md",
+    "cat": "other",
+    "desc": "Performance & Quality Optimization Session Summary",
+    "broken_refs": 0,
+    "mtime_days": 21,
+    "centrality": 0.0,
+    "cluster": 32
+  },
+  {
+    "id": "smart_study_router.md",
+    "label": "smart_study_router.md",
+    "cat": "vision",
+    "desc": "Smart Study Router — Killer Feature",
+    "broken_refs": 0,
+    "mtime_days": 22,
+    "centrality": 0.5754,
+    "cluster": 0
+  },
+  {
+    "id": "ssr_advanced_features.md",
+    "label": "ssr_advanced_features.md",
+    "cat": "arch",
+    "desc": "SSR Advanced Features — Pre-Generation, Semantic Caching, Quality Feedback",
+    "broken_refs": 0,
+    "mtime_days": 21,
+    "centrality": 0.0,
+    "cluster": 33
+  },
+  {
+    "id": "ssr_baseline_metrics.md",
+    "label": "ssr_baseline_metrics.md",
+    "cat": "arch",
+    "desc": "SSR rule baseline (pre–ML reranking)",
+    "broken_refs": 0,
+    "mtime_days": 24,
+    "centrality": 0.0,
+    "cluster": 34
+  },
+  {
+    "id": "ssr_kg_integration_design.md",
+    "label": "ssr_kg_integration_design.md",
+    "cat": "arch",
+    "desc": "SSR ↔ Knowledge Graph integration (L4 scaffold design)",
+    "broken_refs": 0,
+    "mtime_days": 7,
+    "centrality": 0.0,
+    "cluster": 35
+  },
+  {
+    "id": "ssr_llm_monitoring.md",
+    "label": "ssr_llm_monitoring.md",
+    "cat": "arch",
+    "desc": "SSR LLM Explanation Monitoring",
+    "broken_refs": 0,
+    "mtime_days": 25,
+    "centrality": 0.0,
+    "cluster": 36
+  },
+  {
+    "id": "ssr_llm_profiling.md",
+    "label": "ssr_llm_profiling.md",
+    "cat": "arch",
+    "desc": "SSR LLM: профили и сравнение с основным чатом",
+    "broken_refs": 0,
+    "mtime_days": 23,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "ssr_ml_production_readiness.md",
+    "label": "ssr_ml_production_readiness.md",
+    "cat": "arch",
+    "desc": "SSR ML Production Readiness Checklist",
+    "broken_refs": 0,
+    "mtime_days": 22,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "ssr_ml_rollout_gates.md",
+    "label": "ssr_ml_rollout_gates.md",
+    "cat": "arch",
+    "desc": "SSR ML serving — go / no-go gates (US-20.1 hybrid)",
+    "broken_refs": 0,
+    "mtime_days": 24,
+    "centrality": 0.0,
+    "cluster": 37
+  },
+  {
+    "id": "ssr_prompt_iterations.md",
+    "label": "ssr_prompt_iterations.md",
+    "cat": "arch",
+    "desc": "SSR Level 2 Prompt Iterations",
+    "broken_refs": 0,
+    "mtime_days": 25,
+    "centrality": 0.0,
+    "cluster": 38
+  },
+  {
+    "id": "tail_sweep.md",
+    "label": "tail_sweep.md",
+    "cat": "backlog",
+    "desc": "Tail sweep (исполнение)",
+    "broken_refs": 0,
+    "mtime_days": 31,
+    "centrality": 0.0001,
+    "cluster": 0
+  },
+  {
+    "id": "tasklist.md",
+    "label": "tasklist.md",
+    "cat": "backlog",
+    "desc": "План работ",
+    "broken_refs": 0,
+    "mtime_days": 2,
+    "centrality": 0.0115,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/_common_rules.md",
+    "label": "team_workflow/_common_rules.md",
+    "cat": "workflow",
+    "desc": "Общие правила для промптов `doc/team_workflow/`",
+    "broken_refs": 0,
+    "mtime_days": 31,
+    "centrality": 0.007,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/analyst.md",
+    "label": "team_workflow/analyst.md",
+    "cat": "workflow",
+    "desc": "Аналитик (Analyst)",
+    "broken_refs": 0,
+    "mtime_days": 32,
+    "centrality": 0.0001,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/architect.md",
+    "label": "team_workflow/architect.md",
+    "cat": "workflow",
+    "desc": "team_workflow/architect.md",
+    "broken_refs": 0,
+    "mtime_days": 32,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/archive/audit_coverage_prompt_epic20-smart-study-router_codex.md",
+    "label": "…/audit_coverage_prompt_epic20-smart-study-router_codex.md",
+    "cat": "workflow",
+    "desc": "AUDIT COVERAGE PROMPT — Epic 20 Smart Study Router / Codex",
+    "broken_refs": 0,
+    "mtime_days": 22,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/archive/audit_prompt_2026-05-16__2026-05-16_cursor_ai.md",
+    "label": "…/audit_prompt_2026-05-16__2026-05-16_cursor_ai.md",
+    "cat": "workflow",
+    "desc": "Generated Audit Prompt",
+    "broken_refs": 0,
+    "mtime_days": 16,
+    "centrality": 0.0,
+    "cluster": 39
+  },
+  {
+    "id": "team_workflow/archive/audit_prompt_epic20-smart-study-router_codex.md",
+    "label": "…/audit_prompt_epic20-smart-study-router_codex.md",
+    "cat": "workflow",
+    "desc": "AUDIT PROMPT — Epic 20 Smart Study Router (narrow scope)",
+    "broken_refs": 2,
+    "mtime_days": 22,
+    "centrality": 0.0251,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/archive/epoch_demo_post_agent_smoke.md",
+    "label": "…/epoch_demo_post_agent_smoke.md",
+    "cat": "workflow",
+    "desc": "Epoch-Demo: smoke `run_autonomous --post-agent` (реальный CLI, не unit)",
+    "broken_refs": 8,
+    "mtime_days": 22,
+    "centrality": 0.0024,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/archive/po_router_decision_tree.md",
+    "label": "…/po_router_decision_tree.md",
+    "cat": "workflow",
+    "desc": "Product Owner Router — Interactive Decision Tree",
+    "broken_refs": 5,
+    "mtime_days": 16,
+    "centrality": 0.0,
+    "cluster": 40
+  },
+  {
+    "id": "team_workflow/archive/product_owner_router_ai_vision_enhancement.md",
+    "label": "…/product_owner_router_ai_vision_enhancement.md",
+    "cat": "workflow",
+    "desc": "Product Owner Router — AI Vision Enhancement Plan",
+    "broken_refs": 5,
+    "mtime_days": 22,
+    "centrality": 0.0001,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/archive/zero_click_delivery_analysis.md",
+    "label": "…/zero_click_delivery_analysis.md",
+    "cat": "workflow",
+    "desc": "Zero-click delivery (анализ)",
+    "broken_refs": 0,
+    "mtime_days": 22,
+    "centrality": 0.0,
+    "cluster": 41
+  },
+  {
+    "id": "team_workflow/audit_prompt_2026-05-22__2026-05-22_cursor_ai.md",
+    "label": "…/audit_prompt_2026-05-22__2026-05-22_cursor_ai.md",
+    "cat": "workflow",
+    "desc": "CLOSED PACKAGES AUDIT — 2026-05-22..2026-05-22 [cursor_ai]",
+    "broken_refs": 0,
+    "mtime_days": 12,
+    "centrality": 0.0,
+    "cluster": 42
+  },
+  {
+    "id": "team_workflow/automation.md",
+    "label": "team_workflow/automation.md",
+    "cat": "workflow",
+    "desc": "Автоматизация командного процесса",
+    "broken_refs": 0,
+    "mtime_days": 31,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/budget_health_prompt.md",
+    "label": "…/budget_health_prompt.md",
+    "cat": "workflow",
+    "desc": "Kilo Budget Health Check — Daily-Use Prompt",
+    "broken_refs": 0,
+    "mtime_days": 40,
+    "centrality": 0.0018,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/demo_scenarios_prompt_bundle.md",
+    "label": "…/demo_scenarios_prompt_bundle.md",
+    "cat": "workflow",
+    "desc": "Demo Scenarios Prompt Bundle",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/designer.md",
+    "label": "team_workflow/designer.md",
+    "cat": "workflow",
+    "desc": "Дизайнер (Designer)",
+    "broken_refs": 0,
+    "mtime_days": 32,
+    "centrality": 0.0006,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/developer.md",
+    "label": "team_workflow/developer.md",
+    "cat": "workflow",
+    "desc": "Разработчик (Developer)",
+    "broken_refs": 0,
+    "mtime_days": 32,
+    "centrality": 0.0008,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/examples/example_e15a_orchestration_level3_in_agent_claude_code.md",
+    "label": "…/example_e15a_orchestration_level3_in_agent_claude_code.md",
+    "cat": "workflow",
+    "desc": "E15-A: Оркестрация в Claude Code",
+    "broken_refs": 1,
+    "mtime_days": 22,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/examples/example_e15a_orchestration_level3_in_agent_codex.md",
+    "label": "…/example_e15a_orchestration_level3_in_agent_codex.md",
+    "cat": "workflow",
+    "desc": "E15-A: Оркестрация в OpenAI Codex CLI",
+    "broken_refs": 1,
+    "mtime_days": 22,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/examples/example_e15a_orchestration_level3_in_agent_cursor_ai.md",
+    "label": "…/example_e15a_orchestration_level3_in_agent_cursor_ai.md",
+    "cat": "workflow",
+    "desc": "E15-A: Оркестрация в Cursor AI",
+    "broken_refs": 1,
+    "mtime_days": 22,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/examples/example_flashcards_and_bugfix.md",
+    "label": "…/example_flashcards_and_bugfix.md",
+    "cat": "workflow",
+    "desc": "Пример автоматизации: Flashcards + Bug Fix",
+    "broken_refs": 1,
+    "mtime_days": 22,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/examples/ssr_level1_ml_package_example.yaml",
+    "label": "…/ssr_level1_ml_package_example.yaml",
+    "cat": "arch",
+    "desc": "team_workflow/examples/ssr_level1_ml_package_example.yaml",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0,
+    "cluster": 43
+  },
+  {
+    "id": "team_workflow/examples/ssr_level2_eval_contract_example.yaml",
+    "label": "…/ssr_level2_eval_contract_example.yaml",
+    "cat": "arch",
+    "desc": "team_workflow/examples/ssr_level2_eval_contract_example.yaml",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0,
+    "cluster": 44
+  },
+  {
+    "id": "team_workflow/generate_audit_closed_packages_prompt.md",
+    "label": "…/generate_audit_closed_packages_prompt.md",
+    "cat": "workflow",
+    "desc": "generate_audit_closed_packages_prompt",
+    "broken_refs": 0,
+    "mtime_days": 3,
+    "centrality": 0.0021,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/generate_audit_packages_coverage_prompt.md",
+    "label": "…/generate_audit_packages_coverage_prompt.md",
+    "cat": "workflow",
+    "desc": "Generate Audit Packages Coverage Prompt",
+    "broken_refs": 0,
+    "mtime_days": 34,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/generate_bottleneck_analysis_prompt.md",
+    "label": "…/generate_bottleneck_analysis_prompt.md",
+    "cat": "workflow",
+    "desc": "Bottleneck Analysis — LLM Prompt Template",
+    "broken_refs": 0,
+    "mtime_days": 11,
+    "centrality": 0.0001,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/generate_breakthrough_ideation_prompt.md",
+    "label": "…/generate_breakthrough_ideation_prompt.md",
+    "cat": "workflow",
+    "desc": "generate_breakthrough_ideation_prompt",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0465,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/generate_execution_prompt_auto.md",
+    "label": "…/generate_execution_prompt_auto.md",
+    "cat": "workflow",
+    "desc": "generate_execution_prompt_auto",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0004,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/generate_orchestration_prompt.md",
+    "label": "…/generate_orchestration_prompt.md",
+    "cat": "workflow",
+    "desc": "generate_orchestration_prompt",
+    "broken_refs": 0,
+    "mtime_days": 3,
+    "centrality": 0.0044,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/generate_plan_next_prompt.md",
+    "label": "…/generate_plan_next_prompt.md",
+    "cat": "workflow",
+    "desc": "generate_plan_next_prompt",
+    "broken_refs": 0,
+    "mtime_days": 15,
+    "centrality": 0.0208,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/generate_resume_prompt.md",
+    "label": "…/generate_resume_prompt.md",
+    "cat": "workflow",
+    "desc": "generate_resume_prompt",
+    "broken_refs": 0,
+    "mtime_days": 3,
+    "centrality": 0.0037,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/generate_roadmap_epoch_waves_prompt.md",
+    "label": "…/generate_roadmap_epoch_waves_prompt.md",
+    "cat": "workflow",
+    "desc": "generate_roadmap_epoch_waves_prompt",
+    "broken_refs": 0,
+    "mtime_days": 28,
+    "centrality": 0.0005,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/guides/agent_adapter_claude_code.md",
+    "label": "…/agent_adapter_claude_code.md",
+    "cat": "workflow",
+    "desc": "Адаптер: Claude Code",
+    "broken_refs": 0,
+    "mtime_days": 5,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/guides/agent_adapter_codex.md",
+    "label": "…/agent_adapter_codex.md",
+    "cat": "workflow",
+    "desc": "Адаптер: OpenAI Codex CLI",
+    "broken_refs": 0,
+    "mtime_days": 5,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/guides/agent_adapter_continue.md",
+    "label": "…/agent_adapter_continue.md",
+    "cat": "workflow",
+    "desc": "Adapter: Continue / DeepSeek-oriented workflow",
+    "broken_refs": 0,
+    "mtime_days": 5,
+    "centrality": 0.0005,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/guides/agent_adapter_cursor_ai.md",
+    "label": "…/agent_adapter_cursor_ai.md",
+    "cat": "workflow",
+    "desc": "Адаптер: Cursor AI",
+    "broken_refs": 1,
+    "mtime_days": 5,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/guides/agent_adapter_kilo.md",
+    "label": "…/agent_adapter_kilo.md",
+    "cat": "workflow",
+    "desc": "Adapter: Kilo",
+    "broken_refs": 0,
+    "mtime_days": 5,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/guides/workflow_cursor_sdk_trigger_guide.md",
+    "label": "…/workflow_cursor_sdk_trigger_guide.md",
+    "cat": "workflow",
+    "desc": "Настройка и использование режима Cursor SDK trigger (`--trigger-cmd`)",
+    "broken_refs": 0,
+    "mtime_days": 11,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/guides/workflow_deepseek_api_trigger_guide.md",
+    "label": "…/workflow_deepseek_api_trigger_guide.md",
+    "cat": "workflow",
+    "desc": "DeepSeek API trigger experiment (`--trigger-cmd`)",
+    "broken_refs": 0,
+    "mtime_days": 3,
+    "centrality": 0.0062,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/guides/workflow_deepseek_tui_trigger_guide.md",
+    "label": "…/workflow_deepseek_tui_trigger_guide.md",
+    "cat": "workflow",
+    "desc": "DeepSeek TUI Trigger Operational Guide",
+    "broken_refs": 0,
+    "mtime_days": 11,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/guides/workflow_deepseek_tui_trigger_implementation_plan.md",
+    "label": "…/workflow_deepseek_tui_trigger_implementation_plan.md",
+    "cat": "workflow",
+    "desc": "DeepSeek TUI Trigger Implementation Plan",
+    "broken_refs": 0,
+    "mtime_days": 15,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/guides/workflow_trigger_orchestrator_design.md",
+    "label": "…/workflow_trigger_orchestrator_design.md",
+    "cat": "workflow",
+    "desc": "Smart Trigger Orchestrator Design",
+    "broken_refs": 0,
+    "mtime_days": 11,
+    "centrality": 0.0,
+    "cluster": 45
+  },
+  {
+    "id": "team_workflow/llmops_engineer.md",
+    "label": "team_workflow/llmops_engineer.md",
+    "cat": "workflow",
+    "desc": "LLMOps Engineer",
+    "broken_refs": 0,
+    "mtime_days": 11,
+    "centrality": 0.0003,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/mlops_engineer.md",
+    "label": "team_workflow/mlops_engineer.md",
+    "cat": "workflow",
+    "desc": "MLOps Engineer",
+    "broken_refs": 0,
+    "mtime_days": 11,
+    "centrality": 0.0003,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/orchestrator_template.md",
+    "label": "…/orchestrator_template.md",
+    "cat": "workflow",
+    "desc": "Обобщённый шаблон промпта оркестратора",
+    "broken_refs": 0,
+    "mtime_days": 3,
+    "centrality": 0.0227,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/performance_devops.md",
+    "label": "team_workflow/performance_devops.md",
+    "cat": "workflow",
+    "desc": "Performance Engineer / DevOps",
+    "broken_refs": 0,
+    "mtime_days": 11,
+    "centrality": 0.0006,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/po_router_anti_patterns.md",
+    "label": "…/po_router_anti_patterns.md",
+    "cat": "workflow",
+    "desc": "PO Router — Anti-Patterns and Pitfalls",
+    "broken_refs": 0,
+    "mtime_days": 21,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/po_router_conflicts.md",
+    "label": "…/po_router_conflicts.md",
+    "cat": "workflow",
+    "desc": "PO Router — Conflict Resolution Rules",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/po_router_escape_hatches.md",
+    "label": "…/po_router_escape_hatches.md",
+    "cat": "workflow",
+    "desc": "PO Router — Escape Hatches",
+    "broken_refs": 0,
+    "mtime_days": 21,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/po_router_evaluation_gate.md",
+    "label": "…/po_router_evaluation_gate.md",
+    "cat": "workflow",
+    "desc": "PO Router - Evaluation Contract Gate",
+    "broken_refs": 0,
+    "mtime_days": 21,
+    "centrality": 0.0003,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/po_router_handoffs.md",
+    "label": "team_workflow/po_router_handoffs.md",
+    "cat": "workflow",
+    "desc": "PO Router — Role Handoffs",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/po_router_parallel_waves.md",
+    "label": "…/po_router_parallel_waves.md",
+    "cat": "workflow",
+    "desc": "PO Router — Parallel Waves Strategy",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/po_router_retrospectives.md",
+    "label": "…/po_router_retrospectives.md",
+    "cat": "workflow",
+    "desc": "PO Router — Retrospective Feedback Loop",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/po_router_scope_matrix.md",
+    "label": "…/po_router_scope_matrix.md",
+    "cat": "workflow",
+    "desc": "PO Router — Ideation Scope Decision Matrix",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0094,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/process.md",
+    "label": "team_workflow/process.md",
+    "cat": "workflow",
+    "desc": "Процесс работы команды над проектом",
+    "broken_refs": 0,
+    "mtime_days": 11,
+    "centrality": 0.0786,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/product_owner.md",
+    "label": "team_workflow/product_owner.md",
+    "cat": "workflow",
+    "desc": "Владелец продукта (Product Owner)",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0042,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/product_owner_plan_ml_package_prompt.md",
+    "label": "…/product_owner_plan_ml_package_prompt.md",
+    "cat": "workflow",
+    "desc": "Product Owner - ML Package Planning Prompt",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0004,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/product_owner_plan_package_prompt.md",
+    "label": "…/product_owner_plan_package_prompt.md",
+    "cat": "workflow",
+    "desc": "Product Owner — Планирование пакета",
+    "broken_refs": 0,
+    "mtime_days": 28,
+    "centrality": 0.0137,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/product_owner_router.md",
+    "label": "…/product_owner_router.md",
+    "cat": "workflow",
+    "desc": "Product Owner Router v2.1",
+    "broken_refs": 0,
+    "mtime_days": 21,
+    "centrality": 0.1999,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/rag_llm_ops_project_document.md",
+    "label": "…/rag_llm_ops_project_document.md",
+    "cat": "workflow",
+    "desc": "Инженерные дисциплины MLOps + LLMOps + RAGOps для RAG / LLM-проекта",
+    "broken_refs": 0,
+    "mtime_days": 11,
+    "centrality": 0.007,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/ragops_engineer.md",
+    "label": "team_workflow/ragops_engineer.md",
+    "cat": "workflow",
+    "desc": "RAGOps Engineer",
+    "broken_refs": 0,
+    "mtime_days": 11,
+    "centrality": 0.0003,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/README.md",
+    "label": "team_workflow/README.md",
+    "cat": "entry",
+    "desc": "Командный AI-конвейер: инструкция для коллег",
+    "broken_refs": 0,
+    "mtime_days": 3,
+    "centrality": 0.0209,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/reopen_package_step_c_prompt.md",
+    "label": "…/reopen_package_step_c_prompt.md",
+    "cat": "workflow",
+    "desc": "Промпт: переоткрытие одного закрытого пакета (Step C)",
+    "broken_refs": 0,
+    "mtime_days": 22,
+    "centrality": 0.0071,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/reopen_prompt_closed_window_template.md",
+    "label": "…/reopen_prompt_closed_window_template.md",
+    "cat": "workflow",
+    "desc": "Reopen prompt — шаблон: батч переоткрытия `closed → ready` за окно PERIOD",
+    "broken_refs": 0,
+    "mtime_days": 36,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/run_audit_chain_prompt.md",
+    "label": "…/run_audit_chain_prompt.md",
+    "cat": "workflow",
+    "desc": "run_audit_chain_prompt",
+    "broken_refs": 0,
+    "mtime_days": 34,
+    "centrality": 0.0001,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/run_autonomous.md",
+    "label": "team_workflow/run_autonomous.md",
+    "cat": "workflow",
+    "desc": "Zero-Click Autonomous Delivery",
+    "broken_refs": 0,
+    "mtime_days": 42,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/run_autonomous_prompt.md",
+    "label": "…/run_autonomous_prompt.md",
+    "cat": "workflow",
+    "desc": "Zero-Click Delivery — стартовый промпт (non-stop)",
+    "broken_refs": 0,
+    "mtime_days": 29,
+    "centrality": 0.0004,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/run_autonomous_runbook.md",
+    "label": "…/run_autonomous_runbook.md",
+    "cat": "workflow",
+    "desc": "team_workflow/run_autonomous_runbook.md",
+    "broken_refs": 1,
+    "mtime_days": 22,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/run_start_workflow_prompt.md",
+    "label": "…/run_start_workflow_prompt.md",
+    "cat": "workflow",
+    "desc": "run_start_workflow_prompt",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_level3_5_corrections.md",
+    "label": "…/ssr_ai_vision_audit_level3_5_corrections.md",
+    "cat": "arch",
+    "desc": "SSR AI Vision — Audit Corrections Level 3-5",
+    "broken_refs": 0,
+    "mtime_days": 22,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_level3_5_report.md",
+    "label": "…/ssr_ai_vision_audit_level3_5_report.md",
+    "cat": "arch",
+    "desc": "SSR AI Vision — Audit Report Level 3-5",
+    "broken_refs": 0,
+    "mtime_days": 22,
+    "centrality": 0.0253,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_report_2026-05-09.md",
+    "label": "…/ssr_ai_vision_audit_report_2026-05-09.md",
+    "cat": "arch",
+    "desc": "SSR AI Vision — Audit Report Level 1 & Level 2",
+    "broken_refs": 1,
+    "mtime_days": 22,
+    "centrality": 0.0002,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_level1_level2_readiness_gate_2026-05-09.md",
+    "label": "…/ssr_ai_vision_level1_level2_readiness_gate_2026-05-09.md",
+    "cat": "arch",
+    "desc": "SSR AI Vision Level 1/2 Readiness Gate",
+    "broken_refs": 0,
+    "mtime_days": 22,
+    "centrality": 0.0,
+    "cluster": 46
+  },
+  {
+    "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_level1_prompt.md",
+    "label": "…/ssr_ai_vision_level1_prompt.md",
+    "cat": "arch",
+    "desc": "SSR AI Vision — Level 1: Local ML Layer",
+    "broken_refs": 3,
+    "mtime_days": 22,
+    "centrality": 0.0314,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_level3_readiness_gate.md",
+    "label": "…/ssr_ai_vision_level2_level3_readiness_gate.md",
+    "cat": "arch",
+    "desc": "SSR AI Vision — Level 2↔Level 3 readiness gate",
+    "broken_refs": 0,
+    "mtime_days": 19,
+    "centrality": 0.0,
+    "cluster": 47
+  },
+  {
+    "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_prompt.md",
+    "label": "…/ssr_ai_vision_level2_prompt.md",
+    "cat": "arch",
+    "desc": "SSR AI Vision — Level 2: LLM-Enhanced Explanation",
+    "broken_refs": 2,
+    "mtime_days": 22,
+    "centrality": 0.0077,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_level3_prompt.md",
+    "label": "…/ssr_ai_vision_level3_prompt.md",
+    "cat": "arch",
+    "desc": "SSR AI Vision — Level 3: Proactive Study Planner",
+    "broken_refs": 2,
+    "mtime_days": 22,
+    "centrality": 0.0108,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_level4_prompt.md",
+    "label": "…/ssr_ai_vision_level4_prompt.md",
+    "cat": "arch",
+    "desc": "SSR AI Vision — Level 4: Concept Graph Router",
+    "broken_refs": 1,
+    "mtime_days": 22,
+    "centrality": 0.0107,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_level5_prompt.md",
+    "label": "…/ssr_ai_vision_level5_prompt.md",
+    "cat": "arch",
+    "desc": "SSR AI Vision — Level 5: Misroute Feedback Loop",
+    "broken_refs": 2,
+    "mtime_days": 22,
+    "centrality": 0.0106,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_roadmap_visual.md",
+    "label": "…/ssr_ai_vision_roadmap_visual.md",
+    "cat": "arch",
+    "desc": "SSR AI Vision — Visual Roadmap",
+    "broken_refs": 2,
+    "mtime_days": 22,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+    "label": "…/ssr_ai_vision_summary.md",
+    "cat": "arch",
+    "desc": "SSR AI Vision — Roadmap Summary",
+    "broken_refs": 0,
+    "mtime_days": 21,
+    "centrality": 0.1539,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/ssr_ai_vision/ssr_all_levels_quick_start.md",
+    "label": "…/ssr_all_levels_quick_start.md",
+    "cat": "arch",
+    "desc": "SSR AI Vision — Quick Start Guide (All Levels)",
+    "broken_refs": 0,
+    "mtime_days": 22,
+    "centrality": 0.0017,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/ssr_ai_vision/ssr_code_templates.md",
+    "label": "…/ssr_code_templates.md",
+    "cat": "arch",
+    "desc": "SSR AI Vision — Code Templates & Scaffolding",
+    "broken_refs": 1,
+    "mtime_days": 22,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/ssr_ai_vision/ssr_level1_quick_start.md",
+    "label": "…/ssr_level1_quick_start.md",
+    "cat": "arch",
+    "desc": "Level 1: Local ML Layer — 5-Minute Quick Start",
+    "broken_refs": 1,
+    "mtime_days": 22,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/ssr_ai_vision/ssr_wave1_audit_summary.md",
+    "label": "…/ssr_wave1_audit_summary.md",
+    "cat": "arch",
+    "desc": "SSR AI Vision — Wave 1 Foundation Audit Summary",
+    "broken_refs": 2,
+    "mtime_days": 22,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/start_workflow.md",
+    "label": "team_workflow/start_workflow.md",
+    "cat": "workflow",
+    "desc": "start_workflow",
+    "broken_refs": 0,
+    "mtime_days": 31,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/templates/evaluation_contract_template.yaml",
+    "label": "…/evaluation_contract_template.yaml",
+    "cat": "workflow",
+    "desc": "team_workflow/templates/evaluation_contract_template.yaml",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0,
+    "cluster": 48
+  },
+  {
+    "id": "team_workflow/templates/ml_package_template.yaml",
+    "label": "…/ml_package_template.yaml",
+    "cat": "workflow",
+    "desc": "team_workflow/templates/ml_package_template.yaml",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0,
+    "cluster": 49
+  },
+  {
+    "id": "team_workflow/tester.md",
+    "label": "team_workflow/tester.md",
+    "cat": "workflow",
+    "desc": "Тестировщик (Tester)",
+    "broken_refs": 0,
+    "mtime_days": 32,
+    "centrality": 0.0006,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/workflow_decision_tree.md",
+    "label": "…/workflow_decision_tree.md",
+    "cat": "workflow",
+    "desc": "Workflow — дерево решений «что запускать сейчас»",
+    "broken_refs": 0,
+    "mtime_days": 26,
+    "centrality": 0.0032,
+    "cluster": 0
+  },
+  {
+    "id": "team_workflow/workflow_router.md",
+    "label": "team_workflow/workflow_router.md",
+    "cat": "workflow",
+    "desc": "Smart Workflow Router — `scripts/workflow.py`",
+    "broken_refs": 0,
+    "mtime_days": 15,
+    "centrality": 0.1282,
+    "cluster": 0
+  },
+  {
+    "id": "technical_specification.md",
+    "label": "technical_specification.md",
+    "cat": "arch",
+    "desc": "Техническая Спецификация `home-rag_v2`",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "token_metrics_tracking.md",
+    "label": "token_metrics_tracking.md",
+    "cat": "token",
+    "desc": "token_metrics_tracking.md",
+    "broken_refs": 0,
+    "mtime_days": 33,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "TOKEN_OPTIMIZATION_CARD.md",
+    "label": "TOKEN_OPTIMIZATION_CARD.md",
+    "cat": "token",
+    "desc": "Token Optimization — Quick Reference Card (Printable)",
+    "broken_refs": 0,
+    "mtime_days": 39,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "token_safety.md",
+    "label": "token_safety.md",
+    "cat": "token",
+    "desc": "Token Safety Справочник",
+    "broken_refs": 0,
+    "mtime_days": 28,
+    "centrality": 0.0061,
+    "cluster": 0
+  },
+  {
+    "id": "token_safety_registry.json",
+    "label": "token_safety_registry.json",
+    "cat": "token",
+    "desc": "token_safety_registry.json",
+    "broken_refs": 0,
+    "mtime_days": 17,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "user_guide.md",
+    "label": "user_guide.md",
+    "cat": "ux",
+    "desc": "home-rag — учебный центр из твоей папки",
+    "broken_refs": 0,
+    "mtime_days": 10,
+    "centrality": 0.0494,
+    "cluster": 0
+  },
+  {
+    "id": "user_guide_details.md",
+    "label": "user_guide_details.md",
+    "cat": "ux",
+    "desc": "Детальный справочник: все возможности",
+    "broken_refs": 0,
+    "mtime_days": 2,
+    "centrality": 0.0021,
+    "cluster": 0
+  },
+  {
+    "id": "user_scenarios.md",
+    "label": "user_scenarios.md",
+    "cat": "ux",
+    "desc": "Сценарии — Как home-rag меняет обучение",
+    "broken_refs": 0,
+    "mtime_days": 14,
+    "centrality": 0.0637,
+    "cluster": 0
+  },
+  {
+    "id": "user_stories/README.md",
+    "label": "user_stories/README.md",
+    "cat": "entry",
+    "desc": "user_stories/README.md",
+    "broken_refs": 61,
+    "mtime_days": 39,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "user_stories.md",
+    "label": "user_stories.md",
+    "cat": "user-stories",
+    "desc": "User Stories — Learner (home-rag)",
+    "broken_refs": 0,
+    "mtime_days": 10,
+    "centrality": 0.0236,
+    "cluster": 0
+  },
+  {
+    "id": "user_stories_details.md",
+    "label": "user_stories_details.md",
+    "cat": "user-stories",
+    "desc": "user_stories_details.md",
+    "broken_refs": 0,
+    "mtime_days": 29,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "user_stories_index.json",
+    "label": "user_stories_index.json",
+    "cat": "user-stories",
+    "desc": "user_stories_index.json",
+    "broken_refs": 0,
+    "mtime_days": 2,
+    "centrality": 0.0005,
+    "cluster": 0
+  },
+  {
+    "id": "VALIDATOR_FLOWCHART.md",
+    "label": "VALIDATOR_FLOWCHART.md",
+    "cat": "token",
+    "desc": "Validator Workflow (Decision Tree)",
+    "broken_refs": 0,
+    "mtime_days": 39,
+    "centrality": 0.0,
+    "cluster": 0
+  },
+  {
+    "id": "vision.md",
+    "label": "vision.md",
+    "cat": "vision",
+    "desc": "Видение продукта",
+    "broken_refs": 0,
+    "mtime_days": 11,
+    "centrality": 0.0019,
+    "cluster": 0
+  }
+];
+const EDGES = [
+  {
+    "source": "adr.md",
+    "target": "adr_021_smart_router_rag_modes.md"
+  },
+  {
+    "source": "adr.md",
+    "target": "adr_021a_smart_router_architecture_lifts.md"
+  },
+  {
+    "source": "adr.md",
+    "target": "adr_022_ssr_ai_eval_harness.md"
+  },
+  {
+    "source": "adr.md",
+    "target": "adr_023_ssr_graph_routing.md"
+  },
+  {
+    "source": "adr_021a_smart_router_architecture_lifts.md",
+    "target": "adr_021_smart_router_rag_modes.md"
+  },
+  {
+    "source": "agent_workflow.md",
+    "target": "agent_workflow_rules.md"
+  },
+  {
+    "source": "agent_workflow.md",
+    "target": "agent_workflow_cycle.md"
+  },
+  {
+    "source": "agent_workflow.md",
+    "target": "agent_workflow_templates.md"
+  },
+  {
+    "source": "agent_workflow.md",
+    "target": "agent_workflow_arch_review.md"
+  },
+  {
+    "source": "agent_workflow.md",
+    "target": "agent_workflow_test_bundles.md"
+  },
+  {
+    "source": "agent_workflow.md",
+    "target": "kilo_budget_system.md"
+  },
+  {
+    "source": "agent_workflow.md",
+    "target": "archive/kilo_budget_remediation_plan.md"
+  },
+  {
+    "source": "agent_workflow.md",
+    "target": "team_workflow/budget_health_prompt.md"
+  },
+  {
+    "source": "agent_workflow.md",
+    "target": "team_workflow/process.md"
+  },
+  {
+    "source": "agent_workflow.md",
+    "target": "prompts_usage_guide.md"
+  },
+  {
+    "source": "agent_workflow.md",
+    "target": "team_workflow/workflow_router.md"
+  },
+  {
+    "source": "agent_workflow.md",
+    "target": "team_workflow/developer.md"
+  },
+  {
+    "source": "agent_workflow.md",
+    "target": "team_workflow/tester.md"
+  },
+  {
+    "source": "agent_workflow_arch_review.md",
+    "target": "agent_workflow.md"
+  },
+  {
+    "source": "agent_workflow_arch_review.md",
+    "target": "agent_workflow_rules.md"
+  },
+  {
+    "source": "agent_workflow_arch_review.md",
+    "target": "agent_workflow_cycle.md"
+  },
+  {
+    "source": "agent_workflow_arch_review.md",
+    "target": "agent_workflow_templates.md"
+  },
+  {
+    "source": "agent_workflow_arch_review.md",
+    "target": "agent_workflow_test_bundles.md"
+  },
+  {
+    "source": "agent_workflow_arch_review.md",
+    "target": "token_safety.md"
+  },
+  {
+    "source": "agent_workflow_cycle.md",
+    "target": "agent_workflow.md"
+  },
+  {
+    "source": "agent_workflow_cycle.md",
+    "target": "agent_workflow_rules.md"
+  },
+  {
+    "source": "agent_workflow_cycle.md",
+    "target": "agent_workflow_templates.md"
+  },
+  {
+    "source": "agent_workflow_cycle.md",
+    "target": "agent_workflow_arch_review.md"
+  },
+  {
+    "source": "agent_workflow_cycle.md",
+    "target": "agent_workflow_test_bundles.md"
+  },
+  {
+    "source": "agent_workflow_rules.md",
+    "target": "agent_workflow.md"
+  },
+  {
+    "source": "agent_workflow_rules.md",
+    "target": "agent_workflow_cycle.md"
+  },
+  {
+    "source": "agent_workflow_rules.md",
+    "target": "agent_workflow_templates.md"
+  },
+  {
+    "source": "agent_workflow_rules.md",
+    "target": "agent_workflow_arch_review.md"
+  },
+  {
+    "source": "agent_workflow_rules.md",
+    "target": "agent_workflow_test_bundles.md"
+  },
+  {
+    "source": "agent_workflow_rules.md",
+    "target": "token_safety.md"
+  },
+  {
+    "source": "agent_workflow_templates.md",
+    "target": "agent_workflow.md"
+  },
+  {
+    "source": "agent_workflow_templates.md",
+    "target": "agent_workflow_rules.md"
+  },
+  {
+    "source": "agent_workflow_templates.md",
+    "target": "agent_workflow_cycle.md"
+  },
+  {
+    "source": "agent_workflow_templates.md",
+    "target": "agent_workflow_arch_review.md"
+  },
+  {
+    "source": "agent_workflow_templates.md",
+    "target": "agent_workflow_test_bundles.md"
+  },
+  {
+    "source": "agent_workflow_templates.md",
+    "target": "token_safety.md"
+  },
+  {
+    "source": "agent_workflow_templates.md",
+    "target": "team_workflow/tester.md"
+  },
+  {
+    "source": "agent_workflow_templates.md",
+    "target": "team_workflow/developer.md"
+  },
+  {
+    "source": "agent_workflow_test_bundles.md",
+    "target": "agent_workflow.md"
+  },
+  {
+    "source": "agent_workflow_test_bundles.md",
+    "target": "agent_workflow_rules.md"
+  },
+  {
+    "source": "agent_workflow_test_bundles.md",
+    "target": "agent_workflow_cycle.md"
+  },
+  {
+    "source": "agent_workflow_test_bundles.md",
+    "target": "agent_workflow_templates.md"
+  },
+  {
+    "source": "agent_workflow_test_bundles.md",
+    "target": "agent_workflow_arch_review.md"
+  },
+  {
+    "source": "agent_workflow_test_bundles.md",
+    "target": "team_workflow/process.md"
+  },
+  {
+    "source": "api_reference.md",
+    "target": "adr_021a_global_analytics_design.md"
+  },
+  {
+    "source": "architecture.md",
+    "target": "backlog_registry.yaml"
+  },
+  {
+    "source": "architecture.md",
+    "target": "tasklist.md"
+  },
+  {
+    "source": "architecture.md",
+    "target": "future_roadmap.md"
+  },
+  {
+    "source": "architecture.md",
+    "target": "index_lifecycle.md"
+  },
+  {
+    "source": "cjm.md",
+    "target": "user_scenarios.md"
+  },
+  {
+    "source": "cjm.md",
+    "target": "user_guide.md"
+  },
+  {
+    "source": "cjm.md",
+    "target": "backlog_registry.yaml"
+  },
+  {
+    "source": "cjm.md",
+    "target": "product_idea.md"
+  },
+  {
+    "source": "closed_iterations.md",
+    "target": "epochs/ingest_acceleration.md"
+  },
+  {
+    "source": "closed_iterations.md",
+    "target": "epochs/epoch_local_cors_defaults.md"
+  },
+  {
+    "source": "closed_iterations.md",
+    "target": "epochs/epoch_ui_refactoring.md"
+  },
+  {
+    "source": "closed_iterations.md",
+    "target": "epochs/epoch_metrics_decomposition.md"
+  },
+  {
+    "source": "closed_iterations.md",
+    "target": "epochs/epoch_learning_route_continuity.md"
+  },
+  {
+    "source": "closed_iterations.md",
+    "target": "epochs/ops_stability_hybrid_embeddings.md"
+  },
+  {
+    "source": "closed_iterations.md",
+    "target": "epochs/epoch_query_service_decomposition.md"
+  },
+  {
+    "source": "closed_iterations.md",
+    "target": "epochs/epoch_adr_.md"
+  },
+  {
+    "source": "closed_iterations.md",
+    "target": "epochs/epoch_local_store_contracts.md"
+  },
+  {
+    "source": "closed_iterations.md",
+    "target": "epochs/epoch_exception_hygiene.md"
+  },
+  {
+    "source": "conventions.md",
+    "target": "conventions_architecture.md"
+  },
+  {
+    "source": "conventions.md",
+    "target": "conventions_reference.md"
+  },
+  {
+    "source": "conventions_architecture.md",
+    "target": "conventions.md"
+  },
+  {
+    "source": "conventions_architecture.md",
+    "target": "adr_021a_smart_router_architecture_lifts.md"
+  },
+  {
+    "source": "conventions_architecture.md",
+    "target": "index_lifecycle.md"
+  },
+  {
+    "source": "conventions_reference.md",
+    "target": "conventions.md"
+  },
+  {
+    "source": "conventions_reference.md",
+    "target": "api_reference.md"
+  },
+  {
+    "source": "conventions_reference.md",
+    "target": "agent_workflow_test_bundles.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "index.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "readme.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "quickstart.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "vision.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "user_guide.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "architecture.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "AGENTS.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "conventions.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "prompts_catalog.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "prompts_usage_guide.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "team_workflow/process.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "team_workflow/product_owner_router.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "roadmap.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "team_workflow/workflow_router.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "smart_study_router.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "conventions_architecture.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "changelog.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "api_reference.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "observability_slo.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "personalized_learner_model.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "token_safety.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "conventions_reference.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "backlog_registry.yaml"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "user_stories.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "tasklist.md"
+  },
+  {
+    "source": "documentation_onboarding_guide.md",
+    "target": "agent_workflow.md"
+  },
+  {
+    "source": "future_roadmap.md",
+    "target": "smart_study_router.md"
+  },
+  {
+    "source": "future_roadmap.md",
+    "target": "roadmap.md"
+  },
+  {
+    "source": "index.md",
+    "target": "documentation_onboarding_guide.md"
+  },
+  {
+    "source": "index.md",
+    "target": "readme.md"
+  },
+  {
+    "source": "index.md",
+    "target": "quickstart.md"
+  },
+  {
+    "source": "index.md",
+    "target": "vision.md"
+  },
+  {
+    "source": "index.md",
+    "target": "user_guide.md"
+  },
+  {
+    "source": "index.md",
+    "target": "user_scenarios.md"
+  },
+  {
+    "source": "index.md",
+    "target": "quickstart_demo.md"
+  },
+  {
+    "source": "index.md",
+    "target": "cjm.md"
+  },
+  {
+    "source": "index.md",
+    "target": "user_stories.md"
+  },
+  {
+    "source": "index.md",
+    "target": "backlog_registry.yaml"
+  },
+  {
+    "source": "index.md",
+    "target": "architecture.md"
+  },
+  {
+    "source": "index.md",
+    "target": "adr.md"
+  },
+  {
+    "source": "index.md",
+    "target": "conventions_architecture.md"
+  },
+  {
+    "source": "index.md",
+    "target": "conventions.md"
+  },
+  {
+    "source": "index.md",
+    "target": "technical_specification.md"
+  },
+  {
+    "source": "index.md",
+    "target": "api_reference.md"
+  },
+  {
+    "source": "index.md",
+    "target": "agent_workflow.md"
+  },
+  {
+    "source": "index.md",
+    "target": "agent_workflow_test_bundles.md"
+  },
+  {
+    "source": "index.md",
+    "target": "CLAUDE.md"
+  },
+  {
+    "source": "index.md",
+    "target": "token_safety.md"
+  },
+  {
+    "source": "index.md",
+    "target": "team_workflow/README.md"
+  },
+  {
+    "source": "index.md",
+    "target": "observability_slo.md"
+  },
+  {
+    "source": "index.md",
+    "target": "index_lifecycle.md"
+  },
+  {
+    "source": "index.md",
+    "target": "kilo_budget_system.md"
+  },
+  {
+    "source": "index.md",
+    "target": "roadmap.md"
+  },
+  {
+    "source": "index.md",
+    "target": "product_idea.md"
+  },
+  {
+    "source": "index.md",
+    "target": "pitch.md"
+  },
+  {
+    "source": "index.md",
+    "target": "presenter_script.md"
+  },
+  {
+    "source": "index.md",
+    "target": "smart_study_router.md"
+  },
+  {
+    "source": "index.md",
+    "target": "future_roadmap.md"
+  },
+  {
+    "source": "index.md",
+    "target": "roadmap_governance.md"
+  },
+  {
+    "source": "index.md",
+    "target": "next/BREAKTHROUGH_SUMMARY.md"
+  },
+  {
+    "source": "index.md",
+    "target": "next/localhost_balance_course_delight_breakthrough.md"
+  },
+  {
+    "source": "index.md",
+    "target": "next/BREAKTHROUGH_VISUAL.md"
+  },
+  {
+    "source": "index.md",
+    "target": "next/DEFENSE_TALKING_POINTS.md"
+  },
+  {
+    "source": "index.md",
+    "target": "user_guide_details.md"
+  },
+  {
+    "source": "index.md",
+    "target": "presentations/defense_deploy_plan.md"
+  },
+  {
+    "source": "index.md",
+    "target": "personalized_learner_model.md"
+  },
+  {
+    "source": "index.md",
+    "target": "ssr_llm_profiling.md"
+  },
+  {
+    "source": "index.md",
+    "target": "eval_experimenter_runbook.md"
+  },
+  {
+    "source": "index.md",
+    "target": "conventions_reference.md"
+  },
+  {
+    "source": "index.md",
+    "target": "archive/arch_review_baseline.yaml"
+  },
+  {
+    "source": "index.md",
+    "target": "tasklist.md"
+  },
+  {
+    "source": "index.md",
+    "target": "current_task.md"
+  },
+  {
+    "source": "index.md",
+    "target": "user_stories_index.json"
+  },
+  {
+    "source": "index.md",
+    "target": "user_stories_details.md"
+  },
+  {
+    "source": "index.md",
+    "target": "tail_sweep.md"
+  },
+  {
+    "source": "index.md",
+    "target": "agent_workflow_rules.md"
+  },
+  {
+    "source": "index.md",
+    "target": "agent_workflow_cycle.md"
+  },
+  {
+    "source": "index.md",
+    "target": "agent_workflow_templates.md"
+  },
+  {
+    "source": "index.md",
+    "target": "agent_workflow_arch_review.md"
+  },
+  {
+    "source": "index.md",
+    "target": "team_workflow/process.md"
+  },
+  {
+    "source": "index.md",
+    "target": "team_workflow/automation.md"
+  },
+  {
+    "source": "index.md",
+    "target": "team_workflow/workflow_router.md"
+  },
+  {
+    "source": "index.md",
+    "target": "token_safety_registry.json"
+  },
+  {
+    "source": "index.md",
+    "target": "token_metrics_tracking.md"
+  },
+  {
+    "source": "index.md",
+    "target": "QUICK_READSET_REFERENCE.md"
+  },
+  {
+    "source": "index.md",
+    "target": "MICROPLAN_USAGE.md"
+  },
+  {
+    "source": "index.md",
+    "target": "VALIDATOR_FLOWCHART.md"
+  },
+  {
+    "source": "index.md",
+    "target": "TOKEN_OPTIMIZATION_CARD.md"
+  },
+  {
+    "source": "index.md",
+    "target": "kilo_budget_gate.md"
+  },
+  {
+    "source": "index.md",
+    "target": "kilo_budget_capture_runbook.md"
+  },
+  {
+    "source": "index.md",
+    "target": "kilo_proxy_relay.md"
+  },
+  {
+    "source": "index.md",
+    "target": "loop_metrics_gate_runbook.md"
+  },
+  {
+    "source": "index.md",
+    "target": "changelog.md"
+  },
+  {
+    "source": "index.md",
+    "target": "closed_iterations.md"
+  },
+  {
+    "source": "index.md",
+    "target": "prompts_catalog.md"
+  },
+  {
+    "source": "index.md",
+    "target": "team_workflow/reopen_package_step_c_prompt.md"
+  },
+  {
+    "source": "index.md",
+    "target": "archive/adr_rag_architecture.md"
+  },
+  {
+    "source": "index.md",
+    "target": "archive/architectural_refactoring.md"
+  },
+  {
+    "source": "index.md",
+    "target": "archive/blue_green_reindex_design.md"
+  },
+  {
+    "source": "index.md",
+    "target": "archive/blue_green_reindex_implementation_plan.md"
+  },
+  {
+    "source": "index.md",
+    "target": "archive/tasklist_historical.md"
+  },
+  {
+    "source": "index.md",
+    "target": "archive/IMPLEMENTATION_COMPLETE.md"
+  },
+  {
+    "source": "index.md",
+    "target": "archive/IMPLEMENTATION_P0_P1.md"
+  },
+  {
+    "source": "index.md",
+    "target": "archive/token_optimization_plan.md"
+  },
+  {
+    "source": "index.md",
+    "target": "archive/token_optimization_checklist.md"
+  },
+  {
+    "source": "index.md",
+    "target": "archive/handoff_next_level.md"
+  },
+  {
+    "source": "index.md",
+    "target": "archive/architecture_review_2026-04-24.md"
+  },
+  {
+    "source": "index.md",
+    "target": "archive/workflow_hardening_plan_2026-04-24.md"
+  },
+  {
+    "source": "index.md",
+    "target": "archive/kilo_budget_remediation_plan.md"
+  },
+  {
+    "source": "kilo_budget_capture_runbook.md",
+    "target": "kilo_proxy_relay.md"
+  },
+  {
+    "source": "kilo_budget_gate.md",
+    "target": "kilo_budget_capture_runbook.md"
+  },
+  {
+    "source": "kilo_budget_system.md",
+    "target": "kilo_budget_gate.md"
+  },
+  {
+    "source": "kilo_budget_system.md",
+    "target": "kilo_budget_capture_runbook.md"
+  },
+  {
+    "source": "kilo_budget_system.md",
+    "target": "team_workflow/budget_health_prompt.md"
+  },
+  {
+    "source": "kilo_budget_system.md",
+    "target": "conventions.md"
+  },
+  {
+    "source": "kilo_budget_system.md",
+    "target": "token_safety.md"
+  },
+  {
+    "source": "kilo_proxy_relay.md",
+    "target": "kilo_budget_system.md"
+  },
+  {
+    "source": "kilo_proxy_relay.md",
+    "target": "kilo_budget_gate.md"
+  },
+  {
+    "source": "kilo_proxy_relay.md",
+    "target": "kilo_budget_capture_runbook.md"
+  },
+  {
+    "source": "personalized_learner_model.md",
+    "target": "quickstart.md"
+  },
+  {
+    "source": "personalized_learner_model.md",
+    "target": "quickstart_demo.md"
+  },
+  {
+    "source": "personalized_learner_model.md",
+    "target": "user_scenarios.md"
+  },
+  {
+    "source": "pitch.md",
+    "target": "user_scenarios.md"
+  },
+  {
+    "source": "pitch.md",
+    "target": "quickstart_demo.md"
+  },
+  {
+    "source": "pitch.md",
+    "target": "quickstart.md"
+  },
+  {
+    "source": "pitch.md",
+    "target": "eval_experimenter_runbook.md"
+  },
+  {
+    "source": "pitch.md",
+    "target": "cjm.md"
+  },
+  {
+    "source": "pitch.md",
+    "target": "vision.md"
+  },
+  {
+    "source": "pitch.md",
+    "target": "architecture.md"
+  },
+  {
+    "source": "pitch.md",
+    "target": "presenter_script.md"
+  },
+  {
+    "source": "presenter_script.md",
+    "target": "pitch.md"
+  },
+  {
+    "source": "presenter_script.md",
+    "target": "quickstart_demo.md"
+  },
+  {
+    "source": "presenter_script.md",
+    "target": "user_scenarios.md"
+  },
+  {
+    "source": "presenter_script.md",
+    "target": "eval_experimenter_runbook.md"
+  },
+  {
+    "source": "presenter_script.md",
+    "target": "vision.md"
+  },
+  {
+    "source": "presenter_script.md",
+    "target": "user_guide_details.md"
+  },
+  {
+    "source": "presenter_script.md",
+    "target": "architecture.md"
+  },
+  {
+    "source": "presenter_script.md",
+    "target": "quickstart.md"
+  },
+  {
+    "source": "product_idea.md",
+    "target": "roadmap.md"
+  },
+  {
+    "source": "product_idea.md",
+    "target": "smart_study_router.md"
+  },
+  {
+    "source": "product_idea.md",
+    "target": "backlog_registry.yaml"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "agent_workflow_templates.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "agent_workflow_arch_review.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/product_owner_router.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/po_router_conflicts.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/po_router_scope_matrix.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/po_router_escape_hatches.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/po_router_anti_patterns.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/po_router_handoffs.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/po_router_parallel_waves.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/po_router_retrospectives.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/generate_plan_next_prompt.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "backlog_registry.yaml"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "tasklist.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/generate_resume_prompt.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/generate_breakthrough_ideation_prompt.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/product_owner_plan_package_prompt.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/generate_roadmap_epoch_waves_prompt.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/generate_orchestration_prompt.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/generate_execution_prompt_auto.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/run_audit_chain_prompt.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/generate_audit_closed_packages_prompt.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/generate_audit_packages_coverage_prompt.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/reopen_package_step_c_prompt.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "current_task.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/reopen_prompt_closed_window_template.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/budget_health_prompt.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/demo_scenarios_prompt_bundle.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/generate_bottleneck_analysis_prompt.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/product_owner.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/analyst.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/architect.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/designer.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/developer.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/tester.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/ragops_engineer.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/rag_llm_ops_project_document.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/llmops_engineer.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/mlops_engineer.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/performance_devops.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/orchestrator_template.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/guides/agent_adapter_claude_code.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/guides/agent_adapter_cursor_ai.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/guides/agent_adapter_codex.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/guides/agent_adapter_kilo.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/examples/example_e15a_orchestration_level3_in_agent_claude_code.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/examples/example_e15a_orchestration_level3_in_agent_cursor_ai.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/examples/example_e15a_orchestration_level3_in_agent_codex.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/examples/example_flashcards_and_bugfix.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/workflow_router.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/process.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/automation.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/start_workflow.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/run_start_workflow_prompt.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/run_autonomous.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/run_autonomous_runbook.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/run_autonomous_prompt.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/README.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "index.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "vision.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "cjm.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "product_idea.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "future_roadmap.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "roadmap.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "user_stories.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "closed_iterations.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "architecture.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "adr.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "conventions.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "roadmap_governance.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "team_workflow/archive/epoch_demo_post_agent_smoke.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "prompts_usage_guide.md"
+  },
+  {
+    "source": "prompts_catalog.md",
+    "target": "agent_workflow_test_bundles.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "prompts_catalog.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "backlog_registry.yaml"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "tasklist.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/process.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/generate_orchestration_prompt.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/workflow_decision_tree.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/workflow_router.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/developer.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/tester.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/generate_plan_next_prompt.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/generate_resume_prompt.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/run_audit_chain_prompt.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/generate_audit_closed_packages_prompt.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/generate_audit_packages_coverage_prompt.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/product_owner_plan_package_prompt.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/product_owner.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/generate_breakthrough_ideation_prompt.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "cjm.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "token_safety.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/analyst.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/architect.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "agent_workflow_arch_review.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "conventions.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "agent_workflow_templates.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/archive/epoch_demo_post_agent_smoke.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/performance_devops.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/budget_health_prompt.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/generate_bottleneck_analysis_prompt.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/rag_llm_ops_project_document.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/ragops_engineer.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/llmops_engineer.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/mlops_engineer.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "next/localhost_balance_course_delight_plan.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/run_autonomous_prompt.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/run_autonomous_runbook.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/run_start_workflow_prompt.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/reopen_prompt_closed_window_template.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/guides/agent_adapter_claude_code.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/guides/agent_adapter_cursor_ai.md"
+  },
+  {
+    "source": "prompts_usage_guide.md",
+    "target": "team_workflow/guides/agent_adapter_kilo.md"
+  },
+  {
+    "source": "quickstart.md",
+    "target": "user_guide.md"
+  },
+  {
+    "source": "quickstart.md",
+    "target": "user_scenarios.md"
+  },
+  {
+    "source": "quickstart.md",
+    "target": "user_guide_details.md"
+  },
+  {
+    "source": "quickstart.md",
+    "target": "ssr_llm_profiling.md"
+  },
+  {
+    "source": "quickstart.md",
+    "target": "api_reference.md"
+  },
+  {
+    "source": "quickstart.md",
+    "target": "personalized_learner_model.md"
+  },
+  {
+    "source": "quickstart.md",
+    "target": "prompts_catalog.md"
+  },
+  {
+    "source": "quickstart.md",
+    "target": "prompts_usage_guide.md"
+  },
+  {
+    "source": "quickstart.md",
+    "target": "team_workflow/process.md"
+  },
+  {
+    "source": "quickstart.md",
+    "target": "quickstart_demo.md"
+  },
+  {
+    "source": "quickstart_demo.md",
+    "target": "user_scenarios.md"
+  },
+  {
+    "source": "quickstart_demo.md",
+    "target": "quickstart.md"
+  },
+  {
+    "source": "quickstart_demo.md",
+    "target": "scenarios/README.md"
+  },
+  {
+    "source": "quickstart_demo.preview.md",
+    "target": "user_scenarios.md"
+  },
+  {
+    "source": "quickstart_demo.preview.md",
+    "target": "quickstart.md"
+  },
+  {
+    "source": "quickstart_demo.preview.md",
+    "target": "scenarios/README.md"
+  },
+  {
+    "source": "QUICK_READSET_REFERENCE.md",
+    "target": "token_safety.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "index.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "architecture.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "index_lifecycle.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "technical_specification.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "api_reference.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "user_guide.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "user_guide_details.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "user_scenarios.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "user_stories.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "user_stories_details.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "vision.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "conventions.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "conventions_architecture.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "conventions_reference.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "archive/tasklist_historical.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "observability_slo.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "personalized_learner_model.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "changelog.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "backlog_registry.yaml"
+  },
+  {
+    "source": "readme.md",
+    "target": "tasklist.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "roadmap_governance.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "roadmap.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "future_roadmap.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "closed_iterations.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "product_idea.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "adr.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "archive/adr_rag_architecture.md"
+  },
+  {
+    "source": "readme.md",
+    "target": "archive/architectural_refactoring.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "backlog_registry.yaml"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "tasklist.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "closed_iterations.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "roadmap_governance.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "future_roadmap.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "cjm.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "user_stories_index.json"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "product_idea.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "vision.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "smart_study_router.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "user_stories.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "user_stories_details.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "team_workflow/generate_plan_next_prompt.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "team_workflow/generate_breakthrough_ideation_prompt.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "team_workflow/product_owner_plan_package_prompt.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "team_workflow/_common_rules.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "readme.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "index.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "user_guide.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "user_guide_details.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "user_scenarios.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "quickstart.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "quickstart_demo.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "expert_controls_recommendations.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "next/localhost_balance_course_delight_plan.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "next/localhost_balance_course_delight_breakthrough.md"
+  },
+  {
+    "source": "roadmap.md",
+    "target": "team_workflow/product_owner_router.md"
+  },
+  {
+    "source": "roadmap_governance.md",
+    "target": "roadmap.md"
+  },
+  {
+    "source": "smart_study_router.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level1_prompt.md"
+  },
+  {
+    "source": "smart_study_router.md",
+    "target": "product_idea.md"
+  },
+  {
+    "source": "smart_study_router.md",
+    "target": "cjm.md"
+  },
+  {
+    "source": "smart_study_router.md",
+    "target": "roadmap.md"
+  },
+  {
+    "source": "smart_study_router.md",
+    "target": "future_roadmap.md"
+  },
+  {
+    "source": "smart_study_router.md",
+    "target": "user_stories.md"
+  },
+  {
+    "source": "smart_study_router.md",
+    "target": "team_workflow/product_owner_router.md"
+  },
+  {
+    "source": "smart_study_router.md",
+    "target": "team_workflow/archive/product_owner_router_ai_vision_enhancement.md"
+  },
+  {
+    "source": "smart_study_router.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md"
+  },
+  {
+    "source": "smart_study_router.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_prompt.md"
+  },
+  {
+    "source": "smart_study_router.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level3_prompt.md"
+  },
+  {
+    "source": "smart_study_router.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level4_prompt.md"
+  },
+  {
+    "source": "smart_study_router.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level5_prompt.md"
+  },
+  {
+    "source": "smart_study_router.md",
+    "target": "backlog_registry.yaml"
+  },
+  {
+    "source": "smart_study_router.md",
+    "target": "closed_iterations.md"
+  },
+  {
+    "source": "smart_study_router.md",
+    "target": "presentations/defense_killer_feature_smart_assistant.md"
+  },
+  {
+    "source": "smart_study_router.md",
+    "target": "presentations/defense_user_router_breakthrough.md"
+  },
+  {
+    "source": "ssr_ml_production_readiness.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md"
+  },
+  {
+    "source": "ssr_ml_production_readiness.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_wave1_audit_summary.md"
+  },
+  {
+    "source": "tail_sweep.md",
+    "target": "roadmap_governance.md"
+  },
+  {
+    "source": "tail_sweep.md",
+    "target": "backlog_registry.yaml"
+  },
+  {
+    "source": "tail_sweep.md",
+    "target": "tasklist.md"
+  },
+  {
+    "source": "tasklist.md",
+    "target": "closed_iterations.md"
+  },
+  {
+    "source": "tasklist.md",
+    "target": "archive/tasklist_historical.md"
+  },
+  {
+    "source": "user_guide.md",
+    "target": "quickstart.md"
+  },
+  {
+    "source": "user_guide.md",
+    "target": "quickstart_demo.md"
+  },
+  {
+    "source": "user_guide.md",
+    "target": "user_scenarios.md"
+  },
+  {
+    "source": "user_guide.md",
+    "target": "personalized_learner_model.md"
+  },
+  {
+    "source": "user_guide.md",
+    "target": "user_guide_details.md"
+  },
+  {
+    "source": "user_guide.md",
+    "target": "prompts_catalog.md"
+  },
+  {
+    "source": "user_guide.md",
+    "target": "prompts_usage_guide.md"
+  },
+  {
+    "source": "user_guide.md",
+    "target": "ssr_llm_profiling.md"
+  },
+  {
+    "source": "user_guide.md",
+    "target": "glossary.md"
+  },
+  {
+    "source": "user_guide.md",
+    "target": "presentations/defense_deploy_plan.md"
+  },
+  {
+    "source": "user_guide.md",
+    "target": "kilo_proxy_relay.md"
+  },
+  {
+    "source": "user_guide.md",
+    "target": "api_reference.md"
+  },
+  {
+    "source": "user_guide.md",
+    "target": "pitch.md"
+  },
+  {
+    "source": "user_guide.md",
+    "target": "presenter_script.md"
+  },
+  {
+    "source": "user_guide.md",
+    "target": "eval_experimenter_runbook.md"
+  },
+  {
+    "source": "user_guide_details.md",
+    "target": "quickstart.md"
+  },
+  {
+    "source": "user_guide_details.md",
+    "target": "user_scenarios.md"
+  },
+  {
+    "source": "user_guide_details.md",
+    "target": "presentations/defense_deploy_plan.md"
+  },
+  {
+    "source": "user_guide_details.md",
+    "target": "eval_experimenter_runbook.md"
+  },
+  {
+    "source": "user_guide_details.md",
+    "target": "ssr_llm_profiling.md"
+  },
+  {
+    "source": "user_guide_details.md",
+    "target": "user_guide.md"
+  },
+  {
+    "source": "user_guide_details.md",
+    "target": "quickstart_demo.md"
+  },
+  {
+    "source": "user_guide_details.md",
+    "target": "api_reference.md"
+  },
+  {
+    "source": "user_guide_details.md",
+    "target": "personalized_learner_model.md"
+  },
+  {
+    "source": "user_guide_details.md",
+    "target": "cjm.md"
+  },
+  {
+    "source": "user_scenarios.md",
+    "target": "smart_study_router.md"
+  },
+  {
+    "source": "user_scenarios.md",
+    "target": "presentations/defense_presentation_v2.md"
+  },
+  {
+    "source": "user_scenarios.md",
+    "target": "cjm.md"
+  },
+  {
+    "source": "user_scenarios.md",
+    "target": "user_guide.md"
+  },
+  {
+    "source": "user_scenarios.md",
+    "target": "user_guide_details.md"
+  },
+  {
+    "source": "user_scenarios.md",
+    "target": "presentations/defense_deploy_plan.md"
+  },
+  {
+    "source": "user_scenarios.md",
+    "target": "quickstart_demo.md"
+  },
+  {
+    "source": "user_scenarios.md",
+    "target": "personalized_learner_model.md"
+  },
+  {
+    "source": "user_scenarios.md",
+    "target": "api_reference.md"
+  },
+  {
+    "source": "user_stories.md",
+    "target": "smart_study_router.md"
+  },
+  {
+    "source": "vision.md",
+    "target": "roadmap.md"
+  },
+  {
+    "source": "archive/architectural_refactoring.md",
+    "target": "archive/adr_rag_architecture.md"
+  },
+  {
+    "source": "next/BREAKTHROUGH_SUMMARY.md",
+    "target": "next/localhost_balance_course_delight_breakthrough.md"
+  },
+  {
+    "source": "next/DEFENSE_TALKING_POINTS.md",
+    "target": "next/localhost_balance_course_delight_breakthrough.md"
+  },
+  {
+    "source": "next/DEFENSE_TALKING_POINTS.md",
+    "target": "next/BREAKTHROUGH_VISUAL.md"
+  },
+  {
+    "source": "next/DEFENSE_TALKING_POINTS.md",
+    "target": "next/BREAKTHROUGH_SUMMARY.md"
+  },
+  {
+    "source": "next/localhost_balance_course_delight_plan.md",
+    "target": "adr.md"
+  },
+  {
+    "source": "presentations/defense_expert_panel.md",
+    "target": "presentations/defense_presentation.md"
+  },
+  {
+    "source": "presentations/defense_killer_demo_v2_with_smart_assistant.md",
+    "target": "presentations/defense_killer_feature_smart_assistant.md"
+  },
+  {
+    "source": "presentations/defense_killer_demo_v2_with_smart_assistant.md",
+    "target": "presentations/defense_killer_demo.md"
+  },
+  {
+    "source": "presentations/defense_killer_demo_v2_with_smart_assistant.md",
+    "target": "presentations/defense_killer_demo_storyboard.md"
+  },
+  {
+    "source": "presentations/defense_killer_demo_v2_with_smart_assistant.md",
+    "target": "presentations/defense_killer_demo_cheatsheet.md"
+  },
+  {
+    "source": "presentations/defense_presentation_improvements.md",
+    "target": "presentations/defense_presentation.md"
+  },
+  {
+    "source": "presentations/defense_presentation_improvements.md",
+    "target": "presentations/defense_killer_demo.md"
+  },
+  {
+    "source": "presentations/defense_presentation_improvements.md",
+    "target": "presentations/defense_virtual_defense.md"
+  },
+  {
+    "source": "presentations/defense_presentation_README.md",
+    "target": "presentations/defense_presentation.md"
+  },
+  {
+    "source": "presentations/defense_presentation_README.md",
+    "target": "presentations/defense_presentation_improvements.md"
+  },
+  {
+    "source": "presentations/defense_presentation_README.md",
+    "target": "presentations/defense_presentation_CHANGELOG.md"
+  },
+  {
+    "source": "presentations/defense_presentation_README.md",
+    "target": "presentations/defense_killer_demo.md"
+  },
+  {
+    "source": "presentations/defense_presentation_README.md",
+    "target": "presentations/defense_virtual_defense.md"
+  },
+  {
+    "source": "presentations/defense_presentation_v2.md",
+    "target": "kilo_proxy_relay.md"
+  },
+  {
+    "source": "presentations/defense_README.md",
+    "target": "presentations/defense_presentation.md"
+  },
+  {
+    "source": "presentations/defense_README.md",
+    "target": "presentations/defense_virtual_defense.md"
+  },
+  {
+    "source": "presentations/defense_README.md",
+    "target": "presentations/defense_expert_panel.md"
+  },
+  {
+    "source": "presentations/defense_README.md",
+    "target": "presentations/defense_user_panel.md"
+  },
+  {
+    "source": "presentations/defense_README.md",
+    "target": "presentations/defense_killer_demo.md"
+  },
+  {
+    "source": "presentations/defense_README.md",
+    "target": "presentations/defense_killer_demo_storyboard.md"
+  },
+  {
+    "source": "presentations/defense_README.md",
+    "target": "presentations/defense_killer_demo_cheatsheet.md"
+  },
+  {
+    "source": "presentations/defense_README.md",
+    "target": "presentations/defense_summary.md"
+  },
+  {
+    "source": "presentations/defense_README.md",
+    "target": "presentations/defense_improvements_log.md"
+  },
+  {
+    "source": "presentations/defense_README.md",
+    "target": "presentations/defense_user_router_breakthrough.md"
+  },
+  {
+    "source": "presentations/defense_summary.md",
+    "target": "presentations/defense_virtual_defense.md"
+  },
+  {
+    "source": "presentations/defense_summary.md",
+    "target": "presentations/defense_expert_panel.md"
+  },
+  {
+    "source": "presentations/defense_summary.md",
+    "target": "presentations/defense_user_panel.md"
+  },
+  {
+    "source": "presentations/defense_summary.md",
+    "target": "presentations/defense_killer_demo.md"
+  },
+  {
+    "source": "presentations/defense_summary.md",
+    "target": "presentations/defense_presentation.md"
+  },
+  {
+    "source": "presentations/defense_user_panel.md",
+    "target": "presentations/defense_presentation.md"
+  },
+  {
+    "source": "presentations/defense_user_router_breakthrough.md",
+    "target": "presentations/defense_user_panel.md"
+  },
+  {
+    "source": "presentations/defense_virtual_defense.md",
+    "target": "presentations/defense_presentation.md"
+  },
+  {
+    "source": "scenarios/README.md",
+    "target": "user_scenarios.md"
+  },
+  {
+    "source": "team_workflow/analyst.md",
+    "target": "team_workflow/process.md"
+  },
+  {
+    "source": "team_workflow/analyst.md",
+    "target": "team_workflow/architect.md"
+  },
+  {
+    "source": "team_workflow/analyst.md",
+    "target": "team_workflow/designer.md"
+  },
+  {
+    "source": "team_workflow/architect.md",
+    "target": "team_workflow/process.md"
+  },
+  {
+    "source": "team_workflow/architect.md",
+    "target": "team_workflow/developer.md"
+  },
+  {
+    "source": "team_workflow/automation.md",
+    "target": "team_workflow/process.md"
+  },
+  {
+    "source": "team_workflow/automation.md",
+    "target": "team_workflow/workflow_router.md"
+  },
+  {
+    "source": "team_workflow/designer.md",
+    "target": "team_workflow/process.md"
+  },
+  {
+    "source": "team_workflow/designer.md",
+    "target": "team_workflow/developer.md"
+  },
+  {
+    "source": "team_workflow/developer.md",
+    "target": "team_workflow/process.md"
+  },
+  {
+    "source": "team_workflow/developer.md",
+    "target": "team_workflow/tester.md"
+  },
+  {
+    "source": "team_workflow/developer.md",
+    "target": "agent_workflow_templates.md"
+  },
+  {
+    "source": "team_workflow/generate_audit_closed_packages_prompt.md",
+    "target": "team_workflow/_common_rules.md"
+  },
+  {
+    "source": "team_workflow/generate_audit_closed_packages_prompt.md",
+    "target": "team_workflow/generate_orchestration_prompt.md"
+  },
+  {
+    "source": "team_workflow/generate_audit_closed_packages_prompt.md",
+    "target": "team_workflow/generate_resume_prompt.md"
+  },
+  {
+    "source": "team_workflow/generate_audit_closed_packages_prompt.md",
+    "target": "team_workflow/generate_plan_next_prompt.md"
+  },
+  {
+    "source": "team_workflow/generate_audit_closed_packages_prompt.md",
+    "target": "team_workflow/tester.md"
+  },
+  {
+    "source": "team_workflow/generate_audit_closed_packages_prompt.md",
+    "target": "team_workflow/reopen_package_step_c_prompt.md"
+  },
+  {
+    "source": "team_workflow/generate_audit_closed_packages_prompt.md",
+    "target": "team_workflow/orchestrator_template.md"
+  },
+  {
+    "source": "team_workflow/generate_bottleneck_analysis_prompt.md",
+    "target": "team_workflow/workflow_router.md"
+  },
+  {
+    "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+    "target": "team_workflow/_common_rules.md"
+  },
+  {
+    "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+    "target": "team_workflow/generate_plan_next_prompt.md"
+  },
+  {
+    "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+    "target": "team_workflow/product_owner_plan_package_prompt.md"
+  },
+  {
+    "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+    "target": "team_workflow/designer.md"
+  },
+  {
+    "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+    "target": "backlog_registry.yaml"
+  },
+  {
+    "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+    "target": "team_workflow/generate_orchestration_prompt.md"
+  },
+  {
+    "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+    "target": "team_workflow/generate_resume_prompt.md"
+  },
+  {
+    "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+    "target": "smart_study_router.md"
+  },
+  {
+    "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+    "target": "cjm.md"
+  },
+  {
+    "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+    "target": "user_stories.md"
+  },
+  {
+    "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+    "target": "user_stories/README.md"
+  },
+  {
+    "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+    "target": "tasklist.md"
+  },
+  {
+    "source": "team_workflow/generate_breakthrough_ideation_prompt.md",
+    "target": "team_workflow/workflow_router.md"
+  },
+  {
+    "source": "team_workflow/generate_execution_prompt_auto.md",
+    "target": "team_workflow/generate_plan_next_prompt.md"
+  },
+  {
+    "source": "team_workflow/generate_execution_prompt_auto.md",
+    "target": "team_workflow/generate_resume_prompt.md"
+  },
+  {
+    "source": "team_workflow/generate_execution_prompt_auto.md",
+    "target": "team_workflow/generate_orchestration_prompt.md"
+  },
+  {
+    "source": "team_workflow/generate_execution_prompt_auto.md",
+    "target": "backlog_registry.yaml"
+  },
+  {
+    "source": "team_workflow/generate_execution_prompt_auto.md",
+    "target": "tasklist.md"
+  },
+  {
+    "source": "team_workflow/generate_orchestration_prompt.md",
+    "target": "team_workflow/_common_rules.md"
+  },
+  {
+    "source": "team_workflow/generate_orchestration_prompt.md",
+    "target": "team_workflow/rag_llm_ops_project_document.md"
+  },
+  {
+    "source": "team_workflow/generate_plan_next_prompt.md",
+    "target": "backlog_registry.yaml"
+  },
+  {
+    "source": "team_workflow/generate_plan_next_prompt.md",
+    "target": "tasklist.md"
+  },
+  {
+    "source": "team_workflow/generate_plan_next_prompt.md",
+    "target": "team_workflow/workflow_router.md"
+  },
+  {
+    "source": "team_workflow/generate_plan_next_prompt.md",
+    "target": "team_workflow/generate_orchestration_prompt.md"
+  },
+  {
+    "source": "team_workflow/generate_plan_next_prompt.md",
+    "target": "team_workflow/generate_resume_prompt.md"
+  },
+  {
+    "source": "team_workflow/generate_plan_next_prompt.md",
+    "target": "team_workflow/_common_rules.md"
+  },
+  {
+    "source": "team_workflow/generate_plan_next_prompt.md",
+    "target": "team_workflow/generate_breakthrough_ideation_prompt.md"
+  },
+  {
+    "source": "team_workflow/generate_plan_next_prompt.md",
+    "target": "team_workflow/product_owner_plan_package_prompt.md"
+  },
+  {
+    "source": "team_workflow/generate_plan_next_prompt.md",
+    "target": "prompts_usage_guide.md"
+  },
+  {
+    "source": "team_workflow/generate_plan_next_prompt.md",
+    "target": "cjm.md"
+  },
+  {
+    "source": "team_workflow/generate_plan_next_prompt.md",
+    "target": "user_stories.md"
+  },
+  {
+    "source": "team_workflow/generate_plan_next_prompt.md",
+    "target": "future_roadmap.md"
+  },
+  {
+    "source": "team_workflow/generate_plan_next_prompt.md",
+    "target": "closed_iterations.md"
+  },
+  {
+    "source": "team_workflow/generate_resume_prompt.md",
+    "target": "team_workflow/generate_orchestration_prompt.md"
+  },
+  {
+    "source": "team_workflow/generate_resume_prompt.md",
+    "target": "team_workflow/_common_rules.md"
+  },
+  {
+    "source": "team_workflow/generate_resume_prompt.md",
+    "target": "team_workflow/orchestrator_template.md"
+  },
+  {
+    "source": "team_workflow/generate_resume_prompt.md",
+    "target": "team_workflow/guides/agent_adapter_claude_code.md"
+  },
+  {
+    "source": "team_workflow/generate_resume_prompt.md",
+    "target": "team_workflow/guides/agent_adapter_codex.md"
+  },
+  {
+    "source": "team_workflow/generate_resume_prompt.md",
+    "target": "team_workflow/guides/agent_adapter_cursor_ai.md"
+  },
+  {
+    "source": "team_workflow/generate_roadmap_epoch_waves_prompt.md",
+    "target": "team_workflow/generate_breakthrough_ideation_prompt.md"
+  },
+  {
+    "source": "team_workflow/generate_roadmap_epoch_waves_prompt.md",
+    "target": "team_workflow/product_owner_plan_package_prompt.md"
+  },
+  {
+    "source": "team_workflow/generate_roadmap_epoch_waves_prompt.md",
+    "target": "team_workflow/_common_rules.md"
+  },
+  {
+    "source": "team_workflow/llmops_engineer.md",
+    "target": "team_workflow/rag_llm_ops_project_document.md"
+  },
+  {
+    "source": "team_workflow/llmops_engineer.md",
+    "target": "next/localhost_balance_course_delight_plan.md"
+  },
+  {
+    "source": "team_workflow/llmops_engineer.md",
+    "target": "team_workflow/process.md"
+  },
+  {
+    "source": "team_workflow/mlops_engineer.md",
+    "target": "team_workflow/rag_llm_ops_project_document.md"
+  },
+  {
+    "source": "team_workflow/mlops_engineer.md",
+    "target": "next/localhost_balance_course_delight_plan.md"
+  },
+  {
+    "source": "team_workflow/mlops_engineer.md",
+    "target": "team_workflow/process.md"
+  },
+  {
+    "source": "team_workflow/orchestrator_template.md",
+    "target": "team_workflow/generate_orchestration_prompt.md"
+  },
+  {
+    "source": "team_workflow/orchestrator_template.md",
+    "target": "team_workflow/guides/agent_adapter_claude_code.md"
+  },
+  {
+    "source": "team_workflow/orchestrator_template.md",
+    "target": "team_workflow/guides/agent_adapter_codex.md"
+  },
+  {
+    "source": "team_workflow/orchestrator_template.md",
+    "target": "team_workflow/guides/agent_adapter_cursor_ai.md"
+  },
+  {
+    "source": "team_workflow/orchestrator_template.md",
+    "target": "team_workflow/guides/agent_adapter_kilo.md"
+  },
+  {
+    "source": "team_workflow/orchestrator_template.md",
+    "target": "team_workflow/guides/agent_adapter_continue.md"
+  },
+  {
+    "source": "team_workflow/orchestrator_template.md",
+    "target": "team_workflow/examples/example_e15a_orchestration_level3_in_agent_claude_code.md"
+  },
+  {
+    "source": "team_workflow/orchestrator_template.md",
+    "target": "team_workflow/examples/example_e15a_orchestration_level3_in_agent_codex.md"
+  },
+  {
+    "source": "team_workflow/orchestrator_template.md",
+    "target": "team_workflow/examples/example_e15a_orchestration_level3_in_agent_cursor_ai.md"
+  },
+  {
+    "source": "team_workflow/orchestrator_template.md",
+    "target": "team_workflow/rag_llm_ops_project_document.md"
+  },
+  {
+    "source": "team_workflow/performance_devops.md",
+    "target": "team_workflow/rag_llm_ops_project_document.md"
+  },
+  {
+    "source": "team_workflow/performance_devops.md",
+    "target": "next/localhost_balance_course_delight_plan.md"
+  },
+  {
+    "source": "team_workflow/performance_devops.md",
+    "target": "team_workflow/budget_health_prompt.md"
+  },
+  {
+    "source": "team_workflow/performance_devops.md",
+    "target": "team_workflow/generate_bottleneck_analysis_prompt.md"
+  },
+  {
+    "source": "team_workflow/performance_devops.md",
+    "target": "team_workflow/process.md"
+  },
+  {
+    "source": "team_workflow/po_router_anti_patterns.md",
+    "target": "team_workflow/product_owner_router.md"
+  },
+  {
+    "source": "team_workflow/po_router_conflicts.md",
+    "target": "team_workflow/product_owner_router.md"
+  },
+  {
+    "source": "team_workflow/po_router_escape_hatches.md",
+    "target": "team_workflow/product_owner_router.md"
+  },
+  {
+    "source": "team_workflow/po_router_evaluation_gate.md",
+    "target": "team_workflow/product_owner_router.md"
+  },
+  {
+    "source": "team_workflow/po_router_evaluation_gate.md",
+    "target": "team_workflow/product_owner_plan_package_prompt.md"
+  },
+  {
+    "source": "team_workflow/po_router_handoffs.md",
+    "target": "team_workflow/product_owner_router.md"
+  },
+  {
+    "source": "team_workflow/po_router_handoffs.md",
+    "target": "team_workflow/workflow_router.md"
+  },
+  {
+    "source": "team_workflow/po_router_parallel_waves.md",
+    "target": "team_workflow/product_owner_router.md"
+  },
+  {
+    "source": "team_workflow/po_router_retrospectives.md",
+    "target": "team_workflow/product_owner_router.md"
+  },
+  {
+    "source": "team_workflow/po_router_scope_matrix.md",
+    "target": "team_workflow/product_owner_router.md"
+  },
+  {
+    "source": "team_workflow/po_router_scope_matrix.md",
+    "target": "team_workflow/po_router_evaluation_gate.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "prompts_usage_guide.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/workflow_decision_tree.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/workflow_router.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/generate_plan_next_prompt.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/generate_orchestration_prompt.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/generate_resume_prompt.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/product_owner.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/analyst.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/architect.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/designer.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/ragops_engineer.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/llmops_engineer.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/mlops_engineer.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/developer.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/tester.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/orchestrator_template.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/performance_devops.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/rag_llm_ops_project_document.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/budget_health_prompt.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/generate_bottleneck_analysis_prompt.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/run_audit_chain_prompt.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/generate_audit_closed_packages_prompt.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/generate_audit_packages_coverage_prompt.md"
+  },
+  {
+    "source": "team_workflow/process.md",
+    "target": "team_workflow/automation.md"
+  },
+  {
+    "source": "team_workflow/product_owner.md",
+    "target": "team_workflow/product_owner_router.md"
+  },
+  {
+    "source": "team_workflow/product_owner.md",
+    "target": "team_workflow/process.md"
+  },
+  {
+    "source": "team_workflow/product_owner.md",
+    "target": "team_workflow/analyst.md"
+  },
+  {
+    "source": "team_workflow/product_owner.md",
+    "target": "team_workflow/generate_orchestration_prompt.md"
+  },
+  {
+    "source": "team_workflow/product_owner.md",
+    "target": "team_workflow/product_owner_plan_package_prompt.md"
+  },
+  {
+    "source": "team_workflow/product_owner.md",
+    "target": "team_workflow/generate_breakthrough_ideation_prompt.md"
+  },
+  {
+    "source": "team_workflow/product_owner.md",
+    "target": "team_workflow/generate_roadmap_epoch_waves_prompt.md"
+  },
+  {
+    "source": "team_workflow/product_owner.md",
+    "target": "team_workflow/workflow_router.md"
+  },
+  {
+    "source": "team_workflow/product_owner_plan_ml_package_prompt.md",
+    "target": "team_workflow/po_router_evaluation_gate.md"
+  },
+  {
+    "source": "team_workflow/product_owner_plan_ml_package_prompt.md",
+    "target": "backlog_registry.yaml"
+  },
+  {
+    "source": "team_workflow/product_owner_plan_ml_package_prompt.md",
+    "target": "team_workflow/product_owner_plan_package_prompt.md"
+  },
+  {
+    "source": "team_workflow/product_owner_plan_package_prompt.md",
+    "target": "team_workflow/product_owner_router.md"
+  },
+  {
+    "source": "team_workflow/product_owner_plan_package_prompt.md",
+    "target": "team_workflow/generate_plan_next_prompt.md"
+  },
+  {
+    "source": "team_workflow/product_owner_plan_package_prompt.md",
+    "target": "team_workflow/generate_breakthrough_ideation_prompt.md"
+  },
+  {
+    "source": "team_workflow/product_owner_plan_package_prompt.md",
+    "target": "backlog_registry.yaml"
+  },
+  {
+    "source": "team_workflow/product_owner_plan_package_prompt.md",
+    "target": "team_workflow/_common_rules.md"
+  },
+  {
+    "source": "team_workflow/product_owner_plan_package_prompt.md",
+    "target": "prompts_usage_guide.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "team_workflow/po_router_conflicts.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "team_workflow/po_router_scope_matrix.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "team_workflow/po_router_evaluation_gate.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "team_workflow/product_owner_plan_ml_package_prompt.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "team_workflow/po_router_escape_hatches.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "team_workflow/po_router_anti_patterns.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "team_workflow/po_router_handoffs.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "team_workflow/po_router_parallel_waves.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "team_workflow/po_router_retrospectives.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "team_workflow/generate_breakthrough_ideation_prompt.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "team_workflow/product_owner_plan_package_prompt.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "team_workflow/generate_roadmap_epoch_waves_prompt.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "team_workflow/archive/product_owner_router_ai_vision_enhancement.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level1_prompt.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_prompt.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level3_prompt.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level4_prompt.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level5_prompt.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "team_workflow/workflow_router.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "roadmap.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "backlog_registry.yaml"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "cjm.md"
+  },
+  {
+    "source": "team_workflow/product_owner_router.md",
+    "target": "user_stories_index.json"
+  },
+  {
+    "source": "team_workflow/ragops_engineer.md",
+    "target": "team_workflow/rag_llm_ops_project_document.md"
+  },
+  {
+    "source": "team_workflow/ragops_engineer.md",
+    "target": "next/localhost_balance_course_delight_plan.md"
+  },
+  {
+    "source": "team_workflow/ragops_engineer.md",
+    "target": "team_workflow/process.md"
+  },
+  {
+    "source": "team_workflow/rag_llm_ops_project_document.md",
+    "target": "next/localhost_balance_course_delight_plan.md"
+  },
+  {
+    "source": "team_workflow/rag_llm_ops_project_document.md",
+    "target": "adr.md"
+  },
+  {
+    "source": "team_workflow/rag_llm_ops_project_document.md",
+    "target": "team_workflow/designer.md"
+  },
+  {
+    "source": "team_workflow/rag_llm_ops_project_document.md",
+    "target": "conventions.md"
+  },
+  {
+    "source": "team_workflow/rag_llm_ops_project_document.md",
+    "target": "team_workflow/orchestrator_template.md"
+  },
+  {
+    "source": "team_workflow/rag_llm_ops_project_document.md",
+    "target": "team_workflow/mlops_engineer.md"
+  },
+  {
+    "source": "team_workflow/rag_llm_ops_project_document.md",
+    "target": "team_workflow/llmops_engineer.md"
+  },
+  {
+    "source": "team_workflow/rag_llm_ops_project_document.md",
+    "target": "team_workflow/ragops_engineer.md"
+  },
+  {
+    "source": "team_workflow/rag_llm_ops_project_document.md",
+    "target": "team_workflow/performance_devops.md"
+  },
+  {
+    "source": "team_workflow/README.md",
+    "target": "team_workflow/_common_rules.md"
+  },
+  {
+    "source": "team_workflow/README.md",
+    "target": "team_workflow/workflow_router.md"
+  },
+  {
+    "source": "team_workflow/README.md",
+    "target": "team_workflow/workflow_decision_tree.md"
+  },
+  {
+    "source": "team_workflow/README.md",
+    "target": "team_workflow/product_owner_router.md"
+  },
+  {
+    "source": "team_workflow/README.md",
+    "target": "team_workflow/process.md"
+  },
+  {
+    "source": "team_workflow/README.md",
+    "target": "team_workflow/product_owner_plan_package_prompt.md"
+  },
+  {
+    "source": "team_workflow/README.md",
+    "target": "team_workflow/generate_breakthrough_ideation_prompt.md"
+  },
+  {
+    "source": "team_workflow/README.md",
+    "target": "team_workflow/generate_roadmap_epoch_waves_prompt.md"
+  },
+  {
+    "source": "team_workflow/README.md",
+    "target": "team_workflow/reopen_package_step_c_prompt.md"
+  },
+  {
+    "source": "team_workflow/README.md",
+    "target": "team_workflow/demo_scenarios_prompt_bundle.md"
+  },
+  {
+    "source": "team_workflow/README.md",
+    "target": "team_workflow/run_audit_chain_prompt.md"
+  },
+  {
+    "source": "team_workflow/README.md",
+    "target": "team_workflow/generate_audit_closed_packages_prompt.md"
+  },
+  {
+    "source": "team_workflow/README.md",
+    "target": "team_workflow/generate_audit_packages_coverage_prompt.md"
+  },
+  {
+    "source": "team_workflow/reopen_package_step_c_prompt.md",
+    "target": "current_task.md"
+  },
+  {
+    "source": "team_workflow/reopen_package_step_c_prompt.md",
+    "target": "team_workflow/generate_audit_closed_packages_prompt.md"
+  },
+  {
+    "source": "team_workflow/reopen_package_step_c_prompt.md",
+    "target": "team_workflow/reopen_prompt_closed_window_template.md"
+  },
+  {
+    "source": "team_workflow/reopen_package_step_c_prompt.md",
+    "target": "team_workflow/archive/epoch_demo_post_agent_smoke.md"
+  },
+  {
+    "source": "team_workflow/reopen_package_step_c_prompt.md",
+    "target": "team_workflow/generate_orchestration_prompt.md"
+  },
+  {
+    "source": "team_workflow/reopen_prompt_closed_window_template.md",
+    "target": "team_workflow/generate_audit_closed_packages_prompt.md"
+  },
+  {
+    "source": "team_workflow/reopen_prompt_closed_window_template.md",
+    "target": "team_workflow/generate_orchestration_prompt.md"
+  },
+  {
+    "source": "team_workflow/run_autonomous_prompt.md",
+    "target": "team_workflow/_common_rules.md"
+  },
+  {
+    "source": "team_workflow/run_autonomous_runbook.md",
+    "target": "team_workflow/run_autonomous_prompt.md"
+  },
+  {
+    "source": "team_workflow/start_workflow.md",
+    "target": "team_workflow/workflow_router.md"
+  },
+  {
+    "source": "team_workflow/tester.md",
+    "target": "team_workflow/process.md"
+  },
+  {
+    "source": "team_workflow/tester.md",
+    "target": "team_workflow/product_owner.md"
+  },
+  {
+    "source": "team_workflow/tester.md",
+    "target": "team_workflow/developer.md"
+  },
+  {
+    "source": "team_workflow/workflow_decision_tree.md",
+    "target": "team_workflow/process.md"
+  },
+  {
+    "source": "team_workflow/workflow_decision_tree.md",
+    "target": "prompts_usage_guide.md"
+  },
+  {
+    "source": "team_workflow/workflow_decision_tree.md",
+    "target": "team_workflow/workflow_router.md"
+  },
+  {
+    "source": "team_workflow/workflow_decision_tree.md",
+    "target": "agent_workflow_templates.md"
+  },
+  {
+    "source": "team_workflow/workflow_decision_tree.md",
+    "target": "team_workflow/developer.md"
+  },
+  {
+    "source": "team_workflow/workflow_decision_tree.md",
+    "target": "team_workflow/tester.md"
+  },
+  {
+    "source": "team_workflow/workflow_decision_tree.md",
+    "target": "team_workflow/generate_plan_next_prompt.md"
+  },
+  {
+    "source": "team_workflow/workflow_decision_tree.md",
+    "target": "team_workflow/generate_orchestration_prompt.md"
+  },
+  {
+    "source": "team_workflow/workflow_decision_tree.md",
+    "target": "team_workflow/product_owner_plan_package_prompt.md"
+  },
+  {
+    "source": "team_workflow/workflow_decision_tree.md",
+    "target": "team_workflow/generate_resume_prompt.md"
+  },
+  {
+    "source": "team_workflow/workflow_decision_tree.md",
+    "target": "team_workflow/run_audit_chain_prompt.md"
+  },
+  {
+    "source": "team_workflow/workflow_decision_tree.md",
+    "target": "team_workflow/generate_audit_closed_packages_prompt.md"
+  },
+  {
+    "source": "team_workflow/workflow_decision_tree.md",
+    "target": "token_safety.md"
+  },
+  {
+    "source": "team_workflow/workflow_router.md",
+    "target": "team_workflow/workflow_decision_tree.md"
+  },
+  {
+    "source": "team_workflow/workflow_router.md",
+    "target": "team_workflow/process.md"
+  },
+  {
+    "source": "team_workflow/workflow_router.md",
+    "target": "team_workflow/generate_orchestration_prompt.md"
+  },
+  {
+    "source": "team_workflow/workflow_router.md",
+    "target": "team_workflow/guides/workflow_cursor_sdk_trigger_guide.md"
+  },
+  {
+    "source": "team_workflow/workflow_router.md",
+    "target": "team_workflow/guides/workflow_deepseek_api_trigger_guide.md"
+  },
+  {
+    "source": "team_workflow/workflow_router.md",
+    "target": "team_workflow/guides/workflow_deepseek_tui_trigger_guide.md"
+  },
+  {
+    "source": "team_workflow/workflow_router.md",
+    "target": "team_workflow/_common_rules.md"
+  },
+  {
+    "source": "team_workflow/workflow_router.md",
+    "target": "team_workflow/generate_plan_next_prompt.md"
+  },
+  {
+    "source": "team_workflow/workflow_router.md",
+    "target": "team_workflow/guides/workflow_deepseek_tui_trigger_implementation_plan.md"
+  },
+  {
+    "source": "team_workflow/_common_rules.md",
+    "target": "AGENTS.md"
+  },
+  {
+    "source": "team_workflow/_common_rules.md",
+    "target": "token_safety.md"
+  },
+  {
+    "source": "user_stories/README.md",
+    "target": "user_stories.md"
+  },
+  {
+    "source": "team_workflow/archive/audit_prompt_epic20-smart-study-router_codex.md",
+    "target": "smart_study_router.md"
+  },
+  {
+    "source": "team_workflow/archive/audit_prompt_epic20-smart-study-router_codex.md",
+    "target": "team_workflow/archive/audit_coverage_prompt_epic20-smart-study-router_codex.md"
+  },
+  {
+    "source": "team_workflow/archive/epoch_demo_post_agent_smoke.md",
+    "target": "AGENTS.md"
+  },
+  {
+    "source": "team_workflow/guides/workflow_cursor_sdk_trigger_guide.md",
+    "target": "team_workflow/workflow_router.md"
+  },
+  {
+    "source": "team_workflow/guides/workflow_cursor_sdk_trigger_guide.md",
+    "target": "team_workflow/guides/workflow_deepseek_api_trigger_guide.md"
+  },
+  {
+    "source": "team_workflow/guides/workflow_deepseek_api_trigger_guide.md",
+    "target": "team_workflow/workflow_router.md"
+  },
+  {
+    "source": "team_workflow/guides/workflow_deepseek_api_trigger_guide.md",
+    "target": "team_workflow/guides/agent_adapter_continue.md"
+  },
+  {
+    "source": "team_workflow/guides/workflow_deepseek_api_trigger_guide.md",
+    "target": "team_workflow/guides/workflow_deepseek_tui_trigger_implementation_plan.md"
+  },
+  {
+    "source": "team_workflow/guides/workflow_deepseek_api_trigger_guide.md",
+    "target": "team_workflow/guides/workflow_cursor_sdk_trigger_guide.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_level3_5_report.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_report_2026-05-09.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_level3_5_report.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_level3_5_corrections.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_level3_5_report.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_level3_5_report.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level3_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_level3_5_report.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level4_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_level3_5_report.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level5_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_report_2026-05-09.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_report_2026-05-09.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level1_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_audit_report_2026-05-09.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level1_prompt.md",
+    "target": "team_workflow/archive/product_owner_router_ai_vision_enhancement.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level1_prompt.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_prompt.md",
+    "target": "team_workflow/archive/product_owner_router_ai_vision_enhancement.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_prompt.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level1_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_prompt.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level3_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level3_prompt.md",
+    "target": "team_workflow/archive/product_owner_router_ai_vision_enhancement.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level3_prompt.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level3_prompt.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level4_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level4_prompt.md",
+    "target": "team_workflow/archive/product_owner_router_ai_vision_enhancement.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level4_prompt.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level3_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level4_prompt.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level5_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level5_prompt.md",
+    "target": "team_workflow/archive/product_owner_router_ai_vision_enhancement.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_level5_prompt.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level4_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_roadmap_visual.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+    "target": "backlog_registry.yaml"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+    "target": "team_workflow/product_owner_router.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+    "target": "team_workflow/po_router_evaluation_gate.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+    "target": "team_workflow/product_owner_plan_ml_package_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+    "target": "team_workflow/po_router_scope_matrix.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+    "target": "smart_study_router.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level1_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level3_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level4_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level5_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_all_levels_quick_start.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_level1_quick_start.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_all_levels_quick_start.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level2_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_all_levels_quick_start.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level3_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_all_levels_quick_start.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level4_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_all_levels_quick_start.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level5_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_all_levels_quick_start.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_all_levels_quick_start.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level1_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_code_templates.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_code_templates.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_all_levels_quick_start.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_level1_quick_start.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_level1_prompt.md"
+  },
+  {
+    "source": "team_workflow/ssr_ai_vision/ssr_wave1_audit_summary.md",
+    "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md"
+  }
+];
+const READING_PATHS = {
+  "newcomer": {
+    "label": "🆕 Путь новичка",
+    "path": [
+      "readme.md",
+      "quickstart.md",
+      "vision.md",
+      "user_guide.md",
+      "architecture.md"
+    ]
+  },
+  "user": {
+    "label": "👤 Путь пользователя",
+    "path": [
+      "user_guide.md",
+      "user_scenarios.md",
+      "quickstart_demo.md",
+      "user_guide_details.md"
+    ]
+  },
+  "po": {
+    "label": "📊 Путь PO/Аналитика",
+    "path": [
+      "vision.md",
+      "cjm.md",
+      "user_stories.md",
+      "backlog_registry.yaml",
+      "roadmap.md"
+    ]
+  },
+  "architect": {
+    "label": "🏗️ Путь архитектора",
+    "path": [
+      "architecture.md",
+      "adr.md",
+      "conventions_architecture.md",
+      "smart_study_router.md",
+      "observability_slo.md"
+    ]
+  },
+  "developer": {
+    "label": "💻 Путь разработчика",
+    "path": [
+      "conventions.md",
+      "technical_specification.md",
+      "api_reference.md",
+      "agent_workflow.md",
+      "conventions_reference.md"
+    ]
+  },
+  "tester": {
+    "label": "🧪 Путь тестировщика",
+    "path": [
+      "user_scenarios.md",
+      "scenarios/README.md",
+      "agent_workflow_test_bundles.md",
+      "quickstart_demo.md"
+    ]
+  },
+  "agent": {
+    "label": "🤖 Путь AI-агента",
+    "path": [
+      "CLAUDE.md",
+      "token_safety.md",
+      "agent_workflow.md",
+      "team_workflow/README.md",
+      "agent_workflow_rules.md"
+    ]
+  },
+  "devops": {
+    "label": "🚀 Путь DevOps",
+    "path": [
+      "observability_slo.md",
+      "index_lifecycle.md",
+      "kilo_budget_system.md",
+      "local_llm_runbook.md"
+    ]
+  }
+};
+const PROJECT_ROOT = 'D:/Projects/home-rag_v2';
+const DIFF_MODE = false;
+const DIFF_STATS = {};
+
+// ── URI / clipboard helpers ──
+const _ROOT_FILES = new Set(['CLAUDE.md','AGENTS.md']);
+function _absPath(id){const rel=_ROOT_FILES.has(id)?id:'doc/'+id;return PROJECT_ROOT+'/'+rel;}
+function _obsidianUri(id){return 'obsidian://open?path='+encodeURIComponent(_absPath(id).replace(/\//g,'\\'));}
+function _vscodeUri(id){return 'vscode://file/'+_absPath(id).replace(/\//g,'\\');}
+function _copyPath(id,btn){navigator.clipboard.writeText(_absPath(id)).then(()=>{const t=btn.textContent;btn.textContent='✓ Готово';setTimeout(()=>btn.textContent=t,1500);});}
+
+// ── Freshness color ──
+function freshnessColor(days){
+  if(days==null||days>=9999)return null;
+  if(days<=7)return'#22c55e';
+  if(days<=30)return'#84cc16';
+  if(days<=90)return'#f59e0b';
+  if(days<=180)return'#ef4444';
+  return'#6b7280';
+}
+
+// ── Freshness legend ──
+document.getElementById('freshness-legend').innerHTML=[
+  ['#22c55e','до 7 дней'],['#84cc16','7–30 дней'],
+  ['#f59e0b','1–3 месяца'],['#ef4444','3–6 месяцев'],['#6b7280','>6 месяцев']
+].map(([c,l])=>`<div class="fresh-row"><span class="fresh-dot" style="background:${c}"></span>${l}</div>`).join('');
+
+// ── Diff banner ──
+if(DIFF_MODE&&DIFF_STATS){
+  const b=document.getElementById('diff-banner');
+  b.style.display='block';
+  b.textContent=`🔄 Diff: +${DIFF_STATS.new_nodes||0} новых, -${DIFF_STATS.removed_nodes||0} удалённых документов  |  +${DIFF_STATS.new_edges||0} новых, -${DIFF_STATS.removed_edges||0} удалённых связей`;
+}
+
+// ── Role buttons ──
+const roleContainer = document.getElementById('role-buttons');
+Object.entries(READING_PATHS).forEach(([role, rp]) => {
+  const btn = document.createElement('button');
+  btn.className = 'role-btn'; btn.dataset.role = role;
+  btn.innerHTML = `<span class="emoji">${rp.label.slice(0,2)}</span> ${rp.label.slice(2).trim()}`;
+  roleContainer.appendChild(btn);
+});
+
+// ── Graph engine ──
+const nodeMap = new Map(NODES.map(n => [n.id, n]));
+const validEdges = EDGES.filter(e => nodeMap.has(e.source) && nodeMap.has(e.target) && e.diff !== 'removed');
+const degreeMap = new Map();
+NODES.forEach(n => degreeMap.set(n.id, 0));
+validEdges.forEach(e => {
+  degreeMap.set(e.source, (degreeMap.get(e.source)||0)+1);
+  degreeMap.set(e.target, (degreeMap.get(e.target)||0)+1);
+});
+const adjacency = new Map();
+NODES.forEach(n => adjacency.set(n.id, new Set()));
+validEdges.forEach(e => { adjacency.get(e.source)?.add(e.target); adjacency.get(e.target)?.add(e.source); });
+
+// stats
+const catCounts = {};
+NODES.forEach(n => { catCounts[n.cat] = (catCounts[n.cat]||0)+1; });
+const orphanCount = NODES.filter(n=>(degreeMap.get(n.id)||0)===0&&n.diff!=='removed').length;
+const clusterCount = new Set(NODES.map(n=>n.cluster)).size;
+const brokenTotal = NODES.reduce((s,n)=>s+(n.broken_refs||0),0);
+document.getElementById('stats').textContent = `${NODES.length} документов · ${validEdges.length} связей`;
+document.getElementById('sidebar-stats').innerHTML =
+  `<div>📄 Документов: <strong>${NODES.length}</strong></div>`+
+  `<div>🔗 Связей: <strong>${validEdges.length}</strong></div>`+
+  `<div>📂 Категорий: <strong>${Object.keys(CATEGORIES).length}</strong></div>`+
+  `<div>🎯 Ролей: <strong>${Object.keys(READING_PATHS).length}</strong></div>`+
+  `<div>🔵 Кластеров: <strong>${clusterCount}</strong></div>`+
+  (orphanCount?`<div>⚪ Изолированных: <strong>${orphanCount}</strong></div>`:'') +
+  (brokenTotal?`<div>❌ Битых ссылок: <strong>${brokenTotal}</strong></div>`:'');
+
+const legendEl = document.getElementById('category-legend');
+Object.entries(CATEGORIES).forEach(([key, cat]) => {
+  const count = catCounts[key]||0; if(!count) return;
+  const item = document.createElement('div');
+  item.className = 'cat-item'; item.dataset.cat = key;
+  item.innerHTML = `<span class="cat-dot" style="background:${cat.color}"></span><span>${cat.label}</span><span class="cat-count">${count}</span>`;
+  item.addEventListener('click', () => toggleCategory(key));
+  legendEl.appendChild(item);
+});
+
+// ── D3 simulation ──
+const container = document.getElementById('graph-container');
+const width = container.clientWidth, height = container.clientHeight;
+const svg = d3.select('#graph-container').append('svg').attr('width','100%').attr('height','100%').attr('viewBox',[0,0,width,height]);
+const defs = svg.append('defs');
+const glow = defs.append('filter').attr('id','glow');
+glow.append('feGaussianBlur').attr('stdDeviation',3).attr('result','blur');
+const fm = glow.append('feMerge'); fm.append('feMergeNode').attr('in','blur'); fm.append('feMergeNode').attr('in','SourceGraphic');
+// green glow for new nodes
+const glowNew = defs.append('filter').attr('id','glow-new');
+glowNew.append('feGaussianBlur').attr('stdDeviation',5).attr('result','blur');
+const fmn = glowNew.append('feMerge'); fmn.append('feMergeNode').attr('in','blur'); fmn.append('feMergeNode').attr('in','SourceGraphic');
+
+const g = svg.append('g');
+const zoom = d3.zoom().scaleExtent([0.1,4]).on('zoom',e=>{g.attr('transform',e.transform);updateMinimap();});
+svg.call(zoom);
+
+const simNodes = NODES.filter(n=>n.diff!=='removed').map(n=>({...n}));
+const allSimNodes = NODES.map(n=>({...n})); // includes removed for diff rendering
+const simLinks = validEdges.map(e=>({source:e.source,target:e.target,diff:e.diff}));
+
+function getR(d){
+  const deg=degreeMap.get(d.id)||0;
+  const base=Math.max(5,Math.min(18,4+deg*1.2));
+  return base + (d.centrality||0)*8;
+}
+function getC(d){return CATEGORIES[d.cat]?.color||'#555';}
+
+const simulation = d3.forceSimulation(simNodes)
+  .force('link',d3.forceLink(simLinks).id(d=>d.id).distance(80).strength(0.3))
+  .force('charge',d3.forceManyBody().strength(-280).distanceMax(500))
+  .force('center',d3.forceCenter(width/2,height/2))
+  .force('collision',d3.forceCollide().radius(d=>getR(d)+8))
+  .force('x',d3.forceX(width/2).strength(0.03))
+  .force('y',d3.forceY(height/2).strength(0.03));
+
+// cluster hull layer (drawn first, under links)
+const hullG = g.append('g').attr('class','hull-layer');
+const CLUSTER_COLORS=['#8b5cf6','#4a9eff','#10b981','#f59e0b','#ef4444','#ec4899','#06b6d4','#a855f7','#14b8a6','#fb7185','#f97316','#6366f1'];
+
+function drawClusters(){
+  const byCluster={};
+  simNodes.forEach(n=>{(byCluster[n.cluster]=byCluster[n.cluster]||[]).push([n.x,n.y]);});
+  hullG.selectAll('path').data(Object.entries(byCluster)).join('path')
+    .attr('d',([cid,pts])=>{
+      if(pts.length<3)return null;
+      const hull=d3.polygonHull(pts); if(!hull)return null;
+      const cx=pts.reduce((s,p)=>s+p[0],0)/pts.length;
+      const cy=pts.reduce((s,p)=>s+p[1],0)/pts.length;
+      const exp=hull.map(([x,y])=>{const dx=x-cx,dy=y-cy,len=Math.sqrt(dx*dx+dy*dy)||1;return[x+dx/len*22,y+dy/len*22];});
+      return 'M'+exp.join('L')+'Z';
+    })
+    .attr('fill',([cid])=>CLUSTER_COLORS[+cid%CLUSTER_COLORS.length])
+    .attr('fill-opacity',0.035)
+    .attr('stroke',([cid])=>CLUSTER_COLORS[+cid%CLUSTER_COLORS.length])
+    .attr('stroke-opacity',0.07).attr('stroke-width',2);
+}
+
+const linkG = g.append('g');
+const link = linkG.selectAll('line').data(simLinks).join('line')
+  .attr('stroke',l=>l.diff==='new'?'rgba(34,197,94,0.35)':'rgba(255,255,255,0.06)')
+  .attr('stroke-width',l=>l.diff==='new'?1.5:0.8)
+  .attr('stroke-dasharray',l=>l.diff==='new'?'4,2':null);
+const pathG = g.append('g');
+const nodeG = g.append('g');
+const node = nodeG.selectAll('g').data(simNodes).join('g').attr('class','node')
+  .call(d3.drag().on('start',(e,d)=>{if(!e.active)simulation.alphaTarget(0.3).restart();d.fx=d.x;d.fy=d.y;})
+    .on('drag',(e,d)=>{d.fx=e.x;d.fy=e.y;}).on('end',(e,d)=>{if(!e.active)simulation.alphaTarget(0);d.fx=null;d.fy=null;}));
+
+// freshness ring (behind main circle)
+node.append('circle').attr('class','fresh-ring')
+  .attr('r',d=>getR(d)+3).attr('fill','none')
+  .attr('stroke',d=>freshnessColor(d.mtime_days)||'transparent')
+  .attr('stroke-width',2).attr('stroke-opacity',d=>freshnessColor(d.mtime_days)?0.55:0)
+  .style('pointer-events','none');
+
+// main node circle
+node.append('circle').attr('class','main-circle')
+  .attr('r',d=>getR(d))
+  .attr('fill',d=>d.diff==='removed'?'#444':getC(d))
+  .attr('stroke',d=>d.diff==='new'?'#22c55e':d.diff==='removed'?'#555':getC(d))
+  .attr('stroke-width',d=>d.diff?3:1.5)
+  .attr('stroke-dasharray',d=>(degreeMap.get(d.id)||0)===0?'4,3':null)
+  .attr('stroke-opacity',d=>d.diff==='new'?0.9:d.diff==='removed'?0.3:0.3)
+  .attr('fill-opacity',d=>d.diff==='removed'?0.2:0.85)
+  .attr('filter',d=>d.diff==='new'?'url(#glow-new)':null)
+  .style('cursor','pointer');
+
+// broken-refs red dot
+node.filter(d=>(d.broken_refs||0)>0).append('circle')
+  .attr('r',3.5).attr('cx',d=>getR(d)*0.7).attr('cy',d=>-getR(d)*0.7)
+  .attr('fill','#ef4444').attr('stroke','#0a0a0f').attr('stroke-width',1)
+  .style('pointer-events','none');
+
+node.append('text').text(d=>d.label.replace(/\.md$/,'').replace(/\.yaml$/,'').replace(/\.json$/,''))
+  .attr('dy',d=>getR(d)+14).attr('text-anchor','middle')
+  .attr('fill','rgba(255,255,255,0.5)')
+  .attr('font-size',d=>{const deg=degreeMap.get(d.id)||0;return deg>8?11:deg>4?10:9;})
+  .attr('font-weight',d=>(degreeMap.get(d.id)||0)>8?600:400)
+  .style('pointer-events','none').style('user-select','none');
+
+simulation.on('tick',()=>{
+  link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
+  node.attr('transform',d=>`translate(${d.x},${d.y})`);
+  drawClusters();
+  updateMinimap();
+});
+
+// ── Tooltip ──
+const tooltip = document.getElementById('tooltip');
+node.on('mouseenter',(e,d)=>{
+  const nb=adjacency.get(d.id)||new Set();
+  const cat=CATEGORIES[d.cat]||{label:'?',color:'#555'};
+  const deg=degreeMap.get(d.id)||0;
+  const names=[...nb].slice(0,8).map(id=>{const n=nodeMap.get(id);return n?n.label:id;});
+  const freshStr=d.mtime_days<9999?` · ${d.mtime_days}д назад`:'';
+  tooltip.innerHTML=`<h3>${d.label}</h3><span class="cat-label" style="background:${cat.color}22;color:${cat.color};border:1px solid ${cat.color}44">${cat.label}</span>${freshStr}<div class="desc">${d.desc}</div><div class="links-label">Связи (${deg})</div><div class="link-list">${names.join(' · ')}${nb.size>8?' …':''}</div>`;
+  tooltip.classList.add('visible'); highlightNode(d);
+}).on('mousemove',e=>{tooltip.style.left=Math.min(e.clientX+16,innerWidth-400)+'px';tooltip.style.top=Math.min(e.clientY-10,innerHeight-200)+'px';})
+.on('mouseleave',()=>{tooltip.classList.remove('visible');resetHL();})
+.on('click',(e,d)=>{e.stopPropagation();showDetail(d);})
+.on('dblclick',(e,d)=>{e.stopPropagation();window.location.href=_obsidianUri(d.id);});
+
+function highlightNode(d){
+  const nb=adjacency.get(d.id)||new Set();
+  node.select('.main-circle').attr('fill-opacity',n=>n.id===d.id||nb.has(n.id)?1:0.1).attr('stroke-opacity',n=>n.id===d.id||nb.has(n.id)?0.8:0.05);
+  node.select('text').attr('fill',n=>n.id===d.id||nb.has(n.id)?'rgba(255,255,255,0.9)':'rgba(255,255,255,0.08)');
+  link.attr('stroke',l=>(l.source.id===d.id||l.target.id===d.id)?getC(d):'rgba(255,255,255,0.02)').attr('stroke-width',l=>(l.source.id===d.id||l.target.id===d.id)?2:0.5).attr('stroke-opacity',l=>(l.source.id===d.id||l.target.id===d.id)?0.7:0.3);
+}
+function resetHL(){
+  node.select('.main-circle').attr('fill-opacity',d=>d.diff==='removed'?0.2:0.85).attr('stroke-opacity',d=>d.diff==='new'?0.9:d.diff==='removed'?0.3:0.3);
+  node.select('text').attr('fill','rgba(255,255,255,0.5)');
+  link.attr('stroke',l=>l.diff==='new'?'rgba(34,197,94,0.35)':'rgba(255,255,255,0.06)').attr('stroke-width',l=>l.diff==='new'?1.5:0.8).attr('stroke-opacity',1);
+}
+
+// ── Detail panel ──
+const detailPanel=document.getElementById('detail-panel'),detailContent=document.getElementById('detail-content');
+document.getElementById('detail-close').addEventListener('click',()=>{detailPanel.classList.remove('open');history.replaceState(null,'',location.pathname+location.search);});
+let _currentNode=null;
+
+function showDetail(d){
+  _currentNode=d;
+  const cat=CATEGORIES[d.cat]||{label:'?',color:'#555'};
+  const nb=[...adjacency.get(d.id)||[]];
+  const deg=degreeMap.get(d.id)||0;
+  const isOrphan=(degreeMap.get(d.id)||0)===0;
+  const badges=(isOrphan?'<span class="node-badge bdg-orphan">изолирован</span>':'')+
+    ((d.broken_refs||0)>0?`<span class="node-badge bdg-broken">${d.broken_refs} битых ссылок</span>`:'')+
+    (d.diff==='new'?'<span class="node-badge bdg-new">новый</span>':'')+
+    (d.diff==='removed'?'<span class="node-badge bdg-removed">удалён</span>':'');
+  const freshStr=d.mtime_days<9999?`<span style="color:${freshnessColor(d.mtime_days)||'var(--text-muted)'}"> · ${d.mtime_days}д назад</span>`:'';
+  detailContent.innerHTML=
+    `<div class="detail-actions">
+       <a class="action-btn obs" href="${_obsidianUri(d.id)}">🔮 Obsidian</a>
+       <a class="action-btn vsc" href="${_vscodeUri(d.id)}">⌨️ VS Code</a>
+       <button class="action-btn cpy" id="_cpybtn">📋 Путь</button>
+     </div>
+     <h2>${d.label}${badges}</h2>
+     <div class="meta"><span class="cat-label" style="background:${cat.color}22;color:${cat.color};border:1px solid ${cat.color}44;display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:600">${cat.label}</span>${freshStr} · ${deg} связей · centrality ${((d.centrality||0)*100).toFixed(1)}%</div>
+     <div class="desc-full">${d.desc}</div>
+     ${nb.length?`<div class="conn-title">Связанные документы (${nb.length})</div>${nb.map(id=>{const n=nodeMap.get(id);if(!n)return'';const nc=CATEGORIES[n.cat]||{color:'#555'};return`<div class="conn-item" data-id="${id}"><span class="cat-dot" style="background:${nc.color};width:8px;height:8px;border-radius:50%;flex-shrink:0"></span><span>${n.label}</span></div>`;}).join('')}`:''}`;
+  document.getElementById('_cpybtn').addEventListener('click',function(){_copyPath(d.id,this);});
+  detailContent.querySelectorAll('.conn-item').forEach(el=>{el.addEventListener('click',()=>{const t=simNodes.find(n=>n.id===el.dataset.id);if(t){zoomTo(t);showDetail(t);}});});
+  detailPanel.classList.add('open');
+  history.replaceState(null,'','#node='+encodeURIComponent(d.id));
+}
+
+function zoomTo(d){const s=1.5;svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity.translate(-d.x*s+width/2,-d.y*s+height/2).scale(s));}
+
+// ── Permalink on load ──
+simulation.on('end.permalink',()=>{
+  const hash=location.hash;
+  if(hash.startsWith('#node=')){
+    const id=decodeURIComponent(hash.slice(6));
+    const n=simNodes.find(n=>n.id===id);
+    if(n){zoomTo(n);showDetail(n);}
+  }
+  simulation.on('end.permalink',null);
+});
+
+// ── Search with dropdown ──
+let _srResults=[], _srIdx=-1;
+const searchDrop=document.getElementById('search-drop');
+const searchInput=document.getElementById('search');
+
+searchInput.addEventListener('input',e=>{
+  const q=e.target.value.toLowerCase().trim();
+  if(!q){searchDrop.classList.remove('visible');_srResults=[];resetHL();return;}
+  _srResults=simNodes.filter(n=>n.label.toLowerCase().includes(q)||n.id.toLowerCase().includes(q)||n.desc.toLowerCase().includes(q)).slice(0,12);
+  _srIdx=-1; renderDrop();
+  const ms=new Set(_srResults.map(n=>n.id));
+  node.select('.main-circle').attr('fill-opacity',n=>ms.has(n.id)?0.95:0.06);
+  node.select('text').attr('fill',n=>ms.has(n.id)?'rgba(255,255,255,0.9)':'rgba(255,255,255,0.04)');
+  link.attr('stroke','rgba(255,255,255,0.015)');
+  if(_srResults.length===1)zoomTo(_srResults[0]);
+});
+
+function renderDrop(){
+  if(!_srResults.length){searchDrop.classList.remove('visible');return;}
+  searchDrop.innerHTML=_srResults.map((n,i)=>{
+    const cat=CATEGORIES[n.cat]||{color:'#555'};
+    return`<div class="sd-item${i===_srIdx?' active':''}" data-idx="${i}"><span class="sd-dot" style="background:${cat.color}"></span><span>${n.label}</span></div>`;
+  }).join('');
+  searchDrop.classList.add('visible');
+  searchDrop.querySelectorAll('.sd-item').forEach(el=>{el.addEventListener('click',()=>{const n=_srResults[+el.dataset.idx];if(n){zoomTo(n);showDetail(n);searchDrop.classList.remove('visible');searchInput.value='';resetHL();}});});
+}
+
+// ── Role paths ──
+let activeRole=null;const oBar=document.getElementById('onboarding-bar'),pLabel=document.getElementById('path-label'),pSteps=document.getElementById('path-steps');
+document.querySelectorAll('.role-btn').forEach(btn=>{btn.addEventListener('click',()=>{
+  const role=btn.dataset.role;
+  document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));
+  if(role==='all'||activeRole===role){activeRole=null;resetHL();oBar.classList.remove('visible');pathG.selectAll('*').remove();node.select('.main-circle').attr('r',d=>getR(d));node.select('text').attr('font-weight',d=>(degreeMap.get(d.id)||0)>8?600:400);return;}
+  activeRole=role;btn.classList.add('active');const rp=READING_PATHS[role];if(!rp)return;const ps=new Set(rp.path);
+  node.select('.main-circle').attr('fill-opacity',n=>ps.has(n.id)?1:0.06).attr('r',n=>ps.has(n.id)?getR(n)*1.4:getR(n));
+  node.select('text').attr('fill',n=>ps.has(n.id)?'rgba(255,255,255,0.95)':'rgba(255,255,255,0.04)').attr('font-weight',n=>ps.has(n.id)?700:400);
+  link.attr('stroke',l=>(ps.has(l.source.id)&&ps.has(l.target.id))?(CATEGORIES[nodeMap.get(l.source.id)?.cat]?.color||'#fff'):'rgba(255,255,255,0.01)').attr('stroke-width',l=>(ps.has(l.source.id)&&ps.has(l.target.id))?2.5:0.5);
+  pLabel.textContent=rp.label;
+  pSteps.innerHTML=rp.path.map((id,i)=>{const n=nodeMap.get(id);const lbl=n?n.label.replace(/\.md$/,'').replace(/\.yaml$/,''):id;return`${i>0?'<span class="path-arrow">→</span>':''}<span class="path-step" data-id="${id}">${i+1}. ${lbl}</span>`;}).join('');
+  oBar.classList.add('visible');
+  pSteps.querySelectorAll('.path-step').forEach(s=>{s.addEventListener('click',()=>{const t=simNodes.find(n=>n.id===s.dataset.id);if(t){zoomTo(t);showDetail(t);pSteps.querySelectorAll('.path-step').forEach(x=>x.classList.remove('active'));s.classList.add('active');}});});
+});});
+document.getElementById('onboarding-dismiss').addEventListener('click',()=>{oBar.classList.remove('visible');activeRole=null;document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));resetHL();pathG.selectAll('*').remove();node.select('.main-circle').attr('r',d=>getR(d));node.select('text').attr('font-weight',d=>(degreeMap.get(d.id)||0)>8?600:400);});
+
+// ── Category toggle ──
+const hiddenCats=new Set();
+function toggleCategory(cat){
+  hiddenCats.has(cat)?hiddenCats.delete(cat):hiddenCats.add(cat);
+  document.querySelectorAll('.cat-item').forEach(el=>{el.classList.toggle('dimmed',hiddenCats.has(el.dataset.cat));});
+  node.select('.main-circle').attr('fill-opacity',n=>hiddenCats.has(n.cat)?0.04:0.85);
+  node.select('text').attr('fill',n=>hiddenCats.has(n.cat)?'rgba(255,255,255,0.02)':'rgba(255,255,255,0.5)');
+  link.attr('stroke',l=>{const sh=hiddenCats.has(nodeMap.get(l.source.id)?.cat);const th=hiddenCats.has(nodeMap.get(l.target.id)?.cat);return(sh||th)?'rgba(255,255,255,0.008)':'rgba(255,255,255,0.06)';});
+}
+
+// ── Sidebar toggle ──
+document.getElementById('sidebar-toggle').addEventListener('click',()=>{document.getElementById('sidebar').classList.toggle('collapsed');});
+
+// ── Minimap ──
+const mc=document.getElementById('minimap-canvas').getContext('2d');
+document.getElementById('minimap-canvas').width=320;document.getElementById('minimap-canvas').height=240;
+function updateMinimap(){
+  const w=320,h=240;mc.clearRect(0,0,w,h);
+  let mnX=Infinity,mxX=-Infinity,mnY=Infinity,mxY=-Infinity;
+  simNodes.forEach(n=>{if(n.x<mnX)mnX=n.x;if(n.x>mxX)mxX=n.x;if(n.y<mnY)mnY=n.y;if(n.y>mxY)mxY=n.y;});
+  const p=40,s=Math.min((w-p*2)/(mxX-mnX||1),(h-p*2)/(mxY-mnY||1)),ox=(w-(mxX-mnX)*s)/2,oy=(h-(mxY-mnY)*s)/2;
+  mc.strokeStyle='rgba(255,255,255,0.05)';mc.lineWidth=0.5;
+  simLinks.forEach(l=>{mc.beginPath();mc.moveTo((l.source.x-mnX)*s+ox,(l.source.y-mnY)*s+oy);mc.lineTo((l.target.x-mnX)*s+ox,(l.target.y-mnY)*s+oy);mc.stroke();});
+  simNodes.forEach(n=>{mc.fillStyle=getC(n);mc.globalAlpha=0.7;mc.beginPath();mc.arc((n.x-mnX)*s+ox,(n.y-mnY)*s+oy,Math.max(1.5,getR(n)*s*0.3),0,Math.PI*2);mc.fill();});
+  mc.globalAlpha=1;
+  const tr=d3.zoomTransform(svg.node());mc.strokeStyle='rgba(139,92,246,0.5)';mc.lineWidth=1;mc.strokeRect((-tr.x/tr.k-mnX)*s+ox,(-tr.y/tr.k-mnY)*s+oy,(width/tr.k)*s,(height/tr.k)*s);
+}
+
+// ── Fit on end ──
+simulation.on('end',()=>{
+  let mnX=Infinity,mxX=-Infinity,mnY=Infinity,mxY=-Infinity;
+  simNodes.forEach(n=>{if(n.x<mnX)mnX=n.x;if(n.x>mxX)mxX=n.x;if(n.y<mnY)mnY=n.y;if(n.y>mxY)mxY=n.y;});
+  const p=60,dx=mxX-mnX+p*2,dy=mxY-mnY+p*2,s=Math.min(width/dx,height/dy)*0.9,cx=(mnX+mxX)/2,cy=(mnY+mxY)/2;
+  svg.transition().duration(800).call(zoom.transform,d3.zoomIdentity.translate(width/2,height/2).scale(s).translate(-cx,-cy));
+});
+
+svg.on('click',()=>{detailPanel.classList.remove('open');searchDrop.classList.remove('visible');});
+
+// ── Keyboard navigation ──
+document.addEventListener('keydown',e=>{
+  const inSearch=document.activeElement===searchInput;
+  if(e.key==='ArrowDown'&&_srResults.length){e.preventDefault();_srIdx=Math.min(_srIdx+1,_srResults.length-1);renderDrop();}
+  else if(e.key==='ArrowUp'&&_srResults.length){e.preventDefault();_srIdx=Math.max(_srIdx-1,0);renderDrop();}
+  else if(e.key==='Enter'&&_srIdx>=0&&_srResults.length){
+    e.preventDefault();const n=_srResults[_srIdx];if(n){zoomTo(n);showDetail(n);searchDrop.classList.remove('visible');searchInput.value='';resetHL();}
+  }else if((e.key==='o'||e.key==='O')&&!inSearch&&_currentNode&&detailPanel.classList.contains('open')){
+    window.location.href=_obsidianUri(_currentNode.id);
+  }else if(e.key==='Escape'){
+    detailPanel.classList.remove('open');
+    oBar.classList.remove('visible');
+    activeRole=null;
+    searchDrop.classList.remove('visible');
+    _srResults=[];
+    searchInput.value='';
+    document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));
+    resetHL();
+    pathG.selectAll('*').remove();
+    node.select('.main-circle').attr('r',d=>getR(d));
+    node.select('text').attr('font-weight',d=>(degreeMap.get(d.id)||0)>8?600:400);
+    history.replaceState(null,'',location.pathname+location.search);
+  }else if(e.key==='/'&&!inSearch){e.preventDefault();searchInput.focus();}
+});
+</script>
+</body>
+</html>

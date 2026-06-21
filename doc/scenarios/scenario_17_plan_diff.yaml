@@ -1,0 +1,34 @@
+id: scenario_17
+title: "План на сегодня: что изменилось (diff)"
+level: "🔴 Orchestration"
+persona: "Марк, вторая неделя — план перестроился после паузы и повторений."
+duration_min: 3
+why: |
+  Показать прозрачность адаптивного плана: блок «Что изменилось в плане» с явными
+  добавленными и исчезнувшими концептами.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+wow_moment: |
+  Два списка — «появились» и «исчезли» — снимают тревогу «почему план другой».
+takeaway: |
+  Персонализация не чёрный ящик: дельта плана читается как changelog.
+scenario_link: "user_scenarios.md#сценарий-17--что-изменилось-в-плане-diff"
+
+shots:
+  - slug: "01_tutor_plan_header"
+    caption: "Tutor: блок «Адаптивный план и прогноз»"
+    narration: "План на сегодня доступен рядом с основным учебным потоком."
+    duration_sec: 3
+  - slug: "02_plan_detail_open"
+    caption: "Развёрнутый Adaptive Daily Plan"
+    narration: "Видны шаги дня — не абстрактный todo, а привязка к обучению."
+    duration_sec: 3
+  - slug: "03_delta_expander"
+    caption: "Раскрыт «Что изменилось в плане»"
+    narration: "Один клик — и видна дельта относительно прошлой версии плана."
+    duration_sec: 3
+  - slug: "04_added_removed_lists"
+    caption: "Списки «появились» и «исчезли из шагов»"
+    narration: "Конкретные концепты, а не общие слова о пересчёте."
+    duration_sec: 4

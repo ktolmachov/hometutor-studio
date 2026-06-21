@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "description": "Contract for GET /kb/graph/prerequisites-health and learning-plan graph path regression",
+  "required_response_keys": [
+    "schema_version",
+    "concept_count",
+    "cycle_count",
+    "cycles",
+    "has_prerequisite_cycles",
+    "topological_order_ok"
+  ]
+}

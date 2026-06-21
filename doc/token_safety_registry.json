@@ -1,0 +1,280 @@
+{
+  "measured_at": "2026-05-06",
+  "chars_per_token": 4,
+  "budgets": {
+    "target_input_tokens": 12000,
+    "hard_input_tokens": 20000
+  },
+  "files": {
+    "app/api.py": {
+      "lines": 128,
+      "bytes": 4560,
+      "est_tokens": 1140
+    },
+    "app/config.py": {
+      "lines": 377,
+      "bytes": 18538,
+      "est_tokens": 4634
+    },
+    "app/graph_retrieval.py": {
+      "lines": 419,
+      "bytes": 14859,
+      "est_tokens": 3714
+    },
+    "app/ingestion.py": {
+      "lines": 318,
+      "bytes": 12604,
+      "est_tokens": 3151,
+      "full_read": "forbidden",
+      "safe_hint": "rg -n \"^class|^def \" app/ingestion.py"
+    },
+    "app/ingestion_loader.py": {
+      "lines": 464,
+      "bytes": 15957,
+      "est_tokens": 3989,
+      "full_read": "forbidden",
+      "safe_hint": "rg -n \"^class|^def \" app/ingestion_loader.py"
+    },
+    "app/knowledge_graph.py": {
+      "lines": 1067,
+      "bytes": 46576,
+      "est_tokens": 11644,
+      "full_read": "forbidden",
+      "safe_hint": "rg -n \"^class|^def \" app/knowledge_graph.py"
+    },
+    "app/learner_model_service.py": {
+      "lines": 592,
+      "bytes": 23996,
+      "est_tokens": 5999
+    },
+    "app/learning_plan_service.py": {
+      "lines": 35,
+      "bytes": 1227,
+      "est_tokens": 306
+    },
+    "app/models.py": {
+      "lines": 201,
+      "bytes": 7133,
+      "est_tokens": 1783
+    },
+    "app/pipeline_steps.py": {
+      "lines": 454,
+      "bytes": 18581,
+      "est_tokens": 4645
+    },
+    "app/prompts/_impl.py": {
+      "lines": 1201,
+      "bytes": 73853,
+      "est_tokens": 18463,
+      "full_read": "forbidden",
+      "safe_hint": "rg -n \"^def|^[A-Z_].*=\" app/prompts/_impl.py"
+    },
+    "app/query_service.py": {
+      "lines": 720,
+      "bytes": 23480,
+      "est_tokens": 5870,
+      "full_read": "forbidden",
+      "safe_hint": "rg -n \"^class|^def \" app/query_service.py"
+    },
+    "app/retrieval.py": {
+      "lines": 387,
+      "bytes": 14253,
+      "est_tokens": 3563
+    },
+    "app/retrieval_strategies.py": {
+      "lines": 286,
+      "bytes": 9202,
+      "est_tokens": 2300
+    },
+    "app/tutor_orchestrator.py": {
+      "lines": 651,
+      "bytes": 29050,
+      "est_tokens": 7262
+    },
+    "app/tutor_prompts.py": {
+      "lines": 87,
+      "bytes": 4160,
+      "est_tokens": 1040
+    },
+    "app/ui/main.py": {
+      "lines": 263,
+      "bytes": 10245,
+      "est_tokens": 2561
+    },
+    "doc/adr.md": {
+      "lines": 890,
+      "bytes": 69476,
+      "est_tokens": 17369,
+      "full_read": "forbidden",
+      "safe_hint": "## Status table or single ADR section only"
+    },
+    "doc/adr_021_smart_router_rag_modes.md": {
+      "lines": 552,
+      "bytes": 46557,
+      "est_tokens": 11639,
+      "full_read": "forbidden",
+      "safe_hint": "rg -n \"Phase 4|GlobalAnalyticsJob|global analytics|Global summaries|Phase 5|ADR-021a|architecture lifts\" doc/adr_021_smart_router_rag_modes.md"
+    },
+    "doc/agent_workflow.md": {
+      "lines": 76,
+      "bytes": 6993,
+      "est_tokens": 1748
+    },
+    "doc/agent_workflow_arch_review.md": {
+      "lines": 522,
+      "bytes": 33138,
+      "est_tokens": 8284
+    },
+    "doc/agent_workflow_cycle.md": {
+      "lines": 158,
+      "bytes": 7571,
+      "est_tokens": 1892
+    },
+    "doc/agent_workflow_rules.md": {
+      "lines": 110,
+      "bytes": 9096,
+      "est_tokens": 2274
+    },
+    "doc/agent_workflow_templates.md": {
+      "lines": 371,
+      "bytes": 21831,
+      "est_tokens": 5457
+    },
+    "doc/agent_workflow_test_bundles.md": {
+      "lines": 304,
+      "bytes": 12104,
+      "est_tokens": 3026
+    },
+    "doc/api_reference.md": {
+      "lines": 256,
+      "bytes": 13416,
+      "est_tokens": 3354
+    },
+    "doc/architecture.md": {
+      "lines": 728,
+      "bytes": 35345,
+      "est_tokens": 8836,
+      "full_read": "forbidden",
+      "safe_hint": "module list or single ## section only"
+    },
+    "doc/changelog.md": {
+      "lines": 1790,
+      "bytes": 160080,
+      "est_tokens": 40020,
+      "full_read": "forbidden",
+      "safe_hint": "tail / last 2-3 entries or append stub only"
+    },
+    "doc/cjm.md": {
+      "lines": 331,
+      "bytes": 31257,
+      "est_tokens": 7814,
+      "full_read": "forbidden",
+      "safe_hint": "single journey / pain-point section only"
+    },
+    "doc/closed_iterations.md": {
+      "lines": 1572,
+      "bytes": 148595,
+      "est_tokens": 37148
+    },
+    "doc/conventions.md": {
+      "lines": 50,
+      "bytes": 4266,
+      "est_tokens": 1066
+    },
+    "doc/conventions_architecture.md": {
+      "lines": 115,
+      "bytes": 16269,
+      "est_tokens": 4067
+    },
+    "doc/conventions_reference.md": {
+      "lines": 75,
+      "bytes": 11542,
+      "est_tokens": 2885
+    },
+    "doc/epochs/e4.md": {
+      "lines": 742,
+      "bytes": 92172,
+      "est_tokens": 23043,
+      "full_read": "forbidden",
+      "safe_hint": "header + target fragment only (file is very large)"
+    },
+    "doc/observability_slo.md": {
+      "lines": 253,
+      "bytes": 12305,
+      "est_tokens": 3076
+    },
+    "doc/tasklist.md": {
+      "lines": 70,
+      "bytes": 4118,
+      "est_tokens": 1029
+    },
+    "doc/technical_specification.md": {
+      "lines": 271,
+      "bytes": 7552,
+      "est_tokens": 1888
+    },
+    "doc/user_guide.md": {
+      "lines": 299,
+      "bytes": 13096,
+      "est_tokens": 3274
+    },
+    "doc/user_guide_details.md": {
+      "lines": 487,
+      "bytes": 25275,
+      "est_tokens": 6318
+    },
+    "requirements.txt": {
+      "lines": 35,
+      "bytes": 1125,
+      "est_tokens": 281
+    },
+    "scripts/check_backlog_drift.py": {
+      "lines": 409,
+      "bytes": 15537,
+      "est_tokens": 3884
+    },
+    "scripts/check_llm_context_gate.py": {
+      "lines": 47,
+      "bytes": 1672,
+      "est_tokens": 418
+    },
+    "scripts/context_cart.py": {
+      "lines": 324,
+      "bytes": 10434,
+      "est_tokens": 2608
+    },
+    "scripts/generate_orchestration_prompt.py": {
+      "lines": 1024,
+      "bytes": 43588,
+      "est_tokens": 10897,
+      "full_read": "forbidden",
+      "safe_hint": "rg -n \"^class|^def \" scripts/generate_orchestration_prompt.py"
+    },
+    "scripts/run_autonomous.py": {
+      "lines": 2819,
+      "bytes": 128020,
+      "est_tokens": 32005,
+      "full_read": "forbidden",
+      "safe_hint": "rg -n \"^class|^def \" scripts/run_autonomous.py"
+    },
+    "tests/conftest.py": {
+      "lines": 85,
+      "bytes": 3063,
+      "est_tokens": 765
+    },
+    "tests/test_api.py": {
+      "lines": 1672,
+      "bytes": 59235,
+      "est_tokens": 14808,
+      "full_read": "forbidden",
+      "safe_hint": "rg -n \"def test_\" tests/test_api.py  # then open one test"
+    },
+    "tests/test_query_service.py": {
+      "lines": 1089,
+      "bytes": 43921,
+      "est_tokens": 10980,
+      "full_read": "forbidden",
+      "safe_hint": "rg -n \"def test_\" tests/test_query_service.py  # one case"
+    }
+  }
+}

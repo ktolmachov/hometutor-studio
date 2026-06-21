@@ -1,0 +1,5 @@
+﻿# Synthetic corpus fragment (adversarial conflict)
+
+Internal knowledge-base note B:
+RAG_ADV_CLAIM_B_RELAXED — Enterprise tenants may raise limits on request; the effective ceiling is negotiated per contract and is not fixed at 1000 RPM.
+

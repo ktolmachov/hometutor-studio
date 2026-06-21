@@ -1,0 +1,587 @@
+{
+  "run_id": "eval-2026-05-23",
+  "eval_type": "retrieval_only",
+  "dataset": "eval/eval_dataset.json",
+  "corpus": "demo_data",
+  "faithfulness_note": "faithfulness_pass требует ручного прогона с LLM; здесь только source_found@3",
+  "summary": {
+    "total_questions": 15,
+    "faithfulness_pass": null,
+    "source_found": null,
+    "avg_confidence": null
+  },
+  "by_mode": {
+    "vector_only": {
+      "total_questions": 15,
+      "source_found_count": 12,
+      "source_found_rate": 0.86,
+      "faithfulness_pass_count": null,
+      "faithfulness_pass_rate": null,
+      "avg_latency_sec": 0.64
+    },
+    "hybrid": {
+      "total_questions": 15,
+      "source_found_count": 12,
+      "source_found_rate": 0.86,
+      "faithfulness_pass_count": null,
+      "faithfulness_pass_rate": null,
+      "avg_latency_sec": 0.41
+    },
+    "bm25_only": {
+      "total_questions": 15,
+      "source_found_count": 0,
+      "source_found_rate": 0.0,
+      "faithfulness_pass_count": null,
+      "faithfulness_pass_rate": null,
+      "avg_latency_sec": 0.0
+    }
+  },
+  "cases": {
+    "vector_only": [
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 4.6,
+        "source_files_top3": [
+          "alpha_rag_intro.md",
+          "alpha_rag_intro.md"
+        ],
+        "id": "q01",
+        "mode": "vector_only",
+        "expected_source": "alpha_rag_intro.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.36,
+        "source_files_top3": [
+          "beta_vector_db.md",
+          "beta_vector_db.md"
+        ],
+        "id": "q02",
+        "mode": "vector_only",
+        "expected_source": "beta_vector_db.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.36,
+        "source_files_top3": [
+          "beta_vector_db.md",
+          "beta_vector_db.md"
+        ],
+        "id": "q03",
+        "mode": "vector_only",
+        "expected_source": "beta_vector_db.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.35,
+        "source_files_top3": [
+          "alpha_rag_intro.md",
+          "alpha_rag_intro.md"
+        ],
+        "id": "q04",
+        "mode": "vector_only",
+        "expected_source": "alpha_rag_intro.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.36,
+        "source_files_top3": [
+          "gamma_hybrid.md",
+          "gamma_hybrid.md"
+        ],
+        "id": "q05",
+        "mode": "vector_only",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.39,
+        "source_files_top3": [
+          "gamma_hybrid.md",
+          "gamma_hybrid.md"
+        ],
+        "id": "q06",
+        "mode": "vector_only",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.34,
+        "source_files_top3": [
+          "gamma_hybrid.md",
+          "gamma_hybrid.md"
+        ],
+        "id": "q07",
+        "mode": "vector_only",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.36,
+        "source_files_top3": [
+          "epsilon_guardrails.md",
+          "epsilon_guardrails.md"
+        ],
+        "id": "q08",
+        "mode": "vector_only",
+        "expected_source": "epsilon_guardrails.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.36,
+        "source_files_top3": [
+          "delta_srs.md",
+          "delta_srs.md"
+        ],
+        "id": "q09",
+        "mode": "vector_only",
+        "expected_source": "delta_srs.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.41,
+        "source_files_top3": [
+          "python_basics.md",
+          "python_basics.md"
+        ],
+        "id": "q10",
+        "mode": "vector_only",
+        "expected_source": "python_basics.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.36,
+        "source_files_top3": [
+          "epsilon_guardrails.md",
+          "epsilon_guardrails.md"
+        ],
+        "id": "q11",
+        "mode": "vector_only",
+        "expected_source": "alpha_rag_intro.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.33,
+        "source_files_top3": [
+          "beta_vector_db.md",
+          "alpha_rag_intro.md"
+        ],
+        "id": "q12",
+        "mode": "vector_only",
+        "expected_source": "beta_vector_db.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.32,
+        "source_files_top3": [
+          "epsilon_guardrails.md",
+          "epsilon_guardrails.md"
+        ],
+        "id": "q13",
+        "mode": "vector_only",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.36,
+        "source_files_top3": [
+          "delta_srs.md",
+          "delta_srs.md"
+        ],
+        "id": "q14",
+        "mode": "vector_only",
+        "expected_source": "delta_srs.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.35,
+        "source_files_top3": [
+          "delta_srs.md",
+          "alpha_rag_intro.md"
+        ],
+        "id": "q15",
+        "mode": "vector_only",
+        "expected_source": null
+      }
+    ],
+    "hybrid": [
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 1.0,
+        "source_files_top3": [
+          "2026-03-16 20-30-13 Q_A.mkv.pdf",
+          "alpha_rag_intro.md"
+        ],
+        "id": "q01",
+        "mode": "hybrid",
+        "expected_source": "alpha_rag_intro.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.34,
+        "source_files_top3": [
+          "2026_03_21_16_44_55_Контекст_Правила_для_модели_Cursor_Rules.mkv.pdf",
+          "beta_vector_db.md"
+        ],
+        "id": "q02",
+        "mode": "hybrid",
+        "expected_source": "beta_vector_db.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.35,
+        "source_files_top3": [
+          "Эволюция ИИ_ От Текстового попугая к Коллеге.pdf",
+          "beta_vector_db.md"
+        ],
+        "id": "q03",
+        "mode": "hybrid",
+        "expected_source": "beta_vector_db.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.36,
+        "source_files_top3": [
+          "2026-03-31 21-31-37 Генерация идеи, вариация и улучшение с помощью AI (GalileoAI, v0.dev).mkv.pdf",
+          "alpha_rag_intro.md"
+        ],
+        "id": "q04",
+        "mode": "hybrid",
+        "expected_source": "alpha_rag_intro.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.39,
+        "source_files_top3": [
+          "2026-03-02 10-42-50 Что такое AI-агенты. Эволюция от ChatGPT к автономным AI-Software Engineers (Replit Agent, Lovable, Bolt).mkv.pdf",
+          "gamma_hybrid.md"
+        ],
+        "id": "q05",
+        "mode": "hybrid",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.34,
+        "source_files_top3": [
+          "2026-03-02 10-42-50 Что такое AI-агенты. Эволюция от ChatGPT к автономным AI-Software Engineers (Replit Agent, Lovable, Bolt).mkv.pdf",
+          "gamma_hybrid.md"
+        ],
+        "id": "q06",
+        "mode": "hybrid",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.33,
+        "source_files_top3": [
+          "Эволюция ИИ_ От Текстового попугая к Коллеге.pdf",
+          "gamma_hybrid.md"
+        ],
+        "id": "q07",
+        "mode": "hybrid",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.35,
+        "source_files_top3": [
+          "2026_03_21_15_05_37_Российские_LLM_решения_GigaCode,_YandexGPT_OpenSource.mkv.pdf",
+          "epsilon_guardrails.md"
+        ],
+        "id": "q08",
+        "mode": "hybrid",
+        "expected_source": "epsilon_guardrails.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.37,
+        "source_files_top3": [
+          "2026-03-02 10-42-50 Что такое AI-агенты. Эволюция от ChatGPT к автономным AI-Software Engineers (Replit Agent, Lovable, Bolt).mkv.pdf",
+          "delta_srs.md"
+        ],
+        "id": "q09",
+        "mode": "hybrid",
+        "expected_source": "delta_srs.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.34,
+        "source_files_top3": [
+          "2026-04-05 16-15-39 Q_A.mkv.pdf",
+          "python_basics.md"
+        ],
+        "id": "q10",
+        "mode": "hybrid",
+        "expected_source": "python_basics.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.37,
+        "source_files_top3": [
+          "2026_03_21_15_05_37_Российские_LLM_решения_GigaCode,_YandexGPT_OpenSource.mkv.pdf",
+          "epsilon_guardrails.md"
+        ],
+        "id": "q11",
+        "mode": "hybrid",
+        "expected_source": "alpha_rag_intro.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.38,
+        "source_files_top3": [
+          "Эволюция ИИ_ От Текстового попугая к Коллеге.pdf",
+          "beta_vector_db.md"
+        ],
+        "id": "q12",
+        "mode": "hybrid",
+        "expected_source": "beta_vector_db.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.36,
+        "source_files_top3": [
+          "2026_03_21_16_44_55_Контекст_Правила_для_модели_Cursor_Rules.mkv.pdf",
+          "epsilon_guardrails.md"
+        ],
+        "id": "q13",
+        "mode": "hybrid",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.45,
+        "source_files_top3": [
+          "2026-04-05 15-04-37 Практика проработка требований с помощью AI-агента .mkv.pdf",
+          "delta_srs.md"
+        ],
+        "id": "q14",
+        "mode": "hybrid",
+        "expected_source": "delta_srs.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.35,
+        "source_files_top3": [
+          "2026_03_21_12_22_48_Обзор_инструментов_Cloud_агенты_vs_IDE_агенты.mkv.pdf",
+          "delta_srs.md"
+        ],
+        "id": "q15",
+        "mode": "hybrid",
+        "expected_source": null
+      }
+    ],
+    "bm25_only": [
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "2026-03-16 20-30-13 Q_A.mkv.pdf",
+          "2026_03_21_16_44_55_Контекст_Правила_для_модели_Cursor_Rules.mkv.pdf"
+        ],
+        "id": "q01",
+        "mode": "bm25_only",
+        "expected_source": "alpha_rag_intro.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "2026_03_21_16_44_55_Контекст_Правила_для_модели_Cursor_Rules.mkv.pdf",
+          "2026_03_21_16_44_55_Контекст_Правила_для_модели_Cursor_Rules.mkv.pdf"
+        ],
+        "id": "q02",
+        "mode": "bm25_only",
+        "expected_source": "beta_vector_db.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "Эволюция ИИ_ От Текстового попугая к Коллеге.pdf",
+          "2026-03-16 20-30-13 Q_A.mkv.pdf"
+        ],
+        "id": "q03",
+        "mode": "bm25_only",
+        "expected_source": "beta_vector_db.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "2026-03-31 21-31-37 Генерация идеи, вариация и улучшение с помощью AI (GalileoAI, v0.dev).mkv.pdf",
+          "2026-03-31 21-31-37 Генерация идеи, вариация и улучшение с помощью AI (GalileoAI, v0.dev).mkv.pdf"
+        ],
+        "id": "q04",
+        "mode": "bm25_only",
+        "expected_source": "alpha_rag_intro.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "2026-03-02 10-42-50 Что такое AI-агенты. Эволюция от ChatGPT к автономным AI-Software Engineers (Replit Agent, Lovable, Bolt).mkv.pdf",
+          "Эволюция ИИ_ От Текстового попугая к Коллеге.pdf"
+        ],
+        "id": "q05",
+        "mode": "bm25_only",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "2026-03-02 10-42-50 Что такое AI-агенты. Эволюция от ChatGPT к автономным AI-Software Engineers (Replit Agent, Lovable, Bolt).mkv.pdf",
+          "Эволюция ИИ_ От Текстового попугая к Коллеге.pdf"
+        ],
+        "id": "q06",
+        "mode": "bm25_only",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "Эволюция ИИ_ От Текстового попугая к Коллеге.pdf",
+          "2026-03-02 10-42-50 Что такое AI-агенты. Эволюция от ChatGPT к автономным AI-Software Engineers (Replit Agent, Lovable, Bolt).mkv.pdf"
+        ],
+        "id": "q07",
+        "mode": "bm25_only",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "2026_03_21_15_05_37_Российские_LLM_решения_GigaCode,_YandexGPT_OpenSource.mkv.pdf",
+          "2026_03_21_15_05_37_Российские_LLM_решения_GigaCode,_YandexGPT_OpenSource.mkv.pdf"
+        ],
+        "id": "q08",
+        "mode": "bm25_only",
+        "expected_source": "epsilon_guardrails.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "2026-03-02 10-42-50 Что такое AI-агенты. Эволюция от ChatGPT к автономным AI-Software Engineers (Replit Agent, Lovable, Bolt).mkv.pdf",
+          "2026-03-02 10-42-50 Что такое AI-агенты. Эволюция от ChatGPT к автономным AI-Software Engineers (Replit Agent, Lovable, Bolt).mkv.pdf"
+        ],
+        "id": "q09",
+        "mode": "bm25_only",
+        "expected_source": "delta_srs.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "2026-04-05 16-15-39 Q_A.mkv.pdf",
+          "2026_03_21_15_05_37_Российские_LLM_решения_GigaCode,_YandexGPT_OpenSource.mkv.pdf"
+        ],
+        "id": "q10",
+        "mode": "bm25_only",
+        "expected_source": "python_basics.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "2026_03_21_15_05_37_Российские_LLM_решения_GigaCode,_YandexGPT_OpenSource.mkv.pdf",
+          "2026_03_21_15_05_37_Российские_LLM_решения_GigaCode,_YandexGPT_OpenSource.mkv.pdf"
+        ],
+        "id": "q11",
+        "mode": "bm25_only",
+        "expected_source": "alpha_rag_intro.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "Эволюция ИИ_ От Текстового попугая к Коллеге.pdf",
+          "2026_03_21_15_05_37_Российские_LLM_решения_GigaCode,_YandexGPT_OpenSource.mkv.pdf"
+        ],
+        "id": "q12",
+        "mode": "bm25_only",
+        "expected_source": "beta_vector_db.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "2026_03_21_16_44_55_Контекст_Правила_для_модели_Cursor_Rules.mkv.pdf",
+          "2026-04-05 13-34-12 Дизайн. User Story Mapping. UX и обработка ошибок.mkv.pdf"
+        ],
+        "id": "q13",
+        "mode": "bm25_only",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "2026-04-05 15-04-37 Практика проработка требований с помощью AI-агента .mkv.pdf",
+          "2026_03_21_16_44_55_Контекст_Правила_для_модели_Cursor_Rules.mkv.pdf"
+        ],
+        "id": "q14",
+        "mode": "bm25_only",
+        "expected_source": "delta_srs.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "2026_03_21_12_22_48_Обзор_инструментов_Cloud_агенты_vs_IDE_агенты.mkv.pdf",
+          "2026_03_21_12_22_48_Обзор_инструментов_Cloud_агенты_vs_IDE_агенты.mkv.pdf"
+        ],
+        "id": "q15",
+        "mode": "bm25_only",
+        "expected_source": null
+      }
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+﻿{
+  "version": "1.0",
+  "conflicts": [
+    {
+      "id": "conf_001",
+      "source_paths": [
+        "adversarial/conflict/quota_policy_strict.txt",
+        "adversarial/conflict/quota_policy_relaxed.txt"
+      ],
+      "expected_conflict": true
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://home-rag.local/schemas/proof_manifest.schema.json",
+  "title": "ProofManifest",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["run_id", "package_id", "generated_at", "artifacts", "git"],
+  "properties": {
+    "run_id": { "type": "string", "minLength": 1 },
+    "package_id": { "type": "string", "minLength": 1 },
+    "generated_at": { "type": "string", "minLength": 1 },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "sha256", "kind"],
+        "properties": {
+          "path": { "type": "string", "minLength": 1 },
+          "sha256": { "type": "string", "minLength": 64 },
+          "kind": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "git": {
+      "type": "object",
+      "required": ["head_sha", "diff_sha256"],
+      "properties": {
+        "head_sha": { "type": "string" },
+        "diff_sha256": { "type": "string" }
+      }
+    }
+  }
+}

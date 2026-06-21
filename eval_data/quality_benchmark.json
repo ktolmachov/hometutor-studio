@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "description": "Mini benchmark для E10.1: локальный KB в eval_data/quality_benchmark_kb",
+  "cases": [
+    {"id": "qb01", "question": "Что такое RAG и какой типичный пайплайн?", "expected_sources": ["alpha_rag_intro.md"], "reference_answer": "RAG сочетает поиск по базе и LLM; обычно вопрос эмбеддится, идёт векторный поиск, затем генерация."},
+    {"id": "qb02", "question": "Зачем нужен уникальный якорь RAG_ALPHA_UNIQUE_7741?", "expected_sources": ["alpha_rag_intro.md"], "reference_answer": "Якорь RAG_ALPHA_UNIQUE_7741 находится в документе про введение в RAG."},
+    {"id": "qb03", "question": "Как называется пример embedded vector database в заметке про Chroma?", "expected_sources": ["beta_vector_db.md"], "reference_answer": "В тексте про векторные хранилища упоминается Chroma как embedded vector database."},
+    {"id": "qb04", "question": "Что важно для продакшена с каталогом chroma_db?", "expected_sources": ["beta_vector_db.md"], "reference_answer": "Нужны бэкапы каталога chroma_db и совместимость модели эмбеддингов."},
+    {"id": "qb05", "question": "CHROMA_BETA_UNIQUE_5520 где описан?", "expected_sources": ["beta_vector_db.md"], "reference_answer": "Маркер CHROMA_BETA_UNIQUE_5520 в файле beta_vector_db."},
+    {"id": "qb06", "question": "Что такое гибридный retrieval в этом проекте?", "expected_sources": ["gamma_hybrid.md"], "reference_answer": "Гибрид сочетает векторный поиск и BM25, иногда с RRF."},
+    {"id": "qb07", "question": "Как объединяют ранги в гибридном поиске?", "expected_sources": ["gamma_hybrid.md"], "reference_answer": "Используют Reciprocal Rank Fusion для списков результатов."},
+    {"id": "qb08", "question": "HYBRID_GAMMA_UNIQUE_8833 для чего служит якорь?", "expected_sources": ["gamma_hybrid.md"], "reference_answer": "Якорь HYBRID_GAMMA_UNIQUE_8833 в gamma_hybrid."},
+    {"id": "qb09", "question": "Что делает алгоритм SM-2?", "expected_sources": ["delta_srs.md"], "reference_answer": "SM-2 задаёт ease factor и интервалы повторений в днях."},
+    {"id": "qb10", "question": "Spaced repetition: что происходит при низкой оценке карточки?", "expected_sources": ["delta_srs.md"], "reference_answer": "Карточки с низкой оценкой возвращаются раньше."},
+    {"id": "qb11", "question": "SRS_DELTA_UNIQUE_4402", "expected_sources": ["delta_srs.md"], "reference_answer": "Уникальный якорь SRS_DELTA_UNIQUE_4402 в delta_srs."},
+    {"id": "qb12", "question": "Зачем guardrails в ответах модели?", "expected_sources": ["epsilon_guardrails.md"], "reference_answer": "Guardrails снижают риск токсичного или небезопасного текста."},
+    {"id": "qb13", "question": "Что важно в RAG чтобы не галлюцинировать без фактов?", "expected_sources": ["epsilon_guardrails.md"], "reference_answer": "Важно не подменять отсутствие фактов галлюцинациями."},
+    {"id": "qb14", "question": "GUARD_EPSILON_UNIQUE_9917", "expected_sources": ["epsilon_guardrails.md"], "reference_answer": "Маркер GUARD_EPSILON_UNIQUE_9917 в epsilon_guardrails."},
+    {"id": "qb15", "question": "О чём файл zeta_misc?", "expected_sources": ["zeta_misc.md"], "reference_answer": "Вспомогательный текст с нейтральными темами и якорем ZETA_MISC_UNIQUE_1209."},
+    {"id": "qb16", "question": "ZETA_MISC_UNIQUE_1209 где встречается?", "expected_sources": ["zeta_misc.md"], "reference_answer": "Якорь ZETA_MISC_UNIQUE_1209 в zeta_misc."},
+    {"id": "qb17", "question": "Как BM25 сочетается с векторным поиском?", "expected_sources": ["gamma_hybrid.md"], "reference_answer": "Гибридный retrieval объединяет BM25 и плотные векторы."},
+    {"id": "qb18", "question": "Какие шаги у типичного RAG после вопроса пользователя?", "expected_sources": ["alpha_rag_intro.md"], "reference_answer": "Эмбеддинг запроса, векторный поиск, затем генерация с контекстом."},
+    {"id": "qb19", "question": "Что хранит коллекция Chroma?", "expected_sources": ["beta_vector_db.md"], "reference_answer": "Коллекции группируют документы с метаданными для фильтрации."},
+    {"id": "qb20", "question": "Интервалы в SRS растут когда?", "expected_sources": ["delta_srs.md"], "reference_answer": "Интервалы растут при успешных повторениях."},
+    {"id": "qb21", "question": "Политики guardrails могут требовать что для ответа?", "expected_sources": ["epsilon_guardrails.md"], "reference_answer": "Могут требовать цитирование источников или усечение длины."},
+    {"id": "qb22", "question": "Профили fast и quality относятся к чему в гибридном поиске?", "expected_sources": ["gamma_hybrid.md"], "reference_answer": "Настраивают пороги similarity и веса каналов retrieval."}
+  ]
+}

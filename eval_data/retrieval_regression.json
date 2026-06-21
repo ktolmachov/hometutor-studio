@@ -1,0 +1,62 @@
+[
+  {
+    "id": "rr1",
+    "question": "Cursor",
+    "type": "keyword",
+    "expected_sources": ["ИИ Агенты/урок_1 Введение в концепцию AI-агентов.md"]
+  },
+  {
+    "id": "rr2",
+    "question": "Windsurf",
+    "type": "keyword",
+    "expected_sources": ["ИИ Агенты/урок_1 Введение в концепцию AI-агентов.md"]
+  },
+  {
+    "id": "rr3",
+    "question": "Replit Agent",
+    "type": "keyword",
+    "expected_sources": ["ИИ Агенты/урок_1 Введение в концепцию AI-агентов.md"]
+  },
+  {
+    "id": "rr4",
+    "question": "HDBSCAN",
+    "type": "keyword",
+    "expected_sources": ["ИИ Агенты/урок_2_как_агент_думает_и_действует.md"]
+  },
+  {
+    "id": "rr5",
+    "question": "ReAct",
+    "type": "keyword",
+    "expected_sources": ["ИИ Агенты/урок_2_как_агент_думает_и_действует.md"]
+  },
+  {
+    "id": "rr6",
+    "question": "MCP-серверы",
+    "type": "keyword",
+    "expected_sources": ["ИИ Агенты/урок_2_как_агент_думает_и_действует.md"]
+  },
+  {
+    "id": "rr7",
+    "question": "Claude Code",
+    "type": "keyword",
+    "expected_sources": ["ИИ Агенты/урок_1 Введение в концепцию AI-агентов.md"]
+  },
+  {
+    "id": "rr8",
+    "question": "Aider",
+    "type": "keyword",
+    "expected_sources": ["ИИ Агенты/урок_1 Введение в концепцию AI-агентов.md"]
+  },
+  {
+    "id": "rr9",
+    "question": "LiveCodeBench",
+    "type": "keyword",
+    "expected_sources": ["ИИ Агенты/урок_1 Введение в концепцию AI-агентов.md"]
+  },
+  {
+    "id": "rr10",
+    "question": "BM25",
+    "type": "keyword",
+    "expected_sources": ["ИИ Агенты/урок_1 Введение в концепцию AI-агентов.md"]
+  }
+]

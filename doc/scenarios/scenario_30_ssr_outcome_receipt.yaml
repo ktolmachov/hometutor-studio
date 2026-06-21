@@ -1,0 +1,29 @@
+id: scenario_30
+title: "SSR micro-outcome receipt: честный чек после шага"
+level: "🔴 Orchestration"
+persona: "Марк выполнил рекомендацию SSR и хочет увидеть, что изменилось локально."
+duration_min: 2
+why: |
+  Показать micro-outcome receipt: локальные метрики до/после действия роутера без облачного профиля.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+wow_moment: |
+  «К повторению: было 12 → стало 8» — прогресс измерим и проверяем на машине пользователя.
+takeaway: |
+  SSR заканчивается не кликом, а receipt: learner видит эффект своего шага.
+scenario_link: "user_scenarios.md#сценарий-30--ssr-micro-outcome-receipt-честный-чек-после-шага"
+
+shots:
+  - slug: "01_ssr_recommendation"
+    caption: "SSR: рекомендация следующего шага"
+    narration: "Роутер предлагает одно действие с объяснением «почему сейчас»."
+    duration_sec: 4
+  - slug: "02_after_action_receipt"
+    caption: "Micro-outcome receipt после шага"
+    narration: "После действия виден честный diff локальных метрик."
+    duration_sec: 5
+  - slug: "03_local_metrics_changed"
+    caption: "Локальные сигналы: due, weak, plan"
+    narration: "Receipt строится из SQLite/SM-2, без облачного профиля."
+    duration_sec: 4

@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "dataset_version": "1.0",
+  "created_at": "2026-06-11T00:00:00Z",
+  "course_scope": "ИИ Агенты",
+  "includes_defense_categories": true,
+  "categories": {
+    "relationship": [
+      {
+        "id": "rel_001",
+        "category": "relationship",
+        "question": "Как связаны концепции агент и инструмент в курсе про AI-агенты?",
+        "course_scope": "ИИ Агенты",
+        "expected_doc_ids": ["ИИ Агенты/урок 1 Введение в концепцию AI-агентов.md"],
+        "expected_characteristics": {"relation_type": "related", "min_sources": 1, "graph_context_expected": true}
+      },
+      {
+        "id": "rel_002",
+        "category": "relationship",
+        "question": "Какая связь между планированием действий агента и выбором модели в уроке 2?",
+        "course_scope": "ИИ Агенты",
+        "expected_doc_ids": ["ИИ Агенты/урок_2_как_агент_думает_и_действует.md"],
+        "expected_characteristics": {"relation_type": "related", "min_sources": 1}
+      },
+      {
+        "id": "rel_003",
+        "category": "relationship",
+        "question": "Как в курсе описана связь между памятью агента и контекстом диалога?",
+        "course_scope": "ИИ Агенты",
+        "expected_doc_ids": ["ИИ Агенты/урок_3_память_и_контекст_агента.md"],
+        "expected_characteristics": {"relation_type": "related"}
+      },
+      {
+        "id": "rel_004",
+        "category": "relationship",
+        "question": "Как связаны оркестрация агентов и многошаговые сценарии в уроке 4?",
+        "course_scope": "ИИ Агенты",
+        "expected_doc_ids": ["ИИ Агенты/Урок_4_оркестрация_и_многоагентные_системы.md"],
+        "expected_characteristics": {"relation_type": "related", "synthesis_required": true}
+      }
+    ],
+    "prerequisite": [
+      {
+        "id": "pre_001",
+        "category": "prerequisite",
+        "question": "Что нужно понять про базовую архитектуру агента перед изучением планирования в уроке 2?",
+        "course_scope": "ИИ Агенты",
+        "expected_doc_ids": ["ИИ Агенты/урок 1 Введение в концепцию AI-агентов.md", "ИИ Агенты/урок_2_как_агент_думает_и_действует.md"],
+        "expected_characteristics": {"relation_type": "prerequisite", "chain_length_min": 2}
+      },
+      {
+        "id": "pre_002",
+        "category": "prerequisite",
+        "question": "Какие темы урока 1 являются предпосылкой для понимания памяти агента в уроке 3?",
+        "course_scope": "ИИ Агенты",
+        "expected_doc_ids": ["ИИ Агенты/урок 1 Введение в концепцию AI-агентов.md", "ИИ Агенты/урок_3_память_и_контекст_агента.md"],
+        "expected_characteristics": {"relation_type": "prerequisite", "min_sources": 2}
+      },
+      {
+        "id": "pre_003",
+        "category": "prerequisite",
+        "question": "Что из урока 2 нужно знать перед оркестрацией агентов в уроке 4?",
+        "course_scope": "ИИ Агенты",
+        "expected_doc_ids": ["ИИ Агенты/урок_2_как_агент_думает_и_действует.md", "ИИ Агенты/Урок_4_оркестрация_и_многоагентные_системы.md"],
+        "expected_characteristics": {"relation_type": "prerequisite", "graph_context_expected": true}
+      },
+      {
+        "id": "pre_004",
+        "category": "prerequisite",
+        "question": "Какая последовательность уроков нужна для понимания многоагентных систем?",
+        "course_scope": "ИИ Агенты",
+        "expected_doc_ids": ["ИИ Агенты/урок_3_память_и_контекст_агента.md", "ИИ Агенты/Урок_4_оркестрация_и_многоагентные_системы.md"],
+        "expected_characteristics": {"relation_type": "prerequisite", "chain_length_min": 2}
+      }
+    ],
+    "dependency": [
+      {
+        "id": "dep_001",
+        "category": "dependency",
+        "question": "На какие внешние инструменты и API опирается агент при выполнении задач в курсе?",
+        "course_scope": "ИИ Агенты",
+        "expected_doc_ids": ["ИИ Агенты/урок 1 Введение в концепцию AI-агентов.md"],
+        "expected_characteristics": {"relation_type": "dependency", "cross_doc": true}
+      },
+      {
+        "id": "dep_002",
+        "category": "dependency",
+        "question": "Какие зависимости между компонентами RAG-пайплайна описаны для агента в уроке 2?",
+        "course_scope": "ИИ Агенты",
+        "expected_doc_ids": ["ИИ Агенты/урок_2_как_агент_думает_и_действует.md"],
+        "expected_characteristics": {"relation_type": "dependency", "min_sources": 1}
+      },
+      {
+        "id": "dep_003",
+        "category": "dependency",
+        "question": "От чего зависит качество ответа агента при работе с долгим контекстом в уроке 3?",
+        "course_scope": "ИИ Агенты",
+        "expected_doc_ids": ["ИИ Агенты/урок_3_память_и_контекст_агента.md"],
+        "expected_characteristics": {"relation_type": "dependency", "graph_context_expected": true}
+      },
+      {
+        "id": "dep_004",
+        "category": "dependency",
+        "question": "Какие зависимости между агентами критичны для оркестрации в уроке 4?",
+        "course_scope": "ИИ Агенты",
+        "expected_doc_ids": ["ИИ Агенты/Урок_4_оркестрация_и_многоагентные_системы.md"],
+        "expected_characteristics": {"relation_type": "dependency", "cross_doc": true, "synthesis_required": true}
+      }
+    ]
+  }
+}

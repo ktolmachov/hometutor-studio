@@ -1,0 +1,587 @@
+{
+  "run_id": "eval-2026-05-20",
+  "eval_type": "retrieval_only",
+  "dataset": "eval/eval_dataset.json",
+  "corpus": "demo_data",
+  "faithfulness_note": "faithfulness_pass требует ручного прогона с LLM; здесь только source_found@3",
+  "summary": {
+    "total_questions": 15,
+    "faithfulness_pass": null,
+    "source_found": null,
+    "avg_confidence": null
+  },
+  "by_mode": {
+    "vector_only": {
+      "total_questions": 15,
+      "source_found_count": 12,
+      "source_found_rate": 0.86,
+      "faithfulness_pass_count": null,
+      "faithfulness_pass_rate": null,
+      "avg_latency_sec": 0.75
+    },
+    "hybrid": {
+      "total_questions": 15,
+      "source_found_count": 13,
+      "source_found_rate": 0.93,
+      "faithfulness_pass_count": null,
+      "faithfulness_pass_rate": null,
+      "avg_latency_sec": 0.57
+    },
+    "bm25_only": {
+      "total_questions": 15,
+      "source_found_count": 13,
+      "source_found_rate": 0.93,
+      "faithfulness_pass_count": null,
+      "faithfulness_pass_rate": null,
+      "avg_latency_sec": 0.0
+    }
+  },
+  "cases": {
+    "vector_only": [
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 3.47,
+        "source_files_top3": [
+          "alpha_rag_intro.md",
+          "alpha_rag_intro.md"
+        ],
+        "id": "q01",
+        "mode": "vector_only",
+        "expected_source": "alpha_rag_intro.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.59,
+        "source_files_top3": [
+          "beta_vector_db.md",
+          "beta_vector_db.md"
+        ],
+        "id": "q02",
+        "mode": "vector_only",
+        "expected_source": "beta_vector_db.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.72,
+        "source_files_top3": [
+          "beta_vector_db.md",
+          "beta_vector_db.md"
+        ],
+        "id": "q03",
+        "mode": "vector_only",
+        "expected_source": "beta_vector_db.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.49,
+        "source_files_top3": [
+          "alpha_rag_intro.md",
+          "alpha_rag_intro.md"
+        ],
+        "id": "q04",
+        "mode": "vector_only",
+        "expected_source": "alpha_rag_intro.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.48,
+        "source_files_top3": [
+          "gamma_hybrid.md",
+          "gamma_hybrid.md"
+        ],
+        "id": "q05",
+        "mode": "vector_only",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.49,
+        "source_files_top3": [
+          "gamma_hybrid.md",
+          "gamma_hybrid.md"
+        ],
+        "id": "q06",
+        "mode": "vector_only",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.56,
+        "source_files_top3": [
+          "gamma_hybrid.md",
+          "gamma_hybrid.md"
+        ],
+        "id": "q07",
+        "mode": "vector_only",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.51,
+        "source_files_top3": [
+          "epsilon_guardrails.md",
+          "epsilon_guardrails.md"
+        ],
+        "id": "q08",
+        "mode": "vector_only",
+        "expected_source": "epsilon_guardrails.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.68,
+        "source_files_top3": [
+          "delta_srs.md",
+          "delta_srs.md"
+        ],
+        "id": "q09",
+        "mode": "vector_only",
+        "expected_source": "delta_srs.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.64,
+        "source_files_top3": [
+          "python_basics.md",
+          "python_basics.md"
+        ],
+        "id": "q10",
+        "mode": "vector_only",
+        "expected_source": "python_basics.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.49,
+        "source_files_top3": [
+          "epsilon_guardrails.md",
+          "epsilon_guardrails.md"
+        ],
+        "id": "q11",
+        "mode": "vector_only",
+        "expected_source": "alpha_rag_intro.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.48,
+        "source_files_top3": [
+          "beta_vector_db.md",
+          "alpha_rag_intro.md"
+        ],
+        "id": "q12",
+        "mode": "vector_only",
+        "expected_source": "beta_vector_db.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.52,
+        "source_files_top3": [
+          "epsilon_guardrails.md",
+          "epsilon_guardrails.md"
+        ],
+        "id": "q13",
+        "mode": "vector_only",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.49,
+        "source_files_top3": [
+          "delta_srs.md",
+          "delta_srs.md"
+        ],
+        "id": "q14",
+        "mode": "vector_only",
+        "expected_source": "delta_srs.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.57,
+        "source_files_top3": [
+          "delta_srs.md",
+          "alpha_rag_intro.md"
+        ],
+        "id": "q15",
+        "mode": "vector_only",
+        "expected_source": null
+      }
+    ],
+    "hybrid": [
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.5,
+        "source_files_top3": [
+          "alpha_rag_intro.md",
+          "epsilon_guardrails.md"
+        ],
+        "id": "q01",
+        "mode": "hybrid",
+        "expected_source": "alpha_rag_intro.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.53,
+        "source_files_top3": [
+          "beta_vector_db.md",
+          "beta_vector_db.md"
+        ],
+        "id": "q02",
+        "mode": "hybrid",
+        "expected_source": "beta_vector_db.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.74,
+        "source_files_top3": [
+          "beta_vector_db.md",
+          "epsilon_guardrails.md"
+        ],
+        "id": "q03",
+        "mode": "hybrid",
+        "expected_source": "beta_vector_db.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.57,
+        "source_files_top3": [
+          "alpha_rag_intro.md",
+          "python_basics.md"
+        ],
+        "id": "q04",
+        "mode": "hybrid",
+        "expected_source": "alpha_rag_intro.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.5,
+        "source_files_top3": [
+          "gamma_hybrid.md",
+          "python_basics.md"
+        ],
+        "id": "q05",
+        "mode": "hybrid",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.53,
+        "source_files_top3": [
+          "gamma_hybrid.md",
+          "gamma_hybrid.md"
+        ],
+        "id": "q06",
+        "mode": "hybrid",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.5,
+        "source_files_top3": [
+          "gamma_hybrid.md",
+          "python_basics.md"
+        ],
+        "id": "q07",
+        "mode": "hybrid",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.51,
+        "source_files_top3": [
+          "epsilon_guardrails.md",
+          "epsilon_guardrails.md"
+        ],
+        "id": "q08",
+        "mode": "hybrid",
+        "expected_source": "epsilon_guardrails.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.75,
+        "source_files_top3": [
+          "delta_srs.md",
+          "delta_srs.md"
+        ],
+        "id": "q09",
+        "mode": "hybrid",
+        "expected_source": "delta_srs.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.53,
+        "source_files_top3": [
+          "python_basics.md",
+          "python_basics.md"
+        ],
+        "id": "q10",
+        "mode": "hybrid",
+        "expected_source": "python_basics.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.57,
+        "source_files_top3": [
+          "epsilon_guardrails.md",
+          "epsilon_guardrails.md"
+        ],
+        "id": "q11",
+        "mode": "hybrid",
+        "expected_source": "alpha_rag_intro.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.51,
+        "source_files_top3": [
+          "beta_vector_db.md",
+          "beta_vector_db.md"
+        ],
+        "id": "q12",
+        "mode": "hybrid",
+        "expected_source": "beta_vector_db.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.59,
+        "source_files_top3": [
+          "gamma_hybrid.md",
+          "epsilon_guardrails.md"
+        ],
+        "id": "q13",
+        "mode": "hybrid",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.6,
+        "source_files_top3": [
+          "delta_srs.md",
+          "alpha_rag_intro.md"
+        ],
+        "id": "q14",
+        "mode": "hybrid",
+        "expected_source": "delta_srs.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.55,
+        "source_files_top3": [
+          "delta_srs.md",
+          "delta_srs.md"
+        ],
+        "id": "q15",
+        "mode": "hybrid",
+        "expected_source": null
+      }
+    ],
+    "bm25_only": [
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "alpha_rag_intro.md",
+          "epsilon_guardrails.md"
+        ],
+        "id": "q01",
+        "mode": "bm25_only",
+        "expected_source": "alpha_rag_intro.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "beta_vector_db.md",
+          "beta_vector_db.md"
+        ],
+        "id": "q02",
+        "mode": "bm25_only",
+        "expected_source": "beta_vector_db.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "beta_vector_db.md",
+          "epsilon_guardrails.md"
+        ],
+        "id": "q03",
+        "mode": "bm25_only",
+        "expected_source": "beta_vector_db.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "alpha_rag_intro.md",
+          "python_basics.md"
+        ],
+        "id": "q04",
+        "mode": "bm25_only",
+        "expected_source": "alpha_rag_intro.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "gamma_hybrid.md",
+          "python_basics.md"
+        ],
+        "id": "q05",
+        "mode": "bm25_only",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "gamma_hybrid.md",
+          "gamma_hybrid.md"
+        ],
+        "id": "q06",
+        "mode": "bm25_only",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "gamma_hybrid.md",
+          "python_basics.md"
+        ],
+        "id": "q07",
+        "mode": "bm25_only",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "epsilon_guardrails.md",
+          "epsilon_guardrails.md"
+        ],
+        "id": "q08",
+        "mode": "bm25_only",
+        "expected_source": "epsilon_guardrails.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "delta_srs.md",
+          "delta_srs.md"
+        ],
+        "id": "q09",
+        "mode": "bm25_only",
+        "expected_source": "delta_srs.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "python_basics.md",
+          "python_basics.md"
+        ],
+        "id": "q10",
+        "mode": "bm25_only",
+        "expected_source": "python_basics.md"
+      },
+      {
+        "source_found": false,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "epsilon_guardrails.md",
+          "epsilon_guardrails.md"
+        ],
+        "id": "q11",
+        "mode": "bm25_only",
+        "expected_source": "alpha_rag_intro.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "beta_vector_db.md",
+          "alpha_rag_intro.md"
+        ],
+        "id": "q12",
+        "mode": "bm25_only",
+        "expected_source": "beta_vector_db.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "gamma_hybrid.md",
+          "gamma_hybrid.md"
+        ],
+        "id": "q13",
+        "mode": "bm25_only",
+        "expected_source": "gamma_hybrid.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "delta_srs.md",
+          "alpha_rag_intro.md"
+        ],
+        "id": "q14",
+        "mode": "bm25_only",
+        "expected_source": "delta_srs.md"
+      },
+      {
+        "source_found": true,
+        "faithfulness_pass": null,
+        "latency_sec": 0.0,
+        "source_files_top3": [
+          "delta_srs.md",
+          "gamma_hybrid.md"
+        ],
+        "id": "q15",
+        "mode": "bm25_only",
+        "expected_source": null
+      }
+    ]
+  }
+}

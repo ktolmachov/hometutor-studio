@@ -1,0 +1,39 @@
+id: scenario_08
+title: "Доверие к ответу: источники и confidence"
+level: "🔵 Trust drill-down"
+persona: "Аня скептически смотрит на ответ. Хочет проверить источники."
+duration_min: 2
+why: |
+  RAG-ответ без источников — это просто текст. С источниками — это документ
+  с доказательной базой. Аня видит confidence-чип, список источников
+  с match-score, и может раскрыть фрагмент прямо в интерфейсе.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+  e2e_env:
+    HOME_RAG_E2E_OFFLINE: "1"
+wow_moment: |
+  Нажала на источник — видит точный фрагмент из лекции.
+  Нет «AI сказал» — есть «профессор написал на стр. 12».
+takeaway: |
+  Confidence + источники превращают ответ в доверенный документ.
+  Галлюцинации проверяемы — это и есть доверие.
+scenario_link: "user_scenarios.md#сценарий-8--доверие-к-ответу"
+
+shots:
+  - slug: "01_answer_with_confidence_chip"
+    caption: "Ответ + чип «Confidence 87%»"
+    narration: "Система сама показывает насколько уверена в ответе."
+    duration_sec: 3
+  - slug: "02_three_sources_listed"
+    caption: "3 источника с именами файлов и match-score"
+    narration: "Каждый источник — с весом релевантности, не просто список."
+    duration_sec: 4
+  - slug: "03_source_preview_expanded"
+    caption: "Фрагмент источника с подсвеченным текстом"
+    narration: "Раскрыла источник — видит точный абзац из лекции."
+    duration_sec: 4
+  - slug: "04_jump_to_file_at_line"
+    caption: "Deep link к строке в исходном файле"
+    narration: "Хочет читать полный контекст — один клик до файла."
+    duration_sec: 3

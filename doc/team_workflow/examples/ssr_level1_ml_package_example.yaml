@@ -1,0 +1,68 @@
+package_id: "ml-ssr-forgetting-curve-v1"
+type: "hybrid_intelligence"
+status: "proposed"
+
+goal: "Improve Smart Study Router priority by adding a local forgetting-curve signal while preserving the current rule-based fallback."
+user_stories:
+  - "US-20.x Smart Study Router follow-up"
+
+data_phase:
+  goal: "Collect local review and quiz outcomes that can estimate retention probability."
+  sources:
+    - "user_state.db flashcard review history"
+    - "local quiz outcome records"
+  labeling:
+    method: "automatic outcome labels from review success and quiz scores"
+    validation: "manual review of 100 sampled records"
+  deliverables:
+    - "data/ml/ssr_forgetting_curve_train.parquet"
+    - "data/ml/ssr_forgetting_curve_test.parquet"
+    - "scripts/ml/data_collection_ssr.py"
+
+model_phase:
+  approach: "logistic regression or calibrated sklearn classifier"
+  features:
+    - "time_since_last_review_hours"
+    - "recent_quiz_score_avg"
+    - "review_failures_last_7_days"
+    - "concept_difficulty"
+  target: "retention_probability"
+  training_or_iteration:
+    script: "scripts/ml/train_ssr_forgetting_curve.py"
+    output: "models/ssr_forgetting_curve_v1.pkl"
+    size_limit: "< 1MB"
+
+eval_phase:
+  primary_metric: "AUC-ROC"
+  baseline: "0.50 random"
+  target: ">= 0.75"
+  test_set: "20% local holdout from data_phase"
+  script: "scripts/ml/eval_ssr_forgetting_curve.py"
+  report: "archive/ml_eval/ssr_forgetting_curve_v1_report.md"
+
+integration_phase:
+  modules:
+    - "app/study_router_policy.py"
+  behavior: "rerank rule-based next actions with a bounded retention-risk adjustment"
+  fallback: "use existing rule priority when model is missing, slow, or low confidence"
+  monitoring:
+    - "inference_latency_p95 < 50ms"
+    - "model_size < 1MB"
+    - "fallback_rate tracked per local session"
+
+ab_test_phase:
+  required: false
+  control: "current rule-based SSR"
+  treatment: "rule-based SSR plus local ML reranking"
+  metric: "cards_due completion rate"
+  duration: "2 weeks or local sample threshold"
+
+risks:
+  - "insufficient local history for cold-start users"
+  - "model signal hides explainable rule priority"
+  - "stale model degrades after study behavior changes"
+
+rollback:
+  mode: "rule_only"
+  trigger: "eval target miss, latency breach, model load failure, or user disables AI routing"
+

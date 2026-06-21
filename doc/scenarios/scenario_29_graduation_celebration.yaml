@@ -1,0 +1,29 @@
+id: scenario_29
+title: "Graduation celebration: ceremony overlay"
+level: "🟡 Perceived quality"
+persona: "Аня завершила тему — хочет почувствовать завершённость, а не просто цифру mastery."
+duration_min: 3
+why: |
+  Показать celebration overlay и delight progress rail как завершение учебного цикла.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+wow_moment: |
+  «Поздравляем: концепт зафиксирован как освоенный» — не просто +1% в таблице.
+takeaway: |
+  Graduation — эмоциональная точка опоры, которая мотивирует продолжать курс.
+scenario_link: "user_scenarios.md#сценарий-29--graduation-celebration-ceremony-overlay"
+
+shots:
+  - slug: "01_delight_progress_rail"
+    caption: "Delight loop: progress rail на Home"
+    narration: "Виден путь Q&A → Tutor → Quiz → Card → Review → Graduation."
+    duration_sec: 4
+  - slug: "02_celebration_overlay"
+    caption: "Celebration overlay после mastery ≥ 80%"
+    narration: "Система поздравляет с освоением темы и показывает метрики сессии."
+    duration_sec: 5
+  - slug: "03_graduation_ctas"
+    caption: "CTA: следующая тема / weak / home"
+    narration: "Три безопасных следующих шага после graduation."
+    duration_sec: 4

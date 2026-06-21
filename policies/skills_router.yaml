@@ -1,0 +1,34 @@
+{
+  "rules": [
+    {
+      "skill": "developing-with-streamlit",
+      "path_prefixes": ["app/ui/", "app/ui"],
+      "keywords": ["streamlit", "st."],
+      "reason": "Streamlit UI changes require the Streamlit development skill."
+    },
+    {
+      "skill": "fastapi",
+      "path_prefixes": ["app/routers/", "app/api.py", "app/api_models.py"],
+      "keywords": ["fastapi", "router", "endpoint"],
+      "reason": "API route or FastAPI contract changes."
+    },
+    {
+      "skill": "rag-architect",
+      "path_prefixes": ["app/retrieval", "app/query", "app/knowledge_graph", "app/ingestion"],
+      "keywords": ["retrieval", "rag", "embedding", "vector"],
+      "reason": "RAG, retrieval, embeddings, or knowledge graph changes."
+    },
+    {
+      "skill": "pdf",
+      "path_suffixes": [".pdf"],
+      "keywords": ["pdf"],
+      "reason": "PDF artifacts or PDF processing."
+    },
+    {
+      "skill": "playwright-best-practices",
+      "path_prefixes": ["tests/e2e/", "playwright.config"],
+      "keywords": ["playwright", "e2e"],
+      "reason": "Playwright end-to-end test changes."
+    }
+  ]
+}

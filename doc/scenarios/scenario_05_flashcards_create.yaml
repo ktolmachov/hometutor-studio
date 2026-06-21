@@ -1,0 +1,40 @@
+id: scenario_05
+title: "Flashcards: сгенерировать, отредактировать, сохранить"
+level: "🔵 Учебный ритм"
+persona: "Аня, через неделю экзамен. Хочет колоду по главе 3."
+duration_min: 5
+why: |
+  Показать, что home-rag заменяет ручное создание Anki-колод — с preview и редактированием.
+  Ни одна LLM-генерация не попадает в колоду без человеческой проверки.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+  e2e_env:
+    HOME_RAG_E2E_OFFLINE: "1"
+  notes: |
+    Использует детерминированные stub-карточки через HOME_RAG_E2E_OFFLINE=1.
+    Реальная LLM-генерация покрыта сценарием уровня nightly.
+wow_moment: |
+  Редактируемый preview: правишь или удаляешь плохую карточку ДО сохранения.
+  Другие генераторы скидывают всё подряд.
+takeaway: |
+  Колода по главе — за минуту, не за час. И ты контролируешь каждую карточку.
+scenario_link: "user_scenarios.md#сценарий-5--flashcards-генерация-и-сохранение"
+
+shots:
+  - slug: "01_flashcards_section"
+    caption: "Раздел Flashcards: три подвкладки"
+    narration: "Три зоны: что есть, что создать, что повторить."
+    duration_sec: 3
+  - slug: "02_create_new_upload"
+    caption: "Создание карточек: загрузка файла"
+    narration: "5–20 карточек из любого документа."
+    duration_sec: 3
+  - slug: "03_preview_generated"
+    caption: "Preview сгенерированных карточек"
+    narration: "LLM даёт first draft — человек проверяет."
+    duration_sec: 5
+  - slug: "04_save_deck"
+    caption: "Сохранение колоды"
+    narration: "Минимум 5 валидных карточек — колода в базе."
+    duration_sec: 3

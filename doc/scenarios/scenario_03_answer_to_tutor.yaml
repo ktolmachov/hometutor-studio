@@ -1,0 +1,42 @@
+id: scenario_03
+title: "Ответ → Tutor за один клик"
+level: "🟡 Learning loop"
+persona: "Аня после scenario_01. Хочет разобраться в теме глубже."
+duration_min: 5
+why: |
+  Один клик превращает поисковый ответ в guided learning session без ручной
+  сборки промптов. Контекст (тема + исходный вопрос) передаётся автоматически.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+  e2e_env:
+    HOME_RAG_E2E_OFFLINE: "1"
+wow_moment: |
+  Один клик на «Учить эту тему 5 минут» — и Tutor уже знает вопрос,
+  тему и предлагает структурированный план разбора.
+takeaway: |
+  RAG-ответ — не конец пути, а точка входа в обучение.
+  Система сама передаёт контекст, студент не теряет нить.
+scenario_link: "user_scenarios.md#сценарий-3--ответ-tutor-за-один-клик"
+
+shots:
+  - slug: "01_answer_with_learn_cta"
+    caption: "Готовый ответ с кнопкой «Учить эту тему 5 минут»"
+    narration: "Аня видит ответ — и прямо здесь предложение перейти в режим обучения."
+    duration_sec: 3
+  - slug: "02_tutor_context_handoff"
+    caption: "Tutor открыт: контекст темы и вопроса сохранён"
+    narration: "Переход без потери контекста — тема и исходный вопрос уже в Tutor."
+    duration_sec: 4
+  - slug: "03_tutor_topic_plan"
+    caption: "План разбора темы: 3 шага"
+    narration: "Система предлагает структуру: что объяснить и в каком порядке."
+    duration_sec: 4
+  - slug: "04_tutor_simple_explanation"
+    caption: "Объяснение простыми словами — шаг 1"
+    narration: "Первый шаг плана: концепция объяснена без жаргона."
+    duration_sec: 5
+  - slug: "05_tutor_next_step_cta"
+    caption: "CTA «Следующий шаг: проверь понимание»"
+    narration: "Tutor сам предлагает перейти к проверке — мост к мини-квизу."
+    duration_sec: 3

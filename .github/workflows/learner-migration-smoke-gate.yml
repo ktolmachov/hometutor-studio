@@ -1,0 +1,50 @@
+name: Learner Migration Smoke Gate
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+concurrency:
+  group: learner-migration-smoke-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke-gate:
+    name: Learner Migration Smoke Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Run learner migration gate tests
+        run: |
+          python -m pytest \
+            tests/test_learner_model_service.py \
+            tests/test_check_learner_migration_gate.py \
+            tests/test_smoke_learner_migration_gate.py \
+            tests/test_metrics.py \
+            tests/test_config.py \
+            -q
+
+      - name: Run learner migration smoke merge-gate (strict)
+        run: |
+          python scripts/smoke_learner_migration_gate.py \
+            --profile strict \
+            --json-out

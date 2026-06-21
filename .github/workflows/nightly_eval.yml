@@ -1,0 +1,42 @@
+﻿name: nightly-eval
+
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+jobs:
+  answer-quality-eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run answer-quality CI gate
+        run: |
+          python scripts/eval_ci_gate.py \
+            --baseline tests/eval/results/baseline.json \
+            --thresholds tests/eval/thresholds.json \
+            --report-json tests/eval/results/nightly_gate.json
+
+      - name: Upload nightly eval artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-eval-${{ github.run_id }}
+          path: |
+            tests/eval/results/nightly_gate.json
+          if-no-files-found: warn

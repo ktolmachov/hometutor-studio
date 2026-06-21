@@ -1,0 +1,33 @@
+id: scenario_25
+title: "Mastery и Graduation: карта освоения"
+level: "🔴 Mastery"
+persona: "Аня перед экзаменом — хочет видеть, что уже освоено, а что ещё weak."
+duration_min: 4
+why: |
+  Показать качественный прогресс: mastery vector, graduated vs weak концепты и CTA «Разобрать».
+requires:
+  openai_api_key: false
+  offline_friendly: true
+wow_moment: |
+  Graduated-концепты исчезают из gap-плана — система знает, что уже освоено.
+takeaway: |
+  Прогресс — не счётчик страниц, а карта знаний с уровнями recognized → graduated.
+scenario_link: "user_scenarios.md#сценарий-25--mastery-и-graduation-карта-освоения"
+
+shots:
+  - slug: "01_mastery_vector_overview"
+    caption: "Mastery vector: обзор по концептам"
+    narration: "Один экран показывает, что уже устойчиво, а что требует внимания."
+    duration_sec: 4
+  - slug: "02_graduated_concepts"
+    caption: "Graduated: стабильно освоенные темы"
+    narration: "Зелёные концепты можно не трогать перед экзаменом."
+    duration_sec: 4
+  - slug: "03_weak_concepts_priority"
+    caption: "Weak spots: приоритет на последние дни"
+    narration: "Система сама находит темы ниже порога mastery."
+    duration_sec: 5
+  - slug: "04_cta_to_tutor"
+    caption: "CTA «Разобрать» по weak-концепту"
+    narration: "Один клик — целевая tutor-сессия по слабому месту."
+    duration_sec: 4

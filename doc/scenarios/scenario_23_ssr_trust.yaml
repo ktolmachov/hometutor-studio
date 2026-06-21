@@ -1,0 +1,33 @@
+id: scenario_23
+title: "SSR Trust: Понятные доказательства маршрута"
+level: "🔴 Orchestration"
+persona: "Марк хочет понимать, почему SSR выбрал именно этот следующий шаг."
+duration_min: 2
+why: |
+  Показать trust-уровень Smart Study Router: рекомендация должна быть не
+  только полезной, но и объяснимой через локальные сигналы, альтернативы и
+  короткий evidence ledger.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+wow_moment: |
+  Пользователь видит не магический совет, а конкретную причину: какие сигналы
+  сработали, какие действия были альтернативами и почему они не выбраны сейчас.
+takeaway: |
+  SSR Trust превращает рекомендацию в проверяемое решение. Доверие строится на
+  локальных данных, прозрачных правилах и видимых tradeoffs.
+scenario_link: "user_scenarios.md#сценарий-23--ssr-trust-понятные-доказательства-маршрута"
+
+shots:
+  - slug: "01_recommendation_with_reason"
+    caption: "SSR показывает следующий шаг и короткую причину"
+    narration: "Рекомендация начинается с простого объяснения, привязанного к локальному состоянию."
+    duration_sec: 4
+  - slug: "02_evidence_panel"
+    caption: "Evidence Panel: сигналы и альтернативы"
+    narration: "Пользователь раскрывает доказательства и видит, почему выбрано именно это действие."
+    duration_sec: 5
+  - slug: "03_local_first_trust"
+    caption: "Local-first доверие"
+    narration: "Все доказательства берутся из локального learner state, без облачного профиля."
+    duration_sec: 4

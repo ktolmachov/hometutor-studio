@@ -1,0 +1,5 @@
+﻿# Synthetic corpus fragment (adversarial conflict)
+
+Internal knowledge-base note A:
+RAG_ADV_CLAIM_A_STRICT — For all customer-facing endpoints, request rate limit is fixed at 1000 RPM globally; no per-tenant override exists.
+

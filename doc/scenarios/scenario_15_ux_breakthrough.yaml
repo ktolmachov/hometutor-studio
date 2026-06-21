@@ -1,0 +1,32 @@
+id: scenario_15
+title: "UX Breakthrough"
+level: "🟡 Perceived quality"
+persona: "Пользователь уже получил пользу от продукта и теперь оценивает скорость, плавность и мотивацию."
+duration_min: 2
+why: |
+  Зафиксировать UX-wave как отдельный demo-пакет, чтобы сценарий 15 не был
+  потерян между пользовательскими историями и инженерными parser/property-test
+  артефактами.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+wow_moment: |
+  Продукт не просто работает: ожидание, handoff, celebration и аналитика сессии
+  ощущаются как цельный учебный ритм.
+takeaway: |
+  UX Breakthrough — cross-feature слой качества, а не отдельный режим обучения.
+scenario_link: "user_scenarios.md#сценарий-15--ux-breakthrough"
+
+shots:
+  - slug: "01_wait_ux"
+    caption: "Skeleton/progressive reveal вместо немого ожидания"
+    narration: "Пользователь видит первый полезный сигнал меньше чем за две секунды."
+    duration_sec: 4
+  - slug: "02_tutor_handoff"
+    caption: "Переход Q&A → Tutor без потери контекста"
+    narration: "Тьютор знает вопрос, тему и источники, с которыми пришёл пользователь."
+    duration_sec: 4
+  - slug: "03_progress_receipt"
+    caption: "Мотивационный receipt после учебного шага"
+    narration: "Система показывает не только действие, но и образовательный результат."
+    duration_sec: 4

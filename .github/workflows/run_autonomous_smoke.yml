@@ -1,0 +1,32 @@
+﻿name: run_autonomous smoke
+
+on:
+  push:
+    paths:
+      - 'scripts/run_autonomous.py'
+      - 'scripts/prompt_utils.py'
+      - 'scripts/run_autonomous.ps1'
+      - 'scripts/run_autonomous.bat'
+  pull_request:
+    paths:
+      - 'scripts/run_autonomous.py'
+      - 'scripts/prompt_utils.py'
+      - 'scripts/run_autonomous.ps1'
+      - 'scripts/run_autonomous.bat'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Pipeline smoke (epoch-demo)
+        run: python scripts/run_autonomous.py --smoke --auto-prepare-epoch-demo

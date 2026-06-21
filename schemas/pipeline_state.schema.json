@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://home-rag.local/schemas/pipeline_state.schema.json",
+  "title": "PipelineState",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["run_id", "phase", "attempt", "proof_status", "updated_at"],
+  "properties": {
+    "run_id": { "type": "string", "minLength": 1 },
+    "package_id": { "type": ["string", "null"] },
+    "phase": {
+      "type": "string",
+      "enum": ["planning", "execution", "post_agent", "closed", "failed"]
+    },
+    "attempt": { "type": "integer", "minimum": 0 },
+    "last_event_id": { "type": "string" },
+    "proof_status": {
+      "type": "string",
+      "enum": ["missing", "partial", "complete"]
+    },
+    "updated_at": { "type": "string", "minLength": 1 }
+  }
+}

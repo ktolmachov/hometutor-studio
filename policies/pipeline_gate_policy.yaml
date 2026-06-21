@@ -1,0 +1,5 @@
+{
+  "gate_mode": "shadow",
+  "max_retry_attempts": 1,
+  "result_freshness_seconds": 7200
+}

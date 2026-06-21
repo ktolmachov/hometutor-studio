@@ -1,0 +1,77 @@
+﻿name: demo-build
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: demo-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  demo-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set run folder (YYYY-MM-DD)
+        shell: bash
+        run: echo "DEMO_SHOT_RUN=$(date +%F)" >> "$GITHUB_ENV"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Node deps
+        run: npm ci
+
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Playwright browser
+        run: npx playwright install chromium
+
+      - name: Build demo fast
+        run: npm run demo:build:fast
+
+      - name: Validate contract + baseline
+        run: |
+          python scripts/validate_demo_contract.py \
+            --screenshots-dir "doc/screenshots/${DEMO_SHOT_RUN}" \
+            --require-screenshots \
+            --strict-captures \
+            --require-unique-shots \
+            --verify-baseline doc/screenshots/_baseline
+
+      - name: Offline payload drift-guard
+        run: python -m pytest tests/test_offline_payloads_contract.py -v
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-artifacts-${{ github.run_number }}
+          if-no-files-found: warn
+          retention-days: 14
+          path: |
+            doc/quickstart_demo.md
+            doc/screenshots/**
+            playwright-report/**
+            test-results/**

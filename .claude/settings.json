@@ -1,0 +1,51 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rg:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git show:*)",
+      "Bash(git stash list:*)",
+      "Bash(python scripts/check_readset.py:*)",
+      "Bash(python scripts/check_graph_expansion_gate.py:*)",
+      "Bash(python scripts/check_tutor_regression_gate.py:*)",
+      "Bash(python scripts/check_learner_migration_gate.py:*)",
+      "Bash(python scripts/smoke_check.py:*)",
+      "Bash(python scripts/smoke_graph_expansion_gate.py:*)",
+      "Bash(python scripts/smoke_tutor_regression_gate.py:*)",
+      "Bash(python scripts/smoke_learner_migration_gate.py:*)",
+      "Bash(python scripts/eval_ci_gate.py:*)",
+      "Bash(python scripts/run_eval_loop.py:*)",
+      "Bash(python scripts/check_env.py:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(python -m ruff check:*)",
+      "Bash(python -m mypy:*)",
+      "Bash(python scripts/validate_token_budget.py:*)"
+    ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python scripts/validate_token_budget.py",
+            "statusMessage": "🔍 Validating token budget...",
+            "timeout": 10,
+            "asyncRewake": true,
+            "rewakeSummary": "Token validation complete"
+          }
+        ]
+      }
+    ]
+  }
+}

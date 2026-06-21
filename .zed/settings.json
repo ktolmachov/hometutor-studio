@@ -1,0 +1,58 @@
+{
+  "agentRules": {
+    "language": "ru",
+    "responseStyle": "concise",
+    "verbosity": "minimal",
+    "reportGuidance": "Не раздувать итоговые отчёты после рутинных действий",
+    "emojiUsage": "moderate",
+    "emojiGuidance": "Использовать умеренно — только там, где они реально помогают структуре или навигации (заголовки, списки, предупреждения). Без множества смайликов.",
+    "appliesTo": [
+      "coding-agents",
+      "automation-scripts",
+      "assistant-responses"
+    ],
+    "rationale": "Единое поведение агентов в репозитории: русский язык, краткие ответы, аккуратные отчёты и умеренное использование emoji.",
+    "meta": {
+      "version": "1.1",
+      "created_by": "team-rule",
+      "created_at": "2026-04-19"
+    },
+    "tokenBudgetPolicy": {
+      "enabled": true,
+      "targetInputTokens": 20000,
+      "softLimitInputTokens": 30000,
+      "hardLimitInputTokens": 30000,
+      "hardLimitAction": "block_and_shorten_context",
+      "preflightEstimateRequired": true,
+      "readSetPolicy": {
+        "readOnlyDeclaredFiles": true,
+        "avoidFullLargeDocs": true,
+        "preferRelevantSectionsOnly": true
+      },
+      "historyPolicy": {
+        "mode": "sliding_window_with_summary",
+        "fullToolLogPerCallAllowed": false
+      },
+      "retryPolicy": {
+        "retryOnSamePayloadAllowed": false,
+        "maxSafeRetries": 1,
+        "retryRequiresContextReduction": true,
+        "stopAndReportAfterRetryExhausted": true
+      },
+      "modelRoutingPolicy": {
+        "defaultTier": "cost_efficient",
+        "expensiveReasoningModelOnlyFor": [
+          "architecture_analysis",
+          "multi_hop_reasoning",
+          "contract_conflict_resolution"
+        ],
+        "forbidExpensiveModelForRoutineDocSync": true
+      },
+      "finalReportPolicy": {
+        "includeEstimatedInputContextSize": true,
+        "includeCompressionActions": true,
+        "includeRetrySummary": true
+      }
+    }
+  }
+}

@@ -1,0 +1,39 @@
+id: scenario_04
+title: "Мини-квиз: проверь понимание за 2 мин"
+level: "🟡 Learning loop"
+persona: "Аня после scenario_03. Хочет убедиться, что поняла тему."
+duration_min: 2
+why: |
+  После объяснения от Tutor — один клик запускает квиз.
+  Система генерирует вопрос по теме, показывает варианты и даёт
+  мгновенный feedback. Без переключения контекста.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+  e2e_env:
+    HOME_RAG_E2E_OFFLINE: "1"
+wow_moment: |
+  Вопрос уже по твоей теме — не надо ничего настраивать.
+  Выбрал ответ — сразу видишь ✅ или ❌ с объяснением.
+takeaway: |
+  Квиз встроен в поток: ответил → понял → проверил.
+  Нет отдельного «перейти в режим проверки».
+scenario_link: "user_scenarios.md#сценарий-4--мини-квиз"
+
+shots:
+  - slug: "01_quiz_question_presented"
+    caption: "Вопрос квиза: 3 варианта ответа"
+    narration: "Система сформулировала вопрос по теме — Аня выбирает из трёх."
+    duration_sec: 3
+  - slug: "02_quiz_answer_selected"
+    caption: "Выбранный вариант подсвечен"
+    narration: "Один клик — вариант зафиксирован, ожидание feedback."
+    duration_sec: 2
+  - slug: "03_quiz_feedback_correct_or_hint"
+    caption: "Feedback: ✅ правильно или ❌ + подсказка"
+    narration: "Мгновенный ответ с объяснением — не просто «неверно»."
+    duration_sec: 4
+  - slug: "04_quiz_next_action_cta"
+    caption: "CTA: «Создать flashcard» / «Продолжить»"
+    narration: "Правильно? Идём дальше. Ошиблись? Карточка в SRS-очередь."
+    duration_sec: 3

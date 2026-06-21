@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "description": "Contract for GET /kb/learning-plan/graph-bundle",
+  "required_top_level_keys": [
+    "schema_version",
+    "prerequisites",
+    "next_best_actions",
+    "topological_preview"
+  ]
+}

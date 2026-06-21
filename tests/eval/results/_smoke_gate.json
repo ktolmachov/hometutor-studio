@@ -1,0 +1,801 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-04-18T14:58:02.104143+00:00",
+  "status": "warn",
+  "comparable_to_baseline": false,
+  "threshold_failures": [],
+  "regression_failures": [],
+  "note": "Eval report is mock/incomparable; baseline delta checks skipped.",
+  "summary": {
+    "cases_total": 20,
+    "cases_completed": 20,
+    "cases_failed": 0,
+    "source_precision_at_3": 1.0,
+    "latency_p95_sec": 0.05,
+    "answer_groundedness": null,
+    "tutor_coherence": null,
+    "out_of_corpus_graceful_rate": 1.0
+  },
+  "eval_report": {
+    "schema_version": 1,
+    "generated_at": "2026-04-18T14:58:02.083143+00:00",
+    "mode": "mock",
+    "judge_mode": "skipped",
+    "dataset_path": "tests/eval/golden_qa.jsonl",
+    "thresholds_path": "tests/eval/thresholds.json",
+    "comparable_to_baseline": false,
+    "summary": {
+      "cases_total": 20,
+      "cases_completed": 20,
+      "cases_failed": 0,
+      "source_precision_at_3": 1.0,
+      "latency_p95_sec": 0.05,
+      "answer_groundedness": null,
+      "tutor_coherence": null,
+      "out_of_corpus_graceful_rate": 1.0
+    },
+    "cases": [
+      {
+        "id": "gqa01",
+        "question": "Что такое RAG простыми словами и зачем он нужен?",
+        "difficulty": "easy",
+        "tags": [
+          "factual",
+          "rag"
+        ],
+        "query_mode": "qa",
+        "status_code": 200,
+        "status": "pass",
+        "expected_sources": [
+          "alpha_rag_intro.md"
+        ],
+        "expected_concepts": [
+          "retrieval-augmented generation",
+          "контекст для LLM"
+        ],
+        "retrieved_sources_top3": [
+          "alpha_rag_intro.md",
+          "alpha_rag_intro.md",
+          "alpha_rag_intro.md"
+        ],
+        "matched_sources": [
+          "alpha_rag_intro.md",
+          "alpha_rag_intro.md",
+          "alpha_rag_intro.md"
+        ],
+        "source_precision_at_3": 1.0,
+        "latency_sec": 0.035,
+        "answer_groundedness": null,
+        "tutor_coherence": null,
+        "out_of_corpus_graceful": null,
+        "component_status": {
+          "retrieval": "pass",
+          "generation": "pass",
+          "latency": "pass"
+        }
+      },
+      {
+        "id": "gqa02",
+        "question": "Почему Chroma здесь описывается как embedded vector database?",
+        "difficulty": "easy",
+        "tags": [
+          "factual",
+          "vector-db"
+        ],
+        "query_mode": "qa",
+        "status_code": 200,
+        "status": "pass",
+        "expected_sources": [
+          "beta_vector_db.md"
+        ],
+        "expected_concepts": [
+          "Chroma",
+          "embedded",
+          "векторное хранилище"
+        ],
+        "retrieved_sources_top3": [
+          "beta_vector_db.md",
+          "beta_vector_db.md",
+          "beta_vector_db.md"
+        ],
+        "matched_sources": [
+          "beta_vector_db.md",
+          "beta_vector_db.md",
+          "beta_vector_db.md"
+        ],
+        "source_precision_at_3": 1.0,
+        "latency_sec": 0.035,
+        "answer_groundedness": null,
+        "tutor_coherence": null,
+        "out_of_corpus_graceful": null,
+        "component_status": {
+          "retrieval": "pass",
+          "generation": "pass",
+          "latency": "pass"
+        }
+      },
+      {
+        "id": "gqa03",
+        "question": "Где в материалах фигурирует каталог или артефакт chroma_db?",
+        "difficulty": "easy",
+        "tags": [
+          "factual",
+          "storage"
+        ],
+        "query_mode": "qa",
+        "status_code": 200,
+        "status": "pass",
+        "expected_sources": [
+          "beta_vector_db.md"
+        ],
+        "expected_concepts": [
+          "chroma_db",
+          "персистентность"
+        ],
+        "retrieved_sources_top3": [
+          "beta_vector_db.md",
+          "beta_vector_db.md",
+          "beta_vector_db.md"
+        ],
+        "matched_sources": [
+          "beta_vector_db.md",
+          "beta_vector_db.md",
+          "beta_vector_db.md"
+        ],
+        "source_precision_at_3": 1.0,
+        "latency_sec": 0.035,
+        "answer_groundedness": null,
+        "tutor_coherence": null,
+        "out_of_corpus_graceful": null,
+        "component_status": {
+          "retrieval": "pass",
+          "generation": "pass",
+          "latency": "pass"
+        }
+      },
+      {
+        "id": "gqa04",
+        "question": "Как в гибридном retrieval сочетаются разреженный поиск BM25 и векторный поиск?",
+        "difficulty": "medium",
+        "tags": [
+          "factual",
+          "hybrid-retrieval"
+        ],
+        "query_mode": "qa",
+        "status_code": 200,
+        "status": "pass",
+        "expected_sources": [
+          "gamma_hybrid.md"
+        ],
+        "expected_concepts": [
+          "BM25",
+          "гибридный retrieval"
+        ],
+        "retrieved_sources_top3": [
+          "gamma_hybrid.md",
+          "gamma_hybrid.md",
+          "gamma_hybrid.md"
+        ],
+        "matched_sources": [
+          "gamma_hybrid.md",
+          "gamma_hybrid.md",
+          "gamma_hybrid.md"
+        ],
+        "source_precision_at_3": 1.0,
+        "latency_sec": 0.035,
+        "answer_groundedness": null,
+        "tutor_coherence": null,
+        "out_of_corpus_graceful": null,
+        "component_status": {
+          "retrieval": "pass",
+          "generation": "pass",
+          "latency": "pass"
+        }
+      },
+      {
+        "id": "gqa05",
+        "question": "Что такое spaced repetition (SRS) и какую роль играет SM-2?",
+        "difficulty": "medium",
+        "tags": [
+          "factual",
+          "srs"
+        ],
+        "query_mode": "qa",
+        "status_code": 200,
+        "status": "pass",
+        "expected_sources": [
+          "delta_srs.md"
+        ],
+        "expected_concepts": [
+          "SRS",
+          "SM-2",
+          "интервальное повторение"
+        ],
+        "retrieved_sources_top3": [
+          "delta_srs.md",
+          "delta_srs.md",
+          "delta_srs.md"
+        ],
+        "matched_sources": [
+          "delta_srs.md",
+          "delta_srs.md",
+          "delta_srs.md"
+        ],
+        "source_precision_at_3": 1.0,
+        "latency_sec": 0.035,
+        "answer_groundedness": null,
+        "tutor_coherence": null,
+        "out_of_corpus_graceful": null,
+        "component_status": {
+          "retrieval": "pass",
+          "generation": "pass",
+          "latency": "pass"
+        }
+      },
+      {
+        "id": "gqa06",
+        "question": "Зачем в пайплайне нужны guardrails и что они ограничивают?",
+        "difficulty": "medium",
+        "tags": [
+          "factual",
+          "safety"
+        ],
+        "query_mode": "qa",
+        "status_code": 200,
+        "status": "pass",
+        "expected_sources": [
+          "epsilon_guardrails.md"
+        ],
+        "expected_concepts": [
+          "guardrails",
+          "безопасность ответа"
+        ],
+        "retrieved_sources_top3": [
+          "epsilon_guardrails.md",
+          "epsilon_guardrails.md",
+          "epsilon_guardrails.md"
+        ],
+        "matched_sources": [
+          "epsilon_guardrails.md",
+          "epsilon_guardrails.md",
+          "epsilon_guardrails.md"
+        ],
+        "source_precision_at_3": 1.0,
+        "latency_sec": 0.035,
+        "answer_groundedness": null,
+        "tutor_coherence": null,
+        "out_of_corpus_graceful": null,
+        "component_status": {
+          "retrieval": "pass",
+          "generation": "pass",
+          "latency": "pass"
+        }
+      },
+      {
+        "id": "gqa07",
+        "question": "Какой уникальный маркер приведён в zeta_misc и о чём этот файл?",
+        "difficulty": "easy",
+        "tags": [
+          "factual",
+          "misc"
+        ],
+        "query_mode": "qa",
+        "status_code": 200,
+        "status": "pass",
+        "expected_sources": [
+          "zeta_misc.md"
+        ],
+        "expected_concepts": [
+          "ZETA_MISC_UNIQUE_1209",
+          "сборные заметки"
+        ],
+        "retrieved_sources_top3": [
+          "zeta_misc.md",
+          "zeta_misc.md",
+          "zeta_misc.md"
+        ],
+        "matched_sources": [
+          "zeta_misc.md",
+          "zeta_misc.md",
+          "zeta_misc.md"
+        ],
+        "source_precision_at_3": 1.0,
+        "latency_sec": 0.035,
+        "answer_groundedness": null,
+        "tutor_coherence": null,
+        "out_of_corpus_graceful": null,
+        "component_status": {
+          "retrieval": "pass",
+          "generation": "pass",
+          "latency": "pass"
+        }
+      },
+      {
+        "id": "gqa08",
+        "question": "Какой уникальный маркер alpha-документа про введение в RAG?",
+        "difficulty": "easy",
+        "tags": [
+          "factual",
+          "anchors"
+        ],
+        "query_mode": "qa",
+        "status_code": 200,
+        "status": "pass",
+        "expected_sources": [
+          "alpha_rag_intro.md"
+        ],
+        "expected_concepts": [
+          "RAG_ALPHA_UNIQUE_7741"
+        ],
+        "retrieved_sources_top3": [
+          "alpha_rag_intro.md",
+          "alpha_rag_intro.md",
+          "alpha_rag_intro.md"
+        ],
+        "matched_sources": [
+          "alpha_rag_intro.md",
+          "alpha_rag_intro.md",
+          "alpha_rag_intro.md"
+        ],
+        "source_precision_at_3": 1.0,
+        "latency_sec": 0.035,
+        "answer_groundedness": null,
+        "tutor_coherence": null,
+        "out_of_corpus_graceful": null,
+        "component_status": {
+          "retrieval": "pass",
+          "generation": "pass",
+          "latency": "pass"
+        }
+      },
+      {
+        "id": "gqa09",
+        "question": "Свяжи две идеи: зачем RAG подмешивает внешние фрагменты в LLM и как guardrails снижают риск некорректного ответа.",
+        "difficulty": "hard",
+        "tags": [
+          "multi-hop",
+          "synthesis"
+        ],
+        "query_mode": "qa",
+        "status_code": 200,
+        "status": "pass",
+        "expected_sources": [
+          "alpha_rag_intro.md",
+          "epsilon_guardrails.md"
+        ],
+        "expected_concepts": [
+          "RAG",
+          "guardrails",
+          "контроль выхода"
+        ],
+        "retrieved_sources_top3": [
+          "alpha_rag_intro.md",
+          "epsilon_guardrails.md",
+          "epsilon_guardrails.md"
+        ],
+        "matched_sources": [
+          "alpha_rag_intro.md",
+          "epsilon_guardrails.md",
+          "epsilon_guardrails.md"
+        ],
+        "source_precision_at_3": 1.0,
+        "latency_sec": 0.035,
+        "answer_groundedness": null,
+        "tutor_coherence": null,
+        "out_of_corpus_graceful": null,
+        "component_status": {
+          "retrieval": "pass",
+          "generation": "pass",
+          "latency": "pass"
+        }
+      },
+      {
+        "id": "gqa10",
+        "question": "Как хранение эмбеддингов в Chroma логически стыкуется с этапом извлечения контекста в RAG?",
+        "difficulty": "hard",
+        "tags": [
+          "multi-hop",
+          "architecture"
+        ],
+        "query_mode": "qa",
+        "status_code": 200,
+        "status": "pass",
+        "expected_sources": [
+          "beta_vector_db.md",
+          "alpha_rag_intro.md"
+        ],
+        "expected_concepts": [
+          "Chroma",
+          "retrieval",
+          "RAG"
+        ],
+        "retrieved_sources_top3": [
+          "beta_vector_db.md",
+          "alpha_rag_intro.md",
+          "alpha_rag_intro.md"
+        ],
+        "matched_sources": [
+          "beta_vector_db.md",
+          "alpha_rag_intro.md",
+          "alpha_rag_intro.md"
+        ],
+        "source_precision_at_3": 1.0,
+        "latency_sec": 0.035,
+        "answer_groundedness": null,
+        "tutor_coherence": null,
+        "out_of_corpus_graceful": null,
+        "component_status": {
+          "retrieval": "pass",
+          "generation": "pass",
+          "latency": "pass"
+        }
+      },
+      {
+        "id": "gqa11",
+        "question": "Сопоставь: чем гибридный поиск (BM25 + вектор) и guardrails решают разные классы ошибок при ответе пользователю?",
+        "difficulty": "hard",
+        "tags": [
+          "multi-hop",
+          "quality"
+        ],
+        "query_mode": "qa",
+        "status_code": 200,
+        "status": "pass",
+        "expected_sources": [
+          "gamma_hybrid.md",
+          "epsilon_guardrails.md"
+        ],
+        "expected_concepts": [
+          "гибридный retrieval",
+          "guardrails",
+          "качество и безопасность"
+        ],
+        "retrieved_sources_top3": [
+          "gamma_hybrid.md",
+          "epsilon_guardrails.md",
+          "epsilon_guardrails.md"
+        ],
+        "matched_sources": [
+          "gamma_hybrid.md",
+          "epsilon_guardrails.md",
+          "epsilon_guardrails.md"
+        ],
+        "source_precision_at_3": 1.0,
+        "latency_sec": 0.035,
+        "answer_groundedness": null,
+        "tutor_coherence": null,
+        "out_of_corpus_graceful": null,
+        "component_status": {
+          "retrieval": "pass",
+          "generation": "pass",
+          "latency": "pass"
+        }
+      },
+      {
+        "id": "gqa12",
+        "question": "Почему spaced repetition уместен как стратегия закрепления после того, как система уже выдала объяснение с источниками?",
+        "difficulty": "hard",
+        "tags": [
+          "multi-hop",
+          "learning-loop"
+        ],
+        "query_mode": "qa",
+        "status_code": 200,
+        "status": "pass",
+        "expected_sources": [
+          "delta_srs.md",
+          "alpha_rag_intro.md"
+        ],
+        "expected_concepts": [
+          "SRS",
+          "закрепление",
+          "обучение после ответа"
+        ],
+        "retrieved_sources_top3": [
+          "delta_srs.md",
+          "alpha_rag_intro.md",
+          "alpha_rag_intro.md"
+        ],
+        "matched_sources": [
+          "delta_srs.md",
+          "alpha_rag_intro.md",
+          "alpha_rag_intro.md"
+        ],
+        "source_precision_at_3": 1.0,
+        "latency_sec": 0.035,
+        "answer_groundedness": null,
+        "tutor_coherence": null,
+        "out_of_corpus_graceful": null,
+        "component_status": {
+          "retrieval": "pass",
+          "generation": "pass",
+          "latency": "pass"
+        }
+      },
+      {
+        "id": "gqa13",
+        "question": "Опиши пошаговую настройку вымышленного протокола TelepathySync v0 для интеграции с домашним ассистентом.",
+        "difficulty": "medium",
+        "tags": [
+          "out-of-corpus",
+          "fiction"
+        ],
+        "query_mode": "qa",
+        "status_code": 200,
+        "status": "pass",
+        "expected_sources": [],
+        "expected_concepts": [
+          "отсутствие в корпусе"
+        ],
+        "retrieved_sources_top3": [],
+        "matched_sources": [],
+        "source_precision_at_3": null,
+        "latency_sec": 0.035,
+        "answer_groundedness": null,
+        "tutor_coherence": null,
+        "out_of_corpus_graceful": true,
+        "component_status": {
+          "retrieval": "pass",
+          "generation": "pass",
+          "latency": "pass"
+        }
+      },
+      {
+        "id": "gqa14",
+        "question": "Какие были котировки акций FabricatedCorp на бирже Neptune в 2077 году?",
+        "difficulty": "easy",
+        "tags": [
+          "out-of-corpus",
+          "finance-fiction"
+        ],
+        "query_mode": "qa",
+        "status_code": 200,
+        "status": "pass",
+        "expected_sources": [],
+        "expected_concepts": [
+          "финансы вне базы"
+        ],
+        "retrieved_sources_top3": [],
+        "matched_sources": [],
+        "source_precision_at_3": null,
+        "latency_sec": 0.035,
+        "answer_groundedness": null,
+        "tutor_coherence": null,
+        "out_of_corpus_graceful": true,
+        "component_status": {
+          "retrieval": "pass",
+          "generation": "pass",
+          "latency": "pass"
+        }
+      },
+      {
+        "id": "gqa15",
+        "question": "Приведи полный текст RFC для протокола DEFINITELY_NOT_IN_CORPUS_42.",
+        "difficulty": "medium",
+        "tags": [
+          "out-of-corpus",
+          "standards-fiction"
+        ],
+        "query_mode": "qa",
+        "status_code": 200,
+        "status": "pass",
+        "expected_sources": [],
+        "expected_concepts": [
+          "RFC",
+          "несуществующий стандарт"
+        ],
+        "retrieved_sources_top3": [],
+        "matched_sources": [],
+        "source_precision_at_3": null,
+        "latency_sec": 0.035,
+        "answer_groundedness": null,
+        "tutor_coherence": null,
+        "out_of_corpus_graceful": true,
+        "component_status": {
+          "retrieval": "pass",
+          "generation": "pass",
+          "latency": "pass"
+        }
+      },
+      {
+        "id": "gqa16",
+        "question": "Разберём как на занятии: объясни по шагам, как из вопроса пользователя получается ответ с опорой на документы в RAG.",
+        "difficulty": "medium",
+        "tags": [
+          "tutor-mode",
+          "explainer"
+        ],
+        "query_mode": "tutor",
+        "status_code": 200,
+        "status": "pass",
+        "expected_sources": [
+          "alpha_rag_intro.md"
+        ],
+        "expected_concepts": [
+          "пайплайн RAG",
+          "retrieval",
+          "генерация"
+        ],
+        "retrieved_sources_top3": [
+          "alpha_rag_intro.md",
+          "alpha_rag_intro.md",
+          "alpha_rag_intro.md"
+        ],
+        "matched_sources": [
+          "alpha_rag_intro.md",
+          "alpha_rag_intro.md",
+          "alpha_rag_intro.md"
+        ],
+        "source_precision_at_3": 1.0,
+        "latency_sec": 0.05,
+        "answer_groundedness": null,
+        "tutor_coherence": null,
+        "out_of_corpus_graceful": null,
+        "component_status": {
+          "retrieval": "pass",
+          "generation": "pass",
+          "latency": "pass"
+        }
+      },
+      {
+        "id": "gqa17",
+        "question": "Давай разберём тему медленно: зачем в гибридном retrieval используют RRF и чем отличаются режимы fast и quality?",
+        "difficulty": "medium",
+        "tags": [
+          "tutor-mode",
+          "hybrid"
+        ],
+        "query_mode": "tutor",
+        "status_code": 200,
+        "status": "pass",
+        "expected_sources": [
+          "gamma_hybrid.md"
+        ],
+        "expected_concepts": [
+          "RRF",
+          "fast",
+          "quality"
+        ],
+        "retrieved_sources_top3": [
+          "gamma_hybrid.md",
+          "gamma_hybrid.md",
+          "gamma_hybrid.md"
+        ],
+        "matched_sources": [
+          "gamma_hybrid.md",
+          "gamma_hybrid.md",
+          "gamma_hybrid.md"
+        ],
+        "source_precision_at_3": 1.0,
+        "latency_sec": 0.05,
+        "answer_groundedness": null,
+        "tutor_coherence": null,
+        "out_of_corpus_graceful": null,
+        "component_status": {
+          "retrieval": "pass",
+          "generation": "pass",
+          "latency": "pass"
+        }
+      },
+      {
+        "id": "gqa18",
+        "question": "В роли тьютора: что такое ease factor в SM-2 и как он влияет на интервалы повторений?",
+        "difficulty": "hard",
+        "tags": [
+          "tutor-mode",
+          "sm2"
+        ],
+        "query_mode": "tutor",
+        "status_code": 200,
+        "status": "pass",
+        "expected_sources": [
+          "delta_srs.md"
+        ],
+        "expected_concepts": [
+          "SM-2",
+          "ease factor",
+          "интервалы"
+        ],
+        "retrieved_sources_top3": [
+          "delta_srs.md",
+          "delta_srs.md",
+          "delta_srs.md"
+        ],
+        "matched_sources": [
+          "delta_srs.md",
+          "delta_srs.md",
+          "delta_srs.md"
+        ],
+        "source_precision_at_3": 1.0,
+        "latency_sec": 0.05,
+        "answer_groundedness": null,
+        "tutor_coherence": null,
+        "out_of_corpus_graceful": null,
+        "component_status": {
+          "retrieval": "pass",
+          "generation": "pass",
+          "latency": "pass"
+        }
+      },
+      {
+        "id": "gqa19",
+        "question": "HYBRID_GAMMA_UNIQUE_8833",
+        "difficulty": "easy",
+        "tags": [
+          "edge",
+          "minimal-query"
+        ],
+        "query_mode": "qa",
+        "status_code": 200,
+        "status": "pass",
+        "expected_sources": [
+          "gamma_hybrid.md"
+        ],
+        "expected_concepts": [
+          "якорный токен",
+          "gamma_hybrid"
+        ],
+        "retrieved_sources_top3": [
+          "gamma_hybrid.md",
+          "gamma_hybrid.md",
+          "gamma_hybrid.md"
+        ],
+        "matched_sources": [
+          "gamma_hybrid.md",
+          "gamma_hybrid.md",
+          "gamma_hybrid.md"
+        ],
+        "source_precision_at_3": 1.0,
+        "latency_sec": 0.035,
+        "answer_groundedness": null,
+        "tutor_coherence": null,
+        "out_of_corpus_graceful": null,
+        "component_status": {
+          "retrieval": "pass",
+          "generation": "pass",
+          "latency": "pass"
+        }
+      },
+      {
+        "id": "gqa20",
+        "question": "  CHROMA_BETA_UNIQUE_5520  ",
+        "difficulty": "easy",
+        "tags": [
+          "edge",
+          "whitespace"
+        ],
+        "query_mode": "qa",
+        "status_code": 200,
+        "status": "pass",
+        "expected_sources": [
+          "beta_vector_db.md"
+        ],
+        "expected_concepts": [
+          "нормализация запроса",
+          "якорный токен"
+        ],
+        "retrieved_sources_top3": [
+          "beta_vector_db.md",
+          "beta_vector_db.md",
+          "beta_vector_db.md"
+        ],
+        "matched_sources": [
+          "beta_vector_db.md",
+          "beta_vector_db.md",
+          "beta_vector_db.md"
+        ],
+        "source_precision_at_3": 1.0,
+        "latency_sec": 0.035,
+        "answer_groundedness": null,
+        "tutor_coherence": null,
+        "out_of_corpus_graceful": null,
+        "component_status": {
+          "retrieval": "pass",
+          "generation": "pass",
+          "latency": "pass"
+        }
+      }
+    ],
+    "pass": true
+  }
+}

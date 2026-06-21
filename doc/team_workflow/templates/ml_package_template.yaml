@@ -1,0 +1,60 @@
+package_id: "<ml-package-id>"
+type: "ml_package"
+status: "proposed"
+
+goal: "<learner-facing outcome>"
+user_stories:
+  - "<US id or explicit story gap>"
+
+data_phase:
+  goal: "<data needed before model or prompt work>"
+  sources:
+    - "<local source>"
+  labeling:
+    method: "<automatic | heuristic | human | none>"
+    validation: "<label validation method>"
+  deliverables:
+    - "data/ml/<dataset>_train.parquet"
+    - "data/ml/<dataset>_test.parquet"
+
+model_phase:
+  approach: "<model or prompt approach>"
+  features:
+    - "<feature>"
+  target: "<prediction/generation target>"
+  training_or_iteration:
+    script: "scripts/ml/train_<model>.py"
+    output: "models/<model>.pkl"
+    size_limit: "<model size limit>"
+
+eval_phase:
+  primary_metric: "<metric>"
+  baseline: "<baseline>"
+  target: "<target>"
+  test_set: "<holdout or fixture>"
+  script: "scripts/ml/eval_<model>.py"
+  report: "archive/ml_eval/<model>_report.md"
+
+integration_phase:
+  modules:
+    - "app/<integration_module>.py"
+  behavior: "<how AI output affects product behavior>"
+  fallback: "<deterministic behavior>"
+  monitoring:
+    - "inference_latency_p95 < <bound>"
+    - "fallback_rate < <bound>"
+
+ab_test_phase:
+  required: false
+  control: "<current behavior>"
+  treatment: "<hybrid behavior>"
+  metric: "<product metric>"
+  duration: "<timebox or not applicable>"
+
+risks:
+  - "<data drift, sparse data, privacy, degradation, cost>"
+
+rollback:
+  mode: "rule_only"
+  trigger: "<eval miss, incident, or latency/cost breach>"
+

@@ -1,0 +1,247 @@
+[
+  {
+    "id": "q1",
+    "question": "Ключевые преимущества IDE‑native агентов, ответь одним предложением",
+    "folder_rel": "docs/AI-агенты",
+    "reference_answer": "IDE‑native агенты встроены в редактор и, видя структуру проекта, понимая зависимости и имея прямой доступ к терминалу, дают главный плюс — полный контекст для быстрой и точной работы.",
+    "expected_sources": [],
+    "category": "qa"
+  },
+  {
+    "id": "q2",
+    "question": "Что даёт встроенный в редактор агент по сравнению с внешним?",
+    "folder_rel": "docs/AI-агенты",
+    "reference_answer": "Встроенный агент имеет доступ к структуре проекта, зависимостям и терминалу внутри IDE, что даёт полный контекст и не требует переключения контекста.",
+    "expected_sources": [],
+    "category": "qa"
+  },
+  {
+    "id": "q3",
+    "question": "Как агент использует контекст проекта?",
+    "folder_rel": "docs/AI-агенты",
+    "reference_answer": "Агент видит структуру проекта и зависимости, что позволяет давать точные ответы с учётом кодовой базы.",
+    "expected_sources": [],
+    "category": "qa"
+  },
+  {
+    "id": "q4",
+    "question": "IDE native agent — главное преимущество",
+    "folder_rel": "docs/AI-агенты",
+    "reference_answer": "Главное преимущество — полный контекст: структура проекта, зависимости, доступ к терминалу прямо в редакторе.",
+    "expected_sources": [],
+    "category": "qa"
+  },
+  {
+    "id": "q5",
+    "question": "Чем отличаются агенты внутри IDE от облачных?",
+    "folder_rel": "docs/AI-агенты",
+    "reference_answer": "Агенты внутри IDE работают локально в редакторе с прямым доступом к проекту и терминалу; облачные не имеют такого контекста.",
+    "expected_sources": [],
+    "category": "qa"
+  },
+  {
+    "id": "q6",
+    "question": "Расскажи про агентов в разработке в двух предложениях",
+    "folder_rel": "docs/AI-агенты",
+    "reference_answer": "Агенты в разработке помогают автоматизировать задачи. IDE‑native агенты особенно удобны, так как видят проект и могут выполнять действия в терминале.",
+    "expected_sources": [],
+    "category": "qa"
+  },
+  {
+    "id": "q7",
+    "question": "Какие бывают агенты в IDE?",
+    "folder_rel": "docs/AI-агенты",
+    "reference_answer": "В IDE бывают встроенные (native) агенты, которые работают внутри редактора с полным контекстом проекта и терминала.",
+    "expected_sources": [],
+    "category": "qa"
+  },
+  {
+    "id": "q8",
+    "question": "Зачем агенту доступ к терминалу?",
+    "folder_rel": "docs/AI-агенты",
+    "reference_answer": "Доступ к терминалу позволяет агенту выполнять команды, запускать тесты и скрипты в среде разработчика.",
+    "expected_sources": [],
+    "category": "qa"
+  },
+  {
+    "id": "q9",
+    "question": "project structure agent context",
+    "folder_rel": "docs/AI-агенты",
+    "reference_answer": "Агент с контекстом структуры проекта видит файлы и зависимости и может давать релевантные ответы по коду.",
+    "expected_sources": [],
+    "category": "keyword"
+  },
+  {
+    "id": "q10",
+    "question": "Почему нативный агент быстрее облачного для кода?",
+    "folder_rel": "docs/AI-агенты",
+    "reference_answer": "Нативный агент уже находится в среде разработки и имеет прямой доступ к проекту, без загрузки и передачи контекста в облако.",
+    "expected_sources": [],
+    "category": "qa"
+  },
+  {
+    "id": "q11",
+    "question": "Что такое агент в контексте программирования?",
+    "reference_answer": "Агент в программировании — это система, которая выполняет задачи автономно, используя контекст (например, код и среду разработки).",
+    "expected_sources": [],
+    "category": "qa"
+  },
+  {
+    "id": "q12",
+    "question": "Обзор: как агенты помогают разработчикам?",
+    "reference_answer": "Агенты помогают автоматизировать рутину, отвечать на вопросы по коду, выполнять команды и использовать контекст проекта для точных действий.",
+    "expected_sources": [],
+    "category": "overview"
+  },
+  {
+    "id": "q13",
+    "question": "Сравни облачных и локальных агентов для разработки",
+    "reference_answer": "Локальные (IDE‑native) агенты работают в редакторе с полным контекстом; облачные могут не иметь доступа к структуре проекта и терминалу.",
+    "expected_sources": [],
+    "category": "cross_document"
+  },
+  {
+    "id": "q14",
+    "question": "терминал агент IDE",
+    "reference_answer": "В IDE агент может иметь доступ к терминалу для запуска команд и скриптов в среде разработки.",
+    "expected_sources": [],
+    "category": "keyword"
+  },
+  {
+    "id": "q15",
+    "question": "Какие задачи решают агенты в редакторе кода?",
+    "reference_answer": "Агенты в редакторе помогают с поиском по коду, рефакторингом, ответами на вопросы, выполнением команд в терминале.",
+    "expected_sources": [],
+    "category": "qa"
+  },
+  {
+    "id": "q16",
+    "question": "Что значит «полный контекст» для агента?",
+    "folder_rel": "docs/AI-агенты",
+    "reference_answer": "Полный контекст — это доступ к структуре проекта, зависимостям, файлам и терминалу в одной среде (IDE).",
+    "expected_sources": [],
+    "category": "qa"
+  },
+  {
+    "id": "q17",
+    "question": "Зависимости проекта и агент — как связаны?",
+    "folder_rel": "docs/AI-агенты",
+    "reference_answer": "Агент, видя зависимости проекта, может давать точные рекомендации и понимать связи между модулями.",
+    "expected_sources": [],
+    "category": "qa"
+  },
+  {
+    "id": "q18",
+    "question": "Кратко: преимущества встроенных в IDE агентов",
+    "reference_answer": "Встроенные агенты имеют полный контекст: структура проекта, зависимости, терминал; быстрее и точнее для задач в редакторе.",
+    "expected_sources": [],
+    "category": "overview"
+  },
+  {
+    "id": "q19",
+    "question": "Когда лучше использовать облачного агента, а когда IDE‑агента?",
+    "reference_answer": "IDE‑агент лучше для работы с текущим проектом и кодом; облачный — для общих вопросов без доступа к среде разработки.",
+    "expected_sources": [],
+    "category": "qa"
+  },
+  {
+    "id": "q20",
+    "question": "Опиши один сценарий использования агента в разработке",
+    "reference_answer": "Сценарий: разработчик спрашивает «где используется эта функция» — агент с контекстом проекта находит все вхождения и показывает места вызова.",
+    "expected_sources": [],
+    "category": "qa"
+  },
+  {
+    "id": "q21",
+    "question": "Быстрая и точная работа агента — за счёт чего?",
+    "folder_rel": "docs/AI-агенты",
+    "reference_answer": "За счёт полного контекста: агент видит структуру проекта, зависимости и имеет доступ к терминалу прямо в редакторе.",
+    "expected_sources": [],
+    "category": "qa"
+  },
+  {
+    "id": "q22",
+    "question": "Контекст редактора для ИИ-агента",
+    "reference_answer": "Контекст редактора включает открытые файлы, структуру проекта, зависимости и терминал — то, что нужно агенту для точных действий.",
+    "expected_sources": [],
+    "category": "qa"
+  },
+  {
+    "id": "q23",
+    "question": "Какие ограничения у облачных агентов для кода?",
+    "reference_answer": "Облачные агенты часто не имеют прямого доступа к структуре проекта, зависимостям и терминалу IDE.",
+    "expected_sources": [],
+    "category": "qa"
+  },
+  {
+    "id": "q24",
+    "question": "Что такое native агент в IDE?",
+    "folder_rel": "docs/AI-агенты",
+    "reference_answer": "Native агент в IDE — агент, встроенный в редактор и работающий с полным контекстом проекта и терминала.",
+    "expected_sources": [],
+    "category": "qa"
+  },
+  {
+    "id": "q25",
+    "question": "Синтез: как устроена работа агента внутри IDE?",
+    "reference_answer": "Агент внутри IDE получает контекст структуры проекта и зависимостей, имеет доступ к терминалу и может выполнять задачи без переключения контекста.",
+    "expected_sources": [],
+    "category": "synthesis"
+  },
+  {
+    "id": "q26",
+    "question": "Дай обзор всех тем, которые есть в базе знаний",
+    "reference_answer": "В базе знаний есть темы по AI-агентам, RAG-системам, retrieval-стратегиям и связанным концепциям.",
+    "expected_sources": [],
+    "category": "overview",
+    "eval_criteria": ["coverage", "readability", "trust"]
+  },
+  {
+    "id": "q27",
+    "question": "Сравни подходы к retrieval из разных документов: hybrid, vector-only, BM25",
+    "reference_answer": "Vector-only использует embedding similarity, BM25 — лексическое совпадение, hybrid комбинирует оба подхода для лучшего recall.",
+    "expected_sources": [],
+    "category": "cross_document",
+    "eval_criteria": ["multi_source", "coverage", "factual"]
+  },
+  {
+    "id": "q28",
+    "question": "Собери конспект по всем документам про безопасность и prompt injection",
+    "reference_answer": "Конспект по безопасности включает описание рисков prompt injection, методы защиты (guardrails, input validation), и практические рекомендации.",
+    "expected_sources": [],
+    "category": "synthesis",
+    "eval_criteria": ["structure", "coverage", "readability", "source_attribution"]
+  },
+  {
+    "id": "q29",
+    "question": "Какие ключевые концепции связывают разные темы в базе знаний?",
+    "reference_answer": "Ключевые связующие концепции: контекст, retrieval, embedding, prompt engineering, безопасность.",
+    "expected_sources": [],
+    "category": "overview",
+    "eval_criteria": ["cross_topic", "insight", "readability"]
+  },
+  {
+    "id": "q30",
+    "question": "Составь обзор документов по теме RAG с указанием что покрывает каждый документ",
+    "reference_answer": "Обзор RAG-документов: каждый документ покрывает определённый аспект — архитектуру, retrieval-стратегии, evaluation, production deployment.",
+    "expected_sources": [],
+    "category": "overview",
+    "eval_criteria": ["document_level", "coverage", "usefulness"]
+  },
+  {
+    "id": "q31",
+    "question": "Какие документы противоречат друг другу или дают разные рекомендации?",
+    "reference_answer": "При анализе документов могут обнаруживаться расхождения в рекомендациях по оптимальным параметрам retrieval или подходам к безопасности.",
+    "expected_sources": [],
+    "category": "cross_document",
+    "eval_criteria": ["contradiction_detection", "critical_analysis", "trust"]
+  },
+  {
+    "id": "q32",
+    "question": "Синтез: какие практические шаги нужны для построения RAG-системы?",
+    "reference_answer": "Практические шаги: подготовка данных, индексация с chunking, настройка retrieval (vector/hybrid), prompt engineering, evaluation, guardrails.",
+    "expected_sources": [],
+    "category": "synthesis",
+    "eval_criteria": ["actionability", "structure", "completeness"]
+  }
+]

@@ -1,0 +1,149 @@
+[
+  {
+    "id": "quiz_failed_prereq_chain_weak_ordering",
+    "description": "quiz_failed with multi-weak list; L4 expects prerequisite-first topo order",
+    "ssr_inputs": {
+      "surface": "home",
+      "flashcard_due_n": 0,
+      "sm2_due_n": 0,
+      "quiz_feedback_status": "incorrect",
+      "has_tutor_resume": true,
+      "tutor_topic": "SyntheticTopic",
+      "first_weak_concept": "SYN_ADV"
+    },
+    "weak_concepts": ["SYN_ADV", "SYN_BASE", "SYN_MID"],
+    "graph": {
+      "concepts": {
+        "SYN_BASE": {"prerequisites": []},
+        "SYN_MID": {"prerequisites": ["SYN_BASE"]},
+        "SYN_ADV": {"prerequisites": ["SYN_MID"]}
+      },
+      "documents": {},
+      "edges": {}
+    },
+    "expected_weak_order": ["SYN_BASE", "SYN_MID", "SYN_ADV"],
+    "expected_hint_kind": "quiz_failed",
+    "expected_primary_nav": "qa_continue",
+    "metric_tags": ["weak_ordering", "baseline_regression"]
+  },
+  {
+    "id": "incomplete_graph_cycle_fallback",
+    "description": "Cycle in fixture subgraph; ordering metric skipped; SSR baseline unchanged",
+    "ssr_inputs": {
+      "surface": "home",
+      "flashcard_due_n": 0,
+      "sm2_due_n": 0,
+      "has_last_answer_qa": false,
+      "has_reading_resume": false
+    },
+    "graph": {
+      "concepts": {
+        "SYN_CYCLE_A": {"prerequisites": ["SYN_CYCLE_B"]},
+        "SYN_CYCLE_B": {"prerequisites": ["SYN_CYCLE_A"]}
+      },
+      "documents": {},
+      "edges": {}
+    },
+    "expected_weak_order": null,
+    "expected_hint_kind": "safe_default",
+    "expected_primary_nav": "safe_tutor_5min",
+    "metric_tags": ["graph_health", "baseline_regression"],
+    "skip_ordering_metric": true,
+    "notes": "topological_sort warns; harness expects rule SSR without graph reorder"
+  },
+  {
+    "id": "mastery_stale_weak_prereq_ordering",
+    "description": "mastery_stale with weak chain; L4 topo among weak subset",
+    "ssr_inputs": {
+      "surface": "home",
+      "flashcard_due_n": 0,
+      "sm2_due_n": 0,
+      "has_last_answer_qa": false,
+      "has_reading_resume": false,
+      "first_weak_concept": "SYN_LEAF"
+    },
+    "weak_concepts": ["SYN_LEAF", "SYN_ROOT"],
+    "graph": {
+      "concepts": {
+        "SYN_ROOT": {"prerequisites": []},
+        "SYN_LEAF": {"prerequisites": ["SYN_ROOT"]}
+      },
+      "documents": {},
+      "edges": {}
+    },
+    "expected_weak_order": ["SYN_ROOT", "SYN_LEAF"],
+    "expected_hint_kind": "mastery_stale",
+    "expected_primary_nav": "tutor_weak_gap",
+    "metric_tags": ["weak_ordering", "baseline_regression"]
+  },
+  {
+    "id": "cards_due_beats_weak_prereq_chain",
+    "description": "cards_due priority beats weak prereq chain (graph reorder must not bypass queues)",
+    "ssr_inputs": {
+      "surface": "home",
+      "flashcard_due_n": 3,
+      "sm2_due_n": 0,
+      "quiz_feedback_status": "failed",
+      "has_tutor_resume": true,
+      "tutor_topic": "Topic",
+      "first_weak_concept": "SYN_ADV"
+    },
+    "weak_concepts": ["SYN_ADV", "SYN_BASE"],
+    "graph": {
+      "concepts": {
+        "SYN_BASE": {"prerequisites": []},
+        "SYN_ADV": {"prerequisites": ["SYN_BASE"]}
+      },
+      "documents": {},
+      "edges": {}
+    },
+    "expected_weak_order": ["SYN_BASE", "SYN_ADV"],
+    "expected_hint_kind": "cards_due",
+    "expected_primary_nav": "flashcards_review",
+    "metric_tags": ["baseline_regression"],
+    "skip_ordering_metric": true
+  },
+  {
+    "id": "baseline_regression_sm2_due",
+    "description": "Golden sm2_due when no flashcards (policy regression fixture)",
+    "ssr_inputs": {
+      "surface": "home",
+      "flashcard_due_n": 0,
+      "sm2_due_n": 3,
+      "quiz_feedback_status": "failed"
+    },
+    "graph": {
+      "concepts": {},
+      "documents": {},
+      "edges": {}
+    },
+    "expected_weak_order": null,
+    "expected_hint_kind": "sm2_due",
+    "expected_primary_nav": "sm2_tutor",
+    "metric_tags": ["baseline_regression"]
+  },
+  {
+    "id": "orphan_weak_leaf_graph_health",
+    "description": "Orphan weak concept (no prerequisites) — topo order trivial",
+    "ssr_inputs": {
+      "surface": "home",
+      "flashcard_due_n": 0,
+      "sm2_due_n": 0,
+      "has_last_answer_qa": false,
+      "has_reading_resume": false,
+      "first_weak_concept": "SYN_ORPHAN"
+    },
+    "weak_concepts": ["SYN_ORPHAN"],
+    "graph": {
+      "concepts": {
+        "SYN_ORPHAN": {"prerequisites": []}
+      },
+      "documents": {},
+      "edges": {}
+    },
+    "expected_weak_order": ["SYN_ORPHAN"],
+    "expected_hint_kind": "mastery_stale",
+    "expected_primary_nav": "tutor_weak_gap",
+    "metric_tags": ["weak_ordering", "graph_health"]
+  }
+]

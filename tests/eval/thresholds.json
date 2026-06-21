@@ -1,0 +1,17 @@
+﻿{
+  "schema_version": 1,
+  "thresholds": {
+    "source_precision_at_3": 0.6,
+    "answer_groundedness": 2.0,
+    "latency_p95_sec": 10.0,
+    "tutor_coherence": 1.5,
+    "trivial_in_corpus_avg_precision": 0.25
+  },
+  "baseline_tolerance": {
+    "source_precision_at_3_drop": 0.0,
+    "answer_groundedness_drop": 0.25,
+    "tutor_coherence_drop": 0.25,
+    "latency_p95_sec_increase": 5.0,
+    "per_case_latency_sec_increase": 1.0
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "codeAssist": {
+    "ignoredPaths": [
+      ".venv/**",
+      "node_modules/**",
+      "chroma_db/**",
+      "data/**",
+      ".git/**",
+      ".python/**",
+      "logs/**",
+      "eval_results/**",
+      "eval_data/**",
+      "test-results/**",
+      "playwright-report/**",
+      "playwright/.cache/**",
+      ".pytest_cache/**",
+      "__pycache__/**",
+      ".idea/**",
+      ".cursor/**",
+      ".claude/**",
+      ".agents/**",
+      ".vscode/**",
+      ".e2e/**",
+      ".github/**",
+      ".streamlit/**",
+      ".gemini/**",
+      "doc/**",
+      "*.pyc",
+      "*.bin",
+      "*.sqlite3",
+      "*.dll",
+      "*.pyd",
+      "*.lib",
+      "*.map",
+      "*.jsonl",
+      "package-lock.json",
+      "index_meta.json",
+      "index_registry.json",
+      "skills-lock.json"
+    ]
+  }
+}

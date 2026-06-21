@@ -1,0 +1,1096 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>home-rag_v2 defense presentation</title>
+  <style>
+@page { size: 13.333in 7.5in; margin: 0; }
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #ffffff;
+  color: #17201c;
+  font-family: Arial, "Liberation Sans", sans-serif;
+}
+.slide {
+  position: relative;
+  width: 13.333in;
+  height: 7.5in;
+  padding: 0.42in 0.52in;
+  page-break-after: always;
+  break-after: page;
+  overflow: hidden;
+  background: #ffffff;
+}
+.slide::after {
+  content: "";
+  position: absolute;
+  left: 0.52in;
+  right: 0.52in;
+  bottom: 0.24in;
+  height: 2px;
+  background: #d5e2dc;
+}
+.slide-content {
+  width: 100%;
+  height: 100%;
+  transform-origin: top left;
+}
+h1, h2, h3 {
+  color: #12362b;
+  line-height: 1.12;
+  margin: 0 0 0.18in;
+}
+h1 { font-size: 36.72px; border-bottom: 4px solid #2f8f67; padding-bottom: 0.1in; }
+h2 { font-size: 33.48px; border-bottom: 3px solid #2f8f67; padding-bottom: 0.08in; }
+h3 { font-size: 20.52px; margin-top: 0.12in; margin-bottom: 0.06in; }
+p, li, td, th {
+  font-size: 16.20px;
+  line-height: 1.28;
+}
+p { margin: 0 0 0.07in; }
+ul, ol { margin: 0.04in 0 0.1in 0.22in; padding: 0; }
+li { margin: 0.02in 0; }
+blockquote {
+  margin: 0.08in 0 0.12in;
+  padding: 0.1in 0.14in;
+  border-left: 5px solid #2f8f67;
+  background: #edf7f2;
+}
+figure { margin: 0.08in 0 0.12in; }
+img {
+  display: block;
+  max-width: 100%;
+  max-height: 3.35in;
+  object-fit: contain;
+  margin: 0.04in auto 0.1in;
+  border-radius: 6px;
+}
+pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #111827;
+  color: #e5f3ec;
+  border-radius: 8px;
+  padding: 0.1in 0.14in;
+  font-family: "Courier New", monospace;
+  font-size: 10.80px;
+  line-height: 1.18;
+  margin: 0.06in 0 0.12in;
+}
+code {
+  font-family: "Courier New", monospace;
+  background: #eef3f0;
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+pre code { background: transparent; padding: 0; border-radius: 0; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.06in 0 0.1in;
+}
+th, td {
+  border: 1px solid #cdd8d2;
+  padding: 0.045in 0.06in;
+  vertical-align: top;
+}
+th { background: #e5f2ec; color: #12362b; }
+hr { border: 0; border-top: 1px solid #d5e2dc; margin: 0.1in 0; }
+a { color: #206f51; text-decoration: none; }
+</style>
+</head>
+<body>
+  <section class="slide"><div class="slide-content"><h1>home-rag_v2 — Академическая защита проектной работы</h1>
+<blockquote>
+<p><strong>Проект:</strong> home-rag_v2 · Персональный учебный ассистент на основе ваших материалов <strong>Дата:</strong> май 2026 <strong>Мероприятие:</strong> Академическая защита проектной работы <strong>Формат:</strong> 9 слайдов · Markdown-презентация</p>
+</blockquote>
+<figure><img src="doc/screenshots/defense_pdf/pdf_slide_01.png" alt="home-rag как личный тьютор из собственных конспектов"></figure>
+<hr></div></section>
+<section class="slide"><div class="slide-content"><h2>Слайд 1 — Обзор продукта: проблема и решение</h2>
+<figure><img src="screenshots/slide_01_product_overview.png" alt="Обзор продукта home-rag: путь от файлов к персональному AI-тьютору"></figure>
+<h3>Проблема: куча документов -&gt; ценность?</h3>
+<p>У вас есть <strong>папка с материалами</strong>: лекции, статьи, заметки, документация проекта.</p>
+<p><strong>Что вы хотите:</strong></p>
+<ul>
+<li>Быстро найти ответ на вопрос по этим материалам</li>
+<li>Разобраться в сложной теме, не читая всё подряд</li>
+<li>Запомнить важное и не забыть через неделю</li>
+<li>Увидеть, что вы уже освоили, а что ещё предстоит</li>
+</ul>
+<p><strong>Что происходит сейчас:</strong></p>
+<ul>
+<li>Поиск по файлам -&gt; находите фрагмент, но не понимаете контекст</li>
+<li>ChatGPT -&gt; отвечает, но не знает ваших материалов</li>
+<li>Ручные заметки -&gt; создаёте карточки, но это долго и скучно</li>
+<li>Anki -&gt; повторяете, но откуда взялись эти карточки?</li>
+</ul>
+<p><strong>Результат:</strong> Вы тратите время на переключение между инструментами, теряете контекст и мотивацию</p>
+<hr>
+<h3>Решение: home-rag_v2 — от документов до знания</h3>
+<p><strong>Один инструмент. Полный цикл. Локально.</strong></p>
+<pre><code>Ваши документы (data/)
+ 
+ Индексация -&gt; векторный поиск + граф концепций
+ 
+ Вопрос -&gt; Ответ с источниками (проверяемый)
+ 
+ Tutor -&gt; разбор темы через диалог
+ 
+ Quiz -&gt; проверка понимания
+ 
+ Flashcards -&gt; интервальное повторение (SM-2)
+ 
+ Mastery tracking -&gt; видите прогресс
+ 
+ Concept Graduation -&gt; тема освоена, больше не беспокоит</code></pre>
+<p><strong>Принцип:</strong> <strong>Local-first</strong> — индекс, прогресс и учебное состояние на вашей машине. Полный offline возможен с локальными LLM.</p>
+<hr>
+<h3>Ключевые достижения проекта</h3>
+<p><strong> Главная ценность:</strong></p>
+<ul>
+<li><strong>Превращает кучу документов в структурированное знание</strong> — от вопроса до освоения темы</li>
+<li><strong>Проверяемые ответы</strong> — каждый ответ с источниками, можно проверить модель</li>
+<li><strong>Не забываете пройденное</strong> — интервальное повторение и mastery tracking</li>
+<li><strong>Видите прогресс</strong> — от recognition -&gt; recall -&gt; transfer -&gt; graduation</li>
+</ul>
+<p><strong> Технологические инновации:</strong></p>
+<ul>
+<li><strong>Production-oriented RAG Pipeline</strong> — 5-ступенчатая обработка (Classify -&gt; Rewrite -&gt; Retrieve -&gt; Rerank -&gt; Generate)</li>
+<li><strong>Self-Correction Loop</strong> — опциональная проверка качества контекста с retry</li>
+<li><strong>Двухуровневая индексация</strong> — Document-level + Chunk-level для разных типов запросов</li>
+<li><strong>Concept Graph</strong> — граф связей между концепциями для построения learning plan</li>
+<li><strong>Smart Study Router</strong> — умная подсказка следующего шага (не вы ищете режим, система ведёт вас)</li>
+</ul>
+<p><strong> Измеримые результаты:</strong></p>
+<ul>
+<li><strong>Масштабируемость:</strong> поддержка больших локальных корпусов с профилированием bottleneck'ов</li>
+<li><strong>Производительность:</strong> qa-запросы профилируются по стадиям pipeline</li>
+<li><strong>Качество:</strong> deterministic checks + LLM-as-Judge + human feedback</li>
+<li><strong>Экономика:</strong> при Ollama API-стоимость = 0 ₽; cloud зависит от провайдера</li>
+</ul>
+<p><strong> Архитектурная зрелость:</strong></p>
+<ul>
+<li><strong>14+ закрытых итераций</strong> с полным DoD (Definition of Done)</li>
+<li><strong>Архитектурные инварианты</strong> — жёсткие правила для maintainability</li>
+<li><strong>AI-assisted разработка</strong> — автоматизированный workflow с роутером</li>
+<li><strong>Трёхслойная оценка качества</strong> — Deterministic + LLM-as-Judge + Human Feedback</li>
+</ul>
+<p><strong> Уникальное позиционирование:</strong></p>
+<ul>
+<li><strong>Local-first</strong> — фокус на полном учебном цикле без обязательного облачного state</li>
+<li><strong>Полный цикл</strong> — от вопроса до интервального повторения в одном инструменте</li>
+<li><strong>Адаптивность</strong> — персонализированный план на основе mastery score</li>
+<li><strong>Гибкость</strong> — переключение Local -&gt; Cloud через <code>.env</code> без изменения кода</li>
+</ul>
+<hr></div></section>
+<section class="slide"><div class="slide-content"><h2>Слайд 2 — Архитектура и стек технологий</h2>
+<figure><img src="doc/screenshots/defense_pdf/pdf_slide_09.png" alt="Омниканальная локальная экосистема home-rag"></figure>
+<h3>Четыре слоя системы</h3>
+<pre class="language-mermaid"><code>graph TB
+ subgraph " Интерфейсный слой"
+ UI[ Streamlit UI :8501]
+ CLI[ CLI]
+ TG[ Telegram Bot]
+ end
+
+ subgraph " API слой — FastAPI :8000"
+ QR[ /ask · query_mode]
+ FR[ /flashcards · /dashboard]
+ KR[ /kb · /admin/reindex]
+ end
+
+ subgraph " Сервисный слой"
+ QS[ query_service&lt;br/&gt;Pipeline steps]
+ TO[ tutor_orchestrator&lt;br/&gt;learner_model_service]
+ KG[ knowledge_graph&lt;br/&gt;adaptive_plan]
+ end
+
+ subgraph " Persistence слой"
+ DB[( SQLite&lt;br/&gt;user_state.db&lt;br/&gt;прогресс + SRS)]
+ VC[( Chroma&lt;br/&gt;векторный индекс&lt;br/&gt;chroma_db/)]
+ PR[ provider.py&lt;br/&gt;единая точка LLM+Embed]
+ end
+
+ UI --&gt; QR &amp; FR &amp; KR
+ CLI --&gt; QS
+ TG --&gt; TO
+ TG --&gt; QS
+ QR --&gt; QS
+ FR &amp; KR --&gt; TO &amp; KG
+ QS &amp; TO &amp; KG --&gt; DB &amp; VC
+ QS &amp; TO &amp; KG --&gt; PR</code></pre>
+<hr>
+<h3>Ключевые архитектурные решения</h3>
+<p><strong>1⃣ Local-first инвариант</strong> Chroma и SQLite — локальные файлы. Нет облачного state. При локальных LLM/embeddings сценарий может работать без внешней сети.</p>
+<p><strong>2⃣ Единая точка LLM/Embed — <code>app/provider.py</code></strong> Все вызовы LLM и embeddings идут через один модуль. Переключение между Ollama и OpenAI-совместимыми провайдерами делается конфигурацией <code>.env</code>, без правок бизнес-логики.</p>
+<p><strong>3⃣ Typed pipeline — <code>QueryContext</code></strong> Каждый шаг обработки запроса принимает и возвращает <code>QueryContext</code>. Это позволяет добавлять/убирать шаги без рефакторинга.</p>
+<p><strong>4⃣ Guardrails на всех точках входа</strong> API, Streamlit и Telegram проходят через <code>app/input_validation.py</code> / <code>app/guardrails.py</code>; Telegram использует те же сервисы, что API, но не обязан ходить через HTTP.</p>
+<p><strong> Стек:</strong> Python 3.11+ · FastAPI · Streamlit · Chroma · llama-index · SQLite · Ollama / OpenAI-совместимые LLM</p>
+<hr></div></section>
+<section class="slide"><div class="slide-content"><h2>Слайд 3 — RAG: сердце системы — от документов до умных ответов</h2>
+<blockquote>
+<p><strong>RAG (Retrieval-Augmented Generation)</strong> — ключевая технология, позволяющая LLM отвечать на основе ваших документов, а не общих знаний</p>
+</blockquote>
+<figure><img src="doc/screenshots/defense_pdf/pdf_slide_08.png" alt="Архитектура доверия: zero hallucinations и guardrails"></figure>
+<hr>
+<h3>Ingest Pipeline: превращаем документы в поисковый индекс</h3>
+<pre class="language-mermaid"><code>graph TB
+ subgraph " Источники данных"
+ D["data/ папка&lt;br/&gt; PDF · MD · TXT · DOCX"]
+ end
+ 
+ subgraph " Обработка"
+ SC[ Сканирование&lt;br/&gt;новых/изменённых файлов]
+ PRS[" Парсинг&lt;br/&gt;извлечение текста + метаданные"]
+ CH[" Чанкинг&lt;br/&gt;~700 токенов, overlap 50"]
+ SUM[ Summarization&lt;br/&gt;LLM создаёт краткое описание]
+ ENR[ Enrichment&lt;br/&gt;извлечение концепций, тем]
+ end
+ 
+ subgraph " Векторизация"
+ EMB[" Embeddings&lt;br/&gt;текст -&gt; векторы 1024 dim"]
+ end
+ 
+ subgraph " Хранение"
+ CR1[(" Chroma chunks&lt;br/&gt;векторы чанков")]
+ CR2[(" Chroma docs&lt;br/&gt;векторы документов")]
+ KG[ Concept Graph&lt;br/&gt;связи между концепциями]
+ end
+
+ D --&gt; SC
+ SC --&gt; PRS
+ PRS --&gt; CH
+ PRS --&gt; SUM
+ CH --&gt; ENR
+ SUM --&gt; ENR
+ CH --&gt; EMB
+ SUM --&gt; EMB
+ EMB --&gt; CR1
+ EMB --&gt; CR2
+ ENR --&gt; KG
+
+ style D fill:#fff3cd,stroke:#f0ad4e,stroke-width:3px
+ style CR1 fill:#d4edda,stroke:#5cb85c,stroke-width:3px
+ style CR2 fill:#d4edda,stroke:#5cb85c,stroke-width:3px
+ style KG fill:#d9edf7,stroke:#5bc0de,stroke-width:3px</code></pre>
+<p><strong> Ключевые инновации Ingest:</strong></p>
+<table><thead><tr>
+<th>Фича</th><th>Что даёт</th><th>Технология</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Двухуровневая индексация</strong></td><td>Поиск по документам целиком + по фрагментам</td><td>2 Chroma-коллекции</td>
+</tr>
+<tr>
+<td><strong>Partial reindex</strong></td><td>Переиндексация только изменённых файлов</td><td>Инкрементальный update</td>
+</tr>
+<tr>
+<td><strong>Metadata enrichment</strong></td><td>Концепции, темы, сложность -&gt; умная фильтрация</td><td>LLM-extraction</td>
+</tr>
+<tr>
+<td><strong>Concept Graph</strong></td><td>Связи между концепциями -&gt; learning plan</td><td>JSON + SQLite</td>
+</tr>
+<tr>
+<td><strong>Масштабируемость</strong></td><td>Поддержка больших локальных корпусов, с ограничениями по RAM/embedding throughput</td><td>Chroma + llama-index</td>
+</tr>
+</tbody></table>
+<p><strong> Стоимость индексации:</strong> ~$0.002 на документ (summary + enrichment)</p>
+<hr>
+<h3>RAG Query Pipeline: 5-ступенчатая обработка запроса</h3>
+<pre class="language-mermaid"><code>graph TB
+ subgraph " Вход"
+ Q[ Вопрос студента&lt;br/&gt;«Как защититься от prompt injection?»]
+ end
+ 
+ subgraph "1⃣ CLASSIFY — определение типа запроса"
+ CL[ Router&lt;br/&gt;qa / overview / synthesis / learning_plan]
+ end
+ 
+ subgraph "2⃣ REWRITE — улучшение запроса"
+ RW[ Query Enricher&lt;br/&gt;переформулировка для лучшего поиска]
+ end
+ 
+ subgraph "3⃣ RETRIEVE — гибридный поиск"
+ R1[ Doc-level&lt;br/&gt;топ документы по теме]
+ R2[ Chunk-level&lt;br/&gt;топ-3 фрагмента]
+ HYB[ Hybrid Search&lt;br/&gt;BM25 + Vector + Fusion]
+ end
+ 
+ subgraph "4⃣ RERANK — переранжирование"
+ RR[ Cross-encoder&lt;br/&gt;точная оценка релевантности]
+ SC[ Self-Correction&lt;br/&gt;проверка качества контекста]
+ end
+ 
+ subgraph "5⃣ GENERATE — генерация ответа"
+ PR[ Prompt Selection&lt;br/&gt;промпт по типу запроса]
+ LLM[ LLM Generation&lt;br/&gt;ответ с атрибуцией]
+ end
+ 
+ subgraph "Да Выход"
+ ANS[ Ответ + источники&lt;br/&gt;+ confidence]
+ end
+
+ Q --&gt; CL
+ CL --&gt; RW
+ RW --&gt; HYB
+ HYB --&gt; R1
+ HYB --&gt; R2
+ R1 --&gt; RR
+ R2 --&gt; RR
+ RR --&gt; SC
+ SC --&gt; PR
+ PR --&gt; LLM
+ LLM --&gt; ANS
+
+ style Q fill:#e1f5ff,stroke:#0275d8,stroke-width:3px
+ style ANS fill:#d4edda,stroke:#5cb85c,stroke-width:3px
+ style HYB fill:#fcf8e3,stroke:#f0ad4e,stroke-width:3px
+ style SC fill:#f2dede,stroke:#d9534f,stroke-width:2px</code></pre>
+<p><strong> Детали каждой ступени:</strong></p>
+<p><strong>1⃣ CLASSIFY (Router)</strong> — определяет тип запроса и стратегию обработки</p>
+<ul>
+<li><code>qa</code> — точечный вопрос -&gt; краткий ответ</li>
+<li><code>overview</code> — обзор темы -&gt; список ключевых идей</li>
+<li><code>synthesis</code> — конспект -&gt; структурированный документ</li>
+<li><code>learning_plan</code> — план обучения -&gt; упорядоченные шаги</li>
+<li><code>keyword</code> — точный поиск -&gt; BM25 без векторов</li>
+</ul>
+<p><strong>2⃣ REWRITE (Enricher)</strong> — улучшает запрос для поиска</p>
+<ul>
+<li>Переформулировка нечётких вопросов</li>
+<li>Генерация подвопросов для обзорных запросов</li>
+<li>Condensing для follow-up вопросов с учётом истории</li>
+</ul>
+<p><strong>3⃣ RETRIEVE (Hybrid / Vector / Doc-then-chunk)</strong> — режим поиска выбирается настройками</p>
+<ul>
+<li><strong>BM25</strong> — точное совпадение ключевых слов (HDBSCAN, OWASP)</li>
+<li><strong>Vector Search</strong> — семантическая близость (синонимы, перефразировки)</li>
+<li><strong>Reciprocal Rank Fusion</strong> — объединение результатов</li>
+<li><strong>Doc-level</strong> -&gt; сужает корпус до релевантных документов в режиме <code>doc_then_chunk</code></li>
+<li><strong>Chunk-level</strong> -&gt; возвращает фрагменты для точечных qa-запросов</li>
+</ul>
+<p><strong>4⃣ RERANK (Cross-encoder)</strong> — точная оценка релевантности</p>
+<ul>
+<li>Cross-encoder модель (BAAI/bge-reranker-base)</li>
+<li>Sentence Window — расширение контекста вокруг чанка</li>
+<li><strong>Self-Correction</strong> — опциональная проверка качества контекста (настраивается):</li>
+<li>Если score &lt; порога -&gt; Query Rewriting -&gt; retry (max 1)</li>
+<li>Если retry не помог -&gt; disclaimer «недостаточно данных»</li>
+</ul>
+<p><strong>5⃣ GENERATE (Synthesize)</strong> — генерация ответа с атрибуцией</p>
+<ul>
+<li>Выбор промпта по типу запроса</li>
+<li>LLM-генерация строго по найденным фрагментам</li>
+<li>Атрибуция источников — кликабельные ссылки на файлы</li>
+<li>Retrieval confidence — объяснительный сигнал на основе scores источников, их количества и покрытия; это не вероятность истинности ответа</li>
+</ul>
+<hr>
+<h3>Производительность и стоимость RAG Pipeline</h3>
+<table><thead><tr>
+<th>Метрика</th><th>Значение</th><th>Комментарий</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Latency (qa)</strong></td><td>измеряется profiler/cost logs</td><td>Зависит от модели, retrieval mode, reranker и self-correction</td>
+</tr>
+<tr>
+<td><strong>Latency (synthesis)</strong></td><td>выше qa</td><td>Больше контекста и длиннее генерация</td>
+</tr>
+<tr>
+<td><strong>Cost per query (qa)</strong></td><td>считается по usage logs</td><td>0 API-cost при Ollama; cloud зависит от провайдера и токенов</td>
+</tr>
+<tr>
+<td><strong>Cost per query (synthesis)</strong></td><td>выше qa</td><td>Больше токенов в контексте</td>
+</tr>
+<tr>
+<td><strong>Качество (Faithfulness)</strong></td><td>eval-run метрика</td><td>Проверяется LLM-as-Judge и regression gate</td>
+</tr>
+<tr>
+<td><strong>Качество (Context Recall)</strong></td><td>eval-run метрика</td><td>Проверяется на qa/overview/synthesis датасете</td>
+</tr>
+<tr>
+<td><strong>Качество (Answer Relevancy)</strong></td><td>eval-run метрика</td><td>Зависит от промпта, retrieval и выбранной модели</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>Экспертный eval-контур: как доказывать качество</h3>
+<table><thead><tr>
+<th>Что проверяем</th><th>Метрика / сигнал</th><th>Что считается сильным доказательством</th>
+</tr></thead><tbody>
+<tr>
+<td>Retrieval</td><td>recall@k, MRR, hit rate, route match</td><td>Сравнение <code>vector_only</code> / <code>hybrid</code> / <code>doc_then_chunk</code> на одном eval-наборе</td>
+</tr>
+<tr>
+<td>Grounding</td><td>Faithfulness, наличие источников, weak-context disclaimer</td><td>Ответ опирается на найденные фрагменты и честно отказывается при слабом контексте</td>
+</tr>
+<tr>
+<td>Answer quality</td><td>Answer Relevancy + human feedback</td><td>Ответ полезен именно для учебной задачи, а не просто “похож на правду”</td>
+</tr>
+<tr>
+<td>Cost / latency</td><td>profiler, usage/cost logs</td><td>Понятно, какие стадии дороги: rewrite, retrieval, rerank, generation, eval judge</td>
+</tr>
+<tr>
+<td>Regression</td><td>baseline JSON + gate</td><td>Новая правка не ухудшает retrieval и tutor-сценарии без явного решения</td>
+</tr>
+</tbody></table>
+<p><strong>Честная граница:</strong> без опубликованного eval-run нельзя утверждать “лучше всех” или “высокое качество” численно. На защите корректно говорить: “в проекте есть eval-инфраструктура и план измерений; конкретные числа показываются по последнему прогону”.</p>
+<hr>
+<h3>Уникальные фичи RAG в home-rag_v2</h3>
+<p><strong> Двухуровневая индексация</strong></p>
+<ul>
+<li>Chunk-level — для точечных вопросов</li>
+<li>Doc-level — для обзорных запросов и learning plan</li>
+<li>Позволяет отвечать на «Какие лекции покрывают тему X?»</li>
+</ul>
+<p><strong> Multi-Prompt Architecture</strong></p>
+<ul>
+<li>Отдельный промпт для каждого типа запроса</li>
+<li><code>qa</code> -&gt; краткий ответ, <code>synthesis</code> -&gt; подробный конспект</li>
+<li>Улучшение качества ответов за счёт специализации промптов</li>
+</ul>
+<p><strong> Self-Correction Loop</strong></p>
+<ul>
+<li>Опциональная автоматическая проверка релевантности контекста</li>
+<li>Retry с переформулировкой при низком score</li>
+<li>Снижение галлюцинаций за счёт отсечения нерелевантного контекста</li>
+</ul>
+<p><strong> Concept Graph</strong></p>
+<ul>
+<li>Граф связей между концепциями (JSON + SQLite)</li>
+<li>Prerequisite-цепочки для learning plan</li>
+<li>«Для понимания Self-Correction RAG нужно знать Query Rewriting»</li>
+</ul>
+<p><strong> Единая точка LLM/Embed — <code>app/provider.py</code></strong></p>
+<ul>
+<li>Переключение Ollama -&gt; OpenAI-совместимых провайдеров через настройки <code>.env</code></li>
+<li>Не ломает pipeline при смене провайдера</li>
+<li>Поддержка local-first storage и опционального cloud inference</li>
+</ul>
+<hr>
+<h3>Трёхслойная оценка качества</h3>
+<pre><code>┌──────────────────────────────────────────────────┐
+│ Слой 3: Human Feedback │
+│ Кнопки / в UI -&gt; JSONL -&gt; анализ │
+├──────────────────────────────────────────────────┤
+│ Слой 2: LLM-as-Judge (опционально) │
+│ Faithfulness, Answer Relevancy, Context Recall │
+│ Async оценка -&gt; metrics_store (настраивается) │
+├──────────────────────────────────────────────────┤
+│ Слой 1: Deterministic Checks (каждый запрос) │
+│ Ответ не пустой, есть источники, длина OK, │
+│ нет отказа при наличии контекста, score &gt; порога│
+└──────────────────────────────────────────────────┘</code></pre>
+<p><strong>Eval Dataset:</strong> Набор тестовых вопросов для проверки качества (qa, keyword, overview, synthesis, негативные) <strong>Regression detection:</strong> Автоматическая проверка деградации качества при изменениях</p>
+<hr>
+<h3>Почему этот RAG — production-oriented</h3>
+<p>Для локального one-user сценария проект закрывает ключевые инженерные риски RAG, но честно не заявляет internet-scale/multi-tenant production без отдельной инфраструктурной доработки.</p>
+<p>Да <strong>Гибридный поиск</strong> — снижает риск пропуска точных совпадений (BM25) и поддерживает семантическую близость (Vector) Да <strong>Self-Correction</strong> — опциональная проверка и улучшение качества контекста Да <strong>Двухуровневая индексация</strong> — работает с вопросами разного масштаба Да <strong>Трёхслойная оценка</strong> — continuous monitoring качества Да <strong>Масштабируемость</strong> — рассчитано на локальные корпуса, с профилированием bottleneck'ов Да <strong>Local-first</strong> — работает без облачного state; полностью offline при локальных LLM/embeddings Да <strong>Прозрачность</strong> — каждый ответ с источниками и retrieval confidence</p>
+<p><strong>Ограничения:</strong> BM25 in-memory, качество OCR/парсинга PDF, локальные модели слабее cloud frontier-моделей, а confidence не является вероятностью истинности ответа.</p>
+<hr></div></section>
+<section class="slide"><div class="slide-content"><h2>Слайд 4 — Учебный цикл в действии: вопрос -&gt; квиз</h2>
+<figure><img src="doc/screenshots/defense_pdf/pdf_slide_05.png" alt="Сохранение контекста между быстрым ответом и сократическим тьютором"></figure>
+<h3>Шаг 1: Быстрый ответ с источниками</h3>
+<figure><img src="screenshots/final/scenario_01/03_quick_answer_with_sources.png" alt="Быстрый ответ с источниками"></figure>
+<p><strong> Что показано:</strong></p>
+<ul>
+<li>Ответ на вопрос по собственным материалам с <strong>retrieval confidence chip</strong>; значение зависит от найденных источников</li>
+<li>Три кликабельных источника — фрагменты из индексированных документов</li>
+<li>CTA «Учить эту тему 5 минут» — запуск полного учебного цикла</li>
+</ul>
+<p><strong> Технически:</strong> RAG retrieval -&gt; LLM-генерация с атрибуцией -&gt; retrieval confidence агрегирует качество и покрытие найденных источников</p>
+<hr>
+<h3>Шаг 2: Квиз — немедленная проверка знаний</h3>
+<figure><img src="screenshots/final/scenario_04/01_quiz_question_presented.png" alt="Квиз с вопросом и вариантами ответа"></figure>
+<figure><img src="screenshots/final/scenario_04/03_quiz_feedback_correct_or_hint.png" alt="Feedback после ответа в квизе"></figure>
+<p><strong> Что показано:</strong></p>
+<ul>
+<li>Авто-сгенерированный квиз по теме из предыдущего ответа</li>
+<li>Контекст передаётся из RAG-ответа — квиз проверяет именно то, что было объяснено</li>
+<li>После квиза — создание flashcard и обновление mastery score концепта</li>
+</ul>
+<p><strong> Ключевая механика:</strong> один клик от ответа до проверки знания — нет разрыва контекста</p>
+<hr></div></section>
+<section class="slide"><div class="slide-content"><h2>Слайд 5 — Прогресс и Рабочее пространство курса</h2>
+<figure><img src="doc/screenshots/defense_pdf/pdf_slide_04.png" alt="Course Workspace: от папки к учебному курсу в один клик"></figure>
+<h3>Режим 1: Слабые места и mastery timeline</h3>
+<figure><img src="screenshots/final/scenario_07/03_weak_spots_panel.png" alt="Панель слабых мест и прогресса"></figure>
+<p><strong> Что показано:</strong></p>
+<ul>
+<li>Визуализация концептов по уровням: <code>recognition -&gt; recall -&gt; transfer</code></li>
+<li><strong>Concept Graduation:</strong> концепты со стабильным уровнем <code>transfer</code> (7+ дней) получают статус <code>graduated</code> и выпадают из активных повторений</li>
+<li>Mastery timeline — динамика освоения тем за 30 дней</li>
+<li>Streak — серия дней с выполненными повторениями</li>
+</ul>
+<p><strong> Модель прогресса:</strong> каждый концепт имеет mastery score, пересчитываемый после каждого квиза и SRS-оценки. Три уровня освоения: recognition (узнавание) -&gt; recall (воспроизведение) -&gt; transfer (применение).</p>
+<hr>
+<h3>Режим 2: Рабочее пространство курса — изолированный контекст</h3>
+<figure><img src="screenshots/final/scenario_13/01_activate_course_scope.png" alt="Активация папки как курса"></figure>
+<figure><img src="screenshots/final/scenario_13/06_course_mastery_dashboard.png" alt="Mastery dashboard курса"></figure>
+<p><strong> Что показано:</strong></p>
+<ul>
+<li>Активация папки как отдельного «курса» — изолированный прогресс внутри одного пространства</li>
+<li>Mastery dashboard курса: какие темы освоены, какие требуют повторения</li>
+<li>Вопросы и план контекстуализированы только по материалам курса</li>
+</ul>
+<p><strong> Уникальная механика:</strong> можно учить несколько курсов параллельно с независимым прогрессом по каждому</p>
+<hr></div></section>
+<section class="slide"><div class="slide-content"><h2>Слайд 6 — Smart Study Router: система ведёт вас по учебному циклу</h2>
+<figure><img src="doc/screenshots/defense_pdf/pdf_slide_07.png" alt="Модель ученика: Adaptive Daily Plan и выпуск освоенных концептов"></figure>
+<h3>Проблема: слишком много режимов — что делать дальше?</h3>
+<p><strong>У вас есть мощные функции:</strong></p>
+<ul>
+<li>Быстрый ответ с источниками</li>
+<li>Tutor для разбора темы</li>
+<li>Quiz для проверки понимания</li>
+<li>Flashcards для повторения</li>
+<li>Dashboard прогресса</li>
+</ul>
+<p><strong>Но вы теряетесь:</strong> Что делать прямо сейчас? Задать вопрос? Пройти quiz? Повторить карточки? Открыть dashboard?</p>
+<p><strong>Результат:</strong> Вы вручную угадываете режим и выпадаете из учебного цикла</p>
+<hr>
+<h3>Решение: Smart Study Router — умная подсказка следующего шага</h3>
+<p><strong>Система сама анализирует ваше учебное состояние и предлагает лучшее действие.</strong></p>
+<pre><code>learning state -&gt; routing -&gt; next_action + reason + кнопка</code></pre>
+<p><strong>Пример подсказки в интерфейсе:</strong></p>
+<blockquote>
+<p><strong>Следующий лучший шаг:</strong> пройти короткий quiz по теме "retrieval pipeline" <strong>Почему:</strong> ответ с источниками уже получен, но понимание ещё не проверено <strong>После quiz:</strong> я создам карточки по слабым местам и обновлю план повторения [<strong>Начать quiz</strong>] [Сначала объяснить проще] [Открыть источники]</p>
+</blockquote>
+<hr>
+<h3>Состояния роутера: 7 сценариев</h3>
+<table><thead><tr>
+<th>Состояние</th><th>Сигнал</th><th>Подсказка</th><th>Кнопка</th>
+</tr></thead><tbody>
+<tr>
+<td><code>cards_due</code></td><td>Есть карточки к повторению</td><td>"Повторить N карточек сегодня"</td><td><strong>Повторить</strong></td>
+</tr>
+<tr>
+<td><code>sm2_due</code></td><td>Просроченные темы по SM-2</td><td>"Пора повторить тему X"</td><td><strong>Повторить тему</strong></td>
+</tr>
+<tr>
+<td><code>quiz_failed</code></td><td>Ошибки в quiz / низкий mastery</td><td>"Разобрать слабое место"</td><td><strong>Разобрать</strong></td>
+</tr>
+<tr>
+<td><code>answer_ready</code></td><td>Есть ответ с источниками</td><td>"Учить эту тему"</td><td><strong>Учить тему</strong></td>
+</tr>
+<tr>
+<td><code>mastery_stale</code></td><td>Давно не было проверки</td><td>"Проверить retention через mini-quiz"</td><td><strong>Проверить</strong></td>
+</tr>
+<tr>
+<td><code>adaptive_plan</code></td><td>Есть данные mastery</td><td>"Открыть адаптивный план на неделю"</td><td><strong>План</strong></td>
+</tr>
+<tr>
+<td><code>tutor_resume</code></td><td>Незавершённая сессия тьютора</td><td>"Продолжить с последнего шага"</td><td><strong>Продолжить</strong></td>
+</tr>
+</tbody></table>
+<p><strong>Приоритет:</strong> <code>cards_due</code> &gt; <code>sm2_due</code> &gt; <code>quiz_failed</code> &gt; <code>answer_ready</code> &gt; остальные</p>
+<hr>
+<h3>Как это работает: детерминированная логика</h3>
+<p><strong>Роутер анализирует:</strong></p>
+<ul>
+<li><code>flashcard_due_n</code> — число карточек к повторению</li>
+<li><code>sm2_due_n</code> — число просроченных тем</li>
+<li><code>quiz_feedback_status</code> — результат последнего quiz</li>
+<li><code>has_last_answer_qa</code> — есть ли свежий ответ</li>
+<li><code>first_weak_concept</code> — самый слабый концепт</li>
+<li><code>has_tutor_resume</code> — незавершённая сессия</li>
+<li><code>plan_primary_block</code> — следующий блок плана</li>
+</ul>
+<p><strong>Результат:</strong></p>
+<pre class="language-python"><code>SmartStudyRecommendation(
+ hint_kind="cards_due",
+ primary_label_ru="Повторить",
+ why_now_ru="У вас 5 карточек к повторению сегодня",
+ primary_nav="flashcards_review",
+ secondaries=["Учить новую тему", "Открыть план", "Пропустить"]
+)</code></pre>
+<hr>
+<h3>Почему это прорыв</h3>
+<p><strong>1. Не вы ищете режим — система ведёт вас</strong></p>
+<ul>
+<li>Было: "Что мне делать? Открыть tutor? Quiz? Flashcards?"</li>
+<li>Стало: "Следующий шаг: повторить 5 карточек. Почему: retention debt."</li>
+</ul>
+<p><strong>2. Объяснимая подсказка</strong></p>
+<ul>
+<li>Не просто "Нажми сюда"</li>
+<li>А "Почему именно это действие сейчас полезно"</li>
+</ul>
+<p><strong>3. Безопасные альтернативы</strong></p>
+<ul>
+<li>Основная кнопка + 2-4 вторичных действия</li>
+<li>Можете выбрать другой путь без потери контекста</li>
+</ul>
+<p><strong>4. Адаптивность</strong></p>
+<ul>
+<li>Роутер учитывает ваш прогресс</li>
+<li>Приоритеты меняются по мере освоения материала</li>
+</ul>
+<p><strong>5. Сохранение точек входа</strong></p>
+<ul>
+<li>Tutor, Quiz, Flashcards, Dashboard остаются доступны</li>
+<li>Роутер — это подсказка, а не замена навигации</li>
+</ul>
+<hr>
+<h3>Где работает Smart Study Router</h3>
+<table><thead><tr>
+<th>Поверхность</th><th>Когда показывается</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Home Hub</strong></td><td>Главный экран — карточка "Следующий шаг"</td>
+</tr>
+<tr>
+<td><strong>После ответа</strong></td><td>Под ответом с источниками — CTA "Учить тему"</td>
+</tr>
+<tr>
+<td><strong>После quiz</strong></td><td>После проверки — "Разобрать слабое место" или "Продолжить"</td>
+</tr>
+<tr>
+<td><strong>Adaptive Plan</strong></td><td>В плане — "Следующий блок: gap/review/practice"</td>
+</tr>
+<tr>
+<td><strong>Progress Dashboard</strong></td><td>В дашборде — "Что делать с этим прогрессом"</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>Измеримый эффект</h3>
+<table><thead><tr>
+<th>Метрика</th><th>До Smart Router</th><th>После Smart Router</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Пользователь знает, что делать дальше</strong></td><td>Внимание: Угадывает</td><td>Да Видит подсказку</td>
+</tr>
+<tr>
+<td><strong>Retention debt остаётся видимым</strong></td><td>Нет Скрыт в меню</td><td>Да Приоритет #1</td>
+</tr>
+<tr>
+<td><strong>Переход от ответа к обучению</strong></td><td>Внимание: Ручной поиск режима</td><td>Да Одна кнопка</td>
+</tr>
+<tr>
+<td><strong>Выпадение из учебного цикла</strong></td><td>Высокое</td><td>Низкое</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>Это килер-фича продукта!</h3>
+<p><strong>Аналогия с workflow router для разработки:</strong></p>
+<ul>
+<li>Там: <code>backlog_registry.yaml</code> -&gt; роутер -&gt; следующая команда</li>
+<li>Здесь: <code>learning state</code> -&gt; роутер -&gt; следующий учебный шаг</li>
+</ul>
+<p><strong>Результат:</strong></p>
+<ul>
+<li>Разработчик не держит матрицу решений в голове -&gt; роутер ведёт по процессу</li>
+<li>Ученик не выбирает режим вручную -&gt; роутер ведёт по учебному циклу</li>
+</ul>
+<p><strong>Это превращает продукт из "набора функций" в "учебного проводника"</strong></p>
+<p>Подробно: <a href="doc/defense_user_router_breakthrough.md"><code>doc/defense_user_router_breakthrough.md</code></a></p>
+<hr></div></section>
+<section class="slide"><div class="slide-content"><h2>Слайд 7 — Local LLM vs Cloud LLM</h2>
+<figure><img src="doc/screenshots/defense_pdf/pdf_slide_10.png" alt="Полный оффлайн и безопасная переиндексация через локальную LLM"></figure>
+<h3>Сравнение по ключевым критериям</h3>
+<table><thead><tr>
+<th>Критерий</th><th>Local LLM (Ollama)</th><th>Cloud LLM (OpenAI-совместимые)</th>
+</tr></thead><tbody>
+<tr>
+<td><strong> Приватность / суверенитет данных</strong></td><td>Да Данные не покидают машину</td><td>Внимание: Данные передаются провайдеру</td>
+</tr>
+<tr>
+<td><strong> Стоимость</strong></td><td>Да 0 ₽ API-cost после установки моделей</td><td>Зависит от провайдера, модели и объёма токенов</td>
+</tr>
+<tr>
+<td><strong> Работа без интернета</strong></td><td>Да Offline после установки моделей</td><td>Нет Требует подключение</td>
+</tr>
+<tr>
+<td><strong> Качество ответов</strong></td><td>Зависит от модели (llama3, mistral…)</td><td>Да Высокое у сильных cloud-моделей</td>
+</tr>
+<tr>
+<td><strong> Скорость генерации</strong></td><td>Зависит от GPU/CPU/RAM</td><td>Да Быстро (серверные GPU)</td>
+</tr>
+<tr>
+<td><strong> Требования к железу</strong></td><td>8+ GB RAM, GPU желателен</td><td>Только браузер / интернет</td>
+</tr>
+<tr>
+<td><strong> Переключение</strong></td><td><code>.env</code> без изменения кода</td><td><code>.env</code> без изменения кода</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>Переключение — конфигурация в <code>.env</code>, без изменения кода</h3>
+<pre class="language-bash"><code># Local LLM (Ollama, полностью offline)
+OPENAI_API_BASE=http://127.0.0.1:11434/v1
+OPENAI_API_KEY=local
+LLM_MODEL=qwen2.5:7b-instruct
+EMBED_MODEL=nomic-embed-text
+
+# Cloud LLM (OpenAI-совместимые)
+OPENAI_API_BASE=https://openrouter.ai/api/v1
+OPENAI_API_KEY=sk-...
+LLM_MODEL=gpt-4o-mini
+EMBED_MODEL=perplexity/pplx-embed-v1-0.6b</code></pre>
+<p><strong> Код не меняется</strong> — <code>app/provider.py</code> абстрагирует провайдера.</p>
+<hr>
+<h3>Когда что выбрать</h3>
+<p><strong> Local LLM</strong> — если важна приватность учебных материалов (корпоративные данные, личные заметки) или нет постоянного интернета. Хороший старт: компактная instruct-модель и локальная embedding-модель в Ollama.</p>
+<p><strong> Cloud LLM</strong> — если нужно максимальное качество объяснений и скорость. Подходит для быстрого старта без настройки Ollama.</p>
+<p><strong> Гибридный подход</strong> (продвинутый): embeddings — локально (конфиденциальность индекса), генерация — облачная LLM. В этом режиме ответы уже не полностью offline, но индекс и учебный state остаются локальными.</p>
+<hr></div></section>
+<section class="slide"><div class="slide-content"><h2>Слайд 8 — Процесс разработки: от хаоса к песне</h2>
+<h3>Было: ручной конвейер с 15+ переключениями</h3>
+<p><strong>Каждый пакет требовал:</strong></p>
+<ul>
+<li>Открыть 6 разных документов, чтобы понять, что делать дальше</li>
+<li>Вручную запустить 8 команд в правильном порядке</li>
+<li>Помнить, на каком шаге остановился</li>
+<li>Переключаться между терминалом, IDE и документацией</li>
+<li>Проверять DoD вручную перед закрытием</li>
+</ul>
+<p><strong>Результат:</strong> 2-3 часа на один пакет, высокий риск пропустить шаг</p>
+<hr>
+<h3>Стало: Smart Router + Cursor SDK = автопилот</h3>
+<p><strong>Одна команда. Весь конвейер. От контракта до закрытия.</strong></p>
+<pre class="language-powershell"><code>python scripts/workflow.py --loop --skip-review --watch-contract \
+ --trigger-cmd "npx tsx scripts/cursor_agent_trigger.ts" --agent cursor_ai</code></pre>
+<p><strong>Что происходит автоматически:</strong></p>
+<pre><code>Plan-next -&gt; контракт в backlog_registry.yaml
+ (роутер видит изменение)
+ Complexity check -&gt; orchestration или execution_auto
+ 
+ generate_orchestration_prompt.py -&gt; 8-шаговый план
+ 
+ run_autonomous.py -&gt; doc/current_task.md
+ 
+ Cursor SDK trigger -&gt; Agent.prompt (автозапуск)
+ 
+ WATCH execution_contract.md (блокирующее ожидание)
+ 
+Да run_autonomous --post-agent -&gt; DoD + close
+ 
+ Re-route -&gt; следующий пакет (если есть)</code></pre>
+<p><strong>Ручных шагов:</strong> <strong>1</strong> — принять контракт (Phase 7 plan-next)</p>
+<hr>
+<h3>Умная маршрутизация по сложности</h3>
+<p><strong>Роутер анализирует каждый пакет:</strong></p>
+<table><thead><tr>
+<th>Сигнал</th><th>Что проверяет</th>
+</tr></thead><tbody>
+<tr>
+<td><code>write_set_size</code></td><td>Число файлов в write-set</td>
+</tr>
+<tr>
+<td><code>dod_ops</code></td><td>Число команд DoD (pytest, lint, …)</td>
+</tr>
+<tr>
+<td><code>outcomes</code></td><td>Число задекларированных outcomes</td>
+</tr>
+<tr>
+<td><code>user_stories</code></td><td>Число user story</td>
+</tr>
+<tr>
+<td><code>hot_paths</code></td><td>Попадания в "горячие" пути (schema/auth/pipeline)</td>
+</tr>
+<tr>
+<td><code>risk_keywords</code></td><td>Риск-термины в контракте</td>
+</tr>
+</tbody></table>
+<p><strong>Результат:</strong> <code>low</code> / <code>medium</code> / <code>high</code> -&gt; <strong>автоматический выбор маршрута</strong></p>
+<pre><code>low complexity / нет US -&gt; execution_auto (прямо в код)
+medium/high + US/CJM -&gt; orchestration (8 шагов: PO-&gt;Analyst-&gt;Architect-&gt;Dev-&gt;Tester)</code></pre>
+<hr>
+<h3>Кардинальная трансформация: до и после</h3>
+<table><thead><tr>
+<th>Метрика</th><th>Было (ручной)</th><th>Стало (Smart Router + SDK)</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Команд вручную</strong></td><td>15+</td><td>1</td>
+</tr>
+<tr>
+<td><strong>Переключений контекста</strong></td><td>20+</td><td>0 (автопилот)</td>
+</tr>
+<tr>
+<td><strong>Время на пакет</strong></td><td>2-3 часа</td><td>15-75 минут (зависит от сложности)</td>
+</tr>
+<tr>
+<td><strong>Риск пропустить DoD</strong></td><td>Высокий</td><td>Нулевой (автоматическая проверка)</td>
+</tr>
+<tr>
+<td><strong>Ручных шагов</strong></td><td>Все</td><td>1 (принять контракт)</td>
+</tr>
+<tr>
+<td><strong>Прозрачность</strong></td><td>Полная</td><td>Полная (логи каждого шага)</td>
+</tr>
+<tr>
+<td><strong>Подходит для волны пакетов</strong></td><td>Утомительно</td><td>Да (--loop-max N)</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>Почему это прорыв</h3>
+<p><strong>1. Единая точка входа</strong> — не нужно помнить матрицу решений</p>
+<pre class="language-bash"><code>python scripts/workflow.py # -&gt; роутер сам скажет, что делать</code></pre>
+<p><strong>2. Автоматическая оркестрация</strong> — роутер выбирает маршрут по сложности</p>
+<ul>
+<li>Лёгкий пакет -&gt; прямо в код</li>
+<li>Тяжёлый пакет -&gt; полный конвейер с 8 ролями</li>
+</ul>
+<p><strong>3. Cursor SDK integration</strong> — автозапуск агента без ручного копирования промпта</p>
+<pre class="language-typescript"><code>Agent.prompt(task) -&gt; execution_contract.md -&gt; --post-agent -&gt; close</code></pre>
+<p><strong>4. Блокирующее ожидание</strong> — терминал занят, но работа идёт</p>
+<pre><code>[WATCH] Жду execution_contract.md (опрос каждые 10s)
+Да [WATCH] Обнаружен — запускаю --post-agent</code></pre>
+<p><strong>5. DoD-защита</strong> — пакет не закроется, если тесты не прошли</p>
+<pre class="language-bash"><code>pytest -&gt; lint -&gt; coverage -&gt; Да или Нет (блокирует close)</code></pre>
+<hr>
+<h3>Показатели зрелости процесса</h3>
+<table><thead><tr>
+<th>Метрика</th><th>Значение</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Закрытых итераций</strong></td><td>14+ с полным DoD</td>
+</tr>
+<tr>
+<td><strong>Автоматизация</strong></td><td>95% шагов (1 ручной из 15+)</td>
+</tr>
+<tr>
+<td><strong>Архитектурные инварианты</strong></td><td>Жёсткие правила для maintainability</td>
+</tr>
+<tr>
+<td><strong>AI-assisted разработка</strong></td><td>Каждая роль — AI-агент с заточенным промптом</td>
+</tr>
+<tr>
+<td><strong>Трёхслойная оценка качества</strong></td><td>Deterministic + LLM-as-Judge + Human Feedback</td>
+</tr>
+<tr>
+<td><strong>Время на волну из 3 пакетов</strong></td><td>Было: 6-9 часов -&gt; Стало: 1-3 часа</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>Это просто песня!</h3>
+<p><strong>До Smart Router:</strong></p>
+<ul>
+<li>Открыл документ -&gt; прочитал -&gt; скопировал команду -&gt; запустил -&gt; проверил результат -&gt; открыл следующий документ -&gt; …</li>
+<li><strong>15+ переключений</strong> на один пакет</li>
+</ul>
+<p><strong>После Smart Router + Cursor SDK:</strong></p>
+<pre class="language-powershell"><code>python scripts/workflow.py --loop --skip-review --watch-contract \
+ --trigger-cmd "npx tsx scripts/cursor_agent_trigger.ts" --agent cursor_ai</code></pre>
+<ul>
+<li>Принял контракт -&gt; <strong>всё остальное автоматически</strong></li>
+<li>Терминал показывает прогресс в реальном времени</li>
+<li>DoD проверяется автоматически</li>
+<li>Следующий пакет стартует сам</li>
+</ul>
+<p><strong>Результат:</strong> Разработчик фокусируется на решениях, а не на процессе</p>
+<hr></div></section>
+<section class="slide"><div class="slide-content"><h2>Слайд 9 — Идеи развития</h2>
+<h3>Направления развития</h3>
+<p><strong> Desktop Installer &amp; Onboarding Wizard</strong></p>
+<ul>
+<li>Packaged app (<code>.exe</code> / <code>.dmg</code> / <code>.AppImage</code>) с embedded Python</li>
+<li>GUI-wizard: выбор LLM (local/cloud), первая индексация, demo-сценарий</li>
+<li><strong>Эффект:</strong> Снижение порога входа с "15 минут в терминале" до "3 клика"</li>
+</ul>
+<p><strong> Learning Outcomes Research</strong></p>
+<ul>
+<li>Longitudinal study: контрольная vs экспериментальная группа</li>
+<li>Метрики: retention after 7/30 days, quiz scores, time to mastery, transfer tasks</li>
+<li><strong>Эффект:</strong> Доказательство эффективности, переход от "интересный инструмент" к "доказанно эффективный метод"</li>
+</ul>
+<p><strong> Workflow Automation (для разработки)</strong></p>
+<ul>
+<li>SDK Trigger — автозапуск агента из терминала</li>
+<li>Event-driven Watching — реакция на изменения файлов через <code>watchdog</code></li>
+<li>Multi-Agent Parallel Execution — параллельная разработка независимых пакетов</li>
+</ul>
+<hr></div></section>
+<section class="slide"><div class="slide-content"><h2>Слайд 10 — Для кого этот проект</h2>
+<h3>Целевая аудитория и fit-анализ</h3>
+<table><thead><tr>
+<th>Персона</th><th>Подходит?</th><th>Почему</th><th>Что нужно для улучшения</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Новичок без опыта программирования</strong></td><td>Внимание: Частично</td><td>Установка требует терминала и Python</td><td>Desktop installer с GUI</td>
+</tr>
+<tr>
+<td><strong>Студент с техническим бэкграундом</strong></td><td>Да Да</td><td>Основная целевая аудитория</td><td>—</td>
+</tr>
+<tr>
+<td><strong>Power User с Anki + Obsidian</strong></td><td>Внимание: Возможно</td><td>Если нужна автоматизация создания карточек из RAG-ответов</td><td>Экспорт в Anki, API для интеграций</td>
+</tr>
+<tr>
+<td><strong>Корпоративный пользователь</strong></td><td>Да Да</td><td>При использовании локальных LLM — полная конфиденциальность</td><td>Audit logs, ACL для multi-user</td>
+</tr>
+<tr>
+<td><strong>Преподаватель</strong></td><td>Внимание: Пока нет</td><td>Нужен групповой режим и dashboard прогресса класса</td><td>Multi-user backend, teacher dashboard</td>
+</tr>
+<tr>
+<td><strong>Экономный пользователь</strong></td><td>Да Да</td><td>При локальных моделях — 0 API-cost</td><td>—</td>
+</tr>
+<tr>
+<td><strong>Международный пользователь</strong></td><td>Внимание: Зависит</td><td>Качество на non-English зависит от модели</td><td>Multilingual eval, language-specific tuning</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>Killer Demo для защиты</h3>
+<p><strong>Сценарий "От вопроса до mastery за 3 минуты":</strong></p>
+<table><thead><tr>
+<th>Время</th><th>Действие</th><th>Реплика</th>
+</tr></thead><tbody>
+<tr>
+<td>0:00-0:20</td><td>Показать материал и готовый индекс</td><td>"Это обычные локальные учебные материалы, не специально размеченная база знаний."</td>
+</tr>
+<tr>
+<td>0:20-0:55</td><td>Задать сложный вопрос</td><td>"Вопрос требует синтеза из нескольких фрагментов, а не поиска одного определения."</td>
+</tr>
+<tr>
+<td>0:55-1:20</td><td>Показать ответ, citations и confidence</td><td>"Я вижу, на каких источниках стоит ответ, и могу проверить модель."</td>
+</tr>
+<tr>
+<td>1:20-1:40</td><td>Нажать "Учить эту тему"</td><td>"В большинстве RAG-систем сценарий заканчивается здесь. У нас он только начинается."</td>
+</tr>
+<tr>
+<td>1:40-2:05</td><td>Пройти 1-2 шага tutor</td><td>"Tutor вытаскивает понимание через вопрос, а не просто читает лекцию."</td>
+</tr>
+<tr>
+<td>2:05-2:25</td><td>Ответить на quiz</td><td>"Система проверяет, понял ли я тему, а не только получил ли красивый ответ."</td>
+</tr>
+<tr>
+<td>2:25-2:40</td><td>Создать flashcard</td><td>"Важное превращается в карточку без ручного копирования."</td>
+</tr>
+<tr>
+<td>2:40-3:00</td><td>Открыть mastery dashboard и adaptive plan</td><td>"Финал: система обновляет модель знания и предлагает следующий шаг."</td>
+</tr>
+</tbody></table>
+<p><strong>Сильный демо-вопрос:</strong> "Почему RAG-ответ сам по себе недостаточен для обучения, и как связка tutor, quiz, flashcards и mastery plan закрывает этот разрыв? Укажи, какие части ответа подтверждаются источниками."</p>
+<p><strong> Что это доказывает:</strong> Это не просто "RAG-чат" и не просто "SRS-система", а <strong>полный учебный цикл: источник -&gt; объяснение -&gt; проверка -&gt; запоминание -&gt; план</strong>.</p>
+<p>Подробный сценарий, лог идеальной сессии и fallback-план: <a href="doc/defense_killer_demo.md"><code>doc/defense_killer_demo.md</code></a>.</p>
+<hr></div></section>
+<section class="slide"><div class="slide-content"><h2>Слайд 11 — Сравнение с конкурентами</h2>
+<figure><img src="doc/screenshots/defense_pdf/pdf_slide_02.png" alt="Сравнение home-rag с существующими инструментами"></figure>
+<h3>home-rag_v2 vs Альтернативы</h3>
+<table><thead><tr>
+<th>Функция</th><th>home-rag_v2</th><th>NotebookLM</th><th>Anki</th><th>ChatGPT + Files</th><th>Obsidian</th>
+</tr></thead><tbody>
+<tr>
+<td><strong> Q&amp;A по документам</strong></td><td>Да RAG с источниками</td><td>Да Да</td><td>Нет Нет</td><td>Да Да</td><td>Внимание: Через плагины</td>
+</tr>
+<tr>
+<td><strong> Автоматические квизы</strong></td><td>Да Из RAG-ответа</td><td>Нет Нет</td><td>Внимание: Ручное создание</td><td>Нет Нет</td><td>Нет Нет</td>
+</tr>
+<tr>
+<td><strong> SRS / Flashcards</strong></td><td>Да SM-2 + mastery</td><td>Нет Нет</td><td>Да Лучший в классе</td><td>Нет Нет</td><td>Внимание: Через плагины</td>
+</tr>
+<tr>
+<td><strong> Mastery tracking</strong></td><td>Да 3 уровня + graduation</td><td>Нет Нет</td><td>Внимание: Базовый</td><td>Нет Нет</td><td>Нет Нет</td>
+</tr>
+<tr>
+<td><strong> Адаптивный план</strong></td><td>Да На основе mastery</td><td>Нет Нет</td><td>Внимание: Базовый SRS</td><td>Нет Нет</td><td>Нет Нет</td>
+</tr>
+<tr>
+<td><strong> Tutor-режим</strong></td><td>Да Сократический диалог</td><td>Нет Нет</td><td>Нет Нет</td><td>Внимание: Ручной промпт</td><td>Нет Нет</td>
+</tr>
+<tr>
+<td><strong> Local-first</strong></td><td>Да Полностью</td><td>Нет Cloud-only</td><td>Да Да</td><td>Нет Cloud-only</td><td>Да Да</td>
+</tr>
+<tr>
+<td><strong> Стоимость</strong></td><td>Да Open-source + опц. cloud</td><td>Да Бесплатно</td><td>Да Бесплатно</td><td>$20/мес Plus</td><td>Да Бесплатно</td>
+</tr>
+<tr>
+<td><strong> Offline-режим</strong></td><td>Да С локальными LLM</td><td>Нет Нет</td><td>Да Да</td><td>Нет Нет</td><td>Да Да</td>
+</tr>
+<tr>
+<td><strong> Фокус</strong></td><td>Полный учебный цикл</td><td>Document Q&amp;A</td><td>SRS-карточки</td><td>General AI assistant</td><td>Note-taking</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>Уникальное позиционирование</h3>
+<p><strong>home-rag_v2 — это единственный инструмент, который:</strong></p>
+<ul>
+<li>Отвечает по вашим материалам (как NotebookLM)</li>
+<li>Создаёт квизы автоматически из ответов</li>
+<li>Интегрирует SRS с mastery tracking (как Anki, но автоматически)</li>
+<li>Строит адаптивный план повторения</li>
+<li>Работает полностью локально (как Obsidian + Anki)</li>
+<li>Закрывает весь цикл: вопрос -&gt; ответ -&gt; tutor -&gt; quiz -&gt; SRS -&gt; план</li>
+</ul>
+<p><strong>Конкуренты сильны в отдельных частях, но не закрывают полный учебный цикл.</strong></p>
+<hr>
+<h3>Когда выбрать альтернативу</h3>
+<table><thead><tr>
+<th>Ситуация</th><th>Рекомендация</th>
+</tr></thead><tbody>
+<tr>
+<td>Нужен только Q&amp;A по документам без обучения</td><td><strong>NotebookLM</strong> — проще и бесплатно</td>
+</tr>
+<tr>
+<td>Уже есть отлаженный workflow с Anki</td><td><strong>Anki</strong> — не ломайте работающее</td>
+</tr>
+<tr>
+<td>Нужен general AI assistant, не только учёба</td><td><strong>ChatGPT Plus</strong> — шире возможности</td>
+</tr>
+<tr>
+<td>Фокус на note-taking и knowledge management</td><td><strong>Obsidian</strong> — лучший в классе</td>
+</tr>
+<tr>
+<td>Нужен полный учебный цикл с автоматизацией</td><td><strong>home-rag_v2</strong> — это наша ниша</td>
+</tr>
+</tbody></table>
+<hr></div></section>
+<section class="slide"><div class="slide-content"><h2>Слайд 12 — Связанные документы</h2>
+<h3>Документация проекта</h3>
+<table><thead><tr>
+<th>Документ</th><th>Описание</th>
+</tr></thead><tbody>
+<tr>
+<td><a href="doc/user_guide.md">doc/user_guide.md</a></td><td>Основные режимы работы, интерфейс, настройки</td>
+</tr>
+<tr>
+<td><a href="doc/quickstart_demo.md">doc/quickstart_demo.md</a></td><td>Установка, первый запуск, демо-сценарии за 15 минут</td>
+</tr>
+<tr>
+<td><a href="doc/personalized_learner_model.md">doc/personalized_learner_model.md</a></td><td>Модель обучаемого: SRS, Concept Graduation, адаптивный план</td>
+</tr>
+<tr>
+<td><a href="doc/scenarios/README.md">doc/scenarios/README.md</a></td><td>14 сценариев использования с e2e-тестами и скриншотами</td>
+</tr>
+<tr>
+<td><a href="doc/screenshots/README.md">doc/screenshots/README.md</a></td><td>Индекс всех скриншотов по сценариям</td>
+</tr>
+<tr>
+<td><a href="doc/user_guide_details.md">doc/user_guide_details.md</a></td><td>Расширенные функции, настройки, troubleshooting</td>
+</tr>
+<tr>
+<td><a href="doc/team_workflow/process.md">doc/team_workflow/process.md</a></td><td>Командный конвейер: роли, артефакты, DoD</td>
+</tr>
+<tr>
+<td><a href="doc/team_workflow/workflow_router.md">doc/team_workflow/workflow_router.md</a></td><td>Smart Router: 6 состояний, авто-цикл, идеи развития</td>
+</tr>
+<tr>
+<td><a href="doc/defense_virtual_defense.md">doc/defense_virtual_defense.md</a></td><td>Виртуальная защита: каверзные вопросы и ответы</td>
+</tr>
+<tr>
+<td><a href="doc/defense_expert_panel.md">doc/defense_expert_panel.md</a></td><td>Экспертная RAG/AI-защита: сложные вопросы, ответы, найденные бреши</td>
+</tr>
+<tr>
+<td><a href="doc/defense_user_panel.md">doc/defense_user_panel.md</a></td><td>Пользовательская защита: вопросы от новичков, power users, хейтеров и критиков</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>Ключевые достижения проекта</h3>
+<p>Да <strong>Полный учебный цикл</strong> — от вопроса до интервального повторения в одном инструменте Да <strong>Production-oriented RAG</strong> — 5-ступенчатый pipeline с Self-Correction и настраиваемыми режимами retrieval Да <strong>Local-first</strong> — индекс, прогресс и учебное состояние на вашей машине; offline возможен с локальными моделями Да <strong>AI-assisted разработка</strong> — 14+ итераций с автоматизированным workflow Да <strong>Масштабируемость</strong> — есть partial reindex, кеши и profiler для больших локальных корпусов Да <strong>Гибкость</strong> — переключение Local -&gt; Cloud LLM через <code>.env</code>, без изменения кода</p>
+<p>&lt;sub&gt; Документ подготовлен для академической защиты проектной работы · май 2026&lt;/sub&gt;</p></div></section>
+  <script>
+(() => {
+  for (const slide of document.querySelectorAll(".slide")) {
+    const content = slide.querySelector(".slide-content");
+    if (!content) continue;
+    content.style.transform = "scale(1)";
+    content.style.width = "100%";
+    const availableW = slide.clientWidth - 0;
+    const availableH = slide.clientHeight - 0;
+    const scale = Math.min(1, availableW / content.scrollWidth, availableH / content.scrollHeight);
+    if (scale < 1) {
+      content.style.transform = "scale(" + Math.max(0.62, scale).toFixed(4) + ")";
+      content.style.width = (100 / Math.max(0.62, scale)).toFixed(2) + "%";
+    }
+  }
+})();
+</script>
+</body>
+</html>

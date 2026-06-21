@@ -1,0 +1,60 @@
+{
+  "per_scenario": {
+    "scenario_01": {
+      "total_ms": 6410,
+      "p95_shot_ms": 3960
+    },
+    "scenario_02": {
+      "total_ms": 5695,
+      "p95_shot_ms": 4422
+    },
+    "scenario_03": {
+      "total_ms": 3887,
+      "p95_shot_ms": 600
+    },
+    "scenario_04": {
+      "total_ms": 3826,
+      "p95_shot_ms": 753
+    },
+    "scenario_05": {
+      "total_ms": 1146,
+      "p95_shot_ms": 326
+    },
+    "scenario_06": {
+      "total_ms": 9363,
+      "p95_shot_ms": 5503
+    },
+    "scenario_07": {
+      "total_ms": 3608,
+      "p95_shot_ms": 712
+    },
+    "scenario_08": {
+      "total_ms": 6439,
+      "p95_shot_ms": 3746
+    },
+    "scenario_09": {
+      "total_ms": 4821,
+      "p95_shot_ms": 1600
+    }
+  },
+  "top3_slowest_steps": [
+    {
+      "scenario_id": "scenario_06",
+      "step": 1,
+      "slug": "01_home_due_badge",
+      "total_ms": 6173
+    },
+    {
+      "scenario_id": "scenario_01",
+      "step": 1,
+      "slug": "01_home_mode_selector",
+      "total_ms": 4871
+    },
+    {
+      "scenario_id": "scenario_08",
+      "step": 1,
+      "slug": "01_answer_with_confidence_chip",
+      "total_ms": 4481
+    }
+  ]
+}

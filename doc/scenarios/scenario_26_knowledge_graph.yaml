@@ -1,0 +1,33 @@
+id: scenario_26
+title: "Knowledge Graph: персональный подграф"
+level: "🔴 Mastery"
+persona: "Марк хочет увидеть связи между концептами и их mastery-статус."
+duration_min: 3
+why: |
+  Визуализировать knowledge graph: узлы, prerequisites и переход от карты к деталям концепта.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+wow_moment: |
+  Клик по weak-узлу ведёт к tutor — граф не декорация, а навигация по знаниям.
+takeaway: |
+  Knowledge Graph связывает retrieval, mastery и следующий учебный шаг.
+scenario_link: "user_scenarios.md#сценарий-26--knowledge-graph-персональный-подграф"
+
+shots:
+  - slug: "01_home_kg_card"
+    caption: "Mission Control: карточка Knowledge Graph"
+    narration: "Главный экран подсказывает открыть визуальную карту знаний."
+    duration_sec: 4
+  - slug: "02_kg_view_open"
+    caption: "Раздел Knowledge Graph открыт"
+    narration: "Подграф показывает связи и уровень освоения по узлам."
+    duration_sec: 5
+  - slug: "03_subgraph_mastery"
+    caption: "Персональный подграф + mastery"
+    narration: "Видно, какие концепты уже устойчивы, а какие на границе frontier."
+    duration_sec: 5
+  - slug: "04_weak_node_cta"
+    caption: "Рекомендация по слабому узлу"
+    narration: "Система предлагает следующий шаг из топологии графа."
+    duration_sec: 4

@@ -1,0 +1,70 @@
+{
+  "schema_version": 3,
+  "description": "Graph-candidate eval cases for expand_doc_ids_via_graph (no LLM). v3: concept_ids_sample; v2: multi-hop (max_hops).",
+  "cases": [
+    {
+      "id": "prereq_chain_adds_neighbor",
+      "seed_doc_ids": ["d1.md"],
+      "max_extra": 5,
+      "concepts": {
+        "T1": {
+          "documents": ["d1.md"],
+          "related_documents": ["d1.md"],
+          "prerequisites": [],
+          "related_concepts": ["T2"]
+        },
+        "T2": {
+          "documents": ["d2.md"],
+          "related_documents": ["d2.md"],
+          "prerequisites": ["T1"],
+          "related_concepts": []
+        }
+      },
+      "expect_added_contains": ["d2.md"],
+      "expect_trace_keys": ["seed_doc_ids", "added_doc_ids", "max_hops", "hops_applied", "concept_ids_sample"]
+    },
+    {
+      "id": "multi_hop_related_chain_needs_hops",
+      "seed_doc_ids": ["d1.md"],
+      "max_extra": 5,
+      "max_hops": 3,
+      "concepts": {
+        "T1": {
+          "documents": ["d1.md"],
+          "related_documents": ["d1.md"],
+          "prerequisites": [],
+          "related_concepts": ["T2"]
+        },
+        "T2": {
+          "documents": [],
+          "related_documents": [],
+          "prerequisites": [],
+          "related_concepts": ["T3"]
+        },
+        "T3": {
+          "documents": ["d3.md"],
+          "related_documents": ["d3.md"],
+          "prerequisites": [],
+          "related_concepts": []
+        }
+      },
+      "expect_added_contains": ["d3.md"],
+      "expect_trace_keys": ["max_hops", "hops_applied", "concept_ids_sample"]
+    },
+    {
+      "id": "empty_seed_no_additions",
+      "seed_doc_ids": [],
+      "max_extra": 3,
+      "concepts": {
+        "A": {
+          "documents": ["x.md"],
+          "related_documents": ["x.md"],
+          "prerequisites": [],
+          "related_concepts": []
+        }
+      },
+      "expect_added_contains": [],
+      "expect_trace_reason": "empty_seed"
+    }
+  ]
+}

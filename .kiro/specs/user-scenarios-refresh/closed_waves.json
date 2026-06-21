@@ -1,0 +1,598 @@
+[
+  {
+    "id": "wave-flashcard-polish",
+    "theme": "Flashcard deck UX polish",
+    "north_star": "Learner создаёт, редактирует и экспортирует колоды без чтения документации",
+    "entry_mot": "#12 Flashcard review",
+    "exit_mot": "#12 Flashcard review",
+    "packages": [
+      "epoch-flashcard-deck-mgmt",
+      "epoch-flashcard-export-upload"
+    ],
+    "status": "completed",
+    "created": "2026-04-22",
+    "last_touched_mot": null,
+    "kill_switch": "SRS daily-active-users drop >15pp over 2 weeks"
+  },
+  {
+    "id": "wave-first-answer-ux",
+    "theme": "First-answer onboarding UX",
+    "north_star": "Learner с первого экрана видит 3 кликабельных примера и не уходит без запроса",
+    "entry_mot": "#2 First Answer",
+    "exit_mot": "#2 First Answer",
+    "packages": [
+      "epoch-first-answer-examples"
+    ],
+    "status": "completed",
+    "created": "2026-04-22",
+    "last_touched_mot": null,
+    "kill_switch": null
+  },
+  {
+    "id": "wave-plan-visibility",
+    "theme": "Adaptive plan transparency",
+    "north_star": "Learner понимает, что и почему изменилось в плане с момента последней сессии",
+    "entry_mot": "#6 Adaptive plan",
+    "exit_mot": "#6 Adaptive plan",
+    "packages": [
+      "epoch-plan-diff-ux"
+    ],
+    "status": "completed",
+    "created": "2026-04-22",
+    "last_touched_mot": null,
+    "kill_switch": null
+  },
+  {
+    "id": "wave-sync-export",
+    "theme": "Multi-device sync & restore",
+    "north_star": "Learner переносит весь прогресс на новое устройство за < 3 минут без потерь",
+    "entry_mot": "infra",
+    "exit_mot": "infra",
+    "packages": [
+      "epoch-sync-restore-wizard",
+      "epoch-sync-multidevice"
+    ],
+    "status": "completed",
+    "created": "2026-04-22",
+    "last_touched_mot": null,
+    "kill_switch": null
+  },
+  {
+    "id": "wave-learning-loop-demo",
+    "theme": "Demo: answer → tutor → quiz learning loop",
+    "north_star": "Demo показывает полный 5-минутный learning loop: ответ → разбор → проверка понимания",
+    "entry_mot": "#4 First micro-quiz",
+    "exit_mot": "#3 Transition to tutor",
+    "packages": [
+      "epoch-demo-scenario-03-tutor",
+      "epoch-demo-scenario-04-quiz"
+    ],
+    "status": "completed",
+    "created": "2026-04-25",
+    "last_touched_mot": null,
+    "kill_switch": "demo:validate или npm run test:e2e:demo красный >2 дней"
+  },
+  {
+    "id": "wave-retention-demo",
+    "theme": "Demo: retention engine (SRS + progress)",
+    "north_star": "Demo доказывает retention engine: система помнит, знает что повторять, показывает динамику",
+    "entry_mot": "#11 Retain",
+    "exit_mot": "#7 Progress",
+    "packages": [
+      "epoch-demo-scenario-06-srs",
+      "epoch-demo-scenario-07-progress"
+    ],
+    "status": "completed",
+    "created": "2026-04-25",
+    "last_touched_mot": null,
+    "kill_switch": "demo:validate красный >2 дней"
+  },
+  {
+    "id": "wave-orchestration-demo",
+    "theme": "Demo: personalized learning plan",
+    "north_star": "Demo показывает top-уровень: система ведёт студента по персональному маршруту",
+    "entry_mot": "#8 Learning plan",
+    "exit_mot": "#8 Learning plan",
+    "packages": [
+      "epoch-demo-scenario-09-learning-plan"
+    ],
+    "status": "completed",
+    "created": "2026-04-25",
+    "last_touched_mot": null,
+    "kill_switch": "demo:validate красный >2 дней"
+  },
+  {
+    "id": "wave-trust-demo",
+    "theme": "Demo: trust drill-down (sources + confidence)",
+    "north_star": "Demo усиливает доверие к ответу: источники, confidence, переход к фрагменту",
+    "entry_mot": "#10 Retrieval trust",
+    "exit_mot": "#10 Retrieval trust",
+    "packages": [
+      "epoch-demo-scenario-08-trust"
+    ],
+    "status": "completed",
+    "created": "2026-04-25",
+    "last_touched_mot": null,
+    "kill_switch": "demo:validate красный >2 дней"
+  },
+  {
+    "id": "wave-interactive-tour",
+    "theme": "Interactive in-app onboarding tour (5 chapters)",
+    "north_star": "Новый пользователь проходит 5 глав внутри приложения и доходит до graduation концепта без чтения внешней документации",
+    "entry_mot": "#1 Discover",
+    "exit_mot": "#9 Master",
+    "packages": [
+      "epoch-tour-skeleton-ch1",
+      "epoch-tour-persistence-ch2-5",
+      "epoch-tour-scenarios-10-14",
+      "epoch-tour-demo-doc-refresh"
+    ],
+    "status": "completed",
+    "created": "2026-04-25",
+    "last_touched_mot": null,
+    "kill_switch": "tests/test_ui_tutorial.py или e2e scenario_10..14 красные >2 дней; completion rate главы 1 < 40%"
+  },
+  {
+    "id": "wave-answer-quality-eval",
+    "theme": "Eval-driven answer quality loop",
+    "north_star": "AQE eval score ≥ 80% на golden set; CI-gate блокирует silent regression First Answer",
+    "entry_mot": "#2 First Answer",
+    "exit_mot": "#10 Retrieval trust",
+    "packages": [
+      "epoch-aqe-corpus-choice",
+      "epoch-answer-quality-baseline"
+    ],
+    "status": "completed",
+    "created": "2026-04-25",
+    "last_touched_mot": null,
+    "kill_switch": "AQE eval score drops >10pp between CI runs"
+  },
+  {
+    "id": "wave-agentic-tutor-depth",
+    "theme": "Real mastery-adaptive tutoring (beyond demo)",
+    "north_star": "Вернувшийся learner видит персонализированный next-step по mastery gaps, не общий план",
+    "entry_mot": "#3 Transition to tutor",
+    "exit_mot": "#9 Master",
+    "packages": [
+      "epoch-mastery-gap-routing",
+      "epoch-concept-remediation-step"
+    ],
+    "status": "completed",
+    "created": "2026-04-25",
+    "last_touched_mot": null,
+    "kill_switch": "test_tutor_orchestrator.py или tutor continuity e2e red >2 дней"
+  },
+  {
+    "id": "wave-course-learning-v2",
+    "theme": "Course Learning Mode v2 — Course Cockpit (E30)",
+    "north_star": "Learner проходит курс в single-pane cockpit без tab-hopping; ≥40% курсов доходят до graduation с Knowledge Vault",
+    "entry_mot": "course-workspace",
+    "exit_mot": "#9 Master",
+    "packages": [
+      "epoch-e30-a1-cockpit-scaffold",
+      "epoch-e30-a2-cockpit-rotator",
+      "epoch-e30-b1-graduation-overlay",
+      "epoch-e30-b2-daily-briefing",
+      "epoch-e30-c1-diagnostic",
+      "epoch-e30-c2-pace-engine",
+      "epoch-e30-d1-smart-resume",
+      "epoch-e30-d2-focus-mode",
+      "epoch-e30-e1-course-graduation",
+      "epoch-e30-idea-1-daily-runway",
+      "epoch-e30-idea-2-retrieval-gates"
+    ],
+    "status": "completed",
+    "created": "2026-04-26",
+    "last_touched_mot": "course-workspace",
+    "kill_switch": "scenario_07 (course workspace) красный в CI >2 дней"
+  },
+  {
+    "id": "wave-cjm-progress-next-action",
+    "theme": "Progress tab → next action (CJM §6)",
+    "north_star": "После Progress learner видит один primary CTA и попадает в план или due/resume без лишнего tab-hopping",
+    "entry_mot": "#8 Progress",
+    "exit_mot": "#8 Progress",
+    "packages": [
+      "epoch-cjm-progress-next-action"
+    ],
+    "status": "completed",
+    "created": "2026-05-01",
+    "last_touched_mot": null,
+    "kill_switch": null
+  },
+  {
+    "id": "wave-ocr-docling-story-gate",
+    "theme": "OCR/Docling story gate before ingest implementation",
+    "north_star": "Non-text corpus ingest is not started until Analyst defines a learner-facing US, acceptance criteria, and CJM mapping.",
+    "entry_mot": "Ingest / Discover",
+    "exit_mot": "Ingest / Discover",
+    "packages": [
+      "epoch-ocr-docling-story-gate"
+    ],
+    "status": "completed",
+    "created": "2026-05-01",
+    "last_touched_mot": "Ingest / Discover",
+    "kill_switch": "Owner rejects PDF/image ingest need, or Analyst cannot define a user story distinct from closed US-2.1 and US-15.5"
+  },
+  {
+    "id": "wave-non-text-ingest-v1",
+    "theme": "US-2.3 non-text corpus: learner-facing docs and index contract (pre-implementation)",
+    "north_star": "Learner и команда понимают сценарий non-text ingest и границу с US-15.5 до старта кода ocr-docling.",
+    "entry_mot": "Ingest / Discover",
+    "exit_mot": "Ingest / corpus quality",
+    "packages": [
+      "epoch-us-2.3-non-text-corpus-contract"
+    ],
+    "status": "completed",
+    "created": "2026-05-01",
+    "last_touched_mot": "Ingest / corpus quality",
+    "kill_switch": "Owner откладывает OCR; отменить wave и вернуть ocr-docling в deferred-only"
+  },
+  {
+    "id": "wave-source-readiness-diagnostic",
+    "theme": "Source readiness diagnostic before ingest expansion",
+    "north_star": "Learner understands which local materials are ready for learning, which need OCR/extraction, and what the next safe ingest action is.",
+    "entry_mot": "Ingest / Trust",
+    "exit_mot": "First Answer / Trust",
+    "packages": [
+      "epoch-source-readiness-diagnostic-story"
+    ],
+    "status": "completed",
+    "created": "2026-05-01",
+    "last_touched_mot": "Ingest / Trust",
+    "kill_switch": "Scope turns into OCR implementation or duplicates closed US-2.1 ingestion progress without adding source-readiness clarity"
+  },
+  {
+    "id": "wave-home-mode-selection-v2",
+    "theme": "Home Mode Selection v2: intent, commitment, preview",
+    "north_star": "Learner chooses one of 6 home modes confidently: cards explain best-fit intent, Flashcards shows finishable effort, and preview clarifies destination before context switch.",
+    "entry_mot": "#13 Home mode selection",
+    "exit_mot": "#13 Home mode selection",
+    "packages": [
+      "epoch-home-mode-card-labels",
+      "epoch-home-mode-flashcard-time-badge",
+      "epoch-home-mode-preview-drawer"
+    ],
+    "status": "completed",
+    "created": "2026-05-01",
+    "last_touched_mot": "#13 Home mode selection",
+    "kill_switch": "home_mode_selection smoke red >2 days, or mode cards compete with the US-14.1 primary CTA priority contract"
+  },
+  {
+    "id": "wave-home-mode-intent-adaptive",
+    "theme": "Home mode grid: intent-aware ordering without hiding modes",
+    "north_star": "Returning learners see the most relevant home modes first while the full 6-mode grid stays reachable, preserving US-14.1 primary CTA priority.",
+    "entry_mot": "#13 Home mode selection",
+    "exit_mot": "#13 Home mode selection",
+    "packages": [
+      "epoch-home-mode-intent-ordering"
+    ],
+    "status": "completed",
+    "created": "2026-05-01",
+    "last_touched_mot": "#13 Home mode selection",
+    "kill_switch": "home_mode_selection smoke red >2 days, or adaptive ordering breaks keyboard navigation or US-14.1 CTA contract"
+  },
+  {
+    "id": "wave-course-retention-resilience",
+    "theme": "Course retention resilience: recovery, promise, repair",
+    "north_star": "Returning course learners can recover from overdue work, leave with a concrete next-session promise, and receive short remediation before repeated misses become churn.",
+    "entry_mot": "course-workspace",
+    "exit_mot": "#7 Spaced repetition due",
+    "packages": [
+      "epoch-course-recovery-budget-slider",
+      "epoch-course-next-session-promise",
+      "epoch-course-confidence-dip-detector"
+    ],
+    "status": "completed",
+    "created": "2026-05-01",
+    "last_touched_mot": "course-workspace",
+    "kill_switch": "course retention smoke or targeted course workflow tests red >2 days; recovery controls conflict with existing smart resume/default recommendation"
+  },
+  {
+    "id": "wave-e5-learner-state-migration",
+    "theme": "E5 learner state migration",
+    "north_star": "Learner profile, mastery, and SRS state survive index activation with observable migration gates.",
+    "entry_mot": "infra",
+    "exit_mot": "#6 Adaptive plan",
+    "packages": [
+      "epoch-e5-0-versioned-learner-profile-history",
+      "epoch-e5-1-migration-safe-mastery-rehydrate",
+      "epoch-e5-2-learner-profile-history-api",
+      "epoch-e5-3-learner-migration-metrics",
+      "epoch-e5-4-learner-migration-slo-alert",
+      "epoch-e5-5-learner-migration-gate-command",
+      "epoch-e5-6-learner-migration-smoke-command",
+      "epoch-e5-7-learner-migration-ci-gate",
+      "epoch-e5-8-learner-lineage-sync-on-activation"
+    ],
+    "status": "completed",
+    "created": "2026-04-08",
+    "last_touched_mot": "#6 Adaptive plan",
+    "kill_switch": "learner migration gate red or lineage sync regression after index activation"
+  },
+  {
+    "id": "wave-e8-user-value-delivery",
+    "theme": "E8 user value delivery discipline",
+    "north_star": "Learner-facing outcomes are bounded by CJM moments, user stories, and verifiable DoD.",
+    "entry_mot": "#1 Discover",
+    "exit_mot": "#9 Master",
+    "packages": [
+      "epoch-e8-1-cjm-outcome-discipline",
+      "epoch-e8-2-active-backlog-cleanup"
+    ],
+    "status": "completed",
+    "created": "2026-04-10",
+    "last_touched_mot": "#9 Master",
+    "kill_switch": "user-value work lacks CJM moment, user story, or verifiable DoD"
+  },
+  {
+    "id": "wave-non-text-corpus-delivery",
+    "theme": "Non-text corpus: readiness UI → index proof → OCR ingest phase 1",
+    "north_star": "Learner видит классификацию корпуса; общий индекс содержит проверяемые non-text чанки; первый сквозной OCR/Docling path в KB с трассируемыми источниками.",
+    "entry_mot": "Ingest / Discover",
+    "exit_mot": "Ingest / corpus quality",
+    "packages": [
+      "epoch-us-2-4-source-readiness-mvp",
+      "epoch-us-2-3-chunk-index-proof",
+      "epoch-ocr-docling-ingest-phase1"
+    ],
+    "status": "completed",
+    "created": "2026-05-01",
+    "last_touched_mot": "Ingest / corpus quality",
+    "kill_switch": "Ломается US-14.1 primary CTA / home hub; или полный Docling без chunk-proof и зелёных контурных тестов."
+  },
+  {
+    "id": "wave-mot2-perceived-latency",
+    "theme": "MoT #2: perceived latency, wait UX, two-stage answer path",
+    "north_star": "Первый ответ воспринимается быстрым и прозрачным; нет регрессии тривиального empty-retrieval; quiz контракт стабилен; eval/latency gate зелёный.",
+    "entry_mot": "#2 First Answer",
+    "exit_mot": "#2 First Answer",
+    "packages": [
+      "epoch-mot2-wait-ux-engagement",
+      "epoch-mot2-two-stage-answer"
+    ],
+    "status": "completed",
+    "created": "2026-05-02",
+    "last_touched_mot": "#2 First Answer",
+    "kill_switch": "Рост «не нашёл» на тривиальных вопросах §8; p95 latency gate red; поломка формата micro-quiz."
+  },
+  {
+    "id": "wave-ux-breakthrough-2026-05",
+    "theme": "UX Breakthrough Wave: perceived quality and wow-moments",
+    "north_star": "Learner воспринимает систему как быструю (skeleton screens, progressive reveal), плавную (seamless tutor handoff), мотивирующую (celebration overlays), и прозрачную (session analytics). UX доля растёт с 15.5% до 20%+.",
+    "entry_mot": "#2 First Answer",
+    "exit_mot": "#13 Home mode selection",
+    "packages": [
+      "ux-foundation-parsers-contracts",
+      "ux-first-answer-wait-flow",
+      "epoch-us19-2-tutor-handoff-ux",
+      "ux-mastery-celebration-analytics",
+      "ux-home-hub-navigation-polish"
+    ],
+    "status": "completed",
+    "created": "2026-05-05",
+    "last_touched_mot": null,
+    "kill_switch": "Регрессия perceived latency >20% на MoT #2; поломка существующих tutor/flashcard/home hub контрактов; property tests для parsers красные >1 день."
+  },
+  {
+    "id": "wave-smart-study-router",
+    "theme": "Smart Study Router: explainable next study action",
+    "north_star": "Learner sees one local-first next study action with a short \"why now\" reason after key learning states, while tutor, quiz, flashcards, and dashboard remain available as explicit entry points.",
+    "entry_mot": "cross-loop",
+    "exit_mot": "cross-loop",
+    "packages": [
+      "epoch-smart-study-router-card",
+      "epoch-smart-study-router-core-policies",
+      "epoch-smart-study-router-trust-control",
+      "epoch-smart-study-router-accessibility-harness"
+    ],
+    "status": "completed",
+    "created": "2026-05-06",
+    "last_touched_mot": "cross-loop",
+    "kill_switch": "Recommendation hides existing tutor/quiz/flashcard/dashboard entry points, depends on cloud-only scoring, or cannot explain why the action was chosen."
+  },
+  {
+    "id": "wave-smart-study-router-surface-parity",
+    "theme": "Smart Study Router: learner-visible surface parity",
+    "north_star": "Explainable SSR card is visible and smoke-tested on Progress and Flashcards hub with the same session contract as home.",
+    "entry_mot": "cross-loop",
+    "exit_mot": "cross-loop",
+    "packages": [
+      "epoch-smart-study-router-surface-parity"
+    ],
+    "status": "completed",
+    "created": "2026-05-06",
+    "last_touched_mot": "cross-loop",
+    "kill_switch": "New surfaces hide tutor/quiz/flashcard/dashboard entry points or SSR contract tests regress without owner-approved scope change."
+  },
+  {
+    "id": "wave-smart-study-router-next-level-trust",
+    "theme": "Smart Study Router Next Level: understandable route evidence",
+    "north_star": "Learner can understand why the router chose this action over other visible modes and inspect compact local evidence without cloud-only scoring.",
+    "entry_mot": "cross-loop",
+    "exit_mot": "cross-loop",
+    "packages": [
+      "epoch-ssr-next-contrastive-explanations",
+      "epoch-ssr-next-confidence-ledger"
+    ],
+    "status": "completed",
+    "created": "2026-05-08",
+    "last_touched_mot": "cross-loop",
+    "kill_switch": "Recommendation hides tutor/quiz/flashcard/dashboard entry points, invents confidence, or requires cloud-only learner profiling."
+  },
+  {
+    "id": "wave-smart-study-router-next-level-pedagogy",
+    "theme": "Smart Study Router Next Level: learner-steered pedagogy",
+    "north_star": "Router explains whether the next action pays retention debt, recovers a weak concept, or continues new learning, while allowing local learner steering with visible tradeoffs.",
+    "entry_mot": "cross-loop",
+    "exit_mot": "cross-loop",
+    "packages": [
+      "epoch-ssr-next-learning-debt-queue",
+      "epoch-ssr-next-steering-toggles"
+    ],
+    "status": "completed",
+    "created": "2026-05-08",
+    "last_touched_mot": "cross-loop",
+    "kill_switch": "Preferences silently override high-priority learning signals or route reasons stop explaining why each action was chosen."
+  },
+  {
+    "id": "wave-smart-study-router-next-level-retention-accessibility",
+    "theme": "Smart Study Router Next Level: outcome receipts and quiet access",
+    "north_star": "Learner sees the local outcome of routed actions and can use the router in a lower-cognitive-load mode without losing entry points or reason text.",
+    "entry_mot": "cross-loop",
+    "exit_mot": "#9 Master",
+    "packages": [
+      "epoch-ssr-next-outcome-receipts",
+      "epoch-ssr-next-quiet-mode"
+    ],
+    "status": "completed",
+    "created": "2026-05-08",
+    "last_touched_mot": "cross-loop",
+    "kill_switch": "Receipts overclaim progress, quiet mode removes explanation/alternatives, or accessibility fixture coverage regresses."
+  },
+  {
+    "id": "ssr-ai-vision-wave-1-foundation",
+    "theme": "Hybrid Intelligence Foundation",
+    "north_star": "Локальный ML reranking повышает cards_due completion при сохранении rule fallback, ограничений latency/size и явных трасс в evidence ledger.",
+    "entry_mot": "cross-loop",
+    "exit_mot": "#7 Progress",
+    "packages": [
+      "ml-ssr-baseline-hardening",
+      "ml-ssr-eval-harness",
+      "ml-ssr-forgetting-curve-v1"
+    ],
+    "status": "completed",
+    "created": "2026-05-09",
+    "last_touched_mot": "cross-loop",
+    "kill_switch": "AUC-ROC < 0.75 на agreed holdout, cards_due completion ниже целевого, inference p95 > 50ms, модель > 1MB, fallback_rate > 5%, или регресс детерминированного SSR относительно rule baseline."
+  },
+  {
+    "id": "ssr-ai-vision-wave-2-explainability",
+    "theme": "LLM-Enhanced Explainability",
+    "north_star": "SSR explanations become personalized and easier to understand while deterministic routing remains unchanged and template fallback stays available.",
+    "entry_mot": "cross-loop",
+    "exit_mot": "#7 Progress",
+    "packages": [
+      "llm-ssr-explanation-eval",
+      "llm-ssr-prompt-engineering",
+      "llm-ssr-explanation-integration"
+    ],
+    "status": "completed",
+    "created": "2026-05-08",
+    "last_touched_mot": "cross-loop",
+    "kill_switch": "Clarity score stays below 4.0, p95 LLM explanation latency exceeds 2s, token_cost_p95 exceeds 500 tokens, any shown response exceeds 700 tokens, or any deterministic SSR routing regression appears."
+  },
+  {
+    "id": "ssr-ai-vision-wave-2b-l2-reliability",
+    "theme": "L2 Explanation Reliability and UX",
+    "north_star": "LLM explanation latency drops for repeat contexts via semantic caching and background pre-generation; explanation-quality feedback analytics become visible in a dedicated page.",
+    "entry_mot": "cross-loop",
+    "exit_mot": "#7 Progress",
+    "packages": [
+      "ssr-l2-reliability-v1"
+    ],
+    "status": "completed",
+    "created": "2026-05-13",
+    "last_touched_mot": "cross-loop",
+    "kill_switch": "Semantic cache changes routing behavior, pre-generation blocks the main thread, or feedback-insights page exposes PII."
+  },
+  {
+    "id": "ssr-ai-vision-readiness-gates",
+    "theme": "SSR AI Vision readiness gates",
+    "north_star": "AI Vision levels advance only when their contracts, rollout gates, and SSoT status agree; downstream levels can safely depend on explicit baseline-compatible modes.",
+    "entry_mot": "cross-loop",
+    "exit_mot": "cross-loop",
+    "packages": [
+      "ssr-ai-vision-level1-level2-readiness-gate"
+    ],
+    "status": "completed",
+    "created": "2026-05-09",
+    "last_touched_mot": "cross-loop",
+    "kill_switch": "A closed AI Vision package overclaims production readiness while latency, data, human-eval, or model-serving gates are still unmet."
+  },
+  {
+    "id": "ssr-ai-vision-wave-3-shared-infra",
+    "theme": "SSR AI shared infrastructure",
+    "north_star": "L3-L5 consume shared telemetry, eval, fallback, and dataset utilities instead of rebuilding per-level ML infrastructure.",
+    "entry_mot": "cross-loop",
+    "exit_mot": "cross-loop",
+    "packages": [
+      "ssr-ai-shared-infra-v1"
+    ],
+    "status": "completed",
+    "created": "2026-05-12",
+    "last_touched_mot": "cross-loop",
+    "kill_switch": "Refactor changes public behavior of app/ssr_ml_monitoring.py or weakens the existing L1/L2 fallback and eval contracts."
+  },
+  {
+    "id": "ssr-ai-vision-wave-3-planner-foundation",
+    "theme": "SSR weekly planner foundation",
+    "north_star": "A rule-based weekly planner starts collecting plan-completion telemetry before any optimization or RL package is attempted.",
+    "entry_mot": "#7 Progress",
+    "exit_mot": "#7 Progress",
+    "packages": [
+      "ssr-weekly-planner-baseline"
+    ],
+    "status": "completed",
+    "created": "2026-05-12",
+    "last_touched_mot": "cross-loop",
+    "kill_switch": "Planner output is slower than 1s p95, duplicates existing daily-plan behavior without telemetry, or requires ML before baseline data exists."
+  },
+  {
+    "id": "ssr-ai-vision-wave-3-feedback-foundation",
+    "theme": "SSR misroute feedback collection",
+    "north_star": "Learners can mark a recommendation as accepted, rejected, or deferred so L5 policy learning has privacy-safe local data later.",
+    "entry_mot": "#7 Progress",
+    "exit_mot": "#7 Progress",
+    "packages": [
+      "ssr-misroute-feedback-collection"
+    ],
+    "status": "completed",
+    "created": "2026-05-12",
+    "last_touched_mot": "cross-loop",
+    "kill_switch": "Feedback capture stores PII, changes routing behavior before policy learning is evaluated, or lacks latency and write-success telemetry."
+  },
+  {
+    "id": "wave-quality-defense-adversarial-rag",
+    "theme": "Quality defense: adversarial RAG tests",
+    "north_star": "RAG-specific adversarial cases prove prompt-injection resistance, conflict handling, no-answer behavior, and source grounding with detailed traces for failed cases.",
+    "entry_mot": "#10 Retrieval trust",
+    "exit_mot": "#10 Retrieval trust",
+    "packages": [
+      "epoch-qbi-adversarial-corpus-runner",
+      "epoch-qbi-adversarial-regression-gate"
+    ],
+    "status": "completed",
+    "created": "2026-05-06",
+    "last_touched_mot": "#10 Retrieval trust",
+    "kill_switch": "Work becomes another control-plane policy adversarial harness rather than document-level RAG adversarial evaluation against retrieved sources."
+  },
+  {
+    "id": "wave-course-homework-playbook",
+    "theme": "Course Mode — Homework playbook + worked-example ladder (E31)",
+    "north_star": "Learner фиксирует ДЗ в scope курса/темы и проходит пошаговый плейбук без смены вкладок; шаги с самопроверкой и режимом «кратко»",
+    "entry_mot": "course-workspace",
+    "exit_mot": "course-workspace",
+    "packages": [
+      "epoch-e31-course-homework-playbook-ladder"
+    ],
+    "status": "completed",
+    "created": "2026-05-09",
+    "last_touched_mot": "course-workspace",
+    "kill_switch": "scenario_07 (course workspace) красный в CI >2 дней"
+  },
+  {
+    "id": "wave-mission-control-home",
+    "theme": "Mission Control home screen",
+    "north_star": "Learner sees one SSR-guided home screen with seven clear destinations and no stacked ribbon above the fold.",
+    "entry_mot": "#13 Home mode selection",
+    "exit_mot": "#14 Guided next best action",
+    "packages": [
+      "epoch-mission-control-home"
+    ],
+    "status": "completed",
+    "created": "2026-05-13",
+    "last_touched_mot": "#13 Home mode selection",
+    "kill_switch": "Home navigation smoke red >2 days or SSR primary CTA no longer routes to the intended destination."
+  }
+]

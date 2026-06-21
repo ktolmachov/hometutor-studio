@@ -1,0 +1,1780 @@
+last_review:
+  sha: 727d787705afd4d537d4550e35813dba8691b188
+  date: "2026-06-11"
+  backlog_wave_id: wave-arch-review-incremental-2026-06-11
+  report_files: []
+  phases_completed: [1, 2, 3, 4, 5]
+  phases_pending: []
+  previous_sha: b7f88d5572c897987f846a546c53e778d9a4bd48
+  previous_report: arch_review_incremental_2026-05-31.md
+
+findings:
+  - id: AR-2026-05-31-001
+    phase: 3
+    severity: warning
+    title: "architecture.md omitted recent app modules; recurrence now guarded by documentation coverage check"
+    files: ["doc/architecture.md", "scripts/arch_regression_guards.py"]
+    first_seen: "2026-05-31"
+    last_seen: "2026-06-01"
+    status: resolved
+    resolved_date: "2026-06-01"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      rg -n "ssr_misroute_policy|retrieval_cache_discovery|user_state_weekly_narrative|ssr_weekly_narrative|flashcards_review_receipt|due_queue_display|resume_cards_recovery_ladder|ssr_explain_service|ssr_context_builder|routers/ssr|ssr_explanation_cache" doc/architecture.md
+    expected_evidence: |
+      Every listed module has a Module Reference entry.
+    regression_guard: |
+      scripts/arch_regression_guards.py checks app modules are documented or explicitly classified as legacy documentation debt.
+
+  - id: AR-2026-05-31-002
+    phase: 2
+    severity: warning
+    title: "_discover_staging_chunks_collection was defined twice with F811 suppression"
+    files: ["app/retrieval_cache_discovery.py", "scripts/arch_regression_guards.py"]
+    first_seen: "2026-05-31"
+    last_seen: "2026-06-01"
+    status: resolved
+    resolved_date: "2026-06-01"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      rg -n "def _discover_staging_chunks_collection|noqa: F811" app/retrieval_cache_discovery.py
+    expected_evidence: |
+      Exactly one function definition and no F811 suppression.
+    regression_guard: |
+      scripts/arch_regression_guards.py fails on any # noqa: F811 in app/.
+
+  - id: AR-2026-05-31-003
+    phase: 4
+    severity: warning
+    title: "quiz_scoped.py broad exception handlers lacked BLE001 degradation rationale"
+    files: ["app/quiz_scoped.py", "scripts/arch_regression_guards.py"]
+    first_seen: "2026-05-31"
+    last_seen: "2026-06-01"
+    status: resolved
+    resolved_date: "2026-06-01"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      rg -n "except Exception" app/quiz_scoped.py
+    expected_evidence: |
+      All matches carry # noqa: BLE001 with a one-line degradation rationale.
+    regression_guard: |
+      scripts/arch_regression_guards.py fails on new unannotated broad exceptions in app/ outside the legacy debt allowlist.
+
+  - id: AR-2026-05-31-008
+    phase: 2
+    severity: warning
+    title: "Backend modules imported from app.ui; shared receipt/SSR helpers now use backend-safe modules"
+    files: ["app/adaptive_plan_progress.py", "app/quiz_micro_receipt.py", "app/ssr_explanation_cache.py"]
+    first_seen: "2026-05-31"
+    last_seen: "2026-06-01"
+    status: resolved
+    resolved_date: "2026-06-01"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      Get-ChildItem -Path app -Filter *.py | Select-String -Pattern 'from app\.ui|import app\.ui'
+    expected_evidence: |
+      No matches.
+    regression_guard: |
+      scripts/arch_regression_guards.py fails on backend app.ui imports.
+
+  - id: AR-2026-04-21-001
+    phase: 1
+    severity: warning
+    title: "Direct os.environ access in ingestion.py diagnostic function"
+    files: ["app/ingestion.py:148"]
+    first_seen: "2026-04-21"
+    last_seen: "2026-04-21"
+    status: resolved
+    resolved_date: "2026-04-21"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      rg "os\.environ\[" app/ingestion.py
+    expected_evidence: |
+      app/ingestion.py:148:    process_values = {name: os.environ[name] for name in names if name in os.environ}
+    regression_guard: |
+      Add rule to doc/conventions_architecture.md Â§ÐšÐ¾Ð½Ñ‚Ñ€Ð°ÐºÑ‚ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð° Ðº ÐºÐ¾Ð½Ñ„Ð¸Ð³ÑƒÑ€Ð°Ñ†Ð¸Ð¸.
+      Add check to scripts/arch_regression_guards.py:
+        rg "os\.environ\[" app/ --type py | grep -v "config.py\|ingestion.py" && echo "FAIL" || echo "OK"
+
+  - id: AR-2026-04-21-002
+    phase: 1
+    severity: info
+    title: "Variable named 'prompt' in UI layer holds user query string (not LLM prompt)"
+    files: ["app/ui/query_tab.py:378"]
+    first_seen: "2026-04-21"
+    last_seen: "2026-04-24"
+    status: resolved
+    resolved_date: "2026-04-24"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      rg "prompt\s*=" app/ui/query_tab.py
+    expected_evidence: |
+      no matches (variable renamed to query_text in refactor)
+    regression_guard: null
+
+  - id: AR-2026-04-21-003
+    phase: 2
+    severity: warning
+    title: "_assemble_rag_result is 317 lines â€” response assembly + trace + session persistence mixed"
+    files: ["app/query_service.py:487"]
+    first_seen: "2026-04-21"
+    last_seen: "2026-04-21"
+    status: resolved
+    resolved_date: "2026-04-21"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      python -c "import ast; t=ast.parse(open('app/query_service.py','rb').read()); [print(n.end_lineno-n.lineno, n.name) for n in ast.walk(t) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and n.name=='_assemble_rag_result']"
+    expected_evidence: |
+      317 _assemble_rag_result
+    regression_guard: |
+      Add to scripts/arch_regression_guards.py:
+        python -c "import ast,sys; t=ast.parse(open('app/query_service.py','rb').read()); bad=[n for n in ast.walk(t) if isinstance(n,ast.FunctionDef) and n.name=='_assemble_rag_result' and (n.end_lineno-n.lineno)>150]; sys.exit(1 if bad else 0)" && echo "OK" || echo "FAIL: _assemble_rag_result too large"
+
+  - id: AR-2026-04-21-004
+    phase: 2
+    severity: warning
+    title: "build_index is 422 lines â€” index build + validation + metadata enrichment + cost tracking mixed"
+    files: ["app/ingestion.py:1375"]
+    first_seen: "2026-04-21"
+    last_seen: "2026-04-21"
+    status: resolved
+    resolved_date: "2026-04-21"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      python -c "import ast; t=ast.parse(open('app/ingestion.py','rb').read()); [print(n.end_lineno-n.lineno, n.name) for n in ast.walk(t) if isinstance(n,(ast.FunctionDef,)) and n.name=='build_index']"
+    expected_evidence: |
+      422 build_index
+    regression_guard: |
+      Add to scripts/arch_regression_guards.py:
+        python -c "import ast,sys; t=ast.parse(open('app/ingestion.py','rb').read()); bad=[n for n in ast.walk(t) if isinstance(n,ast.FunctionDef) and n.name=='build_index' and (n.end_lineno-n.lineno)>200]; sys.exit(1 if bad else 0)" && echo "OK" || echo "FAIL: build_index too large"
+
+  - id: AR-2026-04-21-005
+    phase: 2
+    severity: info
+    title: "15 modules exceed 600-line split threshold; quiz_service (1371) and knowledge_service (847) are top service-layer split candidates"
+    files: ["app/quiz_service.py", "app/knowledge_service.py", "app/ingestion.py", "app/user_state_core.py"]
+    first_seen: "2026-04-21"
+    last_seen: "2026-05-18"
+    status: resolved
+    resolved_date: "2026-05-18"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      wc -l app/*.py | sort -rn | awk '$1>600 && $2!="total"'
+    expected_evidence: |
+      11 files >600 lines after 2026-05-17 Wave C; Wave A/B/C resolved app/ui/resume_cards.py, app/smart_study_recommendation.py, app/ui/tutor_chat_render.py, app/ui/adaptive_plan_card.py, and app/ui/adaptive_plan_llm_enrichment.py. app/ui/resume_cards_tutor.py remains above threshold pending a later UI split wave.
+    regression_guard: null
+
+  - id: AR-2026-04-21-006
+    phase: 2
+    severity: info
+    title: "UI render functions massively exceed 80-line threshold (render_topics_tab: 708 lines, render_query_tab: 466 lines)"
+    files: ["app/ui/topics_tab.py:77", "app/ui/query_tab.py:110"]
+    first_seen: "2026-04-21"
+    last_seen: "2026-04-24"
+    status: resolved
+    resolved_date: "2026-05-11"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      python -c "import ast; [print(n.end_lineno-n.lineno,n.name,f) for f in ['app/ui/topics_tab.py','app/ui/query_tab.py'] for n in ast.walk(ast.parse(open(f,'rb').read())) if isinstance(n,(ast.FunctionDef,)) and (n.end_lineno-n.lineno)>200]"
+    expected_evidence: |
+      render_topics_tab ~786L file, render_query_tab ~600L file at 2026-04-24 (stable drift)
+    regression_guard: null
+
+  - id: AR-2026-04-21-007
+    phase: 3
+    severity: warning
+    title: "ADR-011, ADR-012, ADR-013 accepted and in doc/adr.md body but missing from registry table"
+    files: ["doc/adr.md"]
+    first_seen: "2026-04-21"
+    last_seen: "2026-04-21"
+    status: resolved
+    resolved_date: "2026-04-21"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      grep "^\| \[0" doc/adr.md | wc -l
+    expected_evidence: |
+      10
+    regression_guard: |
+      Add to scripts/arch_regression_guards.py:
+        actual=$(grep "^## ADR-" doc/adr.md | wc -l)
+        registry=$(grep "^\| \[0" doc/adr.md | wc -l)
+        [ "$actual" -eq "$registry" ] && echo "OK: ADR registry complete" || echo "FAIL: ADR count mismatch"
+
+  - id: AR-2026-04-21-008
+    phase: 3
+    severity: warning
+    title: "11 app modules exist in code but absent from doc/architecture.md Module Reference"
+    files: ["doc/architecture.md"]
+    first_seen: "2026-04-21"
+    last_seen: "2026-04-21"
+    status: resolved
+    resolved_date: "2026-04-21"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      grep -c "ask_goal_snapshot_merge\|coach_insights\|course_cache\|course_metrics\|learner_state_scope\|llm_guards\|prompt_smoke_checks\|request_cache\|tutor_learner_contract\|tutor_pipeline_contract\|token_utils" doc/architecture.md
+    expected_evidence: |
+      0
+    regression_guard: null
+
+  - id: AR-2026-04-21-009
+    phase: 3
+    severity: info
+    title: "Tutor orchestration subsystem (5+ modules) has no ADR documenting architectural rationale"
+    files: ["app/tutor_orchestrator.py", "app/orchestrator_router.py", "app/tutor_pipeline_contract.py"]
+    first_seen: "2026-04-21"
+    last_seen: "2026-04-24"
+    status: "superseded-by: AR-2026-04-24-005"
+    superseded_by: AR-2026-04-24-005
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      ls app/tutor_*.py app/orchestrator_router.py | wc -l
+    expected_evidence: |
+      7 at 2026-04-24 (subsystem grew); reclassified as warning under AR-2026-04-24-005
+    regression_guard: null
+
+  - id: AR-2026-04-21-010
+    phase: 3
+    severity: info
+    title: "Metrics observability decomposed into 6 modules with no ADR explaining split rationale"
+    files: ["app/metrics.py", "app/metrics_core.py", "app/metrics_db.py", "app/metrics_storage.py", "app/metrics_aggregator.py", "app/metrics_summarizer.py"]
+    first_seen: "2026-04-21"
+    last_seen: "2026-04-24"
+    status: resolved
+    resolved_date: "2026-04-25"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      ls app/metrics*.py | wc -l
+    expected_evidence: |
+      Resolved by ADR-016 Metrics/Observability Decomposition Contract.
+    regression_guard: null
+
+  - id: AR-2026-04-21-011
+    phase: 4
+    severity: warning
+    title: "llm.chat() in orchestrator_router.py and tutor_orchestrator.py bypasses complete_with_resilience â€” LLM failures not recorded in metrics"
+    files: ["app/orchestrator_router.py:231", "app/orchestrator_router.py:238", "app/orchestrator_router.py:245", "app/tutor_orchestrator.py:364"]
+    first_seen: "2026-04-21"
+    last_seen: "2026-04-21"
+    status: resolved
+    resolved_date: "2026-04-21"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      rg "llm\.chat\b" app/orchestrator_router.py app/tutor_orchestrator.py
+    expected_evidence: |
+      app/orchestrator_router.py:231:        r = self._llm.chat(
+      app/orchestrator_router.py:238:        r = llm.chat(
+      app/orchestrator_router.py:245:        r = self._llm.chat(
+      app/tutor_orchestrator.py:364:        response = llm.chat(
+    regression_guard: |
+      Add to scripts/arch_regression_guards.py:
+        rg "\.chat\(" app/orchestrator_router.py app/tutor_orchestrator.py | grep -v "chat_with_resilience\|#" && echo "FAIL: direct llm.chat() outside resilience wrapper" || echo "OK"
+
+  - id: AR-2026-04-21-012
+    phase: 5
+    severity: warning
+    title: "apscheduler in requirements.txt with no import found in app/, scripts/, or tests/"
+    files: ["requirements.txt"]
+    first_seen: "2026-04-21"
+    last_seen: "2026-04-21"
+    status: resolved
+    resolved_date: "2026-04-21"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      rg "apscheduler" app/ scripts/ tests/ --type py
+    expected_evidence: |
+      no matches
+    regression_guard: null
+
+  - id: AR-2026-04-21-013
+    phase: 5
+    severity: warning
+    title: "7 UI modules import app.knowledge_graph directly, bypassing knowledge_service.py encapsulation"
+    files: ["app/ui/dashboards.py", "app/ui/interactive_quiz.py", "app/ui/progress_visuals.py", "app/ui/resume_cards.py", "app/ui/tutor_chat.py", "app/ui/tutor_chat_header.py", "app/ui/pages/3_ÐœÐ¾Ð¹_Ð¿Ñ€Ð¾Ð³Ñ€ÐµÑÑ.py"]
+    first_seen: "2026-04-21"
+    last_seen: "2026-04-21"
+    status: resolved
+    resolved_date: "2026-04-21"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      rg "from app.knowledge_graph" app/ui/ --type py
+    expected_evidence: |
+      8 lines across 7 files
+    regression_guard: |
+      Add to scripts/arch_regression_guards.py:
+        rg "from app.knowledge_graph" app/ui/ --type py && echo "FAIL: UI importing knowledge_graph directly" || echo "OK"
+
+  - id: AR-2026-04-21-014
+    phase: 5
+    severity: info
+    title: "app/ui/tutor_chat.py has 23 fan-out â€” highest non-infrastructure module in codebase"
+    files: ["app/ui/tutor_chat.py"]
+    first_seen: "2026-04-21"
+    last_seen: "2026-04-24"
+    status: resolved
+    resolved_date: "2026-04-24"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      python -c "import ast; f='app/ui/tutor_chat.py'; t=ast.parse(open(f,'rb').read()); deps={n.module for n in ast.walk(t) if isinstance(n,ast.ImportFrom) and n.module and n.module.startswith('app.')}; print(len(deps))"
+    expected_evidence: |
+      12 at 2026-04-24 (was 23 at 2026-04-21 â€” resolved via intra-UI delegation refactor)
+    regression_guard: null
+
+  - id: AR-2026-04-21-015
+    phase: 5
+    severity: info
+    title: "watchdog in requirements.txt with no direct import â€” may be Streamlit transitive dep, unannotated"
+    files: ["requirements.txt"]
+    first_seen: "2026-04-21"
+    last_seen: "2026-04-24"
+    status: resolved
+    resolved_date: "2026-04-24"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      rg "watchdog" app/ scripts/ tests/ --type py
+    expected_evidence: |
+      requirements.txt documents watchdog as Streamlit file-watching dependency; retain.
+    regression_guard: null
+
+  # ============================================================
+  # New findings from 2026-04-24 review
+  # ============================================================
+
+  - id: AR-2026-04-24-001
+    phase: 1
+    severity: warning
+    title: "Router app/routers/review.py imports app.knowledge_graph directly, bypassing service layer"
+    files: ["app/routers/review.py:7"]
+    first_seen: "2026-04-24"
+    last_seen: "2026-04-24"
+    status: resolved
+    resolved_date: "2026-04-24"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      rg "from app.knowledge_graph" app/routers/
+    expected_evidence: |
+      app/routers/review.py:7:from app.knowledge_graph import get_active_knowledge_graph
+    regression_guard: |
+      New rule in doc/conventions_architecture.md Â§ Knowledge Encapsulation:
+        "Routers (app/routers/*.py) MUST NOT import app.knowledge_graph or
+         app.user_state_core directly; use *_service.py wrappers."
+      Add to scripts/arch_regression_guards.sh:
+        rg "from app\.knowledge_graph" app/routers/ --type py && echo "FAIL" || echo "OK"
+
+  - id: AR-2026-04-24-002
+    phase: 2
+    severity: warning
+    title: "app/ingestion.py grew to 1941 lines (+864 vs baseline); 46 top-level defs; orchestration + helpers mixed"
+    files: ["app/ingestion.py"]
+    first_seen: "2026-04-24"
+    last_seen: "2026-04-24"
+    status: resolved
+    resolved_date: "2026-05-02"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      wc -l app/ingestion.py
+    expected_evidence: |
+      1941 app/ingestion.py
+    regression_guard: |
+      Add to scripts/arch_regression_guards.sh once split is scheduled:
+        lines=$(wc -l < app/ingestion.py); [ "$lines" -le 2100 ] && echo OK || echo "FAIL: ingestion.py >2100L"
+
+  - id: AR-2026-04-24-003
+    phase: 2
+    severity: warning
+    title: "app/query_service.py has 6 functions >80 lines (max 164L: _try_faq_cache)"
+    files: ["app/query_service.py"]
+    first_seen: "2026-04-24"
+    last_seen: "2026-04-24"
+    status: resolved
+    resolved_date: "2026-04-24"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      python -c "import ast; t=ast.parse(open('app/query_service.py','rb').read()); print(sum(1 for n in ast.walk(t) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and (n.end_lineno-n.lineno)>80))"
+    expected_evidence: |
+      6
+    regression_guard: |
+      Invariant test tests/test_query_service_invariants.py + scripts/arch_regression_guards.sh:
+        python -c "import ast,sys; t=ast.parse(open('app/query_service.py','rb').read()); bad=[n for n in ast.walk(t) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef)) and (n.end_lineno-n.lineno)>100]; sys.exit(1 if bad else 0)" && echo OK || echo "FAIL: query_service fn >100L"
+
+  - id: AR-2026-04-24-004
+    phase: 3
+    severity: warning
+    title: "LLM resilience wrapper (chat_with_resilience) used by 11 modules without any ADR documenting contract"
+    files: ["app/llm_resilience.py"]
+    first_seen: "2026-04-24"
+    last_seen: "2026-04-24"
+    status: resolved
+    resolved_date: "2026-04-24"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      rg -l "from app.llm_resilience" app/ --type py | wc -l
+    expected_evidence: |
+      11
+    regression_guard: |
+      Draft ADR-014: LLM Resilience Wrapper Contract.
+      Add to scripts/arch_regression_guards.sh:
+        grep -q "LLM Resilience" doc/adr.md && echo OK || echo "FAIL: ADR-014 missing"
+
+  - id: AR-2026-04-24-005
+    phase: 3
+    severity: warning
+    title: "Tutor orchestration subsystem (7 modules) still has no ADR â€” supersedes AR-2026-04-21-009, promoted to warning"
+    files: ["app/tutor_orchestrator.py", "app/orchestrator_router.py", "app/tutor_pipeline_contract.py", "app/tutor_learner_contract.py", "app/tutor_personalization_policy.py", "app/tutor_prompts.py"]
+    first_seen: "2026-04-24"
+    last_seen: "2026-04-24"
+    status: resolved
+    resolved_date: "2026-04-24"
+    supersedes: AR-2026-04-21-009
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      ls app/tutor_*.py app/orchestrator_router.py | wc -l
+    expected_evidence: |
+      7
+    regression_guard: |
+      Draft ADR-015: Tutor Orchestration Pattern.
+      Add to scripts/arch_regression_guards.sh:
+        grep -q "Tutor Orchestration" doc/adr.md && echo OK || echo "FAIL: ADR-015 missing"
+
+  - id: AR-2026-04-24-006
+    phase: 3
+    severity: info
+    title: "8 app modules absent from doc/architecture.md Module Reference"
+    files: ["app/api_helpers.py", "app/api_services.py", "app/eval_service.py", "app/prompts.py", "app/query_metrics.py", "app/query_tutor_context.py", "app/ui_events.py"]
+    first_seen: "2026-04-24"
+    last_seen: "2026-04-24"
+    status: resolved
+    resolved_date: "2026-04-24"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      comm -23 <(ls app/*.py app/routers/*.py | xargs -n1 basename | sort -u) <(grep -oE "[a-z_]+\.py" doc/architecture.md | sort -u)
+    expected_evidence: |
+      8 entries (including __init__.py which may be intentionally excluded)
+    regression_guard: null
+
+  - id: AR-2026-04-24-007
+    phase: 3
+    severity: info
+    title: "Autonomous agent runner subsystem (run_autonomous.*, test_run_autonomous_*.py) undocumented in architecture.md or ADRs"
+    files: ["scripts/run_autonomous.py", "scripts/run_autonomous.bat", "scripts/run_autonomous.ps1", "tests/test_run_autonomous_agent_chain.py", "tests/test_run_autonomous_cost_summary.py"]
+    first_seen: "2026-04-24"
+    last_seen: "2026-04-24"
+    status: resolved
+    resolved_date: "2026-04-24"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      grep -il "autonomous" doc/adr.md doc/architecture.md | wc -l
+    expected_evidence: |
+      0
+    regression_guard: null
+
+  - id: AR-2026-04-24-008
+    phase: 5
+    severity: warning
+    title: "3 packages in requirements.txt have no imports in app/ scripts/ tests/: transformers, tokenizers, python-docx"
+    files: ["requirements.txt"]
+    first_seen: "2026-04-24"
+    last_seen: "2026-04-24"
+    status: resolved
+    resolved_date: "2026-04-24"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      for p in transformers tokenizers docx; do echo -n "$p: "; rg "^import $p|^from $p" app/ scripts/ tests/ --type py | wc -l; done
+    expected_evidence: |
+      transformers: 0
+      tokenizers: 0
+      docx: 0
+    regression_guard: |
+      Add to scripts/arch_regression_guards.sh:
+        for pkg in transformers tokenizers docx; do
+          if grep -qE "^${pkg}([<>=]|$)" requirements.txt; then
+            uses=$(rg "^import ${pkg}|^from ${pkg}" app/ scripts/ tests/ --type py 2>/dev/null | wc -l)
+            [ "$uses" -eq 0 ] && { echo "FAIL: ${pkg} re-added without imports"; exit 1; }
+          fi
+        done
+        echo "OK: no re-added dead deps"
+
+  - id: AR-2026-04-24-009
+    phase: 5
+    severity: info
+    title: “app/ui/tutor_chat.py fan-out improved 23 â†’ 12 via intra-UI delegation refactor â€” positive pattern”
+    files: [“app/ui/tutor_chat.py”]
+    first_seen: “2026-04-24”
+    last_seen: “2026-05-29”
+    status: new
+    positive_pattern: true
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      python -c "import ast; f='app/ui/tutor_chat.py'; t=ast.parse(open(f,'rb').read()); print(len({n.module for n in ast.walk(t) if isinstance(n,ast.ImportFrom) and n.module and n.module.startswith('app.')}))"
+    expected_evidence: |
+      12
+    regression_guard: |
+      Monitor fan-out, warn if >15 in arch_regression_guards.sh.
+
+  # ============================================================
+  # New findings from 2026-04-29 review
+  # ============================================================
+
+  - id: AR-2026-04-29-001
+    phase: 1
+    severity: warning
+    title: "4 app/ modules open sqlite3.connect() directly, bypassing _with_db() from user_state.py"
+    files:
+      - "app/event_tracking.py:29"
+      - "app/knowledge_graph.py:908"
+      - "app/knowledge_graph_bundle.py:95"
+      - "app/metrics_db.py:202"
+      - "app/quiz_adaptive.py:66"
+    first_seen: "2026-04-29"
+    last_seen: "2026-04-29"
+    status: resolved
+    resolved_date: "2026-05-02"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      Get-ChildItem -Recurse -Path app -Filter "*.py" | Select-String -Pattern "sqlite3\.connect" | Where-Object { $_.Path -notmatch "user_state\.py" } | Select-Object Path,LineNumber
+    expected_evidence: |
+      app\event_tracking.py:29, app\knowledge_graph.py:908+933,
+      app\knowledge_graph_bundle.py:95, app\metrics_db.py:202+236+273, app\quiz_adaptive.py:66
+    regression_guard: null
+
+  - id: AR-2026-04-29-002
+    phase: 1
+    severity: info
+    title: "scripts/ has 6+ direct os.environ reads -- AGENTS.md convention scope for scripts/ is ambiguous"
+    files:
+      - "scripts/close_package.py:822"
+      - "scripts/pipeline_guard_logic.py:110"
+      - "scripts/run_autonomous.py:1026"
+      - "scripts/_perf_timer.py:162"
+    first_seen: "2026-04-29"
+    last_seen: "2026-04-29"
+    status: resolved
+    resolved_date: "2026-05-02"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      Get-ChildItem -Recurse -Path scripts -Filter "*.py" | Select-String -Pattern "os\.environ" | Where-Object { $_.Path -notmatch "arch_regression_guards|check_env" } | Select-Object Path,LineNumber
+    expected_evidence: |
+      7+ matches across close_package.py, pipeline_guard_logic.py, run_autonomous.py, _perf_timer.py
+    regression_guard: null
+
+  - id: AR-2026-04-29-003
+    phase: 2
+    severity: warning
+    title: "app/knowledge_service.py (860L) mixes graph access, LLM synthesis, clustering, planning -- god-service risk"
+    files: ["app/knowledge_service.py"]
+    first_seen: "2026-04-29"
+    last_seen: "2026-05-02"
+    status: resolved
+    resolved_date: "2026-05-11"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      (Get-Content "app/knowledge_service.py").Count
+    expected_evidence: |
+      860
+    regression_guard: |
+      .venv\Scripts\python.exe -c "lines=len(open('app/knowledge_service.py').readlines()); print('FAIL' if lines>1000 else 'OK', lines)"
+
+  - id: AR-2026-04-29-004
+    phase: 2
+    severity: warning
+    title: "2 app/ modules still have no runtime consumers: course_graduation.py, diagnostic_service.py (warmup_planner resolved)"
+    files:
+      - "app/course_graduation.py (retired; ceremony/headline stubs in app/ui/graduation_overlay.py)"
+      - "app/diagnostic_service.py (retired; learner diagnostics via user_state + routers/admin.py)"
+    first_seen: "2026-04-29"
+    last_seen: "2026-05-03"
+    status: resolved
+    resolved_date: "2026-05-03"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      Select-String -Path (Get-ChildItem -Recurse -Path app,scripts -Filter "*.py") -Pattern "from app\.course_graduation|from app\.diagnostic_service"
+    expected_evidence: |
+      Standalone modules removed from tree by design (epoch-arch-review-p3); replacement surfaces wired:
+      graduation_overlay+course_metrics; get_learner_state_diagnostics + /learner-state/diagnostics.
+    regression_guard: |
+      .venv\Scripts\python.exe -m pytest tests/test_course_graduation.py tests/test_diagnostic_service.py -q
+
+  - id: AR-2026-04-29-005
+    phase: 2
+    severity: critical
+    title: "app/ingestion.py at 2188L breaches proposed 2100L guard -- guard was never installed in arch_regression_guards"
+    files: ["app/ingestion.py"]
+    first_seen: "2026-04-29"
+    last_seen: "2026-04-29"
+    status: resolved
+    resolved_date: "2026-05-02"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      .venv\Scripts\python.exe -c "lines=len(open('app/ingestion.py').readlines()); print('FAIL' if lines>2100 else 'OK', lines)"
+    expected_evidence: |
+      FAIL 2188
+    regression_guard: |
+      Add to scripts/arch_regression_guards.py:
+        lines = len(open('app/ingestion.py').readlines())
+        assert lines <= 2100, f"FAIL: ingestion.py {lines}L > 2100L limit"
+
+  - id: AR-2026-04-29-006
+    phase: 3
+    severity: critical
+    title: "ADR-016 (Metrics Decomposition, Accepted 2026-04-25) not fully implemented: metrics.py facade persists with 7 active importers"
+    files:
+      - "app/metrics.py"
+      - "app/api_services.py:33"
+      - "app/async_quality_judge.py:16"
+      - "app/course_metrics.py:148"
+      - "app/eval_service.py:15"
+      - "app/ingestion.py:41"
+      - "app/llm_resilience.py:14"
+      - "app/pipeline_runner.py:20"
+      - "app/query_metrics.py:9"
+    first_seen: "2026-04-29"
+    last_seen: "2026-04-29"
+    status: resolved
+    resolved_date: "2026-05-02"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      Select-String -Path (Get-ChildItem -Recurse -Path app -Filter "*.py") -Pattern "from app\.metrics import" | Where-Object { $_.Line -notmatch "metrics_core|metrics_storage|metrics_db|metrics_summarizer" } | Select-Object Path,LineNumber
+    expected_evidence: |
+      7+ matches across api_services.py, async_quality_judge.py, course_metrics.py,
+      eval_service.py, ingestion.py, llm_resilience.py, pipeline_runner.py, query_metrics.py
+    regression_guard: |
+      Amend ADR-016 to explicitly permit facade pattern, or migrate importers to decomposed modules.
+
+  - id: AR-2026-04-29-007
+    phase: 3
+    severity: warning
+    title: "Course progression subsystem (course_graduation, course_cache, course_metrics, pace_engine) introduced without an ADR"
+    files:
+      - "app/course_graduation.py"
+      - "app/course_cache.py"
+      - "app/course_metrics.py"
+      - "app/pace_engine.py"
+    first_seen: "2026-04-29"
+    last_seen: "2026-04-29"
+    status: resolved
+    resolved_date: "2026-05-02"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      Select-String -Path "doc/adr.md" -Pattern "course|graduation|pace.engine" -CaseSensitive:False | Select-Object LineNumber,Line
+    expected_evidence: |
+      1 match (L526 incidental spaced_repetition ref in ADR-010; no course subsystem ADR)
+    regression_guard: null
+
+  - id: AR-2026-04-29-008
+    phase: 4
+    severity: warning
+    title: "query_response_postprocessing.py: 3 except Exception blocks swallow failures at debug level only, no noqa: BLE001"
+    files:
+      - "app/query_response_postprocessing.py:200"
+      - "app/query_response_postprocessing.py:259"
+      - "app/query_response_postprocessing.py:299"
+    first_seen: "2026-04-29"
+    last_seen: "2026-04-29"
+    status: resolved
+    resolved_date: "2026-05-02"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      Select-String -Path "app/query_response_postprocessing.py" -Pattern "except Exception" | Where-Object { $_.Line -notmatch "noqa.*BLE001" }
+    expected_evidence: |
+      3+ matches without noqa annotation
+    regression_guard: null
+
+  - id: AR-2026-04-29-009
+    phase: 4
+    severity: warning
+    title: "app/ingestion.py: 7 except Exception blocks without noqa: BLE001 annotation"
+    files:
+      - "app/ingestion.py:513"
+      - "app/ingestion.py:714"
+      - "app/ingestion.py:739"
+      - "app/ingestion.py:995"
+    first_seen: "2026-04-29"
+    last_seen: "2026-04-29"
+    status: resolved
+    resolved_date: "2026-05-02"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      Select-String -Path "app/ingestion.py" -Pattern "except Exception" | Where-Object { $_.Line -notmatch "noqa.*BLE001" } | Select-Object LineNumber,Line
+    expected_evidence: |
+      7 matches
+    regression_guard: null
+
+  - id: AR-2026-04-29-010
+    phase: 4
+    severity: warning
+    title: "knowledge_service.py:355 swallows Chroma failure with double-logging + inline import logging + no noqa: BLE001"
+    files: ["app/knowledge_service.py:355"]
+    first_seen: "2026-04-29"
+    last_seen: "2026-04-29"
+    status: resolved
+    resolved_date: "2026-05-02"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      $c=Get-Content "app/knowledge_service.py"; $c[349..360] | ForEach-Object { Write-Host $_ }
+    expected_evidence: |
+      except Exception as _exc:
+          import logging; logging.getLogger(__name__).debug("! caught exception: %s", _exc)
+          logger.exception("Failed to load chunks for synthesis")
+    regression_guard: null
+
+  - id: AR-2026-04-29-011
+    phase: 4
+    severity: info
+    title: "knowledge_service.py: 6 public functions lack return type annotations"
+    files:
+      - "app/knowledge_service.py:431"
+      - "app/knowledge_service.py:534"
+      - "app/knowledge_service.py:631"
+      - "app/knowledge_service.py:699"
+      - "app/knowledge_service.py:740"
+      - "app/knowledge_service.py:800"
+    first_seen: "2026-04-29"
+    last_seen: "2026-05-02"
+    status: resolved
+    resolved_date: "2026-05-02"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      Select-String -Path "app/knowledge_service.py" -Pattern "^def [a-z]" | Where-Object { $_.Line -notmatch "->" } | Select-Object LineNumber,Line
+    expected_evidence: |
+      6 matches: synthesize_topic, build_learning_plan, compute_source_coverage,
+      get_kb_overview, get_proactive_suggestions, search_knowledge_base
+    regression_guard: null
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      Select-String -Path "app/knowledge_service.py" -Pattern "^def [a-z]" | Where-Object { $_.Line -notmatch "->" } | Select-Object LineNumber,Line
+    expected_evidence: |
+      6 matches: synthesize_topic, build_learning_plan, compute_source_coverage,
+      get_kb_overview, get_proactive_suggestions, search_knowledge_base
+    regression_guard: null
+
+  - id: AR-2026-04-29-012
+    phase: 4
+    severity: info
+    title: "app/metrics.py uses types.ModuleType subclass and sys.modules __class__ reassignment -- high-complexity pattern undocumented in ADR-016"
+    files: ["app/metrics.py:76-90"]
+    first_seen: "2026-04-29"
+    last_seen: "2026-04-29"
+    status: resolved
+    resolved_date: "2026-05-02"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      Select-String -Path "app/metrics.py" -Pattern "_reload_all|MetricsModule" | Select-Object LineNumber,Line
+    expected_evidence: |
+      L22: class MetricsModule(types.ModuleType)
+      L79: sys.modules[__name__].__class__ = MetricsModule
+      L90: _reload_all()
+    regression_guard: |
+      Document MetricsModule facade pattern in ADR-016 amendment.
+
+  - id: AR-2026-04-29-013
+    phase: 5
+    severity: warning
+    title: "1 of 35 packages range-pinned in requirements.txt: docling>=2.4.0,<3 (was 10 unpinned at 2026-04-29)"
+    files: ["requirements.txt"]
+    first_seen: "2026-04-29"
+    last_seen: "2026-05-02"
+    status: resolved
+    resolved_date: "2026-05-11"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      Get-Content "requirements.txt" | Where-Object { $_ -notmatch "==" -and $_ -notmatch "^\s*#" -and $_ -notmatch "^\s*$" -and $_ -notmatch "^-" }
+    expected_evidence: |
+      docling>=2.4.0,<3
+    regression_guard: null
+
+  - id: AR-2026-04-29-014
+    phase: 5
+    severity: info
+    title: "aiogram==3.27.0: only 2 structural tests (test_telegram_parsing.py), no handler/integration tests"
+    files:
+      - "requirements.txt"
+      - "app/telegram_handlers.py"
+      - "tests/test_telegram_handlers.py"
+    first_seen: "2026-04-29"
+    last_seen: "2026-05-18"
+    status: resolved
+    resolved_date: "2026-05-18"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      rg -n "def test_.*cmd_|test_telegram_router" tests -g "test_telegram_*.py"
+    expected_evidence: |
+      tests/test_telegram_handlers.py covers cmd_help/cmd_ask behavior with mocked Message and no real LLM/network; tests/test_telegram_parsing.py covers router registration.
+    regression_guard: null
+
+  - id: AR-2026-04-29-015
+    phase: 5
+    severity: info
+    title: "SpeechRecognition and pyttsx3 are optional deps (lazy-import in voice_service.py) but listed without annotation in requirements.txt"
+    files:
+      - "requirements.txt"
+      - "app/voice_service.py"
+    first_seen: "2026-04-29"
+    last_seen: "2026-04-29"
+    status: resolved
+    resolved_date: "2026-05-02"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      Select-String -Path "app/voice_service.py" -Pattern "import speech_recognition|import pyttsx3" | Select-Object LineNumber,Line
+    expected_evidence: |
+      lazy imports at L19 and L25, guarded with try/except ImportError
+    regression_guard: |
+      Add "# optional -- voice feature" annotation to requirements.txt entries.
+
+  - id: AR-2026-05-02-001
+    phase: 1
+    severity: warning
+    title: "app/ingestion_loader.py (new, 1088L) created as ingestion.py split but itself exceeds 600L threshold by 81%"
+    files: ["app/ingestion_loader.py"]
+    first_seen: "2026-05-02"
+    last_seen: "2026-05-03"
+    status: resolved
+    resolved_date: "2026-05-03"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      .\.venv\Scripts\python.exe -c "lines=len(open('app/ingestion_loader.py',encoding='utf-8').readlines()); print('FAIL' if lines>600 else 'OK', lines)"
+    expected_evidence: |
+      OK 461
+    regression_guard: null
+
+  - id: AR-2026-05-02-002
+    phase: 2
+    severity: warning
+    title: "ingestion_loader._build_index_partial is 167L god-function mixing embedding, node-building, staging, metadata enrichment"
+    files: ["app/ingestion_index_partial.py"]
+    first_seen: "2026-05-02"
+    last_seen: "2026-05-03"
+    status: resolved
+    resolved_date: "2026-05-03"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      .\.venv\Scripts\python.exe -c "import ast; t=ast.parse(open('app/ingestion_index_partial.py','rb').read()); [print(n.end_lineno-n.lineno+1, n.name) for n in ast.walk(t) if isinstance(n,ast.FunctionDef) and n.name=='_build_index_partial']"
+    expected_evidence: |
+      71 _build_index_partial
+    regression_guard: |
+      .\.venv\Scripts\python.exe -c "import ast,sys; t=ast.parse(open('app/ingestion_index_partial.py','rb').read()); bad=[n for n in ast.walk(t) if isinstance(n,ast.FunctionDef) and n.name=='_build_index_partial' and (n.end_lineno-n.lineno+1)>80]; sys.exit(1 if bad else 0)"
+
+  - id: AR-2026-05-02-003
+    phase: 2
+    severity: info
+    title: "app/learning_plan_service.py (616L) newly exceeds 600L threshold; generate_personalized_plan (141L) and generate (130L) mix plan logic, budget-trim, confidence-dip metadata"
+    files:
+      - "app/learning_plan_service.py:233"
+      - "app/learning_plan_service.py:101"
+    first_seen: "2026-05-02"
+    last_seen: "2026-05-08"
+    status: resolved
+    resolved_date: "2026-05-08"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      .\.venv\Scripts\python.exe -c "lines=len(open('app/learning_plan_service.py').readlines()); print('FAIL' if lines>600 else 'OK', lines)"
+    expected_evidence: |
+      FAIL 616
+    regression_guard: null
+
+  - id: AR-2026-05-02-004
+    phase: 3
+    severity: warning
+    title: "app/source_readiness.py absent from doc/architecture.md module reference"
+    files:
+      - "app/source_readiness.py"
+      - "doc/architecture.md"
+    first_seen: "2026-05-02"
+    last_seen: "2026-05-02"
+    status: resolved
+    resolved_date: "2026-05-02"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      Select-String -Path "doc/architecture.md" -Pattern "source_readiness" | Measure-Object | Select-Object -ExpandProperty Count
+    expected_evidence: |
+      0
+    regression_guard: null
+
+  - id: AR-2026-05-02-005
+    phase: 4
+    severity: warning
+    title: "Systemic inline 'import logging' inside except blocks: 107 instances repo-wide, 31 in incremental scope, only 1 with noqa:BLE001"
+    files:
+      - "app/learning_plan_service.py:359"
+      - "app/ui/home_hub.py:94"
+      - "app/ui/helpers.py:144"
+      - "app/ui/query_tab.py:156"
+      - "app/ui/resume_cards.py:145"
+    first_seen: "2026-05-02"
+    last_seen: "2026-05-18"
+    status: resolved
+    resolved_date: "2026-05-18"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      (Get-ChildItem -Recurse -Path app -Filter "*.py" | Select-String -Pattern "^\s+import logging" | Where-Object { $_.Line -notmatch "noqa.*BLE001" } | Measure-Object).Count
+    expected_evidence: |
+      0 unannotated inline import logging lines after Phase 4B/4C.
+    regression_guard: |
+      $n=(Get-ChildItem -Recurse -Path app -Filter "*.py" | Select-String -Pattern "^\s+import logging" | Where-Object { $_.Line -notmatch "noqa" }).Count; if ($n -gt 1) { Write-Host "FAIL: $n unannotated inline import logging"; exit 1 } else { Write-Host "OK" }
+
+  - id: AR-2026-05-02-006
+    phase: 4
+    severity: info
+    title: "2 isolated bare except Exception without noqa:BLE001 in incremental scope: api_services.py:81 and source_readiness.py:47"
+    files:
+      - "app/api_services.py:81"
+      - "app/source_readiness.py:47"
+    first_seen: "2026-05-02"
+    last_seen: "2026-05-02"
+    status: resolved
+    resolved_date: "2026-05-02"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      foreach ($f in @("app/api_services.py","app/source_readiness.py")) { Select-String -Path $f -Pattern "except Exception" | Where-Object { $_.Line -notmatch "noqa.*BLE001" } | Select-Object LineNumber,Line }
+    expected_evidence: |
+      app/api_services.py:81, app/source_readiness.py:47
+    regression_guard: null
+
+  - id: AR-2026-05-02-007
+    phase: 4
+    severity: info
+    title: "app/retrieval.py: public function build_query_engine (L226) missing return type annotation"
+    files: ["app/retrieval.py:226"]
+    first_seen: "2026-05-02"
+    last_seen: "2026-05-02"
+    status: resolved
+    resolved_date: "2026-05-02"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      .\.venv\Scripts\python.exe -c "import ast; t=ast.parse(open('app/retrieval.py','rb').read()); [print(n.lineno, n.name) for n in ast.walk(t) if isinstance(n,ast.FunctionDef) and not n.name.startswith('_') and n.returns is None]"
+    expected_evidence: |
+      226 build_query_engine
+    regression_guard: null
+
+  - id: AR-2026-05-02-008
+    phase: 5
+    severity: warning
+    title: "docling range-pinned (>=2.4.0,<3) and not annotated as optional despite being lazy-imported behind ingest_docling_enabled flag"
+    files:
+      - "requirements.txt"
+      - "app/ingestion.py:62"
+    first_seen: "2026-05-02"
+    last_seen: "2026-05-02"
+    status: resolved
+    resolved_date: "2026-05-02"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      Select-String -Path "requirements.txt" -Pattern "docling" | Select-Object Line
+    expected_evidence: |
+      docling>=2.4.0,<3  (no == pin, no # optional annotation)
+    regression_guard: |
+      $line = Select-String -Path "requirements.txt" -Pattern "docling" | Select-Object -ExpandProperty Line; if ($line -notmatch "optional" -or $line -notmatch "==") { Write-Host "WARN: docling not pinned/annotated as optional" }
+
+  - id: AR-2026-05-08-001
+    phase: 3
+    severity: warning
+    title: "Prompt registry path docs still point at removed app/prompts.py"
+    files:
+      - "doc/architecture.md:116"
+      - "doc/conventions.md:17"
+      - "doc/conventions_reference.md:7"
+    first_seen: "2026-05-08"
+    last_seen: "2026-05-08"
+    status: resolved
+    resolved_date: "2026-05-08"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      Test-Path app/prompts.py; Test-Path app/prompts/__init__.py; Select-String -Path doc/architecture.md,doc/conventions.md,doc/conventions_reference.md -Pattern 'app/prompts\.py'
+    expected_evidence: |
+      False
+      True
+      no Select-String matches
+    regression_guard: |
+      .\.venv\Scripts\python.exe scripts/arch_regression_guards.py
+
+  - id: AR-2026-05-08-002
+    phase: 3
+    severity: warning
+    title: "API reference omits live source-readiness, educational metrics, mastery validation, and diagnostics endpoints"
+    files:
+      - "doc/api_reference.md"
+      - "app/routers/knowledge.py:252"
+      - "app/routers/metrics.py:78"
+      - "app/routers/metrics.py:92"
+      - "app/routers/admin.py:181"
+    first_seen: "2026-05-08"
+    last_seen: "2026-05-08"
+    status: resolved
+    resolved_date: "2026-05-08"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      foreach ($p in @('/kb/source-readiness','/metrics/educational','/metrics/mastery-validation','/learner-state/diagnostics')) { $n=(Select-String -Path doc/api_reference.md -Pattern ([regex]::Escape($p)) | Measure-Object).Count; "$p $n" }
+    expected_evidence: |
+      /kb/source-readiness 1
+      /metrics/educational 1
+      /metrics/mastery-validation 1
+      /learner-state/diagnostics 1
+    regression_guard: |
+      .\.venv\Scripts\python.exe scripts/arch_regression_guards.py
+
+  - id: AR-2026-05-08-003
+    phase: 4
+    severity: warning
+    title: "pipeline_steps.py has except Exception without same-line BLE001 annotation"
+    files:
+      - "app/pipeline_steps.py:345"
+    first_seen: "2026-05-08"
+    last_seen: "2026-05-08"
+    status: resolved
+    resolved_date: "2026-05-08"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      Select-String -Path app/pipeline_steps.py -Pattern 'except Exception' | Where-Object { $_.Line -notmatch 'noqa.*BLE001' } | Select-Object LineNumber,Line
+    expected_evidence: |
+      no matches
+    regression_guard: |
+      .\.venv\Scripts\python.exe scripts/arch_regression_guards.py
+
+  - id: AR-2026-05-08-004
+    phase: 5
+    severity: warning
+    title: "app/ui/tutor_chat.py fan-out regressed to 24 app-level imports"
+    files:
+      - "app/ui/tutor_chat.py"
+    first_seen: "2026-05-08"
+    last_seen: "2026-05-08"
+    status: resolved
+    resolved_date: "2026-05-08"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      .\.venv\Scripts\python.exe -c "import ast; f='app/ui/tutor_chat.py'; t=ast.parse(open(f,'rb').read()); print(len({n.module for n in ast.walk(t) if isinstance(n,ast.ImportFrom) and n.module and n.module.startswith('app.')} | {a.name for n in ast.walk(t) if isinstance(n,ast.Import) for a in n.names if a.name.startswith('app.')}))"
+    expected_evidence: |
+      1
+    regression_guard: |
+      .\.venv\Scripts\python.exe scripts/arch_regression_guards.py
+
+  - id: AR-2026-05-11-001
+    phase: 1
+    severity: warning
+    title: "logging_config HOME_RAG log toggles bypassed Settings"
+    files: ["app/config.py", "app/logging_config.py", "doc/conventions_architecture.md", "scripts/arch_regression_guards.py"]
+    first_seen: "2026-05-11"
+    last_seen: "2026-05-11"
+    status: resolved
+    resolved_date: "2026-05-11"
+    evidence_cmd: |
+      rg "os\.environ" app/logging_config.py
+    expected_evidence: |
+      no matches
+    regression_guard: |
+      scripts/arch_regression_guards.py::_check_logging_config_uses_settings
+
+  - id: AR-2026-05-11-002
+    phase: 2
+    severity: warning
+    title: "smart_study_router.py exceeded module/function size thresholds"
+    files: ["app/smart_study_router.py", "app/smart_study_recommendation.py", "app/smart_study_evidence.py", "app/smart_study_ssr_ml.py"]
+    first_seen: "2026-05-11"
+    last_seen: "2026-05-11"
+    status: resolved
+    resolved_date: "2026-05-11"
+    evidence_cmd: |
+      python -c "import ast,pathlib; p=pathlib.Path('app/smart_study_router.py'); t=ast.parse(p.read_bytes()); print(len(p.read_text().splitlines()), max(n.end_lineno-n.lineno+1 for n in ast.walk(t) if isinstance(n, ast.FunctionDef)))"
+    expected_evidence: |
+      lines <= 700; max function <= 100
+    regression_guard: |
+      scripts/arch_regression_guards.py line-count check for app/smart_study_router.py
+
+  - id: AR-2026-05-11-003
+    phase: 2
+    severity: warning
+    title: "ui/adaptive_plan_card.py exceeded module/function size thresholds"
+    files: ["app/ui/adaptive_plan_card.py", "app/ui/adaptive_plan_llm_enrichment.py", "app/ui/adaptive_plan_hub_layout.py", "app/ui/adaptive_daily_plan_layout.py", "app/ui/smart_study_next_step_card.py", "tests/test_adaptive_plan_card_invariants.py"]
+    first_seen: "2026-05-11"
+    last_seen: "2026-05-11"
+    status: resolved
+    resolved_date: "2026-05-11"
+    regression_guard: |
+      tests/test_adaptive_plan_card_invariants.py and scripts/arch_regression_guards.py
+
+  - id: AR-2026-05-11-004
+    phase: 2
+    severity: info
+    title: "ui/home_hub.py crossed 600L threshold"
+    files: ["app/ui/home_hub.py"]
+    first_seen: "2026-05-11"
+    last_seen: "2026-05-11"
+    status: new
+    regression_guard: null
+
+  - id: AR-2026-05-11-005
+    phase: 3
+    severity: warning
+    title: "Smart Study Router / SSR subsystem had no ADR"
+    files: ["doc/adr.md"]
+    first_seen: "2026-05-11"
+    last_seen: "2026-05-11"
+    status: resolved
+    resolved_date: "2026-05-11"
+    regression_guard: |
+      scripts/arch_regression_guards.py::_check_adr_020_present
+
+  - id: AR-2026-05-11-006
+    phase: 3
+    severity: warning
+    title: "SSR/adaptive plan modules absent from doc/architecture.md Module Reference"
+    files: ["doc/architecture.md"]
+    first_seen: "2026-05-11"
+    last_seen: "2026-05-11"
+    status: resolved
+    resolved_date: "2026-05-11"
+    regression_guard: |
+      scripts/arch_regression_guards.py::_check_ssr_modules_documented
+
+  - id: AR-2026-05-11-007
+    phase: 4
+    severity: warning
+    title: "llm_resilience.py broad exceptions lacked BLE001 rationale"
+    files: ["app/llm_resilience.py"]
+    first_seen: "2026-05-11"
+    last_seen: "2026-05-11"
+    status: resolved
+    resolved_date: "2026-05-11"
+    regression_guard: |
+      scripts/arch_regression_guards.py::_check_broad_exceptions_annotated
+
+  - id: AR-2026-05-11-008
+    phase: 4
+    severity: warning
+    title: "adaptive_plan_card.py broad exceptions lacked BLE001 rationale"
+    files: ["app/ui/adaptive_plan_card.py"]
+    first_seen: "2026-05-11"
+    last_seen: "2026-05-11"
+    status: resolved
+    resolved_date: "2026-05-11"
+    regression_guard: |
+      scripts/arch_regression_guards.py::_check_broad_exceptions_annotated
+
+  - id: AR-2026-05-11-009
+    phase: 4
+    severity: warning
+    title: "home_hub.py and course_cockpit.py broad exceptions lacked BLE001 rationale"
+    files: ["app/ui/home_hub.py", "app/ui/course_cockpit.py"]
+    first_seen: "2026-05-11"
+    last_seen: "2026-05-11"
+    status: resolved
+    resolved_date: "2026-05-11"
+    regression_guard: |
+      scripts/arch_regression_guards.py::_check_broad_exceptions_annotated
+
+  - id: AR-2026-05-11-010
+    phase: 4
+    severity: info
+    title: "otel_tracing.py broad exception lacked BLE001 rationale"
+    files: ["app/otel_tracing.py"]
+    first_seen: "2026-05-11"
+    last_seen: "2026-05-11"
+    status: resolved
+    resolved_date: "2026-05-11"
+    regression_guard: null
+
+  - id: AR-2026-05-11-011
+    phase: 5
+    severity: critical
+    title: "numpy used by SSR ML reranking but missing from requirements.txt"
+    files: ["requirements.txt", "app/ssr_ml_reranking.py"]
+    first_seen: "2026-05-11"
+    last_seen: "2026-05-11"
+    status: resolved
+    resolved_date: "2026-05-11"
+    regression_guard: |
+      scripts/arch_regression_guards.py::_check_numpy_declared_if_used
+
+  - id: AR-2026-05-17-001
+    phase: 2
+    severity: critical
+    title: "app/ui/resume_cards.py exceeded facade size and mixed SSR, tutor, due review, and flashcard responsibilities"
+    files: ["app/ui/resume_cards.py", "app/ui/resume_cards_smart_study.py", "app/ui/resume_cards_tutor.py", "app/ui/resume_cards_due.py"]
+    first_seen: "2026-05-17"
+    last_seen: "2026-05-17"
+    status: resolved
+    resolved_date: "2026-05-17"
+    regression_guard: |
+      scripts/arch_regression_guards.py::_check_file_line_count("app/ui/resume_cards.py", 600)
+
+  - id: AR-2026-05-17-002
+    phase: 1
+    severity: warning
+    title: "SqliteBundleKnowledgeGraph opened kg.sqlite directly instead of delegating to knowledge_graph_bundle.py"
+    files: ["app/knowledge_graph.py", "app/knowledge_graph_bundle.py"]
+    first_seen: "2026-05-17"
+    last_seen: "2026-05-17"
+    status: resolved
+    resolved_date: "2026-05-17"
+    regression_guard: |
+      scripts/arch_regression_guards.py::_check_knowledge_graph_sqlite_owner
+
+  - id: AR-2026-05-17-003
+    phase: 1
+    severity: info
+    title: "ingestion_env_diag.py diagnostic-only os.environ access was missing from the regression guard allowlist"
+    files: ["app/ingestion_env_diag.py", "scripts/arch_regression_guards.py"]
+    first_seen: "2026-05-17"
+    last_seen: "2026-05-17"
+    status: resolved
+    resolved_date: "2026-05-17"
+    regression_guard: |
+      scripts/arch_regression_guards.py::_check_no_unexpected_os_environ
+
+  - id: AR-2026-05-17-004
+    phase: 2
+    severity: warning
+    title: "app/smart_study_recommendation.py exceeded 600-line split threshold"
+    files: ["app/smart_study_recommendation.py", "app/smart_study_scoring.py"]
+    first_seen: "2026-05-17"
+    last_seen: "2026-05-17"
+    status: resolved
+    resolved_date: "2026-05-17"
+    regression_guard: |
+      scripts/arch_regression_guards.py::_check_file_line_count("app/smart_study_recommendation.py", 600)
+
+  - id: AR-2026-05-17-005
+    phase: 2
+    severity: warning
+    title: "New UI modules exceeded 600-line split threshold"
+    files: ["app/ui/tutor_chat_render.py", "app/ui/adaptive_plan_card.py", "app/ui/adaptive_plan_llm_enrichment.py", "app/ui/adaptive_plan_llm_explanation.py", "app/ui/tutor_chat_response_render.py"]
+    first_seen: "2026-05-17"
+    last_seen: "2026-05-17"
+    status: resolved
+    resolved_date: "2026-05-17"
+    regression_guard: |
+      scripts/arch_regression_guards.py::_check_file_line_count for app/ui/tutor_chat_render.py, app/ui/adaptive_plan_card.py, and app/ui/adaptive_plan_llm_enrichment.py at 600 lines
+
+  - id: AR-2026-05-17-006
+    phase: 3
+    severity: warning
+    title: "SSR, retrieval-router, local-LLM, offline, and adaptive-plan modules were missing from doc/architecture.md Module Reference"
+    files: ["doc/architecture.md", "scripts/arch_regression_guards.py"]
+    first_seen: "2026-05-17"
+    last_seen: "2026-05-17"
+    status: resolved
+    resolved_date: "2026-05-17"
+    regression_guard: |
+      scripts/arch_regression_guards.py::_check_ssr_modules_documented
+
+  - id: AR-2026-05-17-007
+    phase: 3
+    severity: info
+    title: "app/ssr_ai/ subpackage had eval-harness infrastructure but no dedicated ADR"
+    files: ["app/ssr_ai/__init__.py", "app/ssr_ai/dataset.py", "app/ssr_ai/eval_harness.py", "app/ssr_ai/fallback.py", "app/ssr_ai/telemetry.py", "doc/adr_022_ssr_ai_eval_harness.md", "doc/adr.md"]
+    first_seen: "2026-05-17"
+    last_seen: "2026-05-18"
+    status: resolved
+    resolved_date: "2026-05-18"
+    evidence_cmd: |
+      rg -i "ADR-022|ssr_ai|eval_harness" doc/adr.md doc/adr_022_ssr_ai_eval_harness.md
+    expected_evidence: |
+      ADR-022 documents SSR-AI eval harness scope, local artifact ownership, fallback boundaries, and telemetry contract.
+    regression_guard: |
+      scripts/arch_regression_guards.py::_check_adr_registry_complete
+
+  - id: AR-2026-05-17-010
+    phase: 5
+    severity: info
+    title: "New feedback router needed wiring and API-reference confirmation"
+    files: ["app/routers/feedback.py", "app/api.py", "doc/api_reference.md", "tests/test_ssr_feedback_collection.py"]
+    first_seen: "2026-05-17"
+    last_seen: "2026-05-18"
+    status: resolved
+    resolved_date: "2026-05-18"
+    evidence_cmd: |
+      rg "feedback_router|include_router\\(feedback_router\\)|/ssr/recommendation-feedback" app/api.py doc/api_reference.md tests/test_ssr_feedback_collection.py
+    expected_evidence: |
+      app/api.py imports and includes feedback_router; doc/api_reference.md documents POST /ssr/recommendation-feedback; tests/test_ssr_feedback_collection.py covers the endpoint contract.
+    regression_guard: |
+      scripts/arch_regression_guards.py::_check_api_reference_selected_endpoints
+
+  - id: AR-2026-05-22-001
+    phase: 4
+    severity: warning
+    title: "app/api.py: 8 broad except Exception blocks without BLE001 annotation (warm-up threads + lifespan)"
+    files:
+      - "app/api.py:59"
+      - "app/api.py:70"
+      - "app/api.py:81"
+      - "app/api.py:92"
+      - "app/api.py:106"
+      - "app/api.py:165"
+      - "app/api.py:208"
+      - "app/api.py:225"
+    first_seen: "2026-05-22"
+    last_seen: "2026-05-22"
+    status: resolved
+    resolved_date: "2026-05-22"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      (Select-String -Path app/api.py -Pattern "except Exception" | Where-Object { $_.Line -notmatch "noqa.*BLE001" }).Count
+    expected_evidence: |
+      8
+    regression_guard: |
+      Extend scripts/arch_regression_guards.py::_check_broad_exceptions_annotated to include app/api.py.
+
+  - id: AR-2026-05-22-002
+    phase: 4
+    severity: warning
+    title: "38 broad except Exception blocks without BLE001 annotation across changed-scope UI/service modules"
+    files:
+      - "app/ui/sidebar.py"
+      - "app/ui/topics_tab_right_column.py"
+      - "app/ui/flashcards_ui.py"
+      - "app/ui/tutor_chat_response_render.py"
+      - "app/ui/tutor_mastery_forecast_panel.py"
+      - "app/ui/dashboards.py"
+      - "app/ui/query_tab_answer_section.py"
+      - "app/ui/resume_cards_due.py"
+      - "app/ui/scoped_quiz.py"
+      - "app/ui/tutor_chat_controls.py"
+      - "app/ui/main.py"
+      - "app/ui/offline_banner.py"
+      - "app/query_service.py:712"
+      - "app/quiz_service.py:293"
+      - "app/index_diff.py:120"
+      - "app/index_diff.py:263"
+      - "app/ingestion_content_state.py:121"
+    first_seen: "2026-05-22"
+    last_seen: "2026-05-22"
+    status: resolved
+    resolved_date: "2026-05-22"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      $changed = @(git diff --name-only 3795ed10391bd20f5172890f349d1c84c905bf8d..HEAD) | Where-Object { $_ -like "app/*.py" -or $_ -like "app/ui/*.py" }
+      $violations = Get-ChildItem -Recurse -Path app -Filter "*.py" | Select-String -Pattern "except Exception" | Where-Object { $_.Line -notmatch "noqa.*BLE001" -and $_.Line -notmatch "^\s*#" }
+      ($violations | Where-Object { $changed -contains (($_.Path -replace [regex]::Escape("$pwd\"),"") -replace "\\","/") }).Count
+    expected_evidence: |
+      >=38 unannotated except Exception blocks in incremental scope
+    regression_guard: |
+      Extend scripts/arch_regression_guards.py::_check_broad_exceptions_annotated allow-list to cover changed-scope UI/service files.
+
+  - id: AR-2026-05-22-003
+    phase: 2
+    severity: warning
+    title: "app/eval_service.py grew to 916L and has 4 functions >80L (max 109L)"
+    files: ["app/eval_service.py"]
+    first_seen: "2026-05-22"
+    last_seen: "2026-05-22"
+    status: resolved
+    resolved_date: "2026-05-22"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      (Get-Content app/eval_service.py).Count
+    expected_evidence: |
+      916
+    regression_guard: |
+      Add scripts/arch_regression_guards.py::_check_file_line_count("app/eval_service.py", 1000) until eval split lands.
+
+  - id: AR-2026-05-22-004
+    phase: 2
+    severity: warning
+    title: "app/ui/dashboards.py reached 645L; _render_learning_progress_tab (285L) and _render_knowledge_graph_tab (208L) over 200L"
+    files:
+      - "app/ui/dashboards.py:151"
+      - "app/ui/dashboards.py:438"
+    first_seen: "2026-05-22"
+    last_seen: "2026-05-22"
+    status: resolved
+    resolved_date: "2026-05-22"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      (Get-Content app/ui/dashboards.py).Count
+    expected_evidence: |
+      645
+    regression_guard: |
+      Add scripts/arch_regression_guards.py::_check_file_line_count("app/ui/dashboards.py", 700) + max-function check.
+
+  - id: AR-2026-05-22-005
+    phase: 2
+    severity: info
+    title: "app/ui/home_hub.py still >600L (670L) — persists since 2026-05-11 (baseline AR-2026-05-11-004)"
+    files: ["app/ui/home_hub.py"]
+    first_seen: "2026-05-11"
+    last_seen: "2026-06-11"
+    status: persists
+    regression_guard: null
+
+  - id: AR-2026-05-22-006
+    phase: 2
+    severity: info
+    title: "app/ui/resume_cards_tutor.py still 657L (pending UI split wave)"
+    files: ["app/ui/resume_cards_tutor.py:132"]
+    first_seen: "2026-04-21"
+    last_seen: "2026-06-11"
+    status: persists
+    regression_guard: null
+
+  - id: AR-2026-05-22-007
+    phase: 3
+    severity: warning
+    title: "10 new split-wave modules absent from doc/architecture.md Module Reference"
+    files:
+      - "doc/architecture.md"
+      - "app/smart_study_scoring.py"
+      - "app/ui/resume_cards_due.py"
+      - "app/ui/resume_cards_smart_study.py"
+      - "app/ui/resume_cards_tutor.py"
+      - "app/ui/query_tab_answer_section.py"
+      - "app/ui/query_tab_poll.py"
+      - "app/ui/tutor_chat_controls.py"
+      - "app/ui/topics_tab_right_column.py"
+      - "app/ui/tutor_mastery_forecast_panel.py"
+      - "app/ui/kb_fetch.py"
+    first_seen: "2026-05-22"
+    last_seen: "2026-05-22"
+    status: resolved
+    resolved_date: "2026-05-22"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      $arch = Get-Content doc/architecture.md -Raw; foreach ($m in 'smart_study_scoring','resume_cards_due','resume_cards_smart_study','resume_cards_tutor','query_tab_answer_section','query_tab_poll','tutor_chat_controls','topics_tab_right_column','tutor_mastery_forecast_panel','kb_fetch') { if ($arch -notmatch $m) { $m } }
+    expected_evidence: |
+      All 10 names listed (i.e., none present in architecture.md).
+    regression_guard: |
+      Extend scripts/arch_regression_guards.py::_check_ssr_modules_documented to include the 10 new modules above.
+
+  - id: AR-2026-05-22-008
+    phase: 4
+    severity: info
+    title: "_generate_llm_explanation in app/ui/adaptive_plan_llm_explanation.py is 212L; UI module orchestrating LLM call"
+    files: ["app/ui/adaptive_plan_llm_explanation.py:28"]
+    first_seen: "2026-05-22"
+    last_seen: "2026-05-29"
+    status: new
+    regression_guard: null
+
+  - id: AR-2026-05-22-009
+    phase: 2
+    severity: info
+    title: "render_query_answer_section is 263L in newly-introduced app/ui/query_tab_answer_section.py"
+    files: ["app/ui/query_tab_answer_section.py:48"]
+    first_seen: "2026-05-22"
+    last_seen: "2026-05-29"
+    status: new
+    regression_guard: null
+
+  - id: AR-2026-05-29-001
+    phase: 4
+    severity: warning
+    title: "3 except Exception blocks without BLE001 in index_registry.py and retrieval_cache.py"
+    files: ["app/index_registry.py:76", "app/index_registry.py:126", "app/retrieval_cache.py:493"]
+    first_seen: "2026-05-29"
+    last_seen: "2026-05-29"
+    status: resolved
+    resolved_date: "2026-05-29"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      Select-String -Path app/index_registry.py,app/retrieval_cache.py -Pattern "except Exception" | Where-Object { $_.Line -notmatch "noqa.*BLE001" } | Select-Object Path,LineNumber
+    expected_evidence: |
+      app/index_registry.py:76, app/index_registry.py:126, app/retrieval_cache.py:493
+    regression_guard: |
+      scripts/arch_regression_guards.py::_check_broad_exceptions_annotated allow-list extended to cover index_registry.py and retrieval_cache.py.
+
+  - id: AR-2026-05-29-002
+    phase: 2
+    severity: warning
+    title: "app/ui/resume_cards_smart_study.py 879L exceeds 600 split threshold"
+    files: ["app/ui/resume_cards_smart_study.py"]
+    first_seen: "2026-05-29"
+    last_seen: "2026-05-29"
+    status: resolved
+    resolved_date: "2026-05-29"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      (Get-Content app/ui/resume_cards_smart_study.py).Count
+    expected_evidence: "554 (after split to resume_cards_recovery_ladder.py)"
+    regression_guard: |
+      scripts/arch_regression_guards.py::_check_file_line_count("app/ui/resume_cards_smart_study.py", 600)
+
+  - id: AR-2026-05-29-003
+    phase: 2
+    severity: warning
+    title: "app/retrieval_cache.py 822L exceeds 600 split threshold; get_base_services 125L"
+    files: ["app/retrieval_cache.py:607"]
+    first_seen: "2026-05-29"
+    last_seen: "2026-05-29"
+    status: resolved
+    resolved_date: "2026-05-29"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      (Get-Content app/retrieval_cache.py).Count
+    expected_evidence: "595 (after split to retrieval_cache_discovery.py)"
+    regression_guard: |
+      scripts/arch_regression_guards.py::_check_file_line_count("app/retrieval_cache.py", 600)
+
+  - id: AR-2026-05-29-004
+    phase: 2
+    severity: warning
+    title: "app/ui/mission_control.py 708L exceeds 600 split threshold"
+    files: ["app/ui/mission_control.py"]
+    first_seen: "2026-05-29"
+    last_seen: "2026-06-11"
+    status: resolved
+    resolved_date: "2026-05-29"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      (Get-Content app/ui/mission_control.py).Count
+    expected_evidence: "572 (after split to mission_control_first_session.py)"
+    regression_guard: |
+      scripts/arch_regression_guards.py::_check_file_line_count("app/ui/mission_control.py", 600)
+
+  - id: AR-2026-05-29-005
+    phase: 2
+    severity: info
+    title: "learner_model_service.py 664L; query_service.py grew 729->752L"
+    files: ["app/learner_model_service.py", "app/query_service.py"]
+    first_seen: "2026-05-29"
+    last_seen: "2026-06-11"
+    status: persists
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      (Get-Content app/query_service.py).Count
+    expected_evidence: "752"
+    regression_guard: null
+
+  - id: AR-2026-05-29-006
+    phase: 2
+    severity: info
+    title: "8 UI/exec render functions >200L in changed scope"
+    files: ["app/ui/dashboards_progress.py:151", "app/ui/scoped_quiz.py:96", "app/ui/tutor_chat_quiz.py:90", "app/ui/query_rag_execution.py:110"]
+    first_seen: "2026-05-29"
+    last_seen: "2026-05-29"
+    status: new
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      python -c "import ast; print([(n.name,n.end_lineno-n.lineno+1) for n in ast.walk(ast.parse(open('app/ui/dashboards_progress.py','rb').read())) if isinstance(n,ast.FunctionDef) and (n.end_lineno-n.lineno+1)>200])"
+    expected_evidence: "_render_learning_progress_tab ~285L"
+    regression_guard: null
+
+  - id: AR-2026-05-29-007
+    phase: 3
+    severity: warning
+    title: "13 new app modules absent from doc/architecture.md Module Reference"
+    files: ["doc/architecture.md", "app/eval_baseline.py", "app/eval_helpers.py", "app/latency_budget.py", "app/session_tape.py", "app/session_replay.py", "app/services/first_session_builder.py", "app/smart_study_recovery_ladder.py", "app/smart_study_route_simulator.py", "app/ssr_graph_routing.py", "app/ssr_explanation_tier_gate.py", "app/ui/dashboards_graph.py", "app/ui/dashboards_progress.py", "app/routers/debug_session_tape.py"]
+    first_seen: "2026-05-29"
+    last_seen: "2026-05-29"
+    status: resolved
+    resolved_date: "2026-05-29"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      $arch = Get-Content doc/architecture.md -Raw; foreach ($m in 'eval_baseline','eval_helpers','latency_budget','session_tape','session_replay','first_session_builder','smart_study_recovery_ladder','smart_study_route_simulator','ssr_graph_routing','ssr_explanation_tier_gate','dashboards_graph','dashboards_progress','debug_session_tape') { if ($arch -notmatch $m) { $m } }
+    expected_evidence: "all 13 names now present in architecture.md"
+    regression_guard: |
+      scripts/arch_regression_guards.py::_check_ssr_modules_documented extended with 13 new module names.
+
+  - id: AR-2026-05-29-008
+    phase: 3
+    severity: warning
+    title: "ADR registry out of sync: 22 inline + 3 external ADRs vs 23 registry rows"
+    files: ["doc/adr.md", "doc/adr_021a_global_analytics_design.md"]
+    first_seen: "2026-05-29"
+    last_seen: "2026-05-29"
+    status: resolved
+    resolved_date: "2026-05-29"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      python scripts/arch_regression_guards.py
+    expected_evidence: "OK: ADR registry complete"
+    regression_guard: |
+      scripts/arch_regression_guards.py::_check_adr_registry_complete returns OK.
+
+  - id: AR-2026-05-29-009
+    phase: 3
+    severity: warning
+    title: "doc/team_workflow has 54 top-level *.md, exceeds 50 cap"
+    files: ["doc/team_workflow/"]
+    first_seen: "2026-05-29"
+    last_seen: "2026-05-29"
+    status: resolved
+    resolved_date: "2026-05-29"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      (Get-ChildItem doc/team_workflow/*.md).Count
+    expected_evidence: "49 (5 agent_adapter_*.md moved to doc/team_workflow/guides/)"
+    regression_guard: |
+      scripts/arch_regression_guards.py team_workflow file-count guard returns OK (49/50).
+
+  - id: AR-2026-05-29-010
+    phase: 3
+    severity: warning
+    title: "SSR graph-routing subsystem (4 modules) has no dedicated ADR"
+    files: ["app/ssr_graph_routing.py", "app/smart_study_route_simulator.py", "app/smart_study_recovery_ladder.py", "app/ssr_explanation_tier_gate.py"]
+    first_seen: "2026-05-29"
+    last_seen: "2026-05-29"
+    status: resolved
+    resolved_date: "2026-05-29"
+    owner: null
+    target_epoch: null
+    evidence_cmd: |
+      rg -i "graph routing|ssr_graph_routing|route simulator|tier gate" doc/adr.md doc/adr_023_ssr_graph_routing.md
+    expected_evidence: "matches in doc/adr_023_ssr_graph_routing.md"
+    regression_guard: |
+      scripts/arch_regression_guards.py::_check_adr_023_present returns OK.
+
+  - id: AR-2026-06-11-001
+    phase: 2
+    severity: critical
+    title: "query_service.py breached the installed 800-line guard"
+    files: ["app/query_service.py", "app/query_rag_assembly.py"]
+    first_seen: "2026-06-11"
+    last_seen: "2026-06-11"
+    status: resolved
+    resolved_date: "2026-06-11"
+    regression_guard: 'scripts/arch_regression_guards.py::_check_file_line_count("app/query_service.py", 800)'
+
+  - id: AR-2026-06-11-002
+    phase: 1
+    severity: warning
+    title: "UI imported app.knowledge_graph directly"
+    files: ["app/ui/dashboards_graph.py", "app/knowledge_service.py"]
+    first_seen: "2026-06-11"
+    last_seen: "2026-06-11"
+    status: resolved
+    resolved_date: "2026-06-11"
+    regression_guard: "scripts/arch_regression_guards.py UI knowledge_graph import check"
+
+  - id: AR-2026-06-11-003
+    phase: 2
+    severity: warning
+    title: "mission_control.py regressed above 600 lines"
+    files: ["app/ui/mission_control.py", "app/ui/mission_control_first_session.py"]
+    first_seen: "2026-06-11"
+    last_seen: "2026-06-11"
+    status: resolved
+    resolved_date: "2026-06-11"
+    supersedes: AR-2026-05-29-004
+    regression_guard: 'scripts/arch_regression_guards.py::_check_file_line_count("app/ui/mission_control.py", 600)'
+
+  - id: AR-2026-06-11-004
+    phase: 2
+    severity: warning
+    title: "Five changed-scope modules exceed the 600-line split threshold"
+    files: ["app/prompts/_impl.py", "app/ui/knowledge_graph_d3.py", "app/course_cache.py", "app/flashcard_service.py", "app/course_graph_compiler.py"]
+    first_seen: "2026-06-11"
+    last_seen: "2026-06-11"
+    status: new
+    regression_guard: null
+
+  - id: AR-2026-06-11-005
+    phase: 3
+    severity: warning
+    title: "Eight app modules were absent from architecture.md"
+    files: ["doc/architecture.md", "scripts/arch_regression_guards.py"]
+    first_seen: "2026-06-11"
+    last_seen: "2026-06-11"
+    status: resolved
+    resolved_date: "2026-06-11"
+    regression_guard: "scripts/arch_regression_guards.py module documentation checks"
+
+  - id: AR-2026-06-11-006
+    phase: 3
+    severity: warning
+    title: "Implemented Session tape ADR remained Proposed"
+    files: ["doc/adr.md", "scripts/arch_regression_guards.py"]
+    first_seen: "2026-06-11"
+    last_seen: "2026-06-11"
+    status: resolved
+    resolved_date: "2026-06-11"
+    regression_guard: "scripts/arch_regression_guards.py::_check_session_tape_adr_accepted"
+
+  - id: AR-2026-06-11-007
+    phase: 3
+    severity: warning
+    title: "Course Graph Compiler subsystem had no ADR"
+    files: ["doc/adr.md", "doc/adr_025_course_graph_compiler.md", "scripts/arch_regression_guards.py"]
+    first_seen: "2026-06-11"
+    last_seen: "2026-06-11"
+    status: resolved
+    resolved_date: "2026-06-11"
+    regression_guard: "scripts/arch_regression_guards.py::_check_adr_025_present"
+
+  - id: AR-2026-06-11-008
+    phase: 4
+    severity: warning
+    title: "Broad exceptions lacked BLE001 degradation rationale"
+    files: ["app/ui/topics_tab_right_column.py", "app/ui/topics_tab_plan_subtab.py", "app/ui/topics_tab.py", "app/ui/knowledge_graph_d3.py", "app/obsidian_export.py", "app/flashcard_service.py", "app/prompt_smoke_checks.py"]
+    first_seen: "2026-06-11"
+    last_seen: "2026-06-11"
+    status: resolved
+    resolved_date: "2026-06-11"
+    regression_guard: "scripts/arch_regression_guards.py broad exception checks"
+
+  - id: AR-2026-06-11-009
+    phase: 5
+    severity: info
+    title: "apscheduler optional dependency was undocumented"
+    files: ["requirements.txt"]
+    first_seen: "2026-06-11"
+    last_seen: "2026-06-11"
+    status: resolved
+    resolved_date: "2026-06-11"
+    regression_guard: null

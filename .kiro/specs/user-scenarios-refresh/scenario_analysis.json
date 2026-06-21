@@ -1,0 +1,790 @@
+{
+  "scenarios": [
+    {
+      "number": 1,
+      "title": "Первый запуск",
+      "level": "Первые шаги",
+      "persona": "Аня",
+      "time_estimate": "5 минут",
+      "main_question": "Оно вообще работает?",
+      "covered_features": [
+        "Quick Answer",
+        "Tutor",
+        "Course Workspace",
+        "Trust Panel",
+        "Environment Validation"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    {
+      "number": 2,
+      "title": "Быстрый ответ",
+      "level": "Первые шаги",
+      "persona": "Максим",
+      "time_estimate": "30–60 секунд",
+      "main_question": "Можно ли получить ответ, не проходя урок?",
+      "covered_features": [
+        "Quick Answer",
+        "Tutor",
+        "Trust Panel"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    {
+      "number": 3,
+      "title": "Мост «ответ → тьютор»",
+      "level": "Первые шаги",
+      "persona": "Аня после первого ответа по обратному распространению",
+      "time_estimate": "3 минуты",
+      "main_question": "Сохранится ли контекст при переключении режима?",
+      "covered_features": [
+        "Quick Answer",
+        "Tutor",
+        "Mastery Tracking",
+        "Trust Panel",
+        "Pedagogical Router"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    {
+      "number": 4,
+      "title": "Учебная сессия",
+      "level": "Учебный ритм",
+      "persona": "Марк",
+      "time_estimate": "7–10 минут",
+      "main_question": "Это диалог или бесконечная лекция?",
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Adaptive Plan",
+        "Mastery Tracking",
+        "Plan Diff",
+        "Pedagogical Router"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    {
+      "number": 5,
+      "title": "Flashcards: генерация",
+      "level": "Учебный ритм",
+      "persona": "Аня",
+      "time_estimate": "4–6 минут",
+      "main_question": "Смогу ли я проверить карточки до сохранения?",
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Spaced Repetition",
+        "Course Workspace",
+        "Trust Panel"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    {
+      "number": 6,
+      "title": "SM-2 повторение",
+      "level": "Учебный ритм",
+      "persona": "Марк",
+      "time_estimate": "5–8 минут",
+      "main_question": "Это Anki или что-то лучше?",
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Spaced Repetition"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    {
+      "number": 7,
+      "title": "Возврат на следующий день",
+      "level": "Учебный ритм",
+      "persona": "Аня",
+      "time_estimate": "2 минуты до первого действия",
+      "main_question": "Придётся ли снова объяснять системе, кто я и что изучаю?",
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Spaced Repetition",
+        "Course Workspace",
+        "Mastery Tracking",
+        "Reindexing"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    {
+      "number": 8,
+      "title": "Course Workspace",
+      "level": "Мастерство",
+      "persona": "Сергей",
+      "time_estimate": "10–15 минут на активацию",
+      "main_question": "Может ли папка с файлами стать курсом?",
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Spaced Repetition",
+        "Course Workspace",
+        "Mastery Tracking"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    {
+      "number": 9,
+      "title": "Adaptive Daily Plan",
+      "level": "Мастерство",
+      "persona": "Марк",
+      "time_estimate": "5 минут",
+      "main_question": "Кто-нибудь скажет мне, что делать сегодня?",
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Spaced Repetition",
+        "Course Workspace",
+        "Adaptive Plan",
+        "Mastery Tracking",
+        "Trust Panel",
+        "Plan Diff"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    {
+      "number": 10,
+      "title": "Mastery и Graduation",
+      "level": "Мастерство",
+      "persona": "Аня перед экзаменом",
+      "time_estimate": "5 минут",
+      "main_question": "Есть ли разница между",
+      "covered_features": [
+        "Tutor",
+        "Adaptive Plan",
+        "Mastery Tracking"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    {
+      "number": 11,
+      "title": "Trust-панель",
+      "level": "Мастерство",
+      "persona": "скептически настроенный пользователь или reviewer",
+      "time_estimate": "3 минуты",
+      "main_question": "Откуда взялся этот ответ?",
+      "covered_features": [
+        "Quick Answer",
+        "Tutor",
+        "Trust Panel"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    {
+      "number": 12,
+      "title": "Telegram",
+      "level": "Power user",
+      "persona": "Сергей",
+      "time_estimate": "настройка 5 минут, использование — постоянно",
+      "main_question": null,
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Mastery Tracking",
+        "Trust Panel",
+        "Telegram Bot",
+        "Backup & Offline"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    {
+      "number": 13,
+      "title": "Переиндексация",
+      "level": "Power user",
+      "persona": "Марк",
+      "time_estimate": "4 минуты (+ время индексации)",
+      "main_question": null,
+      "covered_features": [
+        "Flashcards",
+        "Adaptive Plan",
+        "Mastery Tracking",
+        "Reindexing",
+        "Plan Diff"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    {
+      "number": 14,
+      "title": "Backup и офлайн",
+      "level": "Power user",
+      "persona": "Елена",
+      "time_estimate": "5 минут (настройка offline), backup — 30 секунд",
+      "main_question": null,
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Adaptive Plan",
+        "Mastery Tracking",
+        "Trust Panel",
+        "Backup & Offline",
+        "Environment Validation"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    {
+      "number": 15,
+      "title": "UX Breakthrough",
+      "level": "Первые шаги",
+      "persona": "любой пользователь",
+      "time_estimate": "улучшения заметны сразу при первом использовании",
+      "main_question": "Чувствуется ли система быстрой, плавной и мотивирующей?",
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Spaced Repetition",
+        "Mastery Tracking",
+        "Trust Panel",
+        "UX Breakthrough",
+        "Environment Validation"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": "scenario_15_ux_breakthrough.yaml",
+      "e2e_test": null
+    },
+    {
+      "number": 16,
+      "title": "Интерактивный тур: 5 глав",
+      "level": "Первые шаги",
+      "persona": "Аня",
+      "time_estimate": "~20 минут на все главы или по главе при каждом визите",
+      "main_question": null,
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Course Workspace",
+        "Trust Panel",
+        "Interactive Tour"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": "scenario_16_interactive_tour.yaml",
+      "e2e_test": "scenario_16_interactive_tour.spec.ts"
+    },
+    {
+      "number": 17,
+      "title": "Что изменилось в плане (diff)",
+      "level": "Мастерство",
+      "persona": "Марк на второй неделе",
+      "time_estimate": null,
+      "main_question": null,
+      "covered_features": [
+        "Tutor",
+        "Adaptive Plan",
+        "Trust Panel",
+        "Plan Diff"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": "scenario_17_plan_diff.yaml",
+      "e2e_test": "scenario_17_plan_diff.spec.ts"
+    },
+    {
+      "number": 18,
+      "title": "Главная как карта возврата",
+      "level": "Мастерство",
+      "persona": "любой returning learner",
+      "time_estimate": null,
+      "main_question": null,
+      "covered_features": [
+        "Flashcards",
+        "Spaced Repetition",
+        "Home Hub"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": "scenario_18_home_retention_hub.yaml",
+      "e2e_test": "scenario_18_home_retention_hub.spec.ts"
+    },
+    {
+      "number": 19,
+      "title": "Проверка окружения и сайдбар",
+      "level": "Первые шаги",
+      "persona": "Максим после `git clone`",
+      "time_estimate": null,
+      "main_question": null,
+      "covered_features": [
+        "Environment Validation"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": "scenario_19_env_validation.yaml",
+      "e2e_test": "scenario_19_env_validation.spec.ts"
+    },
+    {
+      "number": 20,
+      "title": "Адаптивный маршрут тьютора",
+      "level": "Мастерство",
+      "persona": "Аня в середине курса",
+      "time_estimate": null,
+      "main_question": null,
+      "covered_features": [
+        "Tutor",
+        "Course Workspace",
+        "Adaptive Plan",
+        "Mastery Tracking",
+        "Pedagogical Router"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    {
+      "number": 21,
+      "title": "Умный Маршрутизатор: один лучший следующий шаг",
+      "level": "Мастерство",
+      "persona": "Аня после первого ответа",
+      "time_estimate": "1 минута",
+      "main_question": "Что мне делать прямо сейчас?",
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Spaced Repetition",
+        "Adaptive Plan",
+        "Trust Panel",
+        "Smart Study Router"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": "scenario_21_smart_study_router.yaml",
+      "e2e_test": "scenario_21_smart_study_router.spec.ts"
+    },
+    {
+      "number": 22,
+      "title": "Умный Маршрутизатор с ИИ: 5 уровней AI Vision",
+      "level": "Мастерство",
+      "persona": "защита проекта",
+      "time_estimate": "2 минуты",
+      "main_question": "Почему это не просто кнопка, а будущий персональный учебный проводник?",
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Spaced Repetition",
+        "Course Workspace",
+        "Mastery Tracking",
+        "Trust Panel",
+        "Environment Validation",
+        "Smart Study Router",
+        "AI Vision"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": "scenario_22_ai_router_vision.yaml",
+      "e2e_test": "scenario_22_ai_router_vision.spec.ts"
+    }
+  ],
+  "coverage_map": {
+    "1": {
+      "title": "Первый запуск",
+      "level": "Первые шаги",
+      "persona": "Аня",
+      "covered_features": [
+        "Quick Answer",
+        "Tutor",
+        "Course Workspace",
+        "Trust Panel",
+        "Environment Validation"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    "2": {
+      "title": "Быстрый ответ",
+      "level": "Первые шаги",
+      "persona": "Максим",
+      "covered_features": [
+        "Quick Answer",
+        "Tutor",
+        "Trust Panel"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    "3": {
+      "title": "Мост «ответ → тьютор»",
+      "level": "Первые шаги",
+      "persona": "Аня после первого ответа по обратному распространению",
+      "covered_features": [
+        "Quick Answer",
+        "Tutor",
+        "Mastery Tracking",
+        "Trust Panel",
+        "Pedagogical Router"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    "4": {
+      "title": "Учебная сессия",
+      "level": "Учебный ритм",
+      "persona": "Марк",
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Adaptive Plan",
+        "Mastery Tracking",
+        "Plan Diff",
+        "Pedagogical Router"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    "5": {
+      "title": "Flashcards: генерация",
+      "level": "Учебный ритм",
+      "persona": "Аня",
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Spaced Repetition",
+        "Course Workspace",
+        "Trust Panel"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    "6": {
+      "title": "SM-2 повторение",
+      "level": "Учебный ритм",
+      "persona": "Марк",
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Spaced Repetition"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    "7": {
+      "title": "Возврат на следующий день",
+      "level": "Учебный ритм",
+      "persona": "Аня",
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Spaced Repetition",
+        "Course Workspace",
+        "Mastery Tracking",
+        "Reindexing"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    "8": {
+      "title": "Course Workspace",
+      "level": "Мастерство",
+      "persona": "Сергей",
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Spaced Repetition",
+        "Course Workspace",
+        "Mastery Tracking"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    "9": {
+      "title": "Adaptive Daily Plan",
+      "level": "Мастерство",
+      "persona": "Марк",
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Spaced Repetition",
+        "Course Workspace",
+        "Adaptive Plan",
+        "Mastery Tracking",
+        "Trust Panel",
+        "Plan Diff"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    "10": {
+      "title": "Mastery и Graduation",
+      "level": "Мастерство",
+      "persona": "Аня перед экзаменом",
+      "covered_features": [
+        "Tutor",
+        "Adaptive Plan",
+        "Mastery Tracking"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    "11": {
+      "title": "Trust-панель",
+      "level": "Мастерство",
+      "persona": "скептически настроенный пользователь или reviewer",
+      "covered_features": [
+        "Quick Answer",
+        "Tutor",
+        "Trust Panel"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    "12": {
+      "title": "Telegram",
+      "level": "Power user",
+      "persona": "Сергей",
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Mastery Tracking",
+        "Trust Panel",
+        "Telegram Bot",
+        "Backup & Offline"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    "13": {
+      "title": "Переиндексация",
+      "level": "Power user",
+      "persona": "Марк",
+      "covered_features": [
+        "Flashcards",
+        "Adaptive Plan",
+        "Mastery Tracking",
+        "Reindexing",
+        "Plan Diff"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    "14": {
+      "title": "Backup и офлайн",
+      "level": "Power user",
+      "persona": "Елена",
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Adaptive Plan",
+        "Mastery Tracking",
+        "Trust Panel",
+        "Backup & Offline",
+        "Environment Validation"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    "16": {
+      "title": "Интерактивный тур: 5 глав",
+      "level": "Первые шаги",
+      "persona": "Аня",
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Course Workspace",
+        "Trust Panel",
+        "Interactive Tour"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": "scenario_16_interactive_tour.yaml",
+      "e2e_test": "scenario_16_interactive_tour.spec.ts"
+    },
+    "17": {
+      "title": "Что изменилось в плане (diff)",
+      "level": "Мастерство",
+      "persona": "Марк на второй неделе",
+      "covered_features": [
+        "Tutor",
+        "Adaptive Plan",
+        "Trust Panel",
+        "Plan Diff"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": "scenario_17_plan_diff.yaml",
+      "e2e_test": "scenario_17_plan_diff.spec.ts"
+    },
+    "18": {
+      "title": "Главная как карта возврата",
+      "level": "Мастерство",
+      "persona": "любой returning learner",
+      "covered_features": [
+        "Flashcards",
+        "Spaced Repetition",
+        "Home Hub"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": "scenario_18_home_retention_hub.yaml",
+      "e2e_test": "scenario_18_home_retention_hub.spec.ts"
+    },
+    "19": {
+      "title": "Проверка окружения и сайдбар",
+      "level": "Первые шаги",
+      "persona": "Максим после `git clone`",
+      "covered_features": [
+        "Environment Validation"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": "scenario_19_env_validation.yaml",
+      "e2e_test": "scenario_19_env_validation.spec.ts"
+    },
+    "20": {
+      "title": "Адаптивный маршрут тьютора",
+      "level": "Мастерство",
+      "persona": "Аня в середине курса",
+      "covered_features": [
+        "Tutor",
+        "Course Workspace",
+        "Adaptive Plan",
+        "Mastery Tracking",
+        "Pedagogical Router"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": null,
+      "e2e_test": null
+    },
+    "21": {
+      "title": "Умный Маршрутизатор: один лучший следующий шаг",
+      "level": "Мастерство",
+      "persona": "Аня после первого ответа",
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Spaced Repetition",
+        "Adaptive Plan",
+        "Trust Panel",
+        "Smart Study Router"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": "scenario_21_smart_study_router.yaml",
+      "e2e_test": "scenario_21_smart_study_router.spec.ts"
+    },
+    "22": {
+      "title": "Умный Маршрутизатор с ИИ: 5 уровней AI Vision",
+      "level": "Мастерство",
+      "persona": "защита проекта",
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Spaced Repetition",
+        "Course Workspace",
+        "Mastery Tracking",
+        "Trust Panel",
+        "Environment Validation",
+        "Smart Study Router",
+        "AI Vision"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": "scenario_22_ai_router_vision.yaml",
+      "e2e_test": "scenario_22_ai_router_vision.spec.ts"
+    },
+    "15": {
+      "title": "UX Breakthrough",
+      "level": "Первые шаги",
+      "persona": "любой пользователь",
+      "covered_features": [
+        "Tutor",
+        "Flashcards",
+        "Spaced Repetition",
+        "Mastery Tracking",
+        "Trust Panel",
+        "UX Breakthrough",
+        "Environment Validation"
+      ],
+      "covered_waves": [],
+      "mot_moments": [],
+      "yaml_artifact": "scenario_15_ux_breakthrough.yaml",
+      "e2e_test": null
+    }
+  },
+  "mot_coverage": {},
+  "summary": {
+    "total_scenarios": 22,
+    "scenarios_by_level": {
+      "Первые шаги": 6,
+      "Учебный ритм": 4,
+      "Мастерство": 9,
+      "Power user": 3
+    },
+    "scenarios_with_yaml": 7,
+    "scenarios_with_e2e": 6,
+    "unique_features": 19,
+    "mot_moments_covered": 0
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "description": "Contract for mastery vector plus spaced repetition regression gate",
+  "required_mastery_keys": ["A", "avg"],
+  "required_spaced_repetition_keys": [
+    "concept",
+    "quality",
+    "easiness",
+    "interval_days",
+    "repetitions",
+    "next_review",
+    "last_review",
+    "generation_id",
+    "index_version"
+  ],
+  "required_nba_item_keys": [
+    "concept",
+    "score",
+    "weak_component",
+    "prerequisite_component",
+    "spaced_component"
+  ],
+  "expected_lineage_keys": ["generation_id", "index_version"]
+}

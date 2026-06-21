@@ -1,0 +1,39 @@
+id: scenario_07
+title: "Прогресс и слабые места"
+level: "🟠 Retention engine"
+persona: "Аня через неделю. Хочет понять, что усвоила, а что нет."
+duration_min: 3
+why: |
+  Прогресс-дашборд показывает mastery по темам, streak и слабые места.
+  Аня видит не просто «сколько карточек сделано», а конкретные темы
+  с mastery < 50% и CTA «Разобрать» по каждой.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+  e2e_env:
+    HOME_RAG_E2E_OFFLINE: "1"
+wow_moment: |
+  Не надо гадать что учить дальше — система показывает три слабых темы
+  и предлагает разобрать прямо сейчас.
+takeaway: |
+  Прогресс — это не счётчик карточек, а карта знаний.
+  Система ведёт к слабым местам сама.
+scenario_link: "user_scenarios.md#сценарий-7--прогресс-и-слабые-места"
+
+shots:
+  - slug: "01_progress_unified_strip"
+    caption: "Полоса прогресса: тема / mastery% / due / streak"
+    narration: "Один взгляд — вся картина: что знаешь, что пора повторить."
+    duration_sec: 3
+  - slug: "02_mastery_timeline"
+    caption: "График mastery за 7 дней"
+    narration: "Кривая роста — видно, что знания накапливаются."
+    duration_sec: 4
+  - slug: "03_weak_spots_panel"
+    caption: "Слабые темы (mastery < 50%) + CTA «Разобрать»"
+    narration: "Три темы, требующие внимания — система сама их нашла."
+    duration_sec: 4
+  - slug: "04_streak_and_next_action"
+    caption: "Streak 5 дней + предложение на сегодня"
+    narration: "Серия не прерывается — система знает когда ты учился."
+    duration_sec: 3

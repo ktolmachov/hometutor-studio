@@ -1,0 +1,792 @@
+================================================================================
+PRIORITIZED GAP ANALYSIS REPORT
+================================================================================
+
+SUMMARY STATISTICS
+--------------------------------------------------------------------------------
+Total gaps analyzed: 39
+
+Priority Distribution:
+  High Priority: 5
+  Medium Priority: 18
+  Low Priority: 16
+
+Recommended Actions:
+  Create New Scenario: 28
+  Update Existing Scenario: 7
+  Verify Coverage: 4
+
+================================================================================
+PRIORITIZED GAP LIST
+================================================================================
+
+HIGH PRIORITY GAPS (Score >= 15)
+--------------------------------------------------------------------------------
+
+Wave ID: wave-ux-breakthrough-2026-05
+Priority Score: 23
+Theme: UX Breakthrough Wave: perceived quality and wow-moments
+North Star: Learner воспринимает систему как быструю (skeleton screens, progressive reveal), плавную (seamless tutor handoff), мотивирующую (celebration overlays), и прозрачную (session analytics). UX доля растёт с 15.5% до 20%+.
+Entry MoT: #2 First Answer
+Exit MoT: #13 Home mode selection
+Gap Type: ui_update
+Coverage Status: partial
+Recommended Action: update_existing
+Affected Scenarios: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 21, 22]
+Priority Rationale: Critical MoT #2; UX breakthrough feature; Partially covered by 18 scenarios
+Notes: Scenario 2 mentions 'tutor'; Scenario 3 mentions 'tutor'; Scenario 4 mentions 'tutor'; Scenario 5 mentions 'tutor'; Scenario 6 mentions 'tutor'; Scenario 7 mentions 'tutor'; Scenario 8 mentions 'tutor'; Scenario 9 mentions 'tutor'; Scenario 10 mentions 'tutor'; Scenario 11 mentions 'tutor'; Scenario 12 mentions 'tutor'; Scenario 13 mentions 'tutor'; Scenario 15 mentions 'tutor'; Scenario 16 mentions 'tutor'; Scenario 17 mentions 'tutor'; Scenario 18 mentions 'tutor'; Scenario 21 mentions 'tutor'; Scenario 22 mentions 'tutor'
+
+----------------------------------------
+
+Wave ID: wave-mission-control-home
+Priority Score: 20
+Theme: Mission Control home screen
+North Star: Learner sees one SSR-guided home screen with seven clear destinations and no stacked ribbon above the fold.
+Entry MoT: #13 Home mode selection
+Exit MoT: #14 Guided next best action
+Gap Type: ui_update
+Coverage Status: partial
+Recommended Action: update_existing
+Affected Scenarios: [2, 3, 4, 5, 8, 9, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22]
+Priority Rationale: Important MoT #13; UX breakthrough feature; Partially covered by 17 scenarios
+Notes: Scenario 2 mentions 'home'; Scenario 3 mentions 'home'; Scenario 4 mentions 'home'; Scenario 5 mentions 'home'; Scenario 8 mentions 'home'; Scenario 9 mentions 'home'; Scenario 11 mentions 'home'; Scenario 12 mentions 'home'; Scenario 13 mentions 'home'; Scenario 14 mentions 'home'; Scenario 15 mentions 'home'; Scenario 16 mentions 'home'; Scenario 17 mentions 'home'; Scenario 19 mentions 'home'; Scenario 20 mentions 'home'; Scenario 21 mentions 'home'; Scenario 22 mentions 'home'
+
+----------------------------------------
+
+Wave ID: wave-smart-study-router
+Priority Score: 17
+Theme: Smart Study Router: explainable next study action
+North Star: Learner sees one local-first next study action with a short "why now" reason after key learning states, while tutor, quiz, flashcards, and dashboard remain available as explicit entry points.
+Entry MoT: cross-loop
+Exit MoT: cross-loop
+Gap Type: new_feature
+Coverage Status: complete
+Recommended Action: verify_coverage
+Affected Scenarios: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22]
+Priority Rationale: UX breakthrough feature; Cross-loop value
+Notes: Scenario 2 mentions 'tutor'; Scenario 3 mentions 'tutor'; Scenario 4 mentions 'tutor'; Scenario 5 mentions 'flashcard'; Scenario 5 mentions 'tutor'; Scenario 6 mentions 'flashcard'; Scenario 6 mentions 'tutor'; Scenario 7 mentions 'flashcard'; Scenario 7 mentions 'tutor'; Scenario 8 mentions 'flashcard'; Scenario 8 mentions 'tutor'; Scenario 9 mentions 'flashcard'; Scenario 9 mentions 'tutor'; Scenario 10 mentions 'flashcard'; Scenario 10 mentions 'tutor'; Scenario 11 mentions 'tutor'; Scenario 12 mentions 'tutor'; Scenario 13 mentions 'flashcard'; Scenario 13 mentions 'tutor'; Scenario 14 mentions 'flashcard'; Scenario 15 mentions 'flashcard'; Scenario 15 mentions 'tutor'; Scenario 16 mentions 'flashcard'; Scenario 16 mentions 'tutor'; Scenario 17 mentions 'flashcard'; Scenario 17 mentions 'tutor'; Scenario 18 mentions 'tutor'; Scenario 19 mentions 'flashcard'; Scenario 21 mentions 'tutor'; Scenario 22 mentions 'flashcard'; Scenario 22 mentions 'tutor'; Scenario 22 mentions 'smart study router'
+
+----------------------------------------
+
+Wave ID: wave-smart-study-router-surface-parity
+Priority Score: 17
+Theme: Smart Study Router: learner-visible surface parity
+North Star: Explainable SSR card is visible and smoke-tested on Progress and Flashcards hub with the same session contract as home.
+Entry MoT: cross-loop
+Exit MoT: cross-loop
+Gap Type: new_feature
+Coverage Status: complete
+Recommended Action: verify_coverage
+Affected Scenarios: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22]
+Priority Rationale: UX breakthrough feature; Cross-loop value
+Notes: Scenario 2 mentions 'home'; Scenario 3 mentions 'home'; Scenario 4 mentions 'home'; Scenario 5 mentions 'flashcard'; Scenario 5 mentions 'home'; Scenario 6 mentions 'flashcard'; Scenario 7 mentions 'flashcard'; Scenario 8 mentions 'flashcard'; Scenario 8 mentions 'home'; Scenario 9 mentions 'flashcard'; Scenario 9 mentions 'home'; Scenario 10 mentions 'flashcard'; Scenario 11 mentions 'home'; Scenario 12 mentions 'home'; Scenario 13 mentions 'flashcard'; Scenario 13 mentions 'home'; Scenario 14 mentions 'flashcard'; Scenario 14 mentions 'home'; Scenario 15 mentions 'flashcard'; Scenario 15 mentions 'home'; Scenario 16 mentions 'flashcard'; Scenario 16 mentions 'home'; Scenario 17 mentions 'flashcard'; Scenario 17 mentions 'home'; Scenario 19 mentions 'flashcard'; Scenario 19 mentions 'home'; Scenario 20 mentions 'home'; Scenario 21 mentions 'home'; Scenario 22 mentions 'flashcard'; Scenario 22 mentions 'home'; Scenario 22 mentions 'smart study router'
+
+----------------------------------------
+
+Wave ID: wave-smart-study-router-next-level-retention-accessibility
+Priority Score: 16
+Theme: Smart Study Router Next Level: outcome receipts and quiet access
+North Star: Learner sees the local outcome of routed actions and can use the router in a lower-cognitive-load mode without losing entry points or reason text.
+Entry MoT: cross-loop
+Exit MoT: #9 Master
+Gap Type: ui_update
+Coverage Status: partial
+Recommended Action: update_existing
+Affected Scenarios: [22]
+Priority Rationale: UX breakthrough feature; Cross-loop value; Partially covered by 1 scenarios
+Notes: Scenario 22 mentions 'smart study router'
+
+----------------------------------------
+
+
+
+MEDIUM PRIORITY GAPS (Score 8-14)
+--------------------------------------------------------------------------------
+
+Wave ID: wave-smart-study-router-next-level-trust
+Priority Score: 14
+Theme: Smart Study Router Next Level: understandable route evidence
+North Star: Learner can understand why the router chose this action over other visible modes and inspect compact local evidence without cloud-only scoring.
+Entry MoT: cross-loop
+Exit MoT: cross-loop
+Gap Type: new_feature
+Coverage Status: partial
+Recommended Action: create_new
+Affected Scenarios: [22]
+Priority Rationale: UX breakthrough feature; Cross-loop value; Partially covered by 1 scenarios
+Notes: Scenario 22 mentions 'smart study router'
+
+----------------------------------------
+
+Wave ID: wave-smart-study-router-next-level-pedagogy
+Priority Score: 14
+Theme: Smart Study Router Next Level: learner-steered pedagogy
+North Star: Router explains whether the next action pays retention debt, recovers a weak concept, or continues new learning, while allowing local learner steering with visible tradeoffs.
+Entry MoT: cross-loop
+Exit MoT: cross-loop
+Gap Type: new_feature
+Coverage Status: partial
+Recommended Action: create_new
+Affected Scenarios: [22]
+Priority Rationale: UX breakthrough feature; Cross-loop value; Partially covered by 1 scenarios
+Notes: Scenario 22 mentions 'smart study router'
+
+----------------------------------------
+
+Wave ID: wave-agentic-tutor-depth
+Priority Score: 13
+Theme: Real mastery-adaptive tutoring (beyond demo)
+North Star: Вернувшийся learner видит персонализированный next-step по mastery gaps, не общий план
+Entry MoT: #3 Transition to tutor
+Exit MoT: #9 Master
+Gap Type: new_feature
+Coverage Status: partial
+Recommended Action: create_new
+Affected Scenarios: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 21, 22]
+Priority Rationale: Critical MoT #3; Partially covered by 18 scenarios
+Notes: Scenario 2 mentions 'tutor'; Scenario 3 mentions 'tutor'; Scenario 4 mentions 'tutor'; Scenario 5 mentions 'tutor'; Scenario 6 mentions 'tutor'; Scenario 7 mentions 'tutor'; Scenario 8 mentions 'tutor'; Scenario 9 mentions 'tutor'; Scenario 10 mentions 'tutor'; Scenario 11 mentions 'tutor'; Scenario 12 mentions 'tutor'; Scenario 13 mentions 'tutor'; Scenario 15 mentions 'tutor'; Scenario 16 mentions 'tutor'; Scenario 17 mentions 'tutor'; Scenario 18 mentions 'tutor'; Scenario 21 mentions 'tutor'; Scenario 22 mentions 'tutor'
+
+----------------------------------------
+
+Wave ID: wave-flashcard-polish
+Priority Score: 12
+Theme: Flashcard deck UX polish
+North Star: Learner создаёт, редактирует и экспортирует колоды без чтения документации
+Entry MoT: #12 Flashcard review
+Exit MoT: #12 Flashcard review
+Gap Type: ui_update
+Coverage Status: partial
+Recommended Action: update_existing
+Affected Scenarios: [5, 6, 7, 8, 9, 10, 13, 14, 15, 16, 17, 19, 22]
+Priority Rationale: Important MoT #12; Partially covered by 13 scenarios
+Notes: Scenario 5 mentions 'flashcard'; Scenario 6 mentions 'flashcard'; Scenario 7 mentions 'flashcard'; Scenario 8 mentions 'flashcard'; Scenario 9 mentions 'flashcard'; Scenario 10 mentions 'flashcard'; Scenario 13 mentions 'flashcard'; Scenario 14 mentions 'flashcard'; Scenario 15 mentions 'flashcard'; Scenario 16 mentions 'flashcard'; Scenario 17 mentions 'flashcard'; Scenario 19 mentions 'flashcard'; Scenario 22 mentions 'flashcard'
+
+----------------------------------------
+
+Wave ID: wave-learning-loop-demo
+Priority Score: 12
+Theme: Demo: answer → tutor → quiz learning loop
+North Star: Demo показывает полный 5-минутный learning loop: ответ → разбор → проверка понимания
+Entry MoT: #4 First micro-quiz
+Exit MoT: #3 Transition to tutor
+Gap Type: ui_update
+Coverage Status: partial
+Recommended Action: update_existing
+Affected Scenarios: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 21, 22]
+Priority Rationale: Important MoT #4; Partially covered by 18 scenarios
+Notes: Scenario 2 mentions 'tutor'; Scenario 3 mentions 'tutor'; Scenario 4 mentions 'tutor'; Scenario 5 mentions 'tutor'; Scenario 6 mentions 'tutor'; Scenario 7 mentions 'tutor'; Scenario 8 mentions 'tutor'; Scenario 9 mentions 'tutor'; Scenario 10 mentions 'tutor'; Scenario 11 mentions 'tutor'; Scenario 12 mentions 'tutor'; Scenario 13 mentions 'tutor'; Scenario 15 mentions 'tutor'; Scenario 16 mentions 'tutor'; Scenario 17 mentions 'tutor'; Scenario 18 mentions 'tutor'; Scenario 21 mentions 'tutor'; Scenario 22 mentions 'tutor'
+
+----------------------------------------
+
+Wave ID: wave-home-mode-intent-adaptive
+Priority Score: 12
+Theme: Home mode grid: intent-aware ordering without hiding modes
+North Star: Returning learners see the most relevant home modes first while the full 6-mode grid stays reachable, preserving US-14.1 primary CTA priority.
+Entry MoT: #13 Home mode selection
+Exit MoT: #13 Home mode selection
+Gap Type: ui_update
+Coverage Status: partial
+Recommended Action: update_existing
+Affected Scenarios: [2, 3, 4, 5, 8, 9, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22]
+Priority Rationale: Important MoT #13; Partially covered by 17 scenarios
+Notes: Scenario 2 mentions 'home'; Scenario 3 mentions 'home'; Scenario 4 mentions 'home'; Scenario 5 mentions 'home'; Scenario 8 mentions 'home'; Scenario 9 mentions 'home'; Scenario 11 mentions 'home'; Scenario 12 mentions 'home'; Scenario 13 mentions 'home'; Scenario 14 mentions 'home'; Scenario 15 mentions 'home'; Scenario 16 mentions 'home'; Scenario 17 mentions 'home'; Scenario 19 mentions 'home'; Scenario 20 mentions 'home'; Scenario 21 mentions 'home'; Scenario 22 mentions 'home'
+
+----------------------------------------
+
+Wave ID: wave-first-answer-ux
+Priority Score: 10
+Theme: First-answer onboarding UX
+North Star: Learner с первого экрана видит 3 кликабельных примера и не уходит без запроса
+Entry MoT: #2 First Answer
+Exit MoT: #2 First Answer
+Gap Type: ui_update
+Coverage Status: not_covered
+Recommended Action: create_new
+Priority Rationale: Critical MoT #2
+Notes: No direct coverage found
+
+----------------------------------------
+
+Wave ID: wave-answer-quality-eval
+Priority Score: 10
+Theme: Eval-driven answer quality loop
+North Star: AQE eval score ≥ 80% на golden set; CI-gate блокирует silent regression First Answer
+Entry MoT: #2 First Answer
+Exit MoT: #10 Retrieval trust
+Gap Type: new_feature
+Coverage Status: not_covered
+Recommended Action: create_new
+Priority Rationale: Critical MoT #2
+Notes: No direct coverage found
+
+----------------------------------------
+
+Wave ID: wave-e8-user-value-delivery
+Priority Score: 10
+Theme: E8 user value delivery discipline
+North Star: Learner-facing outcomes are bounded by CJM moments, user stories, and verifiable DoD.
+Entry MoT: #1 Discover
+Exit MoT: #9 Master
+Gap Type: new_feature
+Coverage Status: not_covered
+Recommended Action: create_new
+Priority Rationale: Critical MoT #1
+Notes: No direct coverage found
+
+----------------------------------------
+
+Wave ID: wave-mot2-perceived-latency
+Priority Score: 10
+Theme: MoT #2: perceived latency, wait UX, two-stage answer path
+North Star: Первый ответ воспринимается быстрым и прозрачным; нет регрессии тривиального empty-retrieval; quiz контракт стабилен; eval/latency gate зелёный.
+Entry MoT: #2 First Answer
+Exit MoT: #2 First Answer
+Gap Type: ui_update
+Coverage Status: not_covered
+Recommended Action: create_new
+Priority Rationale: Critical MoT #2
+Notes: No direct coverage found
+
+----------------------------------------
+
+Wave ID: wave-interactive-tour
+Priority Score: 10
+Theme: Interactive in-app onboarding tour (5 chapters)
+North Star: Новый пользователь проходит 5 глав внутри приложения и доходит до graduation концепта без чтения внешней документации
+Entry MoT: #1 Discover
+Exit MoT: #9 Master
+Gap Type: new_feature
+Coverage Status: partial
+Recommended Action: create_new
+Affected Scenarios: [10]
+Priority Rationale: Critical MoT #1; Partially covered by 1 scenarios
+Notes: Scenario 10 mentions 'graduation'
+
+----------------------------------------
+
+Wave ID: wave-home-mode-selection-v2
+Priority Score: 10
+Theme: Home Mode Selection v2: intent, commitment, preview
+North Star: Learner chooses one of 6 home modes confidently: cards explain best-fit intent, Flashcards shows finishable effort, and preview clarifies destination before context switch.
+Entry MoT: #13 Home mode selection
+Exit MoT: #13 Home mode selection
+Gap Type: ui_update
+Coverage Status: complete
+Recommended Action: verify_coverage
+Affected Scenarios: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22]
+Priority Rationale: Important MoT #13
+Notes: Scenario 2 mentions 'home'; Scenario 3 mentions 'home'; Scenario 4 mentions 'home'; Scenario 5 mentions 'flashcard'; Scenario 5 mentions 'home'; Scenario 6 mentions 'flashcard'; Scenario 7 mentions 'flashcard'; Scenario 8 mentions 'flashcard'; Scenario 8 mentions 'home'; Scenario 9 mentions 'flashcard'; Scenario 9 mentions 'home'; Scenario 10 mentions 'flashcard'; Scenario 11 mentions 'home'; Scenario 12 mentions 'home'; Scenario 13 mentions 'flashcard'; Scenario 13 mentions 'home'; Scenario 14 mentions 'flashcard'; Scenario 14 mentions 'home'; Scenario 15 mentions 'flashcard'; Scenario 15 mentions 'home'; Scenario 16 mentions 'flashcard'; Scenario 16 mentions 'home'; Scenario 17 mentions 'flashcard'; Scenario 17 mentions 'home'; Scenario 19 mentions 'flashcard'; Scenario 19 mentions 'home'; Scenario 20 mentions 'home'; Scenario 21 mentions 'home'; Scenario 22 mentions 'flashcard'; Scenario 22 mentions 'home'
+
+----------------------------------------
+
+Wave ID: ssr-ai-vision-wave-2b-l2-reliability
+Priority Score: 9
+Theme: L2 Explanation Reliability and UX
+North Star: LLM explanation latency drops for repeat contexts via semantic caching and background pre-generation; explanation-quality feedback analytics become visible in a dedicated page.
+Entry MoT: cross-loop
+Exit MoT: #7 Progress
+Gap Type: ui_update
+Coverage Status: partial
+Recommended Action: update_existing
+Affected Scenarios: [5, 9, 10, 11, 14, 15, 18]
+Priority Rationale: Cross-loop value; Partially covered by 7 scenarios
+Notes: Scenario 5 mentions 'plan'; Scenario 9 mentions 'plan'; Scenario 10 mentions 'plan'; Scenario 11 mentions 'plan'; Scenario 14 mentions 'plan'; Scenario 15 mentions 'plan'; Scenario 18 mentions 'plan'
+
+----------------------------------------
+
+Wave ID: ssr-ai-vision-readiness-gates
+Priority Score: 9
+Theme: SSR AI Vision readiness gates
+North Star: AI Vision levels advance only when their contracts, rollout gates, and SSoT status agree; downstream levels can safely depend on explicit baseline-compatible modes.
+Entry MoT: cross-loop
+Exit MoT: cross-loop
+Gap Type: new_feature
+Coverage Status: partial
+Recommended Action: create_new
+Affected Scenarios: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22]
+Priority Rationale: Cross-loop value; Partially covered by 20 scenarios
+Notes: Scenario 2 mentions 'ai vision'; Scenario 3 mentions 'ai vision'; Scenario 4 mentions 'ai vision'; Scenario 5 mentions 'ai vision'; Scenario 6 mentions 'ai vision'; Scenario 7 mentions 'ai vision'; Scenario 8 mentions 'ai vision'; Scenario 9 mentions 'ai vision'; Scenario 10 mentions 'ai vision'; Scenario 11 mentions 'ai vision'; Scenario 12 mentions 'ai vision'; Scenario 13 mentions 'ai vision'; Scenario 14 mentions 'ai vision'; Scenario 16 mentions 'ai vision'; Scenario 17 mentions 'ai vision'; Scenario 18 mentions 'ai vision'; Scenario 19 mentions 'ai vision'; Scenario 20 mentions 'ai vision'; Scenario 21 mentions 'ai vision'; Scenario 22 mentions 'ai vision'
+
+----------------------------------------
+
+Wave ID: wave-plan-visibility
+Priority Score: 8
+Theme: Adaptive plan transparency
+North Star: Learner понимает, что и почему изменилось в плане с момента последней сессии
+Entry MoT: #6 Adaptive plan
+Exit MoT: #6 Adaptive plan
+Gap Type: new_feature
+Coverage Status: partial
+Recommended Action: create_new
+Affected Scenarios: [5, 9, 10, 11, 14, 15, 18]
+Priority Rationale: Important MoT #6; Partially covered by 7 scenarios
+Notes: Scenario 5 mentions 'plan'; Scenario 9 mentions 'plan'; Scenario 10 mentions 'plan'; Scenario 11 mentions 'plan'; Scenario 14 mentions 'plan'; Scenario 15 mentions 'plan'; Scenario 18 mentions 'plan'
+
+----------------------------------------
+
+Wave ID: wave-orchestration-demo
+Priority Score: 8
+Theme: Demo: personalized learning plan
+North Star: Demo показывает top-уровень: система ведёт студента по персональному маршруту
+Entry MoT: #8 Learning plan
+Exit MoT: #8 Learning plan
+Gap Type: new_feature
+Coverage Status: partial
+Recommended Action: create_new
+Affected Scenarios: [5, 9, 10, 11, 14, 15, 18]
+Priority Rationale: Important MoT #8; Partially covered by 7 scenarios
+Notes: Scenario 5 mentions 'plan'; Scenario 9 mentions 'plan'; Scenario 10 mentions 'plan'; Scenario 11 mentions 'plan'; Scenario 14 mentions 'plan'; Scenario 15 mentions 'plan'; Scenario 18 mentions 'plan'
+
+----------------------------------------
+
+Wave ID: ssr-ai-vision-wave-3-planner-foundation
+Priority Score: 8
+Theme: SSR weekly planner foundation
+North Star: A rule-based weekly planner starts collecting plan-completion telemetry before any optimization or RL package is attempted.
+Entry MoT: #7 Progress
+Exit MoT: #7 Progress
+Gap Type: new_feature
+Coverage Status: partial
+Recommended Action: create_new
+Affected Scenarios: [5, 9, 10, 11, 14, 15, 18]
+Priority Rationale: Important MoT #7; Partially covered by 7 scenarios
+Notes: Scenario 5 mentions 'plan'; Scenario 9 mentions 'plan'; Scenario 10 mentions 'plan'; Scenario 11 mentions 'plan'; Scenario 14 mentions 'plan'; Scenario 15 mentions 'plan'; Scenario 18 mentions 'plan'
+
+----------------------------------------
+
+Wave ID: wave-course-homework-playbook
+Priority Score: 8
+Theme: Course Mode — Homework playbook + worked-example ladder (E31)
+North Star: Learner фиксирует ДЗ в scope курса/темы и проходит пошаговый плейбук без смены вкладок; шаги с самопроверкой и режимом «кратко»
+Entry MoT: course-workspace
+Exit MoT: course-workspace
+Gap Type: ui_update
+Coverage Status: complete
+Recommended Action: verify_coverage
+Affected Scenarios: [2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22]
+Priority Rationale: Course learning feature
+Notes: Scenario 2 mentions 'home'; Scenario 2 mentions 'course'; Scenario 3 mentions 'home'; Scenario 4 mentions 'home'; Scenario 5 mentions 'home'; Scenario 6 mentions 'course'; Scenario 8 mentions 'home'; Scenario 8 mentions 'course'; Scenario 9 mentions 'home'; Scenario 9 mentions 'course'; Scenario 10 mentions 'course'; Scenario 11 mentions 'home'; Scenario 12 mentions 'home'; Scenario 13 mentions 'home'; Scenario 14 mentions 'home'; Scenario 15 mentions 'home'; Scenario 16 mentions 'home'; Scenario 17 mentions 'home'; Scenario 17 mentions 'course'; Scenario 19 mentions 'home'; Scenario 20 mentions 'home'; Scenario 21 mentions 'home'; Scenario 21 mentions 'course'; Scenario 22 mentions 'home'
+
+----------------------------------------
+
+
+
+LOW PRIORITY GAPS (Score < 8)
+--------------------------------------------------------------------------------
+
+Wave ID: wave-retention-demo
+Priority Score: 7
+Theme: Demo: retention engine (SRS + progress)
+North Star: Demo доказывает retention engine: система помнит, знает что повторять, показывает динамику
+Entry MoT: #11 Retain
+Exit MoT: #7 Progress
+Gap Type: new_feature
+Coverage Status: not_covered
+Recommended Action: create_new
+Priority Rationale: Important MoT #11
+Notes: No direct coverage found
+
+----------------------------------------
+
+Wave ID: wave-trust-demo
+Priority Score: 7
+Theme: Demo: trust drill-down (sources + confidence)
+North Star: Demo усиливает доверие к ответу: источники, confidence, переход к фрагменту
+Entry MoT: #10 Retrieval trust
+Exit MoT: #10 Retrieval trust
+Gap Type: new_feature
+Coverage Status: not_covered
+Recommended Action: create_new
+Priority Rationale: Important MoT #10
+Notes: No direct coverage found
+
+----------------------------------------
+
+Wave ID: wave-cjm-progress-next-action
+Priority Score: 7
+Theme: Progress tab → next action (CJM §6)
+North Star: После Progress learner видит один primary CTA и попадает в план или due/resume без лишнего tab-hopping
+Entry MoT: #8 Progress
+Exit MoT: #8 Progress
+Gap Type: new_feature
+Coverage Status: not_covered
+Recommended Action: create_new
+Priority Rationale: Important MoT #8
+Notes: No direct coverage found
+
+----------------------------------------
+
+Wave ID: ssr-ai-vision-wave-3-feedback-foundation
+Priority Score: 7
+Theme: SSR misroute feedback collection
+North Star: Learners can mark a recommendation as accepted, rejected, or deferred so L5 policy learning has privacy-safe local data later.
+Entry MoT: #7 Progress
+Exit MoT: #7 Progress
+Gap Type: new_feature
+Coverage Status: not_covered
+Recommended Action: create_new
+Priority Rationale: Important MoT #7
+Notes: No direct coverage found
+
+----------------------------------------
+
+Wave ID: wave-quality-defense-adversarial-rag
+Priority Score: 7
+Theme: Quality defense: adversarial RAG tests
+North Star: RAG-specific adversarial cases prove prompt-injection resistance, conflict handling, no-answer behavior, and source grounding with detailed traces for failed cases.
+Entry MoT: #10 Retrieval trust
+Exit MoT: #10 Retrieval trust
+Gap Type: new_feature
+Coverage Status: not_covered
+Recommended Action: create_new
+Priority Rationale: Important MoT #10
+Notes: No direct coverage found
+
+----------------------------------------
+
+Wave ID: ssr-ai-vision-wave-2-explainability
+Priority Score: 7
+Theme: LLM-Enhanced Explainability
+North Star: SSR explanations become personalized and easier to understand while deterministic routing remains unchanged and template fallback stays available.
+Entry MoT: cross-loop
+Exit MoT: #7 Progress
+Gap Type: new_feature
+Coverage Status: partial
+Recommended Action: create_new
+Affected Scenarios: [5, 9, 10, 11, 14, 15, 18]
+Priority Rationale: Cross-loop value; Partially covered by 7 scenarios
+Notes: Scenario 5 mentions 'plan'; Scenario 9 mentions 'plan'; Scenario 10 mentions 'plan'; Scenario 11 mentions 'plan'; Scenario 14 mentions 'plan'; Scenario 15 mentions 'plan'; Scenario 18 mentions 'plan'
+
+----------------------------------------
+
+Wave ID: ssr-ai-vision-wave-1-foundation
+Priority Score: 6
+Theme: Hybrid Intelligence Foundation
+North Star: Локальный ML reranking повышает cards_due completion при сохранении rule fallback, ограничений latency/size и явных трасс в evidence ledger.
+Entry MoT: cross-loop
+Exit MoT: #7 Progress
+Gap Type: new_feature
+Coverage Status: not_covered
+Recommended Action: create_new
+Priority Rationale: Cross-loop value
+Notes: No direct coverage found
+
+----------------------------------------
+
+Wave ID: ssr-ai-vision-wave-3-shared-infra
+Priority Score: 6
+Theme: SSR AI shared infrastructure
+North Star: L3-L5 consume shared telemetry, eval, fallback, and dataset utilities instead of rebuilding per-level ML infrastructure.
+Entry MoT: cross-loop
+Exit MoT: cross-loop
+Gap Type: new_feature
+Coverage Status: not_covered
+Recommended Action: create_new
+Priority Rationale: Cross-loop value
+Notes: No direct coverage found
+
+----------------------------------------
+
+Wave ID: wave-course-learning-v2
+Priority Score: 6
+Theme: Course Learning Mode v2 — Course Cockpit (E30)
+North Star: Learner проходит курс в single-pane cockpit без tab-hopping; ≥40% курсов доходят до graduation с Knowledge Vault
+Entry MoT: course-workspace
+Exit MoT: #9 Master
+Gap Type: new_feature
+Coverage Status: partial
+Recommended Action: create_new
+Affected Scenarios: [2, 6, 8, 9, 10, 17, 21]
+Priority Rationale: Course learning feature; Partially covered by 7 scenarios
+Notes: Scenario 2 mentions 'course'; Scenario 6 mentions 'course'; Scenario 8 mentions 'course'; Scenario 9 mentions 'course'; Scenario 10 mentions 'graduation'; Scenario 10 mentions 'course'; Scenario 17 mentions 'course'; Scenario 21 mentions 'course'
+
+----------------------------------------
+
+Wave ID: wave-course-retention-resilience
+Priority Score: 6
+Theme: Course retention resilience: recovery, promise, repair
+North Star: Returning course learners can recover from overdue work, leave with a concrete next-session promise, and receive short remediation before repeated misses become churn.
+Entry MoT: course-workspace
+Exit MoT: #7 Spaced repetition due
+Gap Type: new_feature
+Coverage Status: partial
+Recommended Action: create_new
+Affected Scenarios: [2, 6, 8, 9, 10, 17, 21]
+Priority Rationale: Course learning feature; Partially covered by 7 scenarios
+Notes: Scenario 2 mentions 'course'; Scenario 6 mentions 'course'; Scenario 8 mentions 'course'; Scenario 9 mentions 'course'; Scenario 10 mentions 'course'; Scenario 17 mentions 'course'; Scenario 21 mentions 'course'
+
+----------------------------------------
+
+Wave ID: wave-sync-export
+Priority Score: 0
+Theme: Multi-device sync & restore
+North Star: Learner переносит весь прогресс на новое устройство за < 3 минут без потерь
+Entry MoT: infra
+Exit MoT: infra
+Gap Type: new_feature
+Coverage Status: not_covered
+Recommended Action: create_new
+Priority Rationale: Infrastructure wave (low user visibility)
+Notes: No direct coverage found
+
+----------------------------------------
+
+Wave ID: wave-ocr-docling-story-gate
+Priority Score: 0
+Theme: OCR/Docling story gate before ingest implementation
+North Star: Non-text corpus ingest is not started until Analyst defines a learner-facing US, acceptance criteria, and CJM mapping.
+Entry MoT: Ingest / Discover
+Exit MoT: Ingest / Discover
+Gap Type: new_feature
+Coverage Status: not_covered
+Recommended Action: create_new
+Priority Rationale: Standard priority
+Notes: No direct coverage found
+
+----------------------------------------
+
+Wave ID: wave-non-text-ingest-v1
+Priority Score: 0
+Theme: US-2.3 non-text corpus: learner-facing docs and index contract (pre-implementation)
+North Star: Learner и команда понимают сценарий non-text ingest и границу с US-15.5 до старта кода ocr-docling.
+Entry MoT: Ingest / Discover
+Exit MoT: Ingest / corpus quality
+Gap Type: new_feature
+Coverage Status: not_covered
+Recommended Action: create_new
+Priority Rationale: Standard priority
+Notes: No direct coverage found
+
+----------------------------------------
+
+Wave ID: wave-source-readiness-diagnostic
+Priority Score: 0
+Theme: Source readiness diagnostic before ingest expansion
+North Star: Learner understands which local materials are ready for learning, which need OCR/extraction, and what the next safe ingest action is.
+Entry MoT: Ingest / Trust
+Exit MoT: First Answer / Trust
+Gap Type: new_feature
+Coverage Status: not_covered
+Recommended Action: create_new
+Priority Rationale: Standard priority
+Notes: No direct coverage found
+
+----------------------------------------
+
+Wave ID: wave-e5-learner-state-migration
+Priority Score: 0
+Theme: E5 learner state migration
+North Star: Learner profile, mastery, and SRS state survive index activation with observable migration gates.
+Entry MoT: infra
+Exit MoT: #6 Adaptive plan
+Gap Type: new_feature
+Coverage Status: not_covered
+Recommended Action: create_new
+Priority Rationale: Infrastructure wave (low user visibility)
+Notes: No direct coverage found
+
+----------------------------------------
+
+Wave ID: wave-non-text-corpus-delivery
+Priority Score: 0
+Theme: Non-text corpus: readiness UI → index proof → OCR ingest phase 1
+North Star: Learner видит классификацию корпуса; общий индекс содержит проверяемые non-text чанки; первый сквозной OCR/Docling path в KB с трассируемыми источниками.
+Entry MoT: Ingest / Discover
+Exit MoT: Ingest / corpus quality
+Gap Type: ui_update
+Coverage Status: not_covered
+Recommended Action: create_new
+Priority Rationale: Standard priority
+Notes: No direct coverage found
+
+----------------------------------------
+
+
+
+================================================================================
+IMPLEMENTATION RECOMMENDATIONS
+================================================================================
+
+Phase 1: High Priority Waves (Must Have)
+--------------------------------------------------------------------------------
+1. wave-ux-breakthrough-2026-05
+   Action: update_existing
+   Affected Scenarios: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 21, 22]
+   Rationale: Critical MoT #2; UX breakthrough feature; Partially covered by 18 scenarios
+
+2. wave-mission-control-home
+   Action: update_existing
+   Affected Scenarios: [2, 3, 4, 5, 8, 9, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22]
+   Rationale: Important MoT #13; UX breakthrough feature; Partially covered by 17 scenarios
+
+3. wave-smart-study-router
+   Action: verify_coverage
+   Affected Scenarios: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22]
+   Rationale: UX breakthrough feature; Cross-loop value
+
+4. wave-smart-study-router-surface-parity
+   Action: verify_coverage
+   Affected Scenarios: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22]
+   Rationale: UX breakthrough feature; Cross-loop value
+
+5. wave-smart-study-router-next-level-retention-accessibility
+   Action: update_existing
+   Affected Scenarios: [22]
+   Rationale: UX breakthrough feature; Cross-loop value; Partially covered by 1 scenarios
+
+
+Phase 2: Medium Priority Waves (Should Have)
+--------------------------------------------------------------------------------
+1. wave-smart-study-router-next-level-trust
+   Action: create_new
+   Affected Scenarios: [22]
+   Rationale: UX breakthrough feature; Cross-loop value; Partially covered by 1 scenarios
+
+2. wave-smart-study-router-next-level-pedagogy
+   Action: create_new
+   Affected Scenarios: [22]
+   Rationale: UX breakthrough feature; Cross-loop value; Partially covered by 1 scenarios
+
+3. wave-agentic-tutor-depth
+   Action: create_new
+   Affected Scenarios: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 21, 22]
+   Rationale: Critical MoT #3; Partially covered by 18 scenarios
+
+4. wave-flashcard-polish
+   Action: update_existing
+   Affected Scenarios: [5, 6, 7, 8, 9, 10, 13, 14, 15, 16, 17, 19, 22]
+   Rationale: Important MoT #12; Partially covered by 13 scenarios
+
+5. wave-learning-loop-demo
+   Action: update_existing
+   Affected Scenarios: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 21, 22]
+   Rationale: Important MoT #4; Partially covered by 18 scenarios
+
+6. wave-home-mode-intent-adaptive
+   Action: update_existing
+   Affected Scenarios: [2, 3, 4, 5, 8, 9, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22]
+   Rationale: Important MoT #13; Partially covered by 17 scenarios
+
+7. wave-first-answer-ux
+   Action: create_new
+   Rationale: Critical MoT #2
+
+8. wave-answer-quality-eval
+   Action: create_new
+   Rationale: Critical MoT #2
+
+9. wave-e8-user-value-delivery
+   Action: create_new
+   Rationale: Critical MoT #1
+
+10. wave-mot2-perceived-latency
+   Action: create_new
+   Rationale: Critical MoT #2
+
+11. wave-interactive-tour
+   Action: create_new
+   Affected Scenarios: [10]
+   Rationale: Critical MoT #1; Partially covered by 1 scenarios
+
+12. wave-home-mode-selection-v2
+   Action: verify_coverage
+   Affected Scenarios: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22]
+   Rationale: Important MoT #13
+
+13. ssr-ai-vision-wave-2b-l2-reliability
+   Action: update_existing
+   Affected Scenarios: [5, 9, 10, 11, 14, 15, 18]
+   Rationale: Cross-loop value; Partially covered by 7 scenarios
+
+14. ssr-ai-vision-readiness-gates
+   Action: create_new
+   Affected Scenarios: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22]
+   Rationale: Cross-loop value; Partially covered by 20 scenarios
+
+15. wave-plan-visibility
+   Action: create_new
+   Affected Scenarios: [5, 9, 10, 11, 14, 15, 18]
+   Rationale: Important MoT #6; Partially covered by 7 scenarios
+
+16. wave-orchestration-demo
+   Action: create_new
+   Affected Scenarios: [5, 9, 10, 11, 14, 15, 18]
+   Rationale: Important MoT #8; Partially covered by 7 scenarios
+
+17. ssr-ai-vision-wave-3-planner-foundation
+   Action: create_new
+   Affected Scenarios: [5, 9, 10, 11, 14, 15, 18]
+   Rationale: Important MoT #7; Partially covered by 7 scenarios
+
+18. wave-course-homework-playbook
+   Action: verify_coverage
+   Affected Scenarios: [2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 19, 20, 21, 22]
+   Rationale: Course learning feature
+
+
+Phase 3: Low Priority Waves (Nice to Have)
+--------------------------------------------------------------------------------
+1. wave-retention-demo
+   Action: create_new
+   Rationale: Important MoT #11
+
+2. wave-trust-demo
+   Action: create_new
+   Rationale: Important MoT #10
+
+3. wave-cjm-progress-next-action
+   Action: create_new
+   Rationale: Important MoT #8
+
+4. ssr-ai-vision-wave-3-feedback-foundation
+   Action: create_new
+   Rationale: Important MoT #7
+
+5. wave-quality-defense-adversarial-rag
+   Action: create_new
+   Rationale: Important MoT #10
+
+6. ssr-ai-vision-wave-2-explainability
+   Action: create_new
+   Rationale: Cross-loop value; Partially covered by 7 scenarios
+
+7. ssr-ai-vision-wave-1-foundation
+   Action: create_new
+   Rationale: Cross-loop value
+
+8. ssr-ai-vision-wave-3-shared-infra
+   Action: create_new
+   Rationale: Cross-loop value
+
+9. wave-course-learning-v2
+   Action: create_new
+   Rationale: Course learning feature; Partially covered by 7 scenarios
+
+10. wave-course-retention-resilience
+   Action: create_new
+   Rationale: Course learning feature; Partially covered by 7 scenarios
+
+11. wave-sync-export
+   Action: create_new
+   Rationale: Infrastructure wave (low user visibility)
+
+12. wave-ocr-docling-story-gate
+   Action: create_new
+   Rationale: Standard priority
+
+13. wave-non-text-ingest-v1
+   Action: create_new
+   Rationale: Standard priority
+
+14. wave-source-readiness-diagnostic
+   Action: create_new
+   Rationale: Standard priority
+
+15. wave-e5-learner-state-migration
+   Action: create_new
+   Rationale: Infrastructure wave (low user visibility)
+
+16. wave-non-text-corpus-delivery
+   Action: create_new
+   Rationale: Standard priority
+

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://app.kilo.ai/config.json",
+  // File watcher exclusions — prevents Kilo Code from monitoring changes
+  // in these heavy directories, reducing memory and CPU usage
+  "watcher": {
+    "ignore": [
+      ".venv/**",
+      ".python/**",
+      "chroma_db/**",
+      "data/**",
+      "logs/**",
+      "eval_results/**",
+      "eval_data/**",
+      "test-results/**",
+      "playwright-report/**",
+      ".idea/**",
+      ".cursor/**",
+      ".claude/**",
+      ".agents/**",
+      ".vscode/**",
+      ".e2e/**",
+      ".streamlit/**",
+      ".github/**",
+      ".gemini/**",
+      ".pytest_cache/**"
+    ]
+  }
+}

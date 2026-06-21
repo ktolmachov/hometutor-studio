@@ -1,0 +1,21 @@
+{
+  "description": "Baseline summary для merge-gate tutor regression (обновление E6.4 quality slice). Полный прогон хранится локально в eval_results.",
+  "recorded_at": "2026-04-09",
+  "dataset_file": "eval_data/tutor_regression.json",
+  "dataset_version": "1.2",
+  "runner_note": "run_tutor_regression считает completed только кейсы с непустым input.question (10 из 18 в v1.2).",
+  "summary": {
+    "cases": 18,
+    "cases_completed": 10,
+    "cases_skipped": 8,
+    "dataset_version": "1.2",
+    "avg_latency_sec": 43.993,
+    "p50_latency_sec": 45.232,
+    "p95_latency_sec": 62.135,
+    "avg_answer_relevancy": 0.75,
+    "avg_context_relevancy": 0.357,
+    "avg_faithfulness": 0.875,
+    "avg_tutor_score": 0.613,
+    "route_match_rate": 0.0
+  }
+}

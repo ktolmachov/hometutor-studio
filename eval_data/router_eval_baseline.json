@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "dataset_version": "1.4",
+  "overall_accuracy": 0.6538,
+  "per_category": {
+    "adaptive_difficulty": {
+      "correct": 1,
+      "total": 1,
+      "accuracy": 1.0
+    },
+    "anti_overhelp_homework": {
+      "correct": 0,
+      "total": 1,
+      "accuracy": 0.0
+    },
+    "concept_mastery_overlay": {
+      "correct": 1,
+      "total": 1,
+      "accuracy": 1.0
+    },
+    "condensed_question_integrity": {
+      "correct": 1,
+      "total": 1,
+      "accuracy": 1.0
+    },
+    "dynamic_learning_plan": {
+      "correct": 1,
+      "total": 1,
+      "accuracy": 1.0
+    },
+    "explain_depth": {
+      "correct": 2,
+      "total": 2,
+      "accuracy": 1.0
+    },
+    "full_cycle": {
+      "correct": 1,
+      "total": 1,
+      "accuracy": 1.0
+    },
+    "hint_gradation": {
+      "correct": 1,
+      "total": 1,
+      "accuracy": 1.0
+    },
+    "history_window_tutor": {
+      "correct": 0,
+      "total": 1,
+      "accuracy": 0.0
+    },
+    "homework_mode_session": {
+      "correct": 1,
+      "total": 1,
+      "accuracy": 1.0
+    },
+    "immediate_feedback": {
+      "correct": 1,
+      "total": 1,
+      "accuracy": 1.0
+    },
+    "mastery_dashboard": {
+      "correct": 1,
+      "total": 1,
+      "accuracy": 1.0
+    },
+    "misconception_handling": {
+      "correct": 2,
+      "total": 2,
+      "accuracy": 1.0
+    },
+    "motivation_coach": {
+      "correct": 2,
+      "total": 2,
+      "accuracy": 1.0
+    },
+    "quiz_feedback_loop": {
+      "correct": 0,
+      "total": 1,
+      "accuracy": 0.0
+    },
+    "quiz_quality": {
+      "correct": 1,
+      "total": 3,
+      "accuracy": 0.3333
+    },
+    "socratic_quality": {
+      "correct": 0,
+      "total": 2,
+      "accuracy": 0.0
+    },
+    "socratic_type_switch": {
+      "correct": 0,
+      "total": 1,
+      "accuracy": 0.0
+    },
+    "spaced_repetition": {
+      "correct": 0,
+      "total": 1,
+      "accuracy": 0.0
+    },
+    "tutor_cycle_contract": {
+      "correct": 1,
+      "total": 1,
+      "accuracy": 1.0
+    }
+  },
+  "recorded_at": "2026-04-11",
+  "cases_completed": 26,
+  "cases_correct": 17,
+  "recorded_note": "Калибровка: scripts/run_router_eval.py --write-baseline (live LLM)"
+}

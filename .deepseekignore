@@ -1,0 +1,72 @@
+# ── Python / venv ──────────────────────────────────────────────────────────────
+.venv/
+.python/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+logs/
+.agents/
+.kiro/
+eval_data/
+
+# ── Node / npm ──────────────────────────────────────────────────────────────────
+node_modules/
+.npm/
+*.tsbuildinfo
+
+# ── Vector store / embeddings (large binary data) ──────────────────────────────
+chroma_db/
+data/chroma/
+*.chroma
+*.parquet
+*.faiss
+
+# ── Test & coverage artefacts ──────────────────────────────────────────────────
+.pytest_cache/
+htmlcov/
+.coverage
+coverage/
+
+# ── IDE & OS ───────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── CI / infra ─────────────────────────────────────────────────────────────────
+.git/
+.gemini/
+
+# ── Large binary / media ───────────────────────────────────────────────────────
+*.mp4
+*.webp
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.woff
+*.woff2
+
+# ── Archive artefacts (screenshots, recordings) ────────────────────────────────
+archive/
+archive/team_artifacts/screenshots/
+archive/team_artifacts/recordings/
+
+# ── Generated documentation views ─────────────────────────────────────────────
+doc/tasklist.md
+doc/user_stories.md
+doc/user_stories_index.json
+
+# ── Secrets / env ──────────────────────────────────────────────────────────────
+.env
+.env.local
+*.pem
+*.key
+*.p12

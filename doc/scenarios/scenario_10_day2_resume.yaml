@@ -1,0 +1,37 @@
+id: scenario_10
+title: "Возвращение на день 2: resume + soft-recovery"
+level: "🟠 Retention engine"
+persona: "Аня после паузы. Хочет быстро восстановить ритм без перегруза."
+duration_min: 4
+why: |
+  Показать, что после перерыва система даёт мягкий план возврата:
+  resume-карта, дозированная due-очередь и сохранённый прогресс после reindex.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+  e2e_env:
+    HOME_RAG_E2E_OFFLINE: "1"
+wow_moment: |
+  Просроченные повторения не обрушиваются сразу —
+  система распределяет нагрузку и сохраняет мотивацию.
+takeaway: |
+  На следующий день можно просто вернуться и продолжить с нужного шага.
+scenario_link: "user_scenarios.md#сценарий-10--day-2-resume-и-soft-recovery"
+
+shots:
+  - slug: "01_home_resume_card"
+    caption: "Resume-карта на главной"
+    narration: "Сразу видно, откуда продолжить и какой следующий шаг."
+    duration_sec: 3
+  - slug: "02_plan_diff_today"
+    caption: "План на сегодня с diff «что изменилось»"
+    narration: "План подстроился под паузу и текущий контекст."
+    duration_sec: 4
+  - slug: "03_due_queue_soft_recovery"
+    caption: "Due-очередь после пропуска без перегруза"
+    narration: "Очередь распределена мягко, без лавины overdue."
+    duration_sec: 4
+  - slug: "04_reindex_profile_badge"
+    caption: "Бейдж обновления профиля после reindex"
+    narration: "Учебное состояние сохраняется после обновления индекса."
+    duration_sec: 3

@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "classes": {
+    "0": {
+      "name": "success",
+      "severity": "info",
+      "next_action": "noop",
+      "retryable": false
+    },
+    "1": {
+      "name": "dod_failed",
+      "severity": "error",
+      "next_action": "fix_failing_dod_and_retry",
+      "retryable": true
+    },
+    "2": {
+      "name": "registry_sync_or_ssot_gate",
+      "severity": "error",
+      "next_action": "sync_registry_tasklist_and_inspect_quality_gates",
+      "retryable": false
+    },
+    "3": {
+      "name": "execution_proof_missing",
+      "severity": "error",
+      "next_action": "execute_current_task_and_write_execution_contract",
+      "retryable": true
+    },
+    "4": {
+      "name": "dod_drift_detected",
+      "severity": "error",
+      "next_action": "restore_or_reapprove_dod_contract",
+      "retryable": false
+    },
+    "5": {
+      "name": "verification_evidence_invalid",
+      "severity": "error",
+      "next_action": "add_strict_verification_only_evidence",
+      "retryable": false
+    },
+    "6": {
+      "name": "closure_mode_unknown",
+      "severity": "error",
+      "next_action": "make_write_set_change_or_add_valid_preexisting_evidence",
+      "retryable": false
+    },
+    "7": {
+      "name": "execution_hard_gate_failed",
+      "severity": "error",
+      "next_action": "align_changed_files_with_write_set",
+      "retryable": false
+    },
+    "8": {
+      "name": "cli_validation_or_context_gate_failed",
+      "severity": "error",
+      "next_action": "fix_cli_flags_or_context_gate_then_retry",
+      "retryable": false
+    },
+    "9": {
+      "name": "pipeline_lock_conflict",
+      "severity": "error",
+      "next_action": "stop_parallel_run_or_clear_stale_lock_file",
+      "retryable": false
+    },
+    "10": {
+      "name": "post_agent_success_continue_non_stop",
+      "severity": "info",
+      "next_action": "execute_post_closure_audit_and_current_task_chain",
+      "retryable": false
+    },
+    "11": {
+      "name": "post_agent_chat_api_handoff_pause",
+      "severity": "info",
+      "next_action": "replace_deepseek_blocked_contract_run_ide_agent_then_post_agent",
+      "retryable": false
+    }
+  }
+}

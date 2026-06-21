@@ -1,0 +1,19 @@
+{
+  "actions": [
+    {
+      "name": "enable_gate_enforcing",
+      "requires_approval": true,
+      "reason": "Switching pipeline gates from shadow to enforcing can block active delivery."
+    },
+    {
+      "name": "git_push",
+      "requires_approval": true,
+      "reason": "Pushing changes affects remote repository state."
+    },
+    {
+      "name": "close_without_dod",
+      "requires_approval": true,
+      "reason": "Skipping DoD changes closure trust guarantees."
+    }
+  ]
+}

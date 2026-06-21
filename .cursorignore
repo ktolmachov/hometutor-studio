@@ -1,0 +1,43 @@
+# === Heavy directories ===
+.venv/
+node_modules/
+chroma_db/
+data/
+.python/
+.git/
+logs/
+
+# === Build/test artifacts ===
+eval_results/
+eval_data/
+test-results/
+playwright-report/
+playwright/.cache/
+__pycache__/
+.pytest_cache/
+
+# === IDE / tool config ===
+.idea/
+.vscode/
+.cursor/
+.claude/
+.agents/
+.e2e/
+.streamlit/
+.github/
+.gemini/
+
+# === Binary / generated files ===
+*.pyc
+*.bin
+*.sqlite3
+*.dll
+*.pyd
+*.lib
+*.map
+
+# === Generated JSON ===
+package-lock.json
+index_meta.json
+index_registry.json
+skills-lock.json
