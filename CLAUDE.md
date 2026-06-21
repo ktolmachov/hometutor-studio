@@ -1,6 +1,6 @@
 ﻿# hometutor Project Rules for Claude
 
-**Last updated:** 2026-04-25  
+**Last updated:** 2026-06-21  
 **Status:** Active — apply to all Claude Code sessions in this project
 
 ---
@@ -18,6 +18,28 @@
 - `doc/agent_workflow.md` — how to safely use agents/Claude on this project
 - `doc/conventions.md` — engineering rules (error handling, config access, imports, etc.)
 - `doc/token_safety.md` — **critical reference for file inclusion rules** (new, 2026-04-19)
+
+---
+
+## 🏗️ Two-Root Repository Layout
+
+This project is physically split across **two independent git working trees**.
+Every path in this document and in prompts must be resolved against the correct root.
+
+| Root | What lives here | How to derive |
+|---|---|---|
+| **CODE_ROOT** | `app/`, `app/routers/`, `app/ui/`, `requirements.txt` — all Python source | `pip show hometutor` → "Editable project location" (currently `D:\Projects\hometutor`) |
+| **DOCS_ROOT** (this repo) | `doc/`, `tests/`, `scripts/`, baseline yaml, `CLAUDE.md` | current working directory (`D:\Projects\hometutor-studio`) |
+
+**Key rules:**
+- `app/` **does not exist** in this working directory. It is importable only via the editable install.
+- File operations (`rg`, `Read`, `Get-Content`) on `app/**` must target `CODE_ROOT`, not cwd.
+- Git operations per root: `git -C $CODE_ROOT diff ...` for code, `git diff ...` (cwd) for docs/tests.
+- The two repos have **independent histories**. Baseline yaml stores `code_sha` + `docs_sha` (not a single sha).
+- Derive CODE_ROOT at runtime, do not hardcode:
+  ```powershell
+  $CODE_ROOT = (pip show hometutor | Select-String 'Editable project location:').ToString().Split(':',2)[1].Trim()
+  ```
 
 ---
 
@@ -61,18 +83,21 @@ Never include full file. Instead:
 
 ### 3. Forbidden Full-Read Files
 
-**These files MUST NEVER be read in full without explicit justification.** Use safe methods from token_safety.md instead:
+**These files MUST NEVER be read in full without explicit justification.** Use safe methods from token_safety.md instead.
+Verify current size before reading: `(Get-Content <file>).Count` (PowerShell) or `wc -l` (Bash).
+app/* files are under **CODE_ROOT** (see § Two-Root Repository Layout), not in this cwd.
 
 ```
-❌ app/query_service.py        (729 lines, ~7k tokens)    → use: grep signatures
-❌ app/knowledge_graph.py      (1072 lines, ~11k)         → use: grep signatures
-❌ tests/test_api.py           (1712 lines, ~15k)         → use: 1 test case
-❌ tests/test_query_service.py (1145 lines, ~11k)         → use: 1 test case
-❌ doc/changelog.md            (2120 lines, ~20k+)        → use: last 2–3 rows
-❌ doc/adr.md                  (925 lines, ~14k)          → use: status table only
-❌ doc/architecture.md         (745 lines, ~9k)           → use: module list only
-❌ doc/cjm.md                  (241 lines, ~4.9k)         → use: specific pain point
-❌ doc/epochs/*                (varies, 5–17k each)       → use: grep headers or 1 file max
+❌ app/query_service.py        → use: grep signatures           (CODE_ROOT)
+❌ app/knowledge_graph.py      → use: grep signatures           (CODE_ROOT)
+✅ app/tutor_prompts.py        → safe to read fully (small)     (CODE_ROOT)
+❌ tests/test_api.py           → use: 1 test case               (DOCS_ROOT)
+❌ tests/test_query_service.py → use: 1 test case               (DOCS_ROOT)
+❌ doc/changelog.md            → use: last 2–3 rows             (DOCS_ROOT)
+❌ doc/adr.md                  → use: status table only          (DOCS_ROOT)
+❌ doc/architecture.md         → use: module list only           (DOCS_ROOT)
+❌ doc/cjm.md                  → use: specific pain point        (DOCS_ROOT)
+❌ doc/epochs/*                → use: grep headers or 1 file max (DOCS_ROOT)
 ```
 
 For any other file >600 lines, check token_safety.md before reading.
@@ -130,6 +155,7 @@ done
 ### Planning a Package (~8–10k tokens)
 
 ```
+# app/* under CODE_ROOT, doc/* and tests/* under DOCS_ROOT (cwd)
 Read ONLY:
 1. app/target_module.py — grep "^class\|^def " (signatures)
 2. tests/test_target.py — grep "def test_" (list) + read 1 example
@@ -158,6 +184,7 @@ DO NOT yet read:
 ### Verify a Package (~10k tokens)
 
 ```
+# git diff per-root: git -C $CODE_ROOT for app/, git diff (cwd) for doc/tests/
 Read ONLY:
 - CONTRACT_FILE (execution contract, ~1.5k)
 - git diff HEAD~N..HEAD (scope check, ~2k)
@@ -343,5 +370,5 @@ Planning и orchestration — раздельно. `plan_next` предлагае
 
 ---
 
-**Version:** 1.0 (2026-04-19)  
+**Version:** 1.1 (2026-06-21) — added two-root layout, dynamic line-counts, app/tutor_prompts.py  
 **Next Review:** after E15 completion or upon significant project changes
