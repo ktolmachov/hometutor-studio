@@ -93,7 +93,7 @@ qwopus35b получает +5 smoke bonus за real hometutor smoke (grounded va
   если ВСЕ предложения без цитат → abstain сохраняется
 - `config.py`: BASE_DIR резолвится от `__file__`, не от cwd — smoke из
   benchmark pack находит `.env`
-- `Smoke-HomeRag-LlamaCpp.ps1`: `LLM_MODEL`/`QUIZ_LLM_MODEL` выставляются
+- `Smoke-Hometutor-LlamaCpp.ps1`: `LLM_MODEL`/`QUIZ_LLM_MODEL` выставляются
   из параметра `-Model`
 
 ### 2.4 SSR fallback policy

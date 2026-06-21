@@ -88,7 +88,7 @@ copy .env.example .env
 Полный gate для llama.cpp (endpoint, grammar, retrieval, reranker, provenance и неизменность `config.env`):
 
 ```powershell
-.\scripts\Smoke-HomeRag-LlamaCpp.ps1
+.\scripts\Smoke-Hometutor-LlamaCpp.ps1
 ```
 
 Прогрев RAG в уже запущенном API (убирает cold ~10 s с первого UI-вопроса):
@@ -96,7 +96,7 @@ copy .env.example .env
 ```powershell
 .\scripts\run_local_stack.ps1 -WarmupRag
 # или отдельно, когда API уже на :8000
-.\scripts\Warmup-HomeRagRag.ps1
+.\scripts\Warmup-Hometutor-Rag.ps1
 ```
 
 Для одного RAG-запроса без интерактивных prompt используйте `ask.py --question ... --non-interactive`; фильтры доступны через `--folder`, `--folder-rel`, `--file-name` и `--relative-path`.

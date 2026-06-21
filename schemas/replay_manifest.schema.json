@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://home-rag.local/schemas/replay_manifest.schema.json",
+  "$id": "https://hometutor.local/schemas/replay_manifest.schema.json",
   "title": "ReplayManifest",
   "type": "object",
   "additionalProperties": true,

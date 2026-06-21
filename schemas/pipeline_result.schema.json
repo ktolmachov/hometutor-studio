@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://home-rag.local/schemas/pipeline_result.schema.json",
+  "$id": "https://hometutor.local/schemas/pipeline_result.schema.json",
   "title": "PipelineResult",
   "type": "object",
   "additionalProperties": true,

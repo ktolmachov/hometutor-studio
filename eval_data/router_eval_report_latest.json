@@ -5,7 +5,7 @@
   "smoke_only_note": null,
   "comparable_to_full_baseline": true,
   "dataset_version": "1.4",
-  "dataset_file": "D:\\Projects\\home-rag_v2\\eval_data\\tutor_regression.json",
+  "dataset_file": "D:\\Projects\\hometutor-studio\\eval_data\\tutor_regression.json",
   "cases_in_this_run": 26,
   "cases_total_in_dataset": 26,
   "aggregate": {
@@ -688,7 +688,7 @@
       }
     }
   },
-  "baseline_path": "D:\\Projects\\home-rag_v2\\eval_data\\router_eval_baseline.json",
+  "baseline_path": "D:\\Projects\\hometutor-studio\\eval_data\\router_eval_baseline.json",
   "baseline_loaded": true,
   "regression_compared": true,
   "baseline_comparison_state": "active_vs_baseline",

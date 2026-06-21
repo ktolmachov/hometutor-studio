@@ -4,7 +4,7 @@
   Warm retrieval/reranker/query-engine inside a running hometutor API process.
 
 .EXAMPLE
-  .\scripts\Warmup-HomeRagRag.ps1
+  .\scripts\Warmup-Hometutor-Rag.ps1
 
 .EXAMPLE
   .\scripts\run_local_stack.ps1 -WarmupRag

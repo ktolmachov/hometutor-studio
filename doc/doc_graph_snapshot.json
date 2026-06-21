@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-03",
+  "generated": "2026-06-21",
   "nodes": [
     {
       "id": "AGENTS.md",
@@ -27,7 +27,7 @@
       "label": "adr_021_smart_router_rag_modes.md",
       "cat": "arch",
       "desc": "ADR-021: Smart Router RAG modes and bounded GraphRAG analytics",
-      "broken_refs": 0
+      "broken_refs": 8
     },
     {
       "id": "adr_021a_global_analytics_design.md",
@@ -41,7 +41,7 @@
       "label": "…/adr_021a_smart_router_architecture_lifts.md",
       "cat": "arch",
       "desc": "ADR-021a: Audit architecture lifts — amendment to ADR-021",
-      "broken_refs": 0
+      "broken_refs": 1
     },
     {
       "id": "adr_022_ssr_ai_eval_harness.md",
@@ -55,6 +55,13 @@
       "label": "adr_023_ssr_graph_routing.md",
       "cat": "arch",
       "desc": "ADR-023: SSR Graph Routing — Prerequisite-Aware Weak-Concept Ordering",
+      "broken_refs": 0
+    },
+    {
+      "id": "adr_025_course_graph_compiler.md",
+      "label": "adr_025_course_graph_compiler.md",
+      "cat": "arch",
+      "desc": "ADR-025: Course Graph Compiler and local artifact cache",
       "broken_refs": 0
     },
     {
@@ -244,7 +251,7 @@
       "label": "changelog.md",
       "cat": "history",
       "desc": "Журнал Изменений",
-      "broken_refs": 0
+      "broken_refs": 2
     },
     {
       "id": "cjm.md",
@@ -285,7 +292,7 @@
       "id": "current_task.md",
       "label": "current_task.md",
       "cat": "backlog",
-      "desc": "TASK: Post-Closure SSoT Audit for epoch-micro-quiz-progress-bridge-v1",
+      "desc": "current_task.md",
       "broken_refs": 0
     },
     {
@@ -293,6 +300,13 @@
       "label": "data_governance.md",
       "cat": "arch",
       "desc": "Управление локальными данными (data governance)",
+      "broken_refs": 0
+    },
+    {
+      "id": "doc_graph_snapshot.json",
+      "label": "doc_graph_snapshot.json",
+      "cat": "other",
+      "desc": "doc_graph_snapshot.json",
       "broken_refs": 0
     },
     {
@@ -419,7 +433,7 @@
       "label": "index.md",
       "cat": "entry",
       "desc": "🧭 Навигатор Документации hometutor",
-      "broken_refs": 2
+      "broken_refs": 3
     },
     {
       "id": "index_lifecycle.md",
@@ -492,6 +506,13 @@
       "broken_refs": 0
     },
     {
+      "id": "next/ai_driven_design_waves_proposal.md",
+      "label": "…/ai_driven_design_waves_proposal.md",
+      "cat": "next",
+      "desc": "🚀 AI-Driven Design — Next-Level Waves Proposal",
+      "broken_refs": 1
+    },
+    {
       "id": "next/Autonomous Delivery Control Plane v3.md",
       "label": "…/Autonomous Delivery Control Plane v3.md",
       "cat": "next",
@@ -520,6 +541,13 @@
       "broken_refs": 0
     },
     {
+      "id": "next/course_graph_compiler_v1_plan.md",
+      "label": "…/course_graph_compiler_v1_plan.md",
+      "cat": "next",
+      "desc": "Course Graph Compiler v1: evidence-backed GraphRAG for active courses",
+      "broken_refs": 0
+    },
+    {
       "id": "next/DEFENSE_TALKING_POINTS.md",
       "label": "next/DEFENSE_TALKING_POINTS.md",
       "cat": "next",
@@ -534,17 +562,17 @@
       "broken_refs": 0
     },
     {
-      "id": "next/LLM_Provider_Router_home_rag_v2.md",
-      "label": "…/LLM_Provider_Router_home_rag_v2.md",
+      "id": "next/LLM_Provider_Router_hometutor.md",
+      "label": "…/LLM_Provider_Router_hometutor.md",
       "cat": "next",
-      "desc": "next/LLM_Provider_Router_home_rag_v2.md",
+      "desc": "next/LLM_Provider_Router_hometutor.md",
       "broken_refs": 0
     },
     {
       "id": "next/localhost_balance_course_delight_breakthrough.md",
       "label": "…/localhost_balance_course_delight_breakthrough.md",
       "cat": "next",
-      "desc": "Localhost Balance + Course Delight Loop: Breakthrough Analysis",
+      "desc": "Localhost Balance + Course Delight — Breakthrough v6 (CLOSED)",
       "broken_refs": 0
     },
     {
@@ -569,10 +597,45 @@
       "broken_refs": 0
     },
     {
+      "id": "next/ragas_retrieval_metrics_v1_contract.md",
+      "label": "…/ragas_retrieval_metrics_v1_contract.md",
+      "cat": "next",
+      "desc": "Execution Contract — `ragas-retrieval-metrics-v1`",
+      "broken_refs": 1
+    },
+    {
+      "id": "next/roadmap_recommendations_2026-06-11.md",
+      "label": "…/roadmap_recommendations_2026-06-11.md",
+      "cat": "next",
+      "desc": "Рекомендации по развитию дорожной карты — 2026-06-11",
+      "broken_refs": 0
+    },
+    {
+      "id": "next/skills_subagents_workflow_platform.md",
+      "label": "…/skills_subagents_workflow_platform.md",
+      "cat": "next",
+      "desc": "Skills + Subagents Workflow Platform — стратегический brief",
+      "broken_refs": 0
+    },
+    {
+      "id": "next/smart_notes_killer_feature_plan.md",
+      "label": "…/smart_notes_killer_feature_plan.md",
+      "cat": "next",
+      "desc": "Smart Notes Killer Feature Plan",
+      "broken_refs": 0
+    },
+    {
       "id": "observability_slo.md",
       "label": "observability_slo.md",
       "cat": "arch",
       "desc": "SLO И Наблюдаемость",
+      "broken_refs": 0
+    },
+    {
+      "id": "obsidian_export_todo.md",
+      "label": "obsidian_export_todo.md",
+      "cat": "other",
+      "desc": "Obsidian Export — оставшиеся задачи",
       "broken_refs": 0
     },
     {
@@ -664,7 +727,7 @@
       "label": "…/defense_killer_feature_smart_assistant.md",
       "cat": "presentations",
       "desc": "🧭 Killer Feature: Умный помощник (Smart Study Router)",
-      "broken_refs": 0
+      "broken_refs": 2
     },
     {
       "id": "presentations/defense_presentation.md",
@@ -741,7 +804,7 @@
       "label": "…/defense_presentation_v2.md",
       "cat": "presentations",
       "desc": "🎓 hometutor — Академическая защита проектной работы",
-      "broken_refs": 22
+      "broken_refs": 26
     },
     {
       "id": "presentations/defense_presentation_v3.md",
@@ -749,6 +812,13 @@
       "cat": "presentations",
       "desc": "ИИ-тьютор с RAG: персонализированное обучение на собственных документах",
       "broken_refs": 1
+    },
+    {
+      "id": "presentations/defense_presentation_v4.md",
+      "label": "…/defense_presentation_v4.md",
+      "cat": "presentations",
+      "desc": "hometutor — персональный AI-тьютор на ваших материалах",
+      "broken_refs": 9
     },
     {
       "id": "presentations/defense_presenter_script.md",
@@ -842,18 +912,60 @@
       "broken_refs": 0
     },
     {
+      "id": "prompts/agent_prompts_index.md",
+      "label": "prompts/agent_prompts_index.md",
+      "cat": "entry",
+      "desc": "Архив Agent Prompts",
+      "broken_refs": 1
+    },
+    {
+      "id": "prompts/agent_prompts_verify.md",
+      "label": "prompts/agent_prompts_verify.md",
+      "cat": "other",
+      "desc": "Универсальный верификационный шаблон для execution contracts",
+      "broken_refs": 0
+    },
+    {
+      "id": "prompts/ARCHIVE_ADD_PROMPT.md",
+      "label": "prompts/ARCHIVE_ADD_PROMPT.md",
+      "cat": "other",
+      "desc": "Промпт: добавить новый контрактный prompt в архив",
+      "broken_refs": 1
+    },
+    {
+      "id": "prompts/run_smart_konspekt_cloud_llm.md",
+      "label": "…/run_smart_konspekt_cloud_llm.md",
+      "cat": "other",
+      "desc": "Запуск полного умного конспекта лекции",
+      "broken_refs": 0
+    },
+    {
+      "id": "prompts/smart_lecture_konspekt_universal.md",
+      "label": "…/smart_lecture_konspekt_universal.md",
+      "cat": "other",
+      "desc": "Local-only промпт для генерации умного конспекта лекции",
+      "broken_refs": 0
+    },
+    {
+      "id": "prompts/smart_lecture_konspekt_universal_cloud_llm.md",
+      "label": "…/smart_lecture_konspekt_universal_cloud_llm.md",
+      "cat": "other",
+      "desc": "Универсальный cloud-only промпт для генерации умного конспекта лекции",
+      "broken_refs": 10
+    },
+    {
       "id": "prompts_catalog.md",
       "label": "prompts_catalog.md",
       "cat": "prompts",
       "desc": "📚 Каталог Промптов",
-      "broken_refs": 3
+      "broken_refs": 22
     },
     {
       "id": "prompts_usage_guide.md",
       "label": "prompts_usage_guide.md",
       "cat": "prompts",
       "desc": "🧭 Руководство по Использованию Промптов (Prompts Usage Guide)",
-      "broken_refs": 2
+      "broken_refs": 3
     },
     {
       "id": "QUICK_READSET_REFERENCE.md",
@@ -874,14 +986,14 @@
       "label": "quickstart_demo.md",
       "cat": "ux",
       "desc": "Smart Demo — автоматически снятые кадры сценариев",
-      "broken_refs": 0
+      "broken_refs": 145
     },
     {
       "id": "quickstart_demo.preview.md",
       "label": "quickstart_demo.preview.md",
       "cat": "ux",
       "desc": "Smart Demo — автоматически снятые кадры сценариев",
-      "broken_refs": 8
+      "broken_refs": 60
     },
     {
       "id": "readme.md",
@@ -923,7 +1035,7 @@
       "label": "smart_study_router.md",
       "cat": "vision",
       "desc": "Smart Study Router — Killer Feature",
-      "broken_refs": 0
+      "broken_refs": 8
     },
     {
       "id": "ssr_advanced_features.md",
@@ -965,7 +1077,7 @@
       "label": "ssr_ml_production_readiness.md",
       "cat": "arch",
       "desc": "SSR ML Production Readiness Checklist",
-      "broken_refs": 0
+      "broken_refs": 2
     },
     {
       "id": "ssr_ml_rollout_gates.md",
@@ -1042,7 +1154,7 @@
       "label": "…/epoch_demo_post_agent_smoke.md",
       "cat": "workflow",
       "desc": "Epoch-Demo: smoke `run_autonomous --post-agent` (реальный CLI, не unit)",
-      "broken_refs": 8
+      "broken_refs": 10
     },
     {
       "id": "team_workflow/archive/po_router_decision_tree.md",
@@ -1070,6 +1182,27 @@
       "label": "…/audit_prompt_2026-05-22__2026-05-22_cursor_ai.md",
       "cat": "workflow",
       "desc": "CLOSED PACKAGES AUDIT — 2026-05-22..2026-05-22 [cursor_ai]",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/audit_prompt_2026-06-11__2026-06-11_cursor_ai.md",
+      "label": "…/audit_prompt_2026-06-11__2026-06-11_cursor_ai.md",
+      "cat": "workflow",
+      "desc": "CLOSED PACKAGES AUDIT — 2026-06-11..2026-06-11 [cursor_ai]",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/audit_prompt_2026-06-19__2026-06-19_cursor_ai.md",
+      "label": "…/audit_prompt_2026-06-19__2026-06-19_cursor_ai.md",
+      "cat": "workflow",
+      "desc": "CLOSED PACKAGES AUDIT — 2026-06-19..2026-06-19 [cursor_ai]",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/audit_prompt_2026-06-19__2026-06-19_langfuse_cursor_ai.md",
+      "label": "…/audit_prompt_2026-06-19__2026-06-19_langfuse_cursor_ai.md",
+      "cat": "workflow",
+      "desc": "CLOSED PACKAGES AUDIT — 2026-06-19..2026-06-19 [cursor_ai]",
       "broken_refs": 0
     },
     {
@@ -1175,14 +1308,14 @@
       "label": "…/generate_breakthrough_ideation_prompt.md",
       "cat": "workflow",
       "desc": "generate_breakthrough_ideation_prompt",
-      "broken_refs": 0
+      "broken_refs": 1
     },
     {
       "id": "team_workflow/generate_execution_prompt_auto.md",
       "label": "…/generate_execution_prompt_auto.md",
       "cat": "workflow",
       "desc": "generate_execution_prompt_auto",
-      "broken_refs": 0
+      "broken_refs": 1
     },
     {
       "id": "team_workflow/generate_orchestration_prompt.md",
@@ -1245,6 +1378,13 @@
       "label": "…/agent_adapter_kilo.md",
       "cat": "workflow",
       "desc": "Adapter: Kilo",
+      "broken_refs": 0
+    },
+    {
+      "id": "team_workflow/guides/agent_adapter_llamacpp.md",
+      "label": "…/agent_adapter_llamacpp.md",
+      "cat": "workflow",
+      "desc": "Адаптер: llama.cpp / Qwen3-Coder-Next",
       "broken_refs": 0
     },
     {
@@ -1399,7 +1539,7 @@
       "label": "…/product_owner_router.md",
       "cat": "workflow",
       "desc": "Product Owner Router v2.1",
-      "broken_refs": 0
+      "broken_refs": 1
     },
     {
       "id": "team_workflow/rag_llm_ops_project_document.md",
@@ -1665,14 +1805,14 @@
       "label": "user_guide.md",
       "cat": "ux",
       "desc": "hometutor — учебный центр из твоей папки",
-      "broken_refs": 0
+      "broken_refs": 13
     },
     {
       "id": "user_guide_details.md",
       "label": "user_guide_details.md",
       "cat": "ux",
       "desc": "Детальный справочник: все возможности",
-      "broken_refs": 0
+      "broken_refs": 7
     },
     {
       "id": "user_scenarios.md",
@@ -1740,6 +1880,10 @@
     {
       "source": "adr.md",
       "target": "adr_023_ssr_graph_routing.md"
+    },
+    {
+      "source": "adr.md",
+      "target": "adr_025_course_graph_compiler.md"
     },
     {
       "source": "adr_021a_smart_router_architecture_lifts.md",
@@ -1891,11 +2035,23 @@
     },
     {
       "source": "agent_workflow_templates.md",
+      "target": "prompts/agent_prompts_verify.md"
+    },
+    {
+      "source": "agent_workflow_templates.md",
       "target": "team_workflow/tester.md"
     },
     {
       "source": "agent_workflow_templates.md",
       "target": "team_workflow/developer.md"
+    },
+    {
+      "source": "agent_workflow_templates.md",
+      "target": "prompts/agent_prompts_index.md"
+    },
+    {
+      "source": "agent_workflow_templates.md",
+      "target": "prompts/ARCHIVE_ADD_PROMPT.md"
     },
     {
       "source": "agent_workflow_test_bundles.md",
@@ -2139,6 +2295,18 @@
     },
     {
       "source": "future_roadmap.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md"
+    },
+    {
+      "source": "future_roadmap.md",
+      "target": "next/localhost_balance_course_delight_breakthrough.md"
+    },
+    {
+      "source": "future_roadmap.md",
+      "target": "next/skills_subagents_workflow_platform.md"
+    },
+    {
+      "source": "future_roadmap.md",
       "target": "roadmap.md"
     },
     {
@@ -2267,11 +2435,15 @@
     },
     {
       "source": "index.md",
+      "target": "next/localhost_balance_course_delight_breakthrough.md"
+    },
+    {
+      "source": "index.md",
       "target": "next/BREAKTHROUGH_SUMMARY.md"
     },
     {
       "source": "index.md",
-      "target": "next/localhost_balance_course_delight_breakthrough.md"
+      "target": "next/localhost_balance_course_delight_plan.md"
     },
     {
       "source": "index.md",
@@ -2280,6 +2452,14 @@
     {
       "source": "index.md",
       "target": "next/DEFENSE_TALKING_POINTS.md"
+    },
+    {
+      "source": "index.md",
+      "target": "next/ai_driven_design_waves_proposal.md"
+    },
+    {
+      "source": "index.md",
+      "target": "next/ragas_retrieval_metrics_v1_contract.md"
     },
     {
       "source": "index.md",
@@ -2504,6 +2684,10 @@
     {
       "source": "kilo_proxy_relay.md",
       "target": "kilo_budget_capture_runbook.md"
+    },
+    {
+      "source": "obsidian_export_todo.md",
+      "target": "next/smart_notes_killer_feature_plan.md"
     },
     {
       "source": "personalized_learner_model.md",
@@ -3199,6 +3383,10 @@
     },
     {
       "source": "readme.md",
+      "target": "next/localhost_balance_course_delight_breakthrough.md"
+    },
+    {
+      "source": "readme.md",
       "target": "future_roadmap.md"
     },
     {
@@ -3319,11 +3507,19 @@
     },
     {
       "source": "roadmap.md",
+      "target": "next/localhost_balance_course_delight_breakthrough.md"
+    },
+    {
+      "source": "roadmap.md",
       "target": "next/localhost_balance_course_delight_plan.md"
     },
     {
       "source": "roadmap.md",
-      "target": "next/localhost_balance_course_delight_breakthrough.md"
+      "target": "next/smart_notes_killer_feature_plan.md"
+    },
+    {
+      "source": "roadmap.md",
+      "target": "next/roadmap_recommendations_2026-06-11.md"
     },
     {
       "source": "roadmap.md",
@@ -3487,6 +3683,10 @@
     },
     {
       "source": "user_guide.md",
+      "target": "team_workflow/guides/agent_adapter_llamacpp.md"
+    },
+    {
+      "source": "user_guide.md",
       "target": "eval_experimenter_runbook.md"
     },
     {
@@ -3578,6 +3778,26 @@
       "target": "archive/adr_rag_architecture.md"
     },
     {
+      "source": "next/ai_driven_design_waves_proposal.md",
+      "target": "smart_study_router.md"
+    },
+    {
+      "source": "next/ai_driven_design_waves_proposal.md",
+      "target": "roadmap.md"
+    },
+    {
+      "source": "next/ai_driven_design_waves_proposal.md",
+      "target": "backlog_registry.yaml"
+    },
+    {
+      "source": "next/ai_driven_design_waves_proposal.md",
+      "target": "next/BREAKTHROUGH_SUMMARY.md"
+    },
+    {
+      "source": "next/ai_driven_design_waves_proposal.md",
+      "target": "team_workflow/generate_plan_next_prompt.md"
+    },
+    {
       "source": "next/BREAKTHROUGH_SUMMARY.md",
       "target": "next/localhost_balance_course_delight_breakthrough.md"
     },
@@ -3596,6 +3816,42 @@
     {
       "source": "next/localhost_balance_course_delight_plan.md",
       "target": "adr.md"
+    },
+    {
+      "source": "next/ragas_retrieval_metrics_v1_contract.md",
+      "target": "backlog_registry.yaml"
+    },
+    {
+      "source": "next/ragas_retrieval_metrics_v1_contract.md",
+      "target": "next/ai_driven_design_waves_proposal.md"
+    },
+    {
+      "source": "next/ragas_retrieval_metrics_v1_contract.md",
+      "target": "team_workflow/generate_plan_next_prompt.md"
+    },
+    {
+      "source": "next/roadmap_recommendations_2026-06-11.md",
+      "target": "roadmap.md"
+    },
+    {
+      "source": "next/roadmap_recommendations_2026-06-11.md",
+      "target": "future_roadmap.md"
+    },
+    {
+      "source": "next/roadmap_recommendations_2026-06-11.md",
+      "target": "backlog_registry.yaml"
+    },
+    {
+      "source": "next/roadmap_recommendations_2026-06-11.md",
+      "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md"
+    },
+    {
+      "source": "next/roadmap_recommendations_2026-06-11.md",
+      "target": "next/localhost_balance_course_delight_breakthrough.md"
+    },
+    {
+      "source": "next/skills_subagents_workflow_platform.md",
+      "target": "team_workflow/process.md"
     },
     {
       "source": "presentations/defense_expert_panel.md",
@@ -3652,6 +3908,10 @@
     {
       "source": "presentations/defense_presentation_v2.md",
       "target": "kilo_proxy_relay.md"
+    },
+    {
+      "source": "presentations/defense_presentation_v4.md",
+      "target": "presentations/defense_killer_demo.md"
     },
     {
       "source": "presentations/defense_README.md",
@@ -3724,6 +3984,10 @@
     {
       "source": "presentations/defense_virtual_defense.md",
       "target": "presentations/defense_presentation.md"
+    },
+    {
+      "source": "prompts/agent_prompts_index.md",
+      "target": "prompts/ARCHIVE_ADD_PROMPT.md"
     },
     {
       "source": "scenarios/README.md",
@@ -4614,10 +4878,6 @@
       "target": "token_safety.md"
     },
     {
-      "source": "user_stories/README.md",
-      "target": "user_stories.md"
-    },
-    {
       "source": "team_workflow/archive/audit_prompt_epic20-smart-study-router_codex.md",
       "target": "smart_study_router.md"
     },
@@ -4832,6 +5092,10 @@
     {
       "source": "team_workflow/ssr_ai_vision/ssr_wave1_audit_summary.md",
       "target": "team_workflow/ssr_ai_vision/ssr_ai_vision_summary.md"
+    },
+    {
+      "source": "user_stories/README.md",
+      "target": "user_stories.md"
     }
   ]
 }

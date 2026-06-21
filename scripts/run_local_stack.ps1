@@ -302,9 +302,9 @@ try {
 
     if ($WarmupRag) {
         Write-Host "`nПрогрев RAG (reranker + query engine в процессе API, ~10–15 s cold)..." -ForegroundColor Cyan
-        & (Join-Path $Root "scripts\Warmup-HomeRagRag.ps1") -ApiBase "http://127.0.0.1:8000"
+        & (Join-Path $Root "scripts\Warmup-Hometutor-Rag.ps1") -ApiBase "http://127.0.0.1:8000"
         if ($LASTEXITCODE -ne 0) {
-            throw "Warmup-HomeRagRag.ps1 failed with exit code $LASTEXITCODE"
+            throw "Warmup-Hometutor-Rag.ps1 failed with exit code $LASTEXITCODE"
         }
     }
 

@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <title>home-rag_v2 defense presentation</title>
+  <title>hometutor defense presentation</title>
   <style>
 @page { size: 13.333in 7.5in; margin: 0; }
 * { box-sizing: border-box; }
@@ -102,14 +102,14 @@ a { color: #206f51; text-decoration: none; }
 </style>
 </head>
 <body>
-  <section class="slide"><div class="slide-content"><h1>home-rag_v2 — Академическая защита проектной работы</h1>
+  <section class="slide"><div class="slide-content"><h1>hometutor — Академическая защита проектной работы</h1>
 <blockquote>
-<p><strong>Проект:</strong> home-rag_v2 · Персональный учебный ассистент на основе ваших материалов <strong>Дата:</strong> май 2026 <strong>Мероприятие:</strong> Академическая защита проектной работы <strong>Формат:</strong> 9 слайдов · Markdown-презентация</p>
+<p><strong>Проект:</strong> hometutor · Персональный учебный ассистент на основе ваших материалов <strong>Дата:</strong> май 2026 <strong>Мероприятие:</strong> Академическая защита проектной работы <strong>Формат:</strong> 9 слайдов · Markdown-презентация</p>
 </blockquote>
-<figure><img src="doc/screenshots/defense_pdf/pdf_slide_01.png" alt="home-rag как личный тьютор из собственных конспектов"></figure>
+<figure><img src="doc/screenshots/defense_pdf/pdf_slide_01.png" alt="hometutor как личный тьютор из собственных конспектов"></figure>
 <hr></div></section>
 <section class="slide"><div class="slide-content"><h2>Слайд 1 — Обзор продукта: проблема и решение</h2>
-<figure><img src="screenshots/slide_01_product_overview.png" alt="Обзор продукта home-rag: путь от файлов к персональному AI-тьютору"></figure>
+<figure><img src="screenshots/slide_01_product_overview.png" alt="Обзор продукта hometutor: путь от файлов к персональному AI-тьютору"></figure>
 <h3>Проблема: куча документов -&gt; ценность?</h3>
 <p>У вас есть <strong>папка с материалами</strong>: лекции, статьи, заметки, документация проекта.</p>
 <p><strong>Что вы хотите:</strong></p>
@@ -128,7 +128,7 @@ a { color: #206f51; text-decoration: none; }
 </ul>
 <p><strong>Результат:</strong> Вы тратите время на переключение между инструментами, теряете контекст и мотивацию</p>
 <hr>
-<h3>Решение: home-rag_v2 — от документов до знания</h3>
+<h3>Решение: hometutor — от документов до знания</h3>
 <p><strong>Один инструмент. Полный цикл. Локально.</strong></p>
 <pre><code>Ваши документы (data/)
  
@@ -186,7 +186,7 @@ a { color: #206f51; text-decoration: none; }
 </ul>
 <hr></div></section>
 <section class="slide"><div class="slide-content"><h2>Слайд 2 — Архитектура и стек технологий</h2>
-<figure><img src="doc/screenshots/defense_pdf/pdf_slide_09.png" alt="Омниканальная локальная экосистема home-rag"></figure>
+<figure><img src="doc/screenshots/defense_pdf/pdf_slide_09.png" alt="Омниканальная локальная экосистема hometutor"></figure>
 <h3>Четыре слоя системы</h3>
 <pre class="language-mermaid"><code>graph TB
  subgraph " Интерфейсный слой"
@@ -435,7 +435,7 @@ a { color: #206f51; text-decoration: none; }
 </tbody></table>
 <p><strong>Честная граница:</strong> без опубликованного eval-run нельзя утверждать “лучше всех” или “высокое качество” численно. На защите корректно говорить: “в проекте есть eval-инфраструктура и план измерений; конкретные числа показываются по последнему прогону”.</p>
 <hr>
-<h3>Уникальные фичи RAG в home-rag_v2</h3>
+<h3>Уникальные фичи RAG в hometutor</h3>
 <p><strong> Двухуровневая индексация</strong></p>
 <ul>
 <li>Chunk-level — для точечных вопросов</li>
@@ -962,10 +962,10 @@ medium/high + US/CJM -&gt; orchestration (8 шагов: PO-&gt;Analyst-&gt;Archi
 <p>Подробный сценарий, лог идеальной сессии и fallback-план: <a href="doc/defense_killer_demo.md"><code>doc/defense_killer_demo.md</code></a>.</p>
 <hr></div></section>
 <section class="slide"><div class="slide-content"><h2>Слайд 11 — Сравнение с конкурентами</h2>
-<figure><img src="doc/screenshots/defense_pdf/pdf_slide_02.png" alt="Сравнение home-rag с существующими инструментами"></figure>
-<h3>home-rag_v2 vs Альтернативы</h3>
+<figure><img src="doc/screenshots/defense_pdf/pdf_slide_02.png" alt="Сравнение hometutor с существующими инструментами"></figure>
+<h3>hometutor vs Альтернативы</h3>
 <table><thead><tr>
-<th>Функция</th><th>home-rag_v2</th><th>NotebookLM</th><th>Anki</th><th>ChatGPT + Files</th><th>Obsidian</th>
+<th>Функция</th><th>hometutor</th><th>NotebookLM</th><th>Anki</th><th>ChatGPT + Files</th><th>Obsidian</th>
 </tr></thead><tbody>
 <tr>
 <td><strong> Q&amp;A по документам</strong></td><td>Да RAG с источниками</td><td>Да Да</td><td>Нет Нет</td><td>Да Да</td><td>Внимание: Через плагины</td>
@@ -1000,7 +1000,7 @@ medium/high + US/CJM -&gt; orchestration (8 шагов: PO-&gt;Analyst-&gt;Archi
 </tbody></table>
 <hr>
 <h3>Уникальное позиционирование</h3>
-<p><strong>home-rag_v2 — это единственный инструмент, который:</strong></p>
+<p><strong>hometutor — это единственный инструмент, который:</strong></p>
 <ul>
 <li>Отвечает по вашим материалам (как NotebookLM)</li>
 <li>Создаёт квизы автоматически из ответов</li>
@@ -1028,7 +1028,7 @@ medium/high + US/CJM -&gt; orchestration (8 шагов: PO-&gt;Analyst-&gt;Archi
 <td>Фокус на note-taking и knowledge management</td><td><strong>Obsidian</strong> — лучший в классе</td>
 </tr>
 <tr>
-<td>Нужен полный учебный цикл с автоматизацией</td><td><strong>home-rag_v2</strong> — это наша ниша</td>
+<td>Нужен полный учебный цикл с автоматизацией</td><td><strong>hometutor</strong> — это наша ниша</td>
 </tr>
 </tbody></table>
 <hr></div></section>

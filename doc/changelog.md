@@ -11,11 +11,11 @@
 
 - **Local default model:** после benchmark pack v1.7 (`2026-06-20_20-34-44`) профиль `llama-cpp` и `config.env` переведены на **`qwopus3.6-35b-a3b-v1-mtp`** (`~185 tps`, quality 11.5/11.5, real hometutor smoke PASS). Baseline **`qwen3.6-27b`** остаётся доступен через `switch_local_llm.ps1 -Model …` и LM Studio-профиль.
 - **`scripts/switch_local_llm.ps1`:** дефолт llama-cpp = qwopus; добавлен опциональный `-Model` для override alias без ручного редактирования `config.env`.
-- **`scripts/Smoke-HomeRag-LlamaCpp.ps1`:** `Set-Location` в корень репо; override `LLM_MODEL`/`QUIZ_LLM_MODEL` из `-Model`; дефолт smoke = qwopus. Исправляет false-negative smoke при запуске из benchmark pack (cwd) и mismatch `debug.llm_model` vs загруженный alias.
+- **`scripts/Smoke-Hometutor-LlamaCpp.ps1`:** `Set-Location` в корень репо; override `LLM_MODEL`/`QUIZ_LLM_MODEL` из `-Model`; дефолт smoke = qwopus. Исправляет false-negative smoke при запуске из benchmark pack (cwd) и mismatch `debug.llm_model` vs загруженный alias.
 - **`app/config.py`:** `config.env` / `.env` загружаются от `BASE_DIR`, а не cwd вызывающего процесса — subprocess smoke из другого каталога больше не теряет `OPENAI_API_KEY`.
 - **`app/grounded_answer.py`:** устойчивость provenance — блоки только с out-of-range `[N]` отбрасываются; footer «Источники:» фильтруется и при разбиении длинного ответа на предложения. Regression tests в `tests/test_grounded_answer_contract.py`.
 - **Docs:** `doc/user_guide.md`, `doc/quickstart.md` — актуальные llama.cpp default, `-Model`, smoke cold-latency note.
-- **`scripts/Warmup-HomeRagRag.ps1`:** прогрев reranker/query engine через `POST /ask` в running API; флаг `-WarmupRag` у `scripts/run_local_stack.ps1`.
+- **`scripts/Warmup-Hometutor-Rag.ps1`:** прогрев reranker/query engine через `POST /ask` в running API; флаг `-WarmupRag` у `scripts/run_local_stack.ps1`.
 
 ## 2026-06-20 (flashcard-handoff-fast-path-v1 closure + bug fixes)
 
