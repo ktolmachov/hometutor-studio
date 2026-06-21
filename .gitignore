@@ -15,3 +15,4 @@ archive/team_artifacts/_timing/
 archive/team_artifacts/_regression/
 # Продукт подключается отдельно (submodule / pip -e ../hometutor):
 app_src/
+.python/

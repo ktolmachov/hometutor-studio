@@ -3,7 +3,7 @@ import sys
 import types
 from io import StringIO
 
-import ask
+import app.ask_cli as ask
 
 
 def test_main_passes_profile_without_env_mutation(monkeypatch):
