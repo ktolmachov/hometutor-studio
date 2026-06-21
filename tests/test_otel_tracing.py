@@ -26,7 +26,7 @@ def test_init_otel_skips_unreachable_collector(monkeypatch) -> None:
     import app.otel_tracing as otel
 
     otel._provider_initialized = False
-    settings = MagicMock(enable_otel_tracing=True, otel_service_name="home-rag")
+    settings = MagicMock(enable_otel_tracing=True, otel_service_name="hometutor")
     monkeypatch.setattr("app.config.get_settings", lambda: settings)
     monkeypatch.setattr(
         "app.langfuse_trace_export.resolve_langfuse_otlp_export",

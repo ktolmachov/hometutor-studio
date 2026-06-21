@@ -1,4 +1,4 @@
-"""Static guards for the home_rag model-role contract.
+"""Static guards for the hometutor model-role contract.
 
 These checks are intentionally lightweight: they scan source files without
 importing app modules, so a broken runtime dependency cannot hide a routing

@@ -353,8 +353,8 @@ def get_priority_rationale(gap: Gap) -> str:
 
 def main():
     """Main execution function."""
-    input_file = "d:\\Projects\\home-rag_v2\\.kiro\\specs\\user-scenarios-refresh\\gap_analysis_report.txt"
-    output_file = "d:\\Projects\\home-rag_v2\\.kiro\\specs\\user-scenarios-refresh\\prioritized_gaps_report.txt"
+    input_file = "d:\\Projects\\hometutor-studio\\.kiro\\specs\\user-scenarios-refresh\\gap_analysis_report.txt"
+    output_file = "d:\\Projects\\hometutor-studio\\.kiro\\specs\\user-scenarios-refresh\\prioritized_gaps_report.txt"
     
     print("Parsing gap analysis report...")
     gaps = parse_gap_analysis_report(input_file)

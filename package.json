@@ -1,5 +1,5 @@
 {
-  "name": "home-rag-e2e",
+  "name": "hometutor-e2e",
   "private": true,
   "scripts": {
     "test:e2e": "playwright test",
@@ -27,8 +27,8 @@
     "demo:kit:full": "playwright test --project=demo && .venv\\Scripts\\python.exe scripts/make_demo_gifs.py && .venv\\Scripts\\python.exe scripts/generate_demo_doc.py && .venv\\Scripts\\python.exe scripts/build_jury_kit.py --include-details",
     "demo:clean": "node -e \"const fs=require('fs');const rm=p=>{try{fs.rmSync(p,{recursive:true,force:true});}catch{}};rm('doc/screenshots/final');rm('doc/quickstart_demo.md');rm('dist')\"",
     "docs:pdf": "node scripts/render_markdown_pdf.mjs",
-    "docs:defense-pdf": "node scripts/render_markdown_pdf.mjs doc/presentations/defense_presentation.md doc/defense_presentation.pdf --title \"home-rag_v2 defense presentation\" --slides --font-scale 1.08 --strip-emoji",
-    "docs:defense-pdf:slides": "node scripts/render_markdown_pdf.mjs doc/presentations/defense_presentation_slides.md doc/defense_presentation_slides.pdf --title \"home-rag_v2 defense presentation\" --slides --font-scale 1.15 --strip-emoji",
+    "docs:defense-pdf": "node scripts/render_markdown_pdf.mjs doc/presentations/defense_presentation.md doc/defense_presentation.pdf --title \"hometutor defense presentation\" --slides --font-scale 1.08 --strip-emoji",
+    "docs:defense-pdf:slides": "node scripts/render_markdown_pdf.mjs doc/presentations/defense_presentation_slides.md doc/defense_presentation_slides.pdf --title \"hometutor defense presentation\" --slides --font-scale 1.15 --strip-emoji",
     "docs:defense-pdf:visual": ".venv\\Scripts\\python.exe scripts/build_defense_visual_deck.py doc/defense_presentation.pdf",
     "docs:defense-pdf:check": ".venv\\Scripts\\python.exe scripts/check_pdf_quality.py doc/defense_presentation.pdf",
     "e2e:install": "playwright install chromium",

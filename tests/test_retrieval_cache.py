@@ -64,7 +64,7 @@ def test_get_base_services_raises_for_missing_collection(monkeypatch):
     monkeypatch.setattr(
         retrieval_cache,
         "get_active_collection_names",
-        lambda: ("home-rag_v2", "home-rag_v2_summaries"),
+        lambda: ("hometutor", "hometutor_summaries"),
     )
     monkeypatch.setattr(retrieval_cache, "get_default_chroma_backend", lambda _path=None: _Bk())
     monkeypatch.setattr(retrieval_cache_discovery, "get_default_chroma_backend", lambda _path=None: _Bk())
@@ -100,8 +100,8 @@ def test_resolve_active_collection_names_discovers_default_when_configured_missi
     class _Settings:
         enable_document_summaries = True
         faq_memory_collection_name = "home_rag_faq"
-        collection_name = "home-rag_v2"
-        summary_collection_name = "home-rag_v2_summaries"
+        collection_name = "hometutor"
+        summary_collection_name = "hometutor_summaries"
 
     monkeypatch.setattr(retrieval_cache_discovery, "_settings", lambda: _Settings())
     monkeypatch.setattr(retrieval_cache_discovery, "get_default_chroma_backend", lambda _path=None: _Bk())
@@ -115,8 +115,8 @@ def test_resolve_active_collection_names_discovers_default_when_configured_missi
 
     chunks, summaries = retrieval_cache_discovery._resolve_active_collection_names(
         FakeClient(),
-        "home-rag_v2",
-        "home-rag_v2_summaries",
+        "hometutor",
+        "hometutor_summaries",
         chroma_dir="chroma_db",
         raise_empty_fn=_raise_empty,
     )
@@ -133,7 +133,7 @@ def test_resolve_active_collection_names_recovers_unactivated_staging(monkeypatc
         def count(self):
             return self._count
 
-    staging_chunks = "home-rag_v2__staging__1779541798900"
+    staging_chunks = "hometutor__staging__1779541798900"
 
     class FakeClient:
         def get_collection(self, name):
@@ -145,7 +145,7 @@ def test_resolve_active_collection_names_recovers_unactivated_staging(monkeypatc
         def list_collections(self, _client):
             return [
                 "home_rag_faq",
-                "home-rag_v2__staging__1779536856428",
+                "hometutor__staging__1779536856428",
                 staging_chunks,
             ]
 
@@ -154,7 +154,7 @@ def test_resolve_active_collection_names_recovers_unactivated_staging(monkeypatc
     class _Settings:
         enable_document_summaries = True
         faq_memory_collection_name = "home_rag_faq"
-        collection_name = "home-rag_v2"
+        collection_name = "hometutor"
         summary_collection_name = "home_rag_summaries"
 
     monkeypatch.setattr(retrieval_cache_discovery, "_settings", lambda: _Settings())
@@ -169,7 +169,7 @@ def test_resolve_active_collection_names_recovers_unactivated_staging(monkeypatc
 
     chunks, summaries = retrieval_cache_discovery._resolve_active_collection_names(
         FakeClient(),
-        "home-rag_v2",
+        "hometutor",
         "home_rag_summaries",
         chroma_dir="chroma_db",
         raise_empty_fn=_raise_empty,
@@ -189,7 +189,7 @@ def test_discover_chunks_collection_uses_staging_when_active_missing(monkeypatch
 
     class FakeClient:
         def get_collection(self, name):
-            if name == "home-rag_v2__staging__1779541798900":
+            if name == "hometutor__staging__1779541798900":
                 return FakeCollection(2000)
             raise NotFoundError(name)
 
@@ -197,16 +197,16 @@ def test_discover_chunks_collection_uses_staging_when_active_missing(monkeypatch
         def list_collections(self, _client):
             return [
                 "home_rag_faq",
-                "home-rag_v2__staging__1779536856428",
-                "home-rag_v2__staging__1779541798900",
+                "hometutor__staging__1779536856428",
+                "hometutor__staging__1779541798900",
             ]
 
     class _Settings:
         faq_memory_collection_name = "home_rag_faq"
-        collection_name = "home-rag_v2"
+        collection_name = "hometutor"
 
     monkeypatch.setattr(retrieval_cache_discovery, "_settings", lambda: _Settings())
     monkeypatch.setattr(retrieval_cache_discovery, "get_default_chroma_backend", lambda _path=None: _Bk())
 
-    picked = retrieval_cache_discovery._discover_chunks_collection(FakeClient(), "home-rag_v2")
-    assert picked == "home-rag_v2__staging__1779541798900"
+    picked = retrieval_cache_discovery._discover_chunks_collection(FakeClient(), "hometutor")
+    assert picked == "hometutor__staging__1779541798900"

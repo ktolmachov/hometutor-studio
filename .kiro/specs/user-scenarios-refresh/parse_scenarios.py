@@ -302,7 +302,7 @@ def main():
     """Main execution"""
     
     # Parse scenarios
-    file_path = r'd:\Projects\home-rag_v2\doc\user_scenarios.md'
+    file_path = r'd:\Projects\hometutor-studio\doc\user_scenarios.md'
     scenarios = parse_scenarios(file_path)
     
     # Build coverage map
@@ -347,7 +347,7 @@ def main():
         }
     }
     
-    output_path = r'd:\Projects\home-rag_v2\.kiro\specs\user-scenarios-refresh\scenario_analysis.json'
+    output_path = r'd:\Projects\hometutor-studio\.kiro\specs\user-scenarios-refresh\scenario_analysis.json'
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(output, f, ensure_ascii=False, indent=2)
     
