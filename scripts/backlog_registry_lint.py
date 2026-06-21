@@ -69,7 +69,7 @@ PAIN_POINT_BY_US = {
     "US-12.9": "Mastery and graduation claims are not validated against learning outcomes",
     "US-12.10": "RAG adversarial failures are not measured against retrieved documents",
     "US-12.11": "Local-first privacy claims lack deletion verification and cloud-boundary docs",
-    "US-1.1": "Понять, для чего нужен home-rag",
+    "US-1.1": "Понять, для чего нужен hometutor",
     "US-1.2": "Stack trace / пустой экран / missing env",
     "US-1.3": "Неочевидные обязательные env-переменные",
     "US-2.1": "Не вижу прогресс первой индексации",

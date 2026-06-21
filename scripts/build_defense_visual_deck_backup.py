@@ -130,7 +130,7 @@ def title(ax: plt.Axes, text: str, subtitle: str | None = None) -> None:
         )
 
 
-def footer(ax: plt.Axes, label: str = "home-rag_v2 · local-first AI tutor") -> None:
+def footer(ax: plt.Axes, label: str = "hometutor · local-first AI tutor") -> None:
     ax.plot([0.055, 0.945], [0.055, 0.055], color=LINE, lw=1.2)
     ax.text(0.945, 0.032, label, ha="right", va="bottom", color=MUTED, fontproperties=font("arial.ttf", 8.5))
 
@@ -189,7 +189,7 @@ def code(ax: plt.Axes, lines: list[str], box: tuple[float, float, float, float])
 
 def cover(pdf: PdfPages) -> None:
     f, ax = fig()
-    ax.text(0.055, 0.89, "home-rag", ha="left", va="top", color=GREEN, fontproperties=bold_font("arialbd.ttf", 45))
+    ax.text(0.055, 0.89, "hometutor", ha="left", va="top", color=GREEN, fontproperties=bold_font("arialbd.ttf", 45))
     ax.text(0.31, 0.89, ": персональный AI-тьютор", ha="left", va="top", color="#050505", fontproperties=bold_font("arialbd.ttf", 39))
     ax.text(
         0.058,
@@ -426,8 +426,8 @@ def build(output: Path) -> None:
         )
         slide_image_left(
             pdf,
-            "Почему home-rag сильнее набора отдельных инструментов",
-            "ChatGPT, Anki и Obsidian решают части задачи. home-rag закрывает цикл целиком.",
+            "Почему hometutor сильнее набора отдельных инструментов",
+            "ChatGPT, Anki и Obsidian решают части задачи. hometutor закрывает цикл целиком.",
             "pdf_slide_02.png",
             [
                 "Ответы именно по вашим файлам.",

@@ -30,7 +30,7 @@ from scripts.delete_all_data import CONFIRM_TOKEN, delete_all_local_data, verify
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Wipe all local home-rag_v2 data and re-index documents from data/.",
+        description="Wipe all local hometutor data and re-index documents from data/.",
     )
     parser.add_argument(
         "--confirm-token",

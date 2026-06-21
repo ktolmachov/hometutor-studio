@@ -647,7 +647,7 @@ async function callLlamaCpp(
   }
 
   const systemPrompt = [
-    "You are local llama.cpp coding executor for home-rag_v2.",
+    "You are local llama.cpp coding executor for hometutor.",
     "Mode: narrow patch executor. Do not include <think> or hidden reasoning.",
     "You have no file tools. Use only the task text and CONTEXT EXCERPTS FROM READ_SET.",
     "Do not claim, edit, or cite file content that is absent from the provided context.",

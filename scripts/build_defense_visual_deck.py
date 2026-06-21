@@ -130,7 +130,7 @@ def title(ax: plt.Axes, heading: str, subtitle: str | None = None) -> None:
         ax_text(ax, 0.055, 0.81, subtitle, size=12.6, color=MUTED, width=112, linespacing=1.18)
 
 
-def footer(ax: plt.Axes, label: str = "home-rag_v2 · local-first AI tutor") -> None:
+def footer(ax: plt.Axes, label: str = "hometutor · local-first AI tutor") -> None:
     ax.plot([0.055, 0.945], [0.055, 0.055], transform=ax.transAxes, color=LINE, lw=1.1)
     ax_text(ax, 0.945, 0.032, label, size=8.6, color=MUTED, ha="right", va="bottom")
 
@@ -215,7 +215,7 @@ def save(pdf: PdfPages, fig: plt.Figure, previews: list[Path] | None, index: int
 
 def cover(pdf: PdfPages, previews: list[Path] | None, index: int) -> None:
     fig, ax = new_slide()
-    ax_text(ax, 0.055, 0.89, "home-rag", size=43, bold=True, color=GREEN)
+    ax_text(ax, 0.055, 0.89, "hometutor", size=43, bold=True, color=GREEN)
     ax_text(ax, 0.30, 0.89, ": персональный AI-тьютор", size=36, bold=True, color="#050505")
     ax_text(
         ax,

@@ -20,7 +20,7 @@
 
     python scripts/build_jury_kit.py
     python scripts/build_jury_kit.py --include-details
-    python scripts/build_jury_kit.py --output dist/home-rag-jury-v1.zip
+    python scripts/build_jury_kit.py --output dist/hometutor-jury-v1.zip
 """
 
 from __future__ import annotations
@@ -90,7 +90,7 @@ def _default_output() -> Path:
 def _write_readme_top(zf: zipfile.ZipFile) -> None:
     """Кладёт README.md в корень ZIP — первое, что видит жюри при распаковке."""
     readme = (
-        "# Jury Demo Kit — home-rag\n"
+        "# Jury Demo Kit — hometutor\n"
         "\n"
         "> Личный тьютор из ваших конспектов. Local-first. 5 минут до wow.\n"
         "\n"
@@ -103,7 +103,7 @@ def _write_readme_top(zf: zipfile.ZipFile) -> None:
         "## Запустить самостоятельно\n"
         "\n"
         "```bash\n"
-        "git clone <repo> && cd home-rag_v2\n"
+        "git clone <repo> && cd hometutor-studio\n"
         "copy .env.example .env\n"
         "docker compose up --build\n"
         "```\n"

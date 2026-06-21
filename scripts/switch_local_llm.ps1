@@ -1,7 +1,7 @@
 #requires -Version 5.1
 <#
 .SYNOPSIS
-  Switch home_rag between the supported local LLM servers.
+  Switch hometutor between the supported local LLM servers.
 
 .EXAMPLE
   .\scripts\switch_local_llm.ps1 -Profile llama-cpp -ValidateEndpoint

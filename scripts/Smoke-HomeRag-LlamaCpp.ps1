@@ -1,7 +1,7 @@
 #requires -Version 5.1
 <#
 .SYNOPSIS
-  Run the reproducible home_rag -> retrieval -> reranker -> llama.cpp smoke gate.
+  Run the reproducible hometutor -> retrieval -> reranker -> llama.cpp smoke gate.
 #>
 param(
     [string] $ApiBase = "http://127.0.0.1:8080/v1",

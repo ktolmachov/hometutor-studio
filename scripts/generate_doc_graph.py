@@ -610,7 +610,7 @@ HTML_TEMPLATE = r'''<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>home-rag_v2 — Граф Документации</title>
+<title>hometutor — Граф Документации</title>
 <style>
   :root {
     --bg-primary: #0a0a0f; --bg-glass: rgba(255,255,255,0.04);
@@ -720,7 +720,7 @@ HTML_TEMPLATE = r'''<!DOCTYPE html>
 <body>
 <header class="header">
   <h1>🧭 Граф Документации</h1>
-  <span class="subtitle">home-rag_v2</span>
+  <span class="subtitle">hometutor</span>
   <span class="gen-badge">auto-generated</span>
   <div class="search-wrap"><input type="text" id="search" placeholder="Поиск... (/ или ↑↓Enter)" autocomplete="off"></div>
   <div class="stats" id="stats"></div>

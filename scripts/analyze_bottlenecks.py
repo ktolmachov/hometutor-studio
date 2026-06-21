@@ -378,7 +378,7 @@ _LLM_PROMPT_TEMPLATE = """
 
 ## Скопируй в LLM для получения рекомендаций
 
-**Role:** Ты Performance Engineer для Python CLI пайплайна home-rag_v2.
+**Role:** Ты Performance Engineer для Python CLI пайплайна hometutor.
 
 **Task:** Проанализируй данные о производительности ниже и предложи actionable
 рекомендации по устранению узких мест. Следуй правилам из `doc/conventions.md`.

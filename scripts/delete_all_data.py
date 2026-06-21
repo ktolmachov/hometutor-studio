@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Полное удаление локальных производственных артефактов home-rag_v2: векторный индекс
+Полное удаление локальных производственных артефактов hometutor: векторный индекс
 (Chroma), реестры поколений, пользовательское состояние SQLite, JSONL-логи
 (history/feedback/metrics), каталог cost_logs и производные графовые кеши.
 
@@ -146,7 +146,7 @@ def delete_all_local_data(*, confirm_token: str | None) -> dict[str, Any]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Удаление локальных индексов, user-state и телеметрии home-rag_v2",
+        description="Удаление локальных индексов, user-state и телеметрии hometutor",
     )
     parser.add_argument(
         "--confirm-token",

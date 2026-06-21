@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a redacted home-rag eval dataset from an offline Langfuse export."""
+"""Build a redacted hometutor eval dataset from an offline Langfuse export."""
 
 from __future__ import annotations
 

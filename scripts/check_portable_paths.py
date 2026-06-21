@@ -52,7 +52,7 @@ class Rule:
 RULES = (
     Rule(
         name="absolute workspace path",
-        pattern=re.compile(r"(?<![A-Za-z])[A-Za-z]:[\\/](?:[^`'\"\s]+[\\/])*home-rag_v2(?=[\\/`'\"\s]|$)", re.IGNORECASE),
+        pattern=re.compile(r"(?<![A-Za-z])[A-Za-z]:[\\/](?:[^`'\"\s]+[\\/])*hometutor-studio(?=[\\/`'\"\s]|$)", re.IGNORECASE),
         suggestion="Use a repository-relative path, or say: из корня репозитория.",
     ),
     Rule(

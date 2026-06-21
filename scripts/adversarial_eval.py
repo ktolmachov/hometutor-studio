@@ -127,7 +127,7 @@ def _eval_pipeline_guard(case: Mapping[str, Any]) -> CaseResult:
         "result_freshness_seconds": int(case.get("result_freshness_seconds", 7200)),
     }
 
-    with tempfile.TemporaryDirectory(prefix="home_rag_adversarial_guard_") as tmp:
+    with tempfile.TemporaryDirectory(prefix="hometutor_adversarial_guard_") as tmp:
         root = Path(tmp)
         task = root / "doc" / "current_task.md"
         task.parent.mkdir(parents=True, exist_ok=True)
@@ -211,7 +211,7 @@ def _eval_proof_bundle(case: Mapping[str, Any]) -> CaseResult:
     old_pe_current_dir = pe.CURRENT_DIR
     old_pe_orphan_dir = pe.ORPHAN_DIR
     try:
-        with tempfile.TemporaryDirectory(prefix="home_rag_adversarial_proof_") as tmp:
+        with tempfile.TemporaryDirectory(prefix="hometutor_adversarial_proof_") as tmp:
             root = Path(tmp)
             runs_root = root / "logs" / "autonomous_runs"
             pb.ROOT = root

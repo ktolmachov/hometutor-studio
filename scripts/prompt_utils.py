@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-prompt_utils.py — Canonical shared library for home-rag_v2 workflow scripts.
+prompt_utils.py — Canonical shared library for hometutor workflow scripts.
 
 Shared library for registry-first package discovery (``parse_truth_view_from_registry``),
 work-state detection, context extraction, and pipeline metrics. ``parse_truth_view(text)``
