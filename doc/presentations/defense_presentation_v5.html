@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>hometutor · Защита проекта · v5.0</title>
+<style>
+  :root{
+    --bg:#0b1020;
+    --bg2:#0e1430;
+    --panel:#141b38;
+    --panel2:#1a2348;
+    --ink:#eef2ff;
+    --muted:#9aa6d4;
+    --line:#283163;
+    --accent:#6d8bff;
+    --accent2:#33e0c8;
+    --gold:#ffcb6b;
+    --good:#5ee0a0;
+    --bad:#ff7a90;
+    --grad:linear-gradient(120deg,#6d8bff 0%,#33e0c8 100%);
+    --shadow:0 20px 60px rgba(0,0,0,.45);
+    --radius:18px;
+    --font:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    --mono:'JetBrains Mono','Cascadia Code',Consolas,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:var(--font);
+    background:
+      radial-gradient(1200px 700px at 80% -10%,rgba(109,139,255,.18),transparent 60%),
+      radial-gradient(1000px 600px at -10% 110%,rgba(51,224,200,.14),transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    overflow:hidden;
+  }
+
+  /* ---------- stage ---------- */
+  .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;}
+  .deck{
+    position:relative;
+    width:min(96vw,1280px);
+    aspect-ratio:16/9;
+    max-height:94vh;
+  }
+  .slide{
+    position:absolute;inset:0;
+    background:linear-gradient(180deg,var(--bg2),var(--bg));
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:46px 56px 60px;
+    display:none;
+    flex-direction:column;
+    overflow:hidden;
+  }
+  .slide.active{display:flex;animation:fade .45s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .slide::before{
+    content:"";position:absolute;left:0;top:0;height:5px;width:100%;
+    background:var(--grad);
+  }
+
+  /* kicker / heading */
+  .kicker{
+    font-size:13px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--accent2);font-weight:700;margin-bottom:10px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .kicker .num{
+    background:rgba(109,139,255,.16);border:1px solid var(--line);
+    color:var(--accent);border-radius:8px;padding:2px 9px;font-size:12px;letter-spacing:.05em;
+  }
+  h1{font-size:40px;line-height:1.08;font-weight:800;letter-spacing:-.5px;margin-bottom:8px}
+  h2{font-size:30px;line-height:1.12;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h2 .accent,h1 .accent{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);font-size:18px;font-weight:500;margin-bottom:18px;max-width:62ch}
+  .body{flex:1;min-height:0;display:flex;flex-direction:column;gap:14px;overflow:auto}
+  .body::-webkit-scrollbar{width:8px}
+  .body::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+
+  p{font-size:17px;line-height:1.5;color:#dbe2ff}
+  .muted{color:var(--muted)}
+  strong{color:#fff}
+  .accent-t{color:var(--accent2);font-weight:700}
+  .gold-t{color:var(--gold);font-weight:700}
+
+  ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+  li{position:relative;padding-left:26px;font-size:16.5px;line-height:1.45;color:#dce3ff}
+  li::before{content:"";position:absolute;left:2px;top:9px;width:9px;height:9px;border-radius:3px;background:var(--grad)}
+
+  /* quote / thesis */
+  .thesis{
+    border-left:3px solid transparent;
+    border-image:var(--grad) 1;
+    background:linear-gradient(90deg,rgba(109,139,255,.12),rgba(51,224,200,.03));
+    padding:18px 22px;border-radius:0 12px 12px 0;font-size:19px;line-height:1.5;color:#eaf0ff;
+  }
+  .thesis.small{font-size:16.5px;padding:14px 18px}
+
+  /* cards / grid */
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .card{
+    background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--line);border-radius:14px;padding:16px 18px;
+  }
+  .card h3{font-size:15px;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+  .card p,.card li{font-size:15px}
+
+  /* stat chips */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .stat{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:14px;padding:14px 16px;text-align:center}
+  .stat .v{font-size:30px;font-weight:800;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .stat .l{font-size:12.5px;color:var(--muted);margin-top:7px;line-height:1.3}
+
+  /* table */
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+  th{color:var(--accent2);font-weight:700;text-transform:uppercase;font-size:11.5px;letter-spacing:.08em}
+  tbody tr:hover{background:rgba(109,139,255,.06)}
+  td:first-child{font-weight:600;color:#fff}
+  .yes{color:var(--good);font-weight:700}
+  .no{color:var(--bad);font-weight:700}
+  .part{color:var(--gold)}
+
+  /* code/flow */
+  .flow{font-family:var(--mono);font-size:13.5px;line-height:1.55;color:#bcd0ff;
+    background:rgba(8,12,28,.7);border:1px solid var(--line);border-radius:12px;padding:16px 18px;white-space:pre;overflow:auto}
+
+  .pillrow{display:flex;flex-wrap:wrap;gap:8px}
+  .pill{font-size:13px;font-weight:600;color:#cdd7ff;background:rgba(109,139,255,.12);border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+
+  /* footer / chrome */
+  .foot{position:absolute;left:56px;right:56px;bottom:16px;display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12.5px}
+  .foot .brand{display:flex;align-items:center;gap:9px;font-weight:700;color:#cdd7ff;letter-spacing:.02em}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--grad);box-shadow:0 0 12px rgba(51,224,200,.6)}
+
+  /* cover */
+  .cover{justify-content:center;align-items:flex-start;text-align:left}
+  .cover .logo{font-size:15px;letter-spacing:.3em;text-transform:uppercase;color:var(--accent2);font-weight:800;margin-bottom:22px}
+  .cover h1{font-size:60px;max-width:18ch}
+  .cover .tag{font-size:22px;color:var(--muted);margin-top:14px;max-width:50ch;line-height:1.45}
+  .cover .meta{display:flex;gap:10px;margin-top:30px;flex-wrap:wrap}
+  .badge{border:1px solid var(--line);background:rgba(109,139,255,.1);border-radius:999px;padding:8px 16px;font-size:14px;font-weight:600;color:#dbe2ff}
+  .badge b{color:var(--accent2)}
+
+  /* section divider */
+  .divider{justify-content:center;align-items:center;text-align:center;background:radial-gradient(800px 500px at 50% 40%,rgba(109,139,255,.18),transparent 60%),linear-gradient(180deg,var(--bg2),var(--bg))}
+  .divider .big{font-size:64px;font-weight:800;letter-spacing:-1px}
+  .divider .lbl{font-size:16px;letter-spacing:.3em;text-transform:uppercase;color:var(--accent2);font-weight:700;margin-bottom:14px}
+
+  /* controls */
+  .nav{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:14px;z-index:50;
+    background:rgba(14,20,48,.8);border:1px solid var(--line);border-radius:999px;padding:8px 14px;backdrop-filter:blur(8px)}
+  .nav button{background:none;border:none;color:var(--ink);cursor:pointer;font-size:18px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center}
+  .nav button:hover{background:rgba(109,139,255,.2)}
+  .nav .count{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:54px;text-align:center}
+  .progress{position:fixed;top:0;left:0;height:3px;background:var(--grad);z-index:60;transition:width .35s ease}
+  .hint{position:fixed;top:14px;right:16px;font-size:12px;color:var(--muted);z-index:50}
+
+  svg{display:block}
+  .diagram{display:flex;justify-content:center;align-items:center;flex:1;min-height:0}
+
+  /* ---------- print ---------- */
+  @media print{
+    @page{size:1280px 720px;margin:0}
+    html,body{height:auto;overflow:visible;background:#0b1020}
+    .stage{position:static;display:block}
+    .deck{width:1280px;height:720px;max-height:none;aspect-ratio:auto}
+    .slide{display:flex!important;position:relative;page-break-after:always;break-after:page;
+      width:1280px;height:720px;border-radius:0;box-shadow:none;animation:none;border:none}
+    .nav,.progress,.hint{display:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="hint">← → пробел · клик по краям · F = печать в PDF</div>
+
+<div class="stage">
+  <div class="deck" id="deck">
+
+    <!-- 0 COVER -->
+    <section class="slide cover active">
+      <div class="logo">◆ hometutor</div>
+      <h1>Персональный AI-тьютор <span class="accent">на ваших материалах</span></h1>
+      <div class="tag">Полный учебный цикл, local-first — построенный воспроизводимой AI-фабрикой разработки.</div>
+      <div class="meta">
+        <span class="badge">Защита проекта · <b>июнь 2026</b></span>
+        <span class="badge">Версия <b>5.0</b></span>
+        <span class="badge">После миграции <b>продукт + фабрика</b></span>
+      </div>
+      <div class="foot"><span class="brand"><span class="dot"></span>hometutor</span><span>Local-first · Полный цикл · Доказуемое качество</span></div>
+    </section>
+
+    <!-- 1 MAIN THESIS -->
+    <section class="slide">
+      <div class="kicker"><span class="num">01</span> Главный тезис</div>
+      <h2>Не Q&amp;A по документам — <span class="accent">весь учебный цикл</span></h2>
+      <div class="body">
+        <div class="thesis">Система ведёт пользователя: <strong>вопрос → объяснение → проверка → запоминание → план</strong> — на ваших собственных материалах, с возможностью работать полностью локально.</div>
+        <div class="grid g3" style="margin-top:6px">
+          <div class="card"><h3>Local-first</h3><p>Может работать без облака; данные остаются на машине пользователя.</p></div>
+          <div class="card"><h3>Полный цикл</h3><p>От ответа до интервального повторения — в одном инструменте.</p></div>
+          <div class="card"><h3>Управляемость</h3><p>Система предлагает следующий шаг, а не оставляет перед пустым чатом.</p></div>
+        </div>
+        <div class="thesis small"><span class="gold-t">Новое в v5.0:</span> продукт построен и развивается <strong>AI-фабрикой разработки</strong> — «документ — закон, скрипт — движок, агент — руль».</div>
+      </div>
+      <div class="foot"><span class="brand"><span class="dot"></span>hometutor</span><span>Главный тезис</span></div>
+    </section>
+
+    <!-- 2 MIGRATION (hero) -->
+    <section class="slide">
+      <div class="kicker"><span class="num">02</span> Сильный ход</div>
+      <h2>Миграция: <span class="accent">монолит → продукт + фабрика</span></h2>
+      <div class="sub">Главное изменение с прошлой защиты — это не косметика, а смена уровня зрелости.</div>
+      <div class="body">
+        <div class="diagram" style="flex:0 0 auto">
+          <svg viewBox="0 0 1000 250" width="100%" style="max-width:980px">
+            <defs>
+              <linearGradient id="gA" x1="0" x2="1"><stop offset="0" stop-color="#6d8bff"/><stop offset="1" stop-color="#33e0c8"/></linearGradient>
+            </defs>
+            <rect x="400" y="14" width="200" height="46" rx="12" fill="#141b38" stroke="#283163"/>
+            <text x="500" y="42" fill="#9aa6d4" font-size="16" text-anchor="middle" font-family="monospace">home-rag_v2 (монолит)</text>
+            <path d="M500 60 L500 86 M500 86 L260 86 L260 110 M500 86 L740 86 L740 110" stroke="url(#gA)" stroke-width="2.5" fill="none"/>
+            <g>
+              <rect x="70" y="110" width="380" height="120" rx="14" fill="#141b38" stroke="url(#gA)" stroke-width="1.5"/>
+              <text x="260" y="138" fill="#33e0c8" font-size="15" text-anchor="middle" font-weight="700" font-family="sans-serif">hometutor · ПРОДУКТ (runtime)</text>
+              <text x="260" y="164" fill="#dbe2ff" font-size="13.5" text-anchor="middle" font-family="monospace">app/ · ingest.py · main.py</text>
+              <text x="260" y="186" fill="#dbe2ff" font-size="13.5" text-anchor="middle" font-family="monospace">Docker · deploy/ · 93 endpoint</text>
+              <text x="260" y="210" fill="#9aa6d4" font-size="12.5" text-anchor="middle" font-family="sans-serif">то, что запускает пользователь</text>
+            </g>
+            <g>
+              <rect x="550" y="110" width="380" height="120" rx="14" fill="#141b38" stroke="url(#gA)" stroke-width="1.5"/>
+              <text x="740" y="138" fill="#33e0c8" font-size="15" text-anchor="middle" font-weight="700" font-family="sans-serif">hometutor-studio · ФАБРИКА</text>
+              <text x="740" y="164" fill="#dbe2ff" font-size="13.5" text-anchor="middle" font-family="monospace">doc/ · tests/ · scripts/</text>
+              <text x="740" y="186" fill="#dbe2ff" font-size="13.5" text-anchor="middle" font-family="monospace">backlog · ADR · 3 011 тестов</text>
+              <text x="740" y="210" fill="#9aa6d4" font-size="12.5" text-anchor="middle" font-family="sans-serif">то, что производит продукт</text>
+            </g>
+          </svg>
+        </div>
+        <table>
+          <thead><tr><th>Что дала миграция</th><th>Эффект</th></tr></thead>
+          <tbody>
+            <tr><td>Чистый runtime-репозиторий</td><td>пользователь/деплой получают только продукт</td></tr>
+            <tr><td>Независимые git-истории</td><td>baseline хранит <span class="part">code_sha + docs_sha</span>, рассинхрон исключён</td></tr>
+            <tr><td>Docs продукта пересобраны по коду</td><td>architecture / tech-spec датированы <span class="accent-t">2026-06-23</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="foot"><span class="brand"><span class="dot"></span>hometutor</span><span>Прорыв качества</span></div>
+    </section>
+
+    <!-- 3 PROBLEM/SOLUTION -->
+    <section class="slide">
+      <div class="kicker"><span class="num">03</span> Проблема и решение</div>
+      <h2>Куча документов → <span class="accent">ценность?</span></h2>
+      <div class="body">
+        <div class="grid g2">
+          <div class="card">
+            <h3>Проблема</h3>
+            <ul>
+              <li>Универсальный чат не знает <strong>ваших</strong> документов</li>
+              <li>Поиск по файлам даёт фрагменты без контекста</li>
+              <li>Ручные Anki-карточки — долго и рутинно</li>
+              <li>Непонятно, что освоено, а что нет</li>
+            </ul>
+            <p class="muted" style="margin-top:10px">Следствие: переключение между инструментами и потеря контекста.</p>
+          </div>
+          <div class="card">
+            <h3>Решение — один инструмент, полный цикл</h3>
+            <div class="flow" style="margin-top:4px">Документы → Q&amp;A → Тьютор → Квиз →
+   Карточки → Mastery → Graduation
+                    ↑
+          Smart Study Router
+       (подсказка следующего шага)</div>
+            <p class="muted" style="margin-top:10px">Local-first: данные и модель — на машине пользователя.</p>
+          </div>
+        </div>
+      </div>
+      <div class="foot"><span class="brand"><span class="dot"></span>hometutor</span><span>Проблема и решение</span></div>
+    </section>
+
+    <!-- 4 FULL CYCLE -->
+    <section class="slide">
+      <div class="kicker"><span class="num">04</span> Полный учебный цикл</div>
+      <h2>Ответ — это <span class="accent">первый шаг</span>, а не финал</h2>
+      <div class="sub">В типичной RAG-системе сценарий заканчивается на ответе. Здесь — начинается.</div>
+      <div class="body">
+        <div class="diagram" style="flex:0 0 auto">
+          <svg viewBox="0 0 1000 200" width="100%" style="max-width:1000px">
+            <defs><linearGradient id="gC" x1="0" x2="1"><stop offset="0" stop-color="#6d8bff"/><stop offset="1" stop-color="#33e0c8"/></linearGradient></defs>
+            <g font-family="sans-serif" font-size="13" text-anchor="middle">
+              <g><rect x="20" y="80" width="120" height="44" rx="10" fill="#141b38" stroke="url(#gC)"/><text x="80" y="107" fill="#eef2ff">Ответ +источники</text></g>
+              <g><rect x="165" y="80" width="110" height="44" rx="10" fill="#141b38" stroke="#283163"/><text x="220" y="107" fill="#dbe2ff">Тьютор</text></g>
+              <g><rect x="300" y="80" width="110" height="44" rx="10" fill="#141b38" stroke="#283163"/><text x="355" y="107" fill="#dbe2ff">Квиз</text></g>
+              <g><rect x="435" y="80" width="120" height="44" rx="10" fill="#141b38" stroke="#283163"/><text x="495" y="107" fill="#dbe2ff">Flashcards</text></g>
+              <g><rect x="580" y="80" width="120" height="44" rx="10" fill="#141b38" stroke="#283163"/><text x="640" y="107" fill="#dbe2ff">SM-2 review</text></g>
+              <g><rect x="725" y="80" width="115" height="44" rx="10" fill="#141b38" stroke="#283163"/><text x="782" y="107" fill="#dbe2ff">Mastery</text></g>
+              <g><rect x="865" y="80" width="115" height="44" rx="10" fill="#141b38" stroke="url(#gC)"/><text x="922" y="100" fill="#33e0c8" font-weight="700">SSR</text><text x="922" y="116" fill="#9aa6d4" font-size="10">след. шаг</text></g>
+            </g>
+            <g stroke="url(#gC)" stroke-width="2" fill="none">
+              <path d="M140 102 L165 102"/><path d="M275 102 L300 102"/><path d="M410 102 L435 102"/>
+              <path d="M555 102 L580 102"/><path d="M700 102 L725 102"/><path d="M840 102 L865 102"/>
+              <path d="M922 80 C922 30 80 30 80 80" stroke-dasharray="5 5"/>
+            </g>
+          </svg>
+        </div>
+        <div class="grid g3">
+          <div class="card"><h3>1–2 · Ответ → Тьютор</h3><p>RAG-ответ с источниками и confidence; объяснение наводящими вопросами, а не лекцией.</p></div>
+          <div class="card"><h3>3–4 · Квиз → Карточка</h3><p>Проверка понимания; важное → SM-2 карточка без копипасты.</p></div>
+          <div class="card"><h3>5–6 · Повторение → Mastery</h3><p>Интервальное повторение; recognition → recall → transfer → graduation.</p></div>
+        </div>
+      </div>
+      <div class="foot"><span class="brand"><span class="dot"></span>hometutor</span><span>Полный цикл</span></div>
+    </section>
+
+    <!-- 5 ARCHITECTURE -->
+    <section class="slide">
+      <div class="kicker"><span class="num">05</span> Архитектура продукта · акт. 2026-06-23</div>
+      <h2>Четыре <span class="accent">тонких слоя</span></h2>
+      <div class="body">
+        <div class="grid g2" style="grid-template-columns:1.2fr 1fr">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div class="card" style="border-left:3px solid #6d8bff"><h3>UI · Streamlit</h3><p><span class="muted">app/ui/main.py → API через ui_client.py</span></p></div>
+            <div class="card" style="border-left:3px solid #5e8bff"><h3>API · FastAPI</h3><p><span class="muted">main.py + app/api.py · 16 роутеров · 93 endpoint · require_api_key</span></p></div>
+            <div class="card" style="border-left:3px solid #45c0e0"><h3>Services</h3><p><span class="muted">RAG · Tutor · SSR · Quiz · Flashcards · Graph · Learner state</span></p></div>
+            <div class="card" style="border-left:3px solid #33e0c8"><h3>Storage</h3><p><span class="muted">SQLite (user_state.db) · Chroma · BM25 · index_registry.json</span></p></div>
+            <p class="muted" style="font-size:13.5px">LLM/Embeddings — через <span class="accent-t">app/provider.py</span>: llama.cpp / LM Studio (local) ↔ Cloud</p>
+          </div>
+          <div class="card">
+            <h3>Архитектурные правила</h3>
+            <ul>
+              <li>Тонкий UI / тонкие роутеры — логика в сервисах</li>
+              <li>Конфиг только через <span class="part">get_settings()</span></li>
+              <li>Все LLM-клиенты через <span class="part">app/provider.py</span></li>
+              <li>Состояние — через <span class="part">app/user_state*.py</span></li>
+              <li>Не плодить публичные retrieval-режимы</li>
+            </ul>
+            <div class="pillrow" style="margin-top:12px">
+              <span class="pill">FastAPI</span><span class="pill">Streamlit</span><span class="pill">llama-index</span><span class="pill">Chroma</span><span class="pill">BM25</span><span class="pill">aiogram</span><span class="pill">SQLite</span><span class="pill">OTel</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="foot"><span class="brand"><span class="dot"></span>hometutor</span><span>Архитектура продукта</span></div>
+    </section>
+
+    <!-- 6 RAG -->
+    <section class="slide">
+      <div class="kicker"><span class="num">06</span> RAG — ядро системы</div>
+      <h2>Пайплайн запроса <span class="accent">с заземлением</span></h2>
+      <div class="body">
+        <div class="flow">AskRequest → validation+guardrails → query_service →
+  classify → condense → rewrite → routing →
+  retrieval → LLM generation → assemble/postprocess →
+  sessions / history / metrics → AskResponse</div>
+        <div class="grid g2">
+          <div class="card">
+            <h3>Что заложено</h3>
+            <ul>
+              <li><strong>Гибридный поиск</strong> BM25 + векторный, плюс doc_then_chunk</li>
+              <li><strong>Профили</strong> (ADR-021): fast / quality / graph_aware</li>
+              <li><strong>Multi-query expansion</strong> + lost-in-middle reorder</li>
+              <li><strong>Заземление</strong>: inline-цитаты [N], honest abstain</li>
+            </ul>
+          </div>
+          <div class="card" style="display:flex;flex-direction:column;justify-content:center;gap:14px">
+            <h3>Измерено · retrieval-only eval (demo, 15 вопросов)</h3>
+            <div class="stats" style="grid-template-columns:1fr 1fr">
+              <div class="stat"><div class="v">86–87%</div><div class="l">recall@3 (hybrid)<br>vs 80% vector-only</div></div>
+              <div class="stat"><div class="v">0.57с</div><div class="l">средняя retrieve-латентность</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="foot"><span class="brand"><span class="dot"></span>hometutor</span><span>RAG pipeline</span></div>
+    </section>
+
+    <!-- 7 SSR -->
+    <section class="slide">
+      <div class="kicker"><span class="num">07</span> Smart Study Router · AI Vision</div>
+      <h2>«Много режимов — <span class="accent">что делать дальше?</span>»</h2>
+      <div class="sub">Deterministic-first: считает локальные сигналы, выбирает следующий шаг, объясняет «почему сейчас». AI/ML — как gated enrichment, не как обязательная зависимость.</div>
+      <div class="body">
+        <table>
+          <thead><tr><th>Уровень</th><th>Что добавляет</th><th>Статус</th></tr></thead>
+          <tbody>
+            <tr><td>L1 · локальная память</td><td>ML forgetting curve, reranking (AUC-ROC ≥ 0.75)</td><td class="part">доставлен; serving после real samples</td></tr>
+            <tr><td>L2 · объяснения</td><td>LLM-объяснения + semantic caching (p95 &lt; 2с)</td><td class="yes">доставлен</td></tr>
+            <tr><td>L3 · недельный план</td><td>rule-based weekly planner + telemetry</td><td class="yes">доставлен</td></tr>
+            <tr><td>L4 · граф prerequisites</td><td>prerequisite-aware routing</td><td class="part">доставлен (feature-flag)</td></tr>
+            <tr><td>L5 · обучение на отказах</td><td>misroute policy learning (offline, decay)</td><td class="yes">доставлен</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">Базовая маршрутизация объяснима и работает без облачного профиля пользователя.</p>
+      </div>
+      <div class="foot"><span class="brand"><span class="dot"></span>hometutor</span><span>Smart Study Router</span></div>
+    </section>
+
+    <!-- 8 GROUNDING -->
+    <section class="slide">
+      <div class="kicker"><span class="num">08</span> Доверие и заземление</div>
+      <h2>Grounding Contract: <span class="accent">факт ↔ источник</span></h2>
+      <div class="body">
+        <div class="grid g2">
+          <div class="card">
+            <h3>Механизмы</h3>
+            <ul>
+              <li><strong>Inline-цитаты [N]</strong> — факт ссылается на фрагмент</li>
+              <li><strong>Provenance ledger</strong> — факт → источник → chunk</li>
+              <li><strong>Honest abstain</strong> — при слабом контексте отказ, не догадка</li>
+              <li><strong>Citation tolerance</strong> — лишние/недостающие ссылки не ломают ответ</li>
+              <li><strong>Confidence</strong> — видно, насколько ответ обоснован</li>
+            </ul>
+          </div>
+          <div class="card" style="display:flex;flex-direction:column;justify-content:center">
+            <h3>Трёхслойная оценка качества</h3>
+            <div class="diagram" style="flex:0 0 auto;margin:8px 0">
+              <svg viewBox="0 0 420 120" width="100%" style="max-width:380px">
+                <defs><linearGradient id="gJ" x1="0" x2="1"><stop offset="0" stop-color="#6d8bff"/><stop offset="1" stop-color="#33e0c8"/></linearGradient></defs>
+                <g font-family="sans-serif" text-anchor="middle">
+                  <rect x="8" y="38" width="120" height="44" rx="10" fill="#141b38" stroke="#283163"/><text x="68" y="58" fill="#eef2ff" font-size="13">Deterministic</text><text x="68" y="74" fill="#9aa6d4" font-size="10.5">быстро, дёшево</text>
+                  <rect x="150" y="38" width="120" height="44" rx="10" fill="#141b38" stroke="#283163"/><text x="210" y="58" fill="#eef2ff" font-size="13">LLM-as-Judge</text><text x="210" y="74" fill="#9aa6d4" font-size="10.5">faithfulness</text>
+                  <rect x="292" y="38" width="120" height="44" rx="10" fill="#141b38" stroke="url(#gJ)"/><text x="352" y="58" fill="#eef2ff" font-size="13">Human</text><text x="352" y="74" fill="#9aa6d4" font-size="10.5">реальная польза</text>
+                  <path d="M128 60 L150 60 M270 60 L292 60" stroke="url(#gJ)" stroke-width="2" fill="none"/>
+                </g>
+              </svg>
+            </div>
+            <p class="muted">+ RAGAS-метрики (context_precision@k, answer_correctness) поверх eval-harness.</p>
+          </div>
+        </div>
+      </div>
+      <div class="foot"><span class="brand"><span class="dot"></span>hometutor</span><span>Grounding Contract</span></div>
+    </section>
+
+    <!-- 9 LOCAL MODEL -->
+    <section class="slide">
+      <div class="kicker"><span class="num">09</span> Локальная модель</div>
+      <h2>qwopus3.6-35B на <span class="accent">llama.cpp</span></h2>
+      <div class="sub">Benchmark 2026-06-20 · 3 кандидата · 8 задач + real RAG-smoke</div>
+      <div class="body">
+        <div class="grid g2" style="grid-template-columns:1.15fr .85fr">
+          <div class="card">
+            <table>
+              <thead><tr><th>Модель</th><th>rank</th><th>ток/с</th><th>RAG</th></tr></thead>
+              <tbody>
+                <tr><td>qwopus3.6-35B-A3B-MTP</td><td>99.55</td><td class="accent-t">~185</td><td class="yes">PASS</td></tr>
+                <tr><td>qwopus3.6-27B-v2-MTP</td><td>93.55</td><td>~46</td><td>—</td></tr>
+                <tr><td>qwen3.6-27B</td><td>93.21</td><td>~43</td><td>—</td></tr>
+              </tbody>
+            </table>
+            <p style="margin-top:10px"><span class="gold-t">≈ в 4× быстрее</span> предыдущих кандидатов при сопоставимом качестве (11.5/11.5).</p>
+          </div>
+          <div class="card">
+            <h3>Local vs Cloud — выбор пользователя</h3>
+            <ul>
+              <li><strong>Приватность:</strong> данные на машине ↔ уходят провайдеру</li>
+              <li><strong>Стоимость API:</strong> <span class="accent-t">0 ₽</span> ↔ зависит от провайдера</li>
+              <li><strong>Переключение:</strong> .env / docker-compose overlay</li>
+            </ul>
+            <p class="muted" style="margin-top:10px">Смена модели и backend — <strong>без переписывания кода</strong>, через app/provider.py.</p>
+          </div>
+        </div>
+      </div>
+      <div class="foot"><span class="brand"><span class="dot"></span>hometutor</span><span>Локальная модель</span></div>
+    </section>
+
+    <!-- 10 FACTORY -->
+    <section class="slide">
+      <div class="kicker"><span class="num">10</span> AI-фабрика разработки</div>
+      <h2>«Документ — закон, скрипт — движок, <span class="accent">агент — руль</span>»</h2>
+      <div class="sub">Продукт делается не вручную, а воспроизводимым AI-конвейером. Миграция выделила фабрику в репозиторий <span class="accent-t">hometutor-studio</span>.</div>
+      <div class="body">
+        <div class="grid g2">
+          <div class="card"><h3>Backlog registry (SSoT)</h3><p>backlog_registry.yaml — единственный источник статусов; tasklist.md производный.</p></div>
+          <div class="card"><h3>Командный конвейер</h3><p>PO → Analyst → Architect → Dev → Tester как воспроизводимый процесс.</p></div>
+          <div class="card"><h3>Token-safety registry</h3><p>Предсказуемый бюджет контекста (≤12k) для каждого LLM-вызова.</p></div>
+          <div class="card"><h3>Локальный coding-trigger</h3><p>llama.cpp как patch-executor: diff → WRITE_SET gate → git apply → targeted tests.</p></div>
+        </div>
+        <div class="thesis small"><span class="gold-t">Evidence-gated поставка:</span> пакет закрывается только при пройденных DoD-тестах и обновлённых docs. Kill-switches блокируют filename-fallback за semantic-граф, связи без evidence, graph-aware без uplift-gate, скрытый cloud-вызов в local-профиле.</div>
+      </div>
+      <div class="foot"><span class="brand"><span class="dot"></span>hometutor</span><span>AI-фабрика</span></div>
+    </section>
+
+    <!-- 11 METRICS -->
+    <section class="slide">
+      <div class="kicker"><span class="num">11</span> Метрики · воспроизводимы из репозиториев</div>
+      <h2>Подкреплено <span class="accent">числами</span></h2>
+      <div class="body">
+        <div class="stats">
+          <div class="stat"><div class="v">96/96</div><div class="l">User Stories закрыто</div></div>
+          <div class="stat"><div class="v">13/13</div><div class="l">CJM моменты истины</div></div>
+          <div class="stat"><div class="v">3 011</div><div class="l">тест-функций pytest</div></div>
+          <div class="stat"><div class="v">242</div><div class="l">пакета закрыто</div></div>
+          <div class="stat"><div class="v">93</div><div class="l">FastAPI endpoints</div></div>
+          <div class="stat"><div class="v">23</div><div class="l">Architecture Decision Records</div></div>
+          <div class="stat"><div class="v">~185</div><div class="l">ток/с local (qwopus35B)</div></div>
+          <div class="stat"><div class="v">87</div><div class="l">волн завершено</div></div>
+        </div>
+        <div class="thesis small"><span class="gold-t">Изменения с v4:</span> US 87→96 · тесты 3008→3011 · архитектурные docs пересобраны по коду на 2026-06-23. Часть eval-метрик — на demo-наборе, помечена соответственно.</div>
+      </div>
+      <div class="foot"><span class="brand"><span class="dot"></span>hometutor</span><span>Метрики</span></div>
+    </section>
+
+    <!-- 12 COMPETITION -->
+    <section class="slide">
+      <div class="kicker"><span class="num">12</span> Конкурентный анализ</div>
+      <h2>Полный цикл <span class="accent">локально</span> — в одном инструменте</h2>
+      <div class="body">
+        <table>
+          <thead><tr><th>Критерий</th><th>hometutor</th><th>NotebookLM</th><th>Anki</th><th>ChatGPT+Files</th><th>Obsidian</th></tr></thead>
+          <tbody>
+            <tr><td>Q&amp;A по документам</td><td class="yes">RAG+источники</td><td class="yes">✅</td><td class="no">✗</td><td class="yes">✅</td><td class="part">частично</td></tr>
+            <tr><td>Автоквизы из ответов</td><td class="yes">✅</td><td class="no">✗</td><td class="part">ручные</td><td class="no">✗</td><td class="no">✗</td></tr>
+            <tr><td>SM-2 карточки</td><td class="yes">авто</td><td class="no">✗</td><td class="yes">сильнейший</td><td class="no">✗</td><td class="part">частично</td></tr>
+            <tr><td>Mastery tracking</td><td class="yes">3 уровня</td><td class="no">✗</td><td class="part">базово</td><td class="no">✗</td><td class="no">✗</td></tr>
+            <tr><td>AI-тьютор</td><td class="yes">✅</td><td class="no">✗</td><td class="no">✗</td><td class="part">ручной</td><td class="no">✗</td></tr>
+            <tr><td>Подсказка след. шага</td><td class="yes">✅</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td><td class="no">✗</td></tr>
+            <tr><td>Local-first</td><td class="yes">✅</td><td class="no">cloud</td><td class="yes">✅</td><td class="no">cloud</td><td class="yes">✅</td></tr>
+            <tr><td>Стоимость</td><td class="yes">0 ₽ (local)</td><td>бесплатно</td><td>бесплатно</td><td class="part">$20/мес</td><td>бесплатно</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="foot"><span class="brand"><span class="dot"></span>hometutor</span><span>Конкурентный анализ</span></div>
+    </section>
+
+    <!-- 13 ROADMAP -->
+    <section class="slide">
+      <div class="kicker"><span class="num">13</span> Дорожная карта</div>
+      <h2>Фундамент закрыт — <span class="accent">очередь готова</span></h2>
+      <div class="body">
+        <div class="grid g2">
+          <div class="card">
+            <h3>Закрыто (фундамент)</h3>
+            <div class="pillrow">
+              <span class="pill">Миграция продукт+фабрика</span><span class="pill">Delight loop</span><span class="pill">SSR L1–L5</span><span class="pill">Course Graph Evidence</span><span class="pill">Grounding Contract</span><span class="pill">Flashcard fast-path</span><span class="pill">Golden E2E graduation</span><span class="pill">Local coding-trigger</span><span class="pill">Advanced RAG</span>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Очередь кандидатов (proposed)</h3>
+            <ul>
+              <li><strong>Measurement loop</strong> — RAGAS + Langfuse</li>
+              <li><strong>Smart Notes</strong> — авто-конспект из материалов</li>
+              <li><strong>PII masking</strong> — redaction sink</li>
+              <li><strong>Skills Platform</strong> — skill-адаптеры workflow</li>
+              <li><strong>Local Code Executor</strong> — первая low-risk задача</li>
+            </ul>
+          </div>
+        </div>
+        <p class="muted">Дальний горизонт: Desktop installer · SSR serving promotion · Learning Outcomes research · collaborative learning.</p>
+      </div>
+      <div class="foot"><span class="brand"><span class="dot"></span>hometutor</span><span>Roadmap</span></div>
+    </section>
+
+    <!-- 14 DEMO -->
+    <section class="slide">
+      <div class="kicker"><span class="num">14</span> Демо · от вопроса до mastery за ~3 мин</div>
+      <h2>Что показать <span class="accent">живьём</span></h2>
+      <div class="body">
+        <table>
+          <thead><tr><th>Время</th><th>Действие</th><th>Реплика</th></tr></thead>
+          <tbody>
+            <tr><td>0:00</td><td>Папка материалов + готовый индекс</td><td class="muted">«Локальные конспекты, не размеченная база.»</td></tr>
+            <tr><td>0:30</td><td>Сложный вопрос (синтез)</td><td class="muted">«Нужен синтез, а не одно определение.»</td></tr>
+            <tr><td>0:55</td><td>Ответ + citations + confidence</td><td class="muted">«Видно, на чём стоит ответ.»</td></tr>
+            <tr><td>1:20</td><td>«Учить эту тему»</td><td class="muted">«У многих RAG здесь конец — тут переход в обучение.»</td></tr>
+            <tr><td>1:45</td><td>tutor + quiz</td><td class="muted">«Проверяется понимание, а не формулировка.»</td></tr>
+            <tr><td>2:25</td><td>Создать flashcard</td><td class="muted">«Важное → карточка без копипасты.»</td></tr>
+            <tr><td>2:45</td><td>Mastery dashboard + adaptive plan</td><td class="muted">«Система обновляет модель знания и предлагает шаг.»</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="foot"><span class="brand"><span class="dot"></span>hometutor</span><span>Демо-сценарий</span></div>
+    </section>
+
+    <!-- 15 SUMMARY -->
+    <section class="slide divider">
+      <div class="lbl">Итоги</div>
+      <div class="big">Local-first. Полный цикл.<br><span style="background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent">Построено AI-фабрикой.</span></div>
+      <div style="display:flex;gap:14px;margin-top:30px;flex-wrap:wrap;justify-content:center;max-width:900px">
+        <span class="badge"><b>Полный цикл</b> — источник → план → graduation в одном инструменте</span>
+        <span class="badge"><b>Доказано числами</b> — 96/96 US · 3 011 тестов · 242 пакета · 93 endpoint</span>
+        <span class="badge"><b>Зрелый процесс</b> — продукт и фабрика разделены чисто</span>
+      </div>
+      <div class="foot" style="justify-content:center"><span class="brand"><span class="dot"></span>hometutor · защита проекта · июнь 2026 · v5.0</span></div>
+    </section>
+
+  </div>
+</div>
+
+<div class="nav">
+  <button id="prev" aria-label="назад">‹</button>
+  <span class="count" id="count">1 / 16</span>
+  <button id="next" aria-label="вперёд">›</button>
+</div>
+
+<script>
+  const slides=[...document.querySelectorAll('.slide')];
+  let i=0;
+  const count=document.getElementById('count');
+  const progress=document.getElementById('progress');
+  function show(n){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,k)=>s.classList.toggle('active',k===i));
+    count.textContent=(i+1)+' / '+slides.length;
+    progress.style.width=((i+1)/slides.length*100)+'%';
+    // reset scroll of active body
+    const b=slides[i].querySelector('.body'); if(b) b.scrollTop=0;
+  }
+  document.getElementById('next').onclick=()=>show(i+1);
+  document.getElementById('prev').onclick=()=>show(i-1);
+  document.addEventListener('keydown',e=>{
+    if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(i+1);}
+    else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();show(i-1);}
+    else if(e.key==='Home'){show(0);}
+    else if(e.key==='End'){show(slides.length-1);}
+    else if(e.key.toLowerCase()==='f'){window.print();}
+  });
+  // click right/left half of deck to navigate
+  document.getElementById('deck').addEventListener('click',e=>{
+    if(e.target.closest('a,button')) return;
+    const r=e.currentTarget.getBoundingClientRect();
+    show(i + ((e.clientX-r.left) > r.width/2 ? 1 : -1));
+  });
+  show(0);
+</script>
+</body>
+</html>
