@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  REUSABLE HTML DECK TEMPLATE  ·  self-contained, no external dependencies
+  ----------------------------------------------------------------------------
+  HOW TO USE
+    1. Copy this file to  <your-deck-name>.html
+    2. Edit the :root tokens below if you need a different palette (see guide §3)
+    3. Replace each <section class="slide"> with your content. Keep the FIRST
+       slide's `active` class. Components are demonstrated below — copy them.
+    4. Slide count in the nav is computed automatically from the DOM.
+    5. Press F (or Ctrl+P) to print to PDF. See html_deck_guide.md §7.
+  RULES
+    · No external resources (no CDN fonts, no <img src="http...">). Diagrams = inline SVG.
+    · Numbers come from your repo/sources, never "from memory". See guide §1.
+    · Each slide must fit 16:9 without scroll on 1080p.
+  Full recipe: ./html_deck_guide.md   ·   Worked example: ./defense_presentation_v5.html
+  ============================================================================
+-->
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRESENTATION TITLE · vX.X</title>
+<style>
+  /* ====== DESIGN TOKENS — the only place to change the theme (guide §3) ====== */
+  :root{
+    --bg:#0b1020; --bg2:#0e1430;            /* stage background */
+    --panel:#141b38; --panel2:#1a2348;      /* cards (gradient) */
+    --ink:#eef2ff; --muted:#9aa6d4;         /* text / muted */
+    --line:#283163;                         /* borders */
+    --accent:#6d8bff; --accent2:#33e0c8;    /* accents: indigo -> cyan */
+    --gold:#ffcb6b; --good:#5ee0a0; --bad:#ff7a90;
+    --grad:linear-gradient(120deg,#6d8bff 0%,#33e0c8 100%);
+    --shadow:0 20px 60px rgba(0,0,0,.45);
+    --radius:18px;
+    --font:'Segoe UI',system-ui,-apple-system,Roboto,Helvetica,Arial,sans-serif;
+    --mono:'JetBrains Mono','Cascadia Code',Consolas,monospace;
+    /* LIGHT THEME for print/handouts — swap the block above for:
+       --bg:#f6f8ff; --bg2:#ffffff; --panel:#ffffff; --panel2:#f0f3ff;
+       --ink:#12183a; --muted:#5a648c; --line:#d7ddf2;  (keep gradient accents) */
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:var(--font);
+    background:
+      radial-gradient(1200px 700px at 80% -10%,rgba(109,139,255,.18),transparent 60%),
+      radial-gradient(1000px 600px at -10% 110%,rgba(51,224,200,.14),transparent 55%),
+      var(--bg);
+    color:var(--ink);overflow:hidden;
+  }
+  .stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+  .deck{position:relative;width:min(96vw,1280px);aspect-ratio:16/9;max-height:94vh}
+  .slide{position:absolute;inset:0;background:linear-gradient(180deg,var(--bg2),var(--bg));
+    border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:46px 56px 60px;display:none;flex-direction:column;overflow:hidden}
+  .slide.active{display:flex;animation:fade .45s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .slide::before{content:"";position:absolute;left:0;top:0;height:5px;width:100%;background:var(--grad)}
+
+  .kicker{font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent2);
+    font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+  .kicker .num{background:rgba(109,139,255,.16);border:1px solid var(--line);color:var(--accent);
+    border-radius:8px;padding:2px 9px;font-size:12px;letter-spacing:.05em}
+  h1{font-size:40px;line-height:1.08;font-weight:800;letter-spacing:-.5px;margin-bottom:8px}
+  h2{font-size:30px;line-height:1.12;font-weight:800;letter-spacing:-.3px;margin-bottom:14px}
+  h2 .accent,h1 .accent{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{color:var(--muted);font-size:18px;font-weight:500;margin-bottom:18px;max-width:62ch}
+  .body{flex:1;min-height:0;display:flex;flex-direction:column;gap:14px;overflow:auto}
+  .body::-webkit-scrollbar{width:8px}
+  .body::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+  p{font-size:17px;line-height:1.5;color:#dbe2ff}
+  .muted{color:var(--muted)}strong{color:#fff}
+  .accent-t{color:var(--accent2);font-weight:700}
+  .gold-t{color:var(--gold);font-weight:700}
+  ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+  li{position:relative;padding-left:26px;font-size:16.5px;line-height:1.45;color:#dce3ff}
+  li::before{content:"";position:absolute;left:2px;top:9px;width:9px;height:9px;border-radius:3px;background:var(--grad)}
+  .thesis{border-left:3px solid transparent;border-image:var(--grad) 1;
+    background:linear-gradient(90deg,rgba(109,139,255,.12),rgba(51,224,200,.03));
+    padding:18px 22px;border-radius:0 12px 12px 0;font-size:19px;line-height:1.5;color:#eaf0ff}
+  .thesis.small{font-size:16.5px;padding:14px 18px}
+  .grid{display:grid;gap:14px}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .card h3{font-size:15px;color:var(--accent2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+  .card p,.card li{font-size:15px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+  .stat{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:14px;padding:14px 16px;text-align:center}
+  .stat .v{font-size:30px;font-weight:800;line-height:1;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .stat .l{font-size:12.5px;color:var(--muted);margin-top:7px;line-height:1.3}
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line)}
+  th{color:var(--accent2);font-weight:700;text-transform:uppercase;font-size:11.5px;letter-spacing:.08em}
+  tbody tr:hover{background:rgba(109,139,255,.06)}
+  td:first-child{font-weight:600;color:#fff}
+  .yes{color:var(--good);font-weight:700}.no{color:var(--bad);font-weight:700}.part{color:var(--gold)}
+  .flow{font-family:var(--mono);font-size:13.5px;line-height:1.55;color:#bcd0ff;
+    background:rgba(8,12,28,.7);border:1px solid var(--line);border-radius:12px;padding:16px 18px;white-space:pre;overflow:auto}
+  .pillrow{display:flex;flex-wrap:wrap;gap:8px}
+  .pill{font-size:13px;font-weight:600;color:#cdd7ff;background:rgba(109,139,255,.12);border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+  .foot{position:absolute;left:56px;right:56px;bottom:16px;display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12.5px}
+  .foot .brand{display:flex;align-items:center;gap:9px;font-weight:700;color:#cdd7ff;letter-spacing:.02em}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--grad);box-shadow:0 0 12px rgba(51,224,200,.6)}
+  .cover{justify-content:center;align-items:flex-start;text-align:left}
+  .cover .logo{font-size:15px;letter-spacing:.3em;text-transform:uppercase;color:var(--accent2);font-weight:800;margin-bottom:22px}
+  .cover h1{font-size:60px;max-width:18ch}
+  .cover .tag{font-size:22px;color:var(--muted);margin-top:14px;max-width:50ch;line-height:1.45}
+  .cover .meta{display:flex;gap:10px;margin-top:30px;flex-wrap:wrap}
+  .badge{border:1px solid var(--line);background:rgba(109,139,255,.1);border-radius:999px;padding:8px 16px;font-size:14px;font-weight:600;color:#dbe2ff}
+  .badge b{color:var(--accent2)}
+  .divider{justify-content:center;align-items:center;text-align:center;background:radial-gradient(800px 500px at 50% 40%,rgba(109,139,255,.18),transparent 60%),linear-gradient(180deg,var(--bg2),var(--bg))}
+  .divider .big{font-size:64px;font-weight:800;letter-spacing:-1px}
+  .divider .lbl{font-size:16px;letter-spacing:.3em;text-transform:uppercase;color:var(--accent2);font-weight:700;margin-bottom:14px}
+  .nav{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:14px;z-index:50;
+    background:rgba(14,20,48,.8);border:1px solid var(--line);border-radius:999px;padding:8px 14px;backdrop-filter:blur(8px)}
+  .nav button{background:none;border:none;color:var(--ink);cursor:pointer;font-size:18px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center}
+  .nav button:hover{background:rgba(109,139,255,.2)}
+  .nav .count{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:54px;text-align:center}
+  .progress{position:fixed;top:0;left:0;height:3px;background:var(--grad);z-index:60;transition:width .35s ease}
+  .hint{position:fixed;top:14px;right:16px;font-size:12px;color:var(--muted);z-index:50}
+  svg{display:block}
+  .diagram{display:flex;justify-content:center;align-items:center;flex:1;min-height:0}
+  /* ====== PRINT TO PDF (guide §7) ====== */
+  @media print{
+    @page{size:1280px 720px;margin:0}
+    html,body{height:auto;overflow:visible;background:#0b1020}
+    .stage{position:static;display:block}
+    .deck{width:1280px;height:720px;max-height:none;aspect-ratio:auto}
+    .slide{display:flex!important;position:relative;page-break-after:always;break-after:page;
+      width:1280px;height:720px;border-radius:0;box-shadow:none;animation:none;border:none}
+    .nav,.progress,.hint{display:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="hint">← → пробел · клик по краям · F = печать в PDF</div>
+
+<div class="stage">
+  <div class="deck" id="deck">
+
+    <!-- ============ SLIDE TYPE B · COVER (keep `active` on the first slide) ============ -->
+    <section class="slide cover active">
+      <div class="logo">◆ ВАШ ПРОЕКТ</div>
+      <h1>Заголовок презентации <span class="accent">с акцентом</span></h1>
+      <div class="tag">Один-два предложения подзаголовка — суть и обещание.</div>
+      <div class="meta">
+        <span class="badge">Повод · <b>дата</b></span>
+        <span class="badge">Версия <b>X.X</b></span>
+        <span class="badge">Ключевой <b>тег</b></span>
+      </div>
+      <div class="foot"><span class="brand"><span class="dot"></span>проект</span><span>короткий слоган</span></div>
+    </section>
+
+    <!-- ============ SLIDE TYPE A · CONTENT (this one = component gallery) ============ -->
+    <section class="slide">
+      <div class="kicker"><span class="num">01</span> Рубрика слайда</div>
+      <h2>Заголовок <span class="accent">с акцент-словом</span></h2>
+      <div class="sub">Опциональный подзаголовок одним предложением.</div>
+      <div class="body">
+
+        <!-- thesis / quote -->
+        <div class="thesis">Главная мысль слайда. <span class="gold-t">Жёлтым</span> — важное/новое, <span class="accent-t">циан</span> — термин.</div>
+
+        <!-- 3-column cards -->
+        <div class="grid g3">
+          <div class="card"><h3>Карточка</h3><p>Короткий тезис внутри карточки.</p></div>
+          <div class="card"><h3>Список</h3><ul><li>пункт один</li><li>пункт два</li></ul></div>
+          <div class="card"><h3>Пилюли</h3><div class="pillrow"><span class="pill">тег</span><span class="pill">тег</span><span class="pill">тег</span></div></div>
+        </div>
+
+        <!-- mono flow block -->
+        <div class="flow">A → B → C  (моноширинная схема/пайплайн, white-space:pre)</div>
+      </div>
+      <div class="foot"><span class="brand"><span class="dot"></span>проект</span><span>рубрика</span></div>
+    </section>
+
+    <!-- ============ SLIDE TYPE A · KPI (numbers) ============ -->
+    <section class="slide">
+      <div class="kicker"><span class="num">02</span> Метрики · источник в подписи</div>
+      <h2>Подкреплено <span class="accent">числами</span></h2>
+      <div class="body">
+        <div class="stats">
+          <div class="stat"><div class="v">00</div><div class="l">подпись метрики</div></div>
+          <div class="stat"><div class="v">00</div><div class="l">подпись метрики</div></div>
+          <div class="stat"><div class="v">00</div><div class="l">подпись метрики</div></div>
+          <div class="stat"><div class="v">00</div><div class="l">подпись метрики</div></div>
+        </div>
+        <div class="thesis small">Каждое число — из репозитория/источника. Eval на demo-наборе помечать явно. (guide §1)</div>
+      </div>
+      <div class="foot"><span class="brand"><span class="dot"></span>проект</span><span>метрики</span></div>
+    </section>
+
+    <!-- ============ SLIDE TYPE A · TABLE / comparison ============ -->
+    <section class="slide">
+      <div class="kicker"><span class="num">03</span> Сравнение</div>
+      <h2>Таблица со <span class="accent">статусами</span></h2>
+      <div class="body">
+        <table>
+          <thead><tr><th>Критерий</th><th>Мы</th><th>A</th><th>B</th></tr></thead>
+          <tbody>
+            <tr><td>Свойство 1</td><td class="yes">✅</td><td class="no">✗</td><td class="part">частично</td></tr>
+            <tr><td>Свойство 2</td><td class="yes">✅</td><td class="part">частично</td><td class="no">✗</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="foot"><span class="brand"><span class="dot"></span>проект</span><span>сравнение</span></div>
+    </section>
+
+    <!-- ============ SLIDE TYPE A · INLINE SVG DIAGRAM (guide §6) ============ -->
+    <section class="slide">
+      <div class="kicker"><span class="num">04</span> Схема</div>
+      <h2>Диаграмма — <span class="accent">инлайновый SVG</span></h2>
+      <div class="body">
+        <div class="diagram">
+          <svg viewBox="0 0 800 200" width="100%" style="max-width:760px">
+            <!-- UNIQUE gradient id per SVG (g1, g2, ...) -->
+            <defs><linearGradient id="g1" x1="0" x2="1"><stop offset="0" stop-color="#6d8bff"/><stop offset="1" stop-color="#33e0c8"/></linearGradient></defs>
+            <g font-family="sans-serif" font-size="14" text-anchor="middle">
+              <rect x="40"  y="78" width="160" height="44" rx="10" fill="#141b38" stroke="url(#g1)"/><text x="120" y="105" fill="#eef2ff">Узел A</text>
+              <rect x="320" y="78" width="160" height="44" rx="10" fill="#141b38" stroke="#283163"/><text x="400" y="105" fill="#dbe2ff">Узел B</text>
+              <rect x="600" y="78" width="160" height="44" rx="10" fill="#141b38" stroke="url(#g1)"/><text x="680" y="105" fill="#33e0c8" font-weight="700">Узел C</text>
+            </g>
+            <g stroke="url(#g1)" stroke-width="2" fill="none">
+              <path d="M200 100 L320 100"/><path d="M480 100 L600 100"/>
+            </g>
+          </svg>
+        </div>
+        <p class="muted">Цвета SVG дублируют токены вручную; у каждого SVG — свой id градиента.</p>
+      </div>
+      <div class="foot"><span class="brand"><span class="dot"></span>проект</span><span>схема</span></div>
+    </section>
+
+    <!-- ============ SLIDE TYPE C · DIVIDER / SUMMARY ============ -->
+    <section class="slide divider">
+      <div class="lbl">Итоги</div>
+      <div class="big">Финальный слоган<br><span style="background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent">в две строки.</span></div>
+      <div style="display:flex;gap:14px;margin-top:30px;flex-wrap:wrap;justify-content:center;max-width:900px">
+        <span class="badge"><b>Довод 1</b> — короткое пояснение</span>
+        <span class="badge"><b>Довод 2</b> — короткое пояснение</span>
+        <span class="badge"><b>Довод 3</b> — короткое пояснение</span>
+      </div>
+      <div class="foot" style="justify-content:center"><span class="brand"><span class="dot"></span>проект · повод · дата · vX.X</span></div>
+    </section>
+
+  </div>
+</div>
+
+<div class="nav">
+  <button id="prev" aria-label="назад">‹</button>
+  <span class="count" id="count">1 / 1</span>
+  <button id="next" aria-label="вперёд">›</button>
+</div>
+
+<script>
+  // Navigation engine — slide count derived from DOM, no manual N to update.
+  const slides=[...document.querySelectorAll('.slide')];
+  let i=0;
+  const count=document.getElementById('count');
+  const progress=document.getElementById('progress');
+  function show(n){
+    i=Math.max(0,Math.min(slides.length-1,n));
+    slides.forEach((s,k)=>s.classList.toggle('active',k===i));
+    count.textContent=(i+1)+' / '+slides.length;
+    progress.style.width=((i+1)/slides.length*100)+'%';
+    const b=slides[i].querySelector('.body'); if(b) b.scrollTop=0;
+  }
+  document.getElementById('next').onclick=()=>show(i+1);
+  document.getElementById('prev').onclick=()=>show(i-1);
+  document.addEventListener('keydown',e=>{
+    if(['ArrowRight','PageDown',' '].includes(e.key)){e.preventDefault();show(i+1);}
+    else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();show(i-1);}
+    else if(e.key==='Home'){show(0);}
+    else if(e.key==='End'){show(slides.length-1);}
+    else if(e.key.toLowerCase()==='f'){window.print();}
+  });
+  document.getElementById('deck').addEventListener('click',e=>{
+    if(e.target.closest('a,button')) return;
+    const r=e.currentTarget.getBoundingClientRect();
+    show(i + ((e.clientX-r.left) > r.width/2 ? 1 : -1));
+  });
+  show(0);
+</script>
+</body>
+</html>
