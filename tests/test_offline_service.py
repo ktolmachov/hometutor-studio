@@ -10,6 +10,7 @@ def test_get_offline_status_respects_offline_mode(monkeypatch):
         offline_mode = True
         offline_probe_llm_endpoint = True
         llm_api_base = "https://example.invalid"
+        openai_api_base = "https://example.invalid/v1"
 
     monkeypatch.setattr(osvc, "get_settings", lambda: S())
     monkeypatch.setattr(osvc, "_probe_cache", None)
@@ -23,6 +24,7 @@ def test_probe_llm_base_reachable_false(monkeypatch):
 
     class S:
         llm_api_base = "https://127.0.0.1:9"  # closed port
+        openai_api_base = "https://example.invalid/v1"
 
     monkeypatch.setattr(osvc, "get_settings", lambda: S())
     assert osvc.probe_llm_base_reachable(timeout_sec=0.5) is False

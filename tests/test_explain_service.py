@@ -8,13 +8,15 @@ def test_get_file_content_reads_text_file(tmp_path, monkeypatch):
     data_dir = tmp_path / "data"
     data_dir.mkdir()
     file_path = data_dir / "note.txt"
-    file_path.write_text("hello", encoding="utf-8")
+    # Длина ≥ SHORT_EXTRACT_THRESHOLD (100), иначе _read_file уходит в LLM-fallback.
+    content = "hello world\n" * 10
+    file_path.write_text(content, encoding="utf-8")
 
     monkeypatch.setattr(explain_service, "DATA_DIR", data_dir)
 
     result = explain_service.get_file_content("note.txt")
 
-    assert result["content"] == "hello"
+    assert result["content"] == content
 
 
 def test_get_file_content_blocks_path_traversal(tmp_path, monkeypatch):
@@ -64,7 +66,9 @@ def test_get_file_content_reads_html_as_text(tmp_path, monkeypatch):
     data_dir = tmp_path / "data"
     data_dir.mkdir()
     file_path = data_dir / "page.html"
-    file_path.write_text("<html><body><p>Hello</p></body></html>", encoding="utf-8")
+    body = "Hello " * 25
+    html = f"<html><body><p>{body}</p></body></html>"
+    file_path.write_text(html, encoding="utf-8")
 
     monkeypatch.setattr(explain_service, "DATA_DIR", data_dir)
 
@@ -102,7 +106,8 @@ def test_get_file_content_reads_docx(tmp_path, monkeypatch):
     data_dir.mkdir()
     file_path = data_dir / "notes.docx"
     doc = DocxDocument()
-    doc.add_paragraph("Hello from docx")
+    for i in range(10):
+        doc.add_paragraph(f"Hello from docx paragraph {i}")
     doc.save(str(file_path))
 
     monkeypatch.setattr(explain_service, "DATA_DIR", data_dir)
