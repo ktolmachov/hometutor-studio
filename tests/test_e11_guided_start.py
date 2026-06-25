@@ -63,5 +63,5 @@ def test_sparse_fallback_label():
 def test_reason_line_is_present_for_all_kinds():
     for kind in ("flashcard_due", "due_review", "resume", "mastery_gap", "safe_starter"):
         line = guided_primary_reason_line_ru(kind)  # type: ignore[arg-type]
-        assert line.startswith("Почему сейчас:")
+        assert line.startswith("Почему это подходит:")
         assert len(line) > 25

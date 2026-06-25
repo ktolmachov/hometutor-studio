@@ -215,17 +215,17 @@ def test_ssr_banner_html_contains_expected_elements(monkeypatch: pytest.MonkeyPa
 
     rendered_html = st_mock.html.call_args_list[0][0][0]
     assert "ssr-banner" in rendered_html
-    assert "Smart Study Router" in rendered_html
+    assert "Подсказка по учебному маршруту" in rendered_html
     assert "Повторить карточки" in rendered_html
     assert "e2e-ssr-why-not-others" in rendered_html
     assert 'data-router-hint="cards_due"' in rendered_html
     assert 'role="region"' in rendered_html
-    assert "Почему сейчас:" in rendered_html
+    assert "Почему это подходит:" in rendered_html
     assert "e2e-ssr-contrast" in rendered_html
     assert "e2e-ssr-evidence" in rendered_html
     assert "Локальные сигналы" in rendered_html
     cap = st_mock.caption.call_args[0][0]
-    assert "Дополнительно:" in cap and "quiz" in cap.lower()
+    assert "другой режим" in cap.lower() and "quiz" in cap.lower()
 
 
 def test_course_active_scope_renders_deactivate_button(monkeypatch: pytest.MonkeyPatch) -> None:

@@ -68,7 +68,8 @@ def test_ssr_explanation_prompt_preserves_routing_contract() -> None:
     assert "Не меняй рекомендацию и маршрут" in prompt
     assert "150 слов" in prompt
     assert "Контраст" in prompt
-    assert "«Почему сейчас»" in prompt
+    assert "подойти сейчас" in prompt.lower()
+    assert "Шаблонная причина" in prompt
     assert case["primary_nav"] in prompt
     assert SSR_LLM_EXPLANATION_PROMPT_VERSION == "1.4"
 

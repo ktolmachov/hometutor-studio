@@ -20,6 +20,7 @@ def _settings(profile: str):
             "home_rag_local_profile": profile,
             "lmstudio_api_base": "http://127.0.0.1:1234/v1",
             "openai_api_base": "http://127.0.0.1:1234/v1",
+            "enable_first_session_precompute": True,
         },
     )()
 
@@ -100,6 +101,7 @@ def test_per_candidate_failure_others_still_written(tmp_path, monkeypatch) -> No
             (folder / f"{idx}.md").write_text("x", encoding="utf-8")
 
     monkeypatch.setattr(fsb, "get_settings", lambda: _settings("local_strict"))
+    monkeypatch.setattr("app.config.get_settings", lambda: _settings("local_strict"))
     monkeypatch.setattr(fsb, "is_open", lambda _base: False)
 
     original = fsb.build_first_session_artifact

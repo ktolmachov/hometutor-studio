@@ -18,6 +18,7 @@ def test_apply_integration_layout_for_script_redirects_bm25_and_graph(tmp_path: 
     import app.graph_generation_paths as graph_paths
     import app.hybrid_retrieval as hybrid_retrieval
 
+    original_bm25_dir = hybrid_retrieval._bm25_persist_dir()
     restore = apply_integration_layout_for_script(tmp_path)
     try:
         assert hybrid_retrieval._bm25_persist_dir() == tmp_path / "chroma_db" / "bm25_index"
@@ -30,7 +31,7 @@ def test_apply_integration_layout_for_script_redirects_bm25_and_graph(tmp_path: 
     finally:
         restore()
 
-    assert hybrid_retrieval._bm25_persist_dir() == _default_chroma_base() / "chroma_db" / "bm25_index"
+    assert hybrid_retrieval._bm25_persist_dir() == original_bm25_dir
 
 
 def test_apply_integration_layout_for_script_redirects_telemetry(tmp_path: Path) -> None:

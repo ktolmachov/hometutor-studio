@@ -112,7 +112,8 @@ def test_hook_hard_queue_never_overrides(monkeypatch):
     out = apply_ssr_misroute_policy_if_enabled(rule)
     assert out.primary_nav == "flashcards_review"
     assert out.hint_kind == "cards_due"
-    assert "quiz_failed" in out.ml_audit_ru or "due-карт" in out.ml_audit_ru
+    assert "Политика обучения" in out.ml_audit_ru
+    assert "quiz" in out.ml_audit_ru.lower()
 
 
 def test_hook_gated_bucket_adjusts_primary_nav(iso_db, monkeypatch):

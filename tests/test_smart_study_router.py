@@ -492,7 +492,7 @@ def test_us20_7_contrastive_line_primary_paths():
             sm2_due_n=2,
         )
     )
-    assert "sm-2" in c2.lower() or "концепт" in c2.lower()
+    assert "повторен" in c2.lower() or "тем" in c2.lower()
 
     c3 = smart_study_contrastive_explanation(
         build_smart_study_recommendation(surface="home", flashcard_due_n=0, sm2_due_n=0)
@@ -588,7 +588,7 @@ def test_us20_8_evidence_ledger_lists_signals_and_marks_unavailable_confidence()
     )
     joined = " ".join(rows)
     assert "2" in joined and "карточ" in joined.lower()
-    assert "sm-2" in joined.lower() or "концепт" in joined.lower()
+    assert "повторен" in joined.lower() or "тем" in joined.lower()
     assert "провал" in joined.lower() or "failed" in joined.lower()
     assert "быстрый ответ" in joined.lower()
     assert "недоступ" in joined.lower() and "confidence" in joined.lower()
@@ -625,7 +625,7 @@ def test_us20_8_evidence_ledger_can_filter_to_influencing_signals():
         has_last_answer_qa=False,
         include_all=False,
     )
-    assert rows == ["Очередь концептов SM-2 (локально): 2 к повтору"]
+    assert rows == ["Очередь повторений по темам (локально): 2 к повтору"]
 
 
 def test_us20_10_steering_new_topic_tradeoff_when_cards_due():
@@ -799,7 +799,7 @@ def test_ssr_llm_explanation_falls_back_when_token_budget_exceeds_hard_limit():
 def test_ssr_llm_learning_context_parses_ledger_counts():
     ledger = [
         "Очередь flashcards (локально): 4 карточки к повтору",
-        "Очередь концептов SM-2 (локально): 2 к повтору",
+        "Очередь повторений по темам (локально): 2 к повтору",
         "Быстрый ответ (готовность Q&A): да",
     ]
     rec = build_smart_study_recommendation(surface="home", flashcard_due_n=9, sm2_due_n=9)
@@ -876,7 +876,7 @@ def test_us20_11_outcome_receipt_empty_when_no_measurable_change():
 def test_confidence_ledger_finalize_prepends_trace_and_weak_gap():
     from app.smart_study_router import finalize_smart_study_confidence_ledger_lines
 
-    base = ["Очередь концептов SM-2 (локально): 2 к повтору"]
+    base = ["Очередь повторений по темам (локально): 2 к повтору"]
     out = finalize_smart_study_confidence_ledger_lines(
         base,
         hint_kind="sm2_due",
@@ -885,7 +885,7 @@ def test_confidence_ledger_finalize_prepends_trace_and_weak_gap():
     )
     assert any("Entropy" in line for line in out)
     assert any("hint_kind=sm2_due" in line and "primary_nav=sm2_tutor" in line for line in out)
-    assert any("Очередь концептов SM-2" in line for line in out)
+    assert any("Очередь повторений по темам" in line for line in out)
 
 
 def test_confidence_ledger_finalize_skips_duplicate_trace_or_weak():
