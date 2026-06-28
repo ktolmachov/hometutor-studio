@@ -26,7 +26,7 @@ const DEFAULT_TIMEOUT_MS = 900_000;
 const DEFAULT_TEMPERATURE = 0.2;
 const DEFAULT_TOP_P = 0.9;
 const DEFAULT_REPEAT_PENALTY = 1.1;
-const MIN_CONTEXT_TOKENS = 32_768;
+const DEFAULT_MIN_CONTEXT_TOKENS = 65_536;
 const DEFAULT_CONTEXT_MAX_CHARS = 60_000;
 const DEFAULT_CONTEXT_FILE_MAX_CHARS = 20_000;
 const LOADING_MODEL_RETRY_DELAYS_MS = [3_000, 8_000, 15_000];
@@ -102,6 +102,10 @@ function envNumber(name: string, fallback: number): number {
   if (!raw) return fallback;
   const parsed = Number(raw);
   return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+export function resolveMinContextTokens(): number {
+  return envNumber("LLAMACPP_MIN_CONTEXT_TOKENS", DEFAULT_MIN_CONTEXT_TOKENS);
 }
 
 function stripBom(text: string): string {
@@ -626,6 +630,7 @@ async function callLlamaCpp(
   const temperature = envNumber("LLAMACPP_TEMPERATURE", DEFAULT_TEMPERATURE);
   const topP = envNumber("LLAMACPP_TOP_P", DEFAULT_TOP_P);
   const repeatPenalty = envNumber("LLAMACPP_REPEAT_PENALTY", DEFAULT_REPEAT_PENALTY);
+  const minContextTokens = resolveMinContextTokens();
   const packedContext = buildReadSetContext(prompt, process.cwd(), contextMaxChars, contextFileMaxChars);
   const contextFields = {
     context_chars: packedContext.contextChars,
@@ -642,14 +647,15 @@ async function callLlamaCpp(
       fields: { error_reason: `model_alias_not_found: ${model}`, model_info: modelInfo.raw, ...contextFields },
     };
   }
-  if (modelInfo.nCtx !== null && modelInfo.nCtx < MIN_CONTEXT_TOKENS) {
+  if (modelInfo.nCtx !== null && modelInfo.nCtx < minContextTokens) {
     return {
       status: "error",
       contractContent: null,
       actualModel: model,
       fields: {
-        error_reason: `ctx_too_small: ${modelInfo.nCtx} < ${MIN_CONTEXT_TOKENS}`,
+        error_reason: `ctx_too_small: ${modelInfo.nCtx} < ${minContextTokens}`,
         n_ctx: modelInfo.nCtx,
+        min_context_tokens: minContextTokens,
         ...contextFields,
       },
     };

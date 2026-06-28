@@ -13,6 +13,7 @@ import {
   normalizeHunkCounts,
   parseAgentResponse,
   parseWriteSet,
+  resolveMinContextTokens,
   validatePatchAgainstWriteSet,
 } from "../../scripts/llamacpp_agent_trigger.js";
 
@@ -51,6 +52,23 @@ Apply patch and run tests.
 `;
 
 describe("llamacpp_agent_trigger response gates", () => {
+  it("defaults to 64K minimum context and allows explicit fast fallback override", () => {
+    const oldValue = process.env.LLAMACPP_MIN_CONTEXT_TOKENS;
+    try {
+      delete process.env.LLAMACPP_MIN_CONTEXT_TOKENS;
+      expect(resolveMinContextTokens()).toBe(65_536);
+
+      process.env.LLAMACPP_MIN_CONTEXT_TOKENS = "32768";
+      expect(resolveMinContextTokens()).toBe(32_768);
+    } finally {
+      if (oldValue === undefined) {
+        delete process.env.LLAMACPP_MIN_CONTEXT_TOKENS;
+      } else {
+        process.env.LLAMACPP_MIN_CONTEXT_TOKENS = oldValue;
+      }
+    }
+  });
+
   it("parses required sections in order", () => {
     const parsed = parseAgentResponse(VALID_RESPONSE);
     expect(parsed.summary).toContain("Fix addition");

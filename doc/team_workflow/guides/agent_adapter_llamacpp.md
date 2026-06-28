@@ -370,10 +370,16 @@ Trigger env:
 ```powershell
 $env:LLAMACPP_BASE_URL = "http://127.0.0.1:8080/v1"
 $env:LLAMACPP_MODEL = "qwen/qwen3-coder-next"
+$env:LLAMACPP_MIN_CONTEXT_TOKENS = "65536"
 $env:LLAMACPP_MAX_INPUT_TOKENS = "24000"
 $env:LLAMACPP_MAX_OUTPUT_TOKENS = "6000"
 $env:LLAMACPP_TIMEOUT_MS = "900000"
 ```
+
+Default adapter runs should require `LLAMACPP_MIN_CONTEXT_TOKENS=65536`.
+For explicit fast fallback runs on a 32K server, set
+`LLAMACPP_MIN_CONTEXT_TOKENS=32768` in the same shell and record that fallback
+mode in the run evidence.
 
 Smoke для alias:
 
