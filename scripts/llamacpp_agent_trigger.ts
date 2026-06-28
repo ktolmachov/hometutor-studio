@@ -164,9 +164,18 @@ export function buildReadSetContext(
     chunks.push(`=== ${relPath} ===\n${slice}${slice.length < normalized.length ? "\n...[truncated]" : ""}`);
     remaining -= slice.length;
   }
+  const finalFormatReminder = [
+    "END CONTEXT EXCERPTS.",
+    "Now answer the original task using exactly these section headings:",
+    SECTION_ORDER.join("\n"),
+    "PATCH must contain exactly one fenced ```diff block.",
+    "If no changes are needed, PATCH must still contain exactly:",
+    "```diff\n# NO_CHANGES\n```",
+    "Do not return PATCH as plain text.",
+  ].join("\n");
   const packedPrompt = chunks.length === 0
     ? prompt
-    : `${prompt}\n\nCONTEXT EXCERPTS FROM READ_SET:\n${chunks.join("\n\n")}\n`;
+    : `${prompt}\n\nCONTEXT EXCERPTS FROM READ_SET:\n${chunks.join("\n\n")}\n\n${finalFormatReminder}\n`;
   return {
     prompt: packedPrompt,
     readSet,

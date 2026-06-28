@@ -574,6 +574,11 @@ targeted tests и contract from evidence. Не считать закрытыми
 задачи: модельный repair attempt и guarded one-line fallback; они остаются
 backlog перед расширением за пределы Phase 1 low-risk.
 
+Обновление 2026-06-29: после `CONTEXT EXCERPTS FROM READ_SET` trigger добавляет
+финальный format reminder с точным порядком секций и no-op fenced diff block.
+Это защищает большие read-set prompts от recency drift, когда модель начинает
+отвечать по содержимому последнего excerpt вместо исходной task-инструкции.
+
 ---
 
 ## 12. Definition of Done для разработки adapter
