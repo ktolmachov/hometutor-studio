@@ -7,6 +7,11 @@
 локальная разработка кода приложения через llama.cpp OpenAI-compatible server.
 Recommended coding default: `ctx=65536`; fast fallback: `ctx=32768`.
 
+Canonical runtime alias: `qwen/qwen3-coder-next`.
+Benchmark legacy alias: `qwen3-coder-next`.
+Rule: adapter, trigger, launcher smoke, and `/v1/models` checks must use the
+canonical runtime alias only.
+
 ---
 
 ## Значения плейсхолдеров
@@ -134,6 +139,10 @@ limits: slow, context-sensitive, no broad planning by default
 trigger проверяет, что `/v1/models` содержит `id == "qwen/qwen3-coder-next"`
 или alias с тем же значением. `GET /health` допустим только как дополнительная
 проверка процесса, но не заменяет проверку model id.
+
+Не использовать benchmark legacy alias `qwen3-coder-next` в runtime-командах:
+он годится только для текстовых отчётов, где так назван прогон. Runtime alias
+везде один: `qwen/qwen3-coder-next`.
 
 В strategy matrix локальный trigger должен быть fallback/primary только для
 low-risk и части medium-risk задач. High-risk пакеты не отдавать ему без
@@ -371,7 +380,22 @@ Invoke-RestMethod http://127.0.0.1:8080/v1/models | ConvertTo-Json -Depth 5
 `meta.n_ctx` не меньше `65536` для default coding mode (`32768` допустим только
 как fast fallback).
 
-Latest validation 2026-06-29:
+Обязательный 64K identity smoke после старта server:
+
+```powershell
+pwsh -ExecutionPolicy Bypass -File .\Test-LocalLlamaCppModelIdentity.ps1 `
+  -Model "qwen/qwen3-coder-next" `
+  -Marker "CODER_NEXT_64K_OK" `
+  -JsonOut "D:\AI\logs\coder_next_64k_identity_smoke.json"
+```
+
+Критерии:
+
+- `response.model == "qwen/qwen3-coder-next"`;
+- `meta.n_ctx >= 65536`;
+- `finish_reason == "stop"`.
+
+### Latest accepted benchmark
 
 ```text
 coding benchmark: ACCEPTED_SINGLE_MODEL_CANDIDATE
@@ -399,7 +423,7 @@ coding-agent experiments. It is not promoted here as the primary graph compiler:
 the built-in synthetic graph JSON check passed, but the external graph LLM probe
 was intentionally not run in this benchmark.
 
-Latest validation 2026-06-28:
+### Historical baseline
 
 ```text
 coding benchmark: ACCEPTED_SINGLE_MODEL_CANDIDATE
@@ -437,6 +461,27 @@ existing gates: exact alias check, `ctx >= 65536` for default mode (`32768` for
 fast fallback), strict structured sections, no hidden thinking, fenced diff,
 write-set subset validation, `git apply --check`, targeted tests, and
 evidence-only `execution_contract.md`.
+
+Decision summary:
+
+```text
+DECISION:
+  qwen/qwen3-coder-next accepted as local coding adapter model.
+
+DEFAULT:
+  ctx=65536
+
+USE FOR:
+  patch generation
+  code review
+  large diff analysis
+  controlled low-risk local coding tasks
+
+DO NOT USE AS:
+  autonomous broad planner
+  primary graph compiler
+  high-risk migration/security executor without external review
+```
 
 Validated locally:
 
