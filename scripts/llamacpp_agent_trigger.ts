@@ -104,8 +104,15 @@ function envNumber(name: string, fallback: number): number {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function envPositiveInt(name: string, fallback: number): number {
+  const raw = process.env[name];
+  if (!raw) return fallback;
+  const parsed = Number(raw);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+}
+
 export function resolveMinContextTokens(): number {
-  return envNumber("LLAMACPP_MIN_CONTEXT_TOKENS", DEFAULT_MIN_CONTEXT_TOKENS);
+  return envPositiveInt("LLAMACPP_MIN_CONTEXT_TOKENS", DEFAULT_MIN_CONTEXT_TOKENS);
 }
 
 function stripBom(text: string): string {

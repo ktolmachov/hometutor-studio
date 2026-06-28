@@ -380,6 +380,8 @@ Default adapter runs should require `LLAMACPP_MIN_CONTEXT_TOKENS=65536`.
 For explicit fast fallback runs on a 32K server, set
 `LLAMACPP_MIN_CONTEXT_TOKENS=32768` in the same shell and record that fallback
 mode in the run evidence.
+If `LLAMACPP_MIN_CONTEXT_TOKENS` is unset or invalid, the trigger falls back to
+the safe default: `65536`.
 
 Smoke для alias:
 

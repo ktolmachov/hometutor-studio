@@ -52,7 +52,7 @@ Apply patch and run tests.
 `;
 
 describe("llamacpp_agent_trigger response gates", () => {
-  it("defaults to 64K minimum context and allows explicit fast fallback override", () => {
+  it("defaults to 64K minimum context, allows explicit fast fallback, and rejects invalid overrides", () => {
     const oldValue = process.env.LLAMACPP_MIN_CONTEXT_TOKENS;
     try {
       delete process.env.LLAMACPP_MIN_CONTEXT_TOKENS;
@@ -60,6 +60,11 @@ describe("llamacpp_agent_trigger response gates", () => {
 
       process.env.LLAMACPP_MIN_CONTEXT_TOKENS = "32768";
       expect(resolveMinContextTokens()).toBe(32_768);
+
+      for (const invalid of ["0", "-1", "32768.5", "nope"]) {
+        process.env.LLAMACPP_MIN_CONTEXT_TOKENS = invalid;
+        expect(resolveMinContextTokens()).toBe(65_536);
+      }
     } finally {
       if (oldValue === undefined) {
         delete process.env.LLAMACPP_MIN_CONTEXT_TOKENS;
