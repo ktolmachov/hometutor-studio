@@ -1,6 +1,12 @@
 
 # Журнал Изменений
 
+## 2026-06-28 (qwen3-coder-next local trigger validation)
+
+- **Local coding benchmark recorded:** `qwen3-coder-next` accepted as `ACCEPTED_SINGLE_MODEL_CANDIDATE` for the local coding benchmark (`score 94.89`, quality `13.5/13.5`, avg `63.2 tps`; benchmark date `2026-06-28`).
+- **llama.cpp trigger check:** `qwen/qwen3-coder-next` validated for the local trigger path on `http://127.0.0.1:8080/v1`: `/v1/models` exact alias match, `n_ctx=32768`, identity smoke PASS (`response.model=qwen/qwen3-coder-next`, exact `CODER_NEXT_OK`, `finish_reason=stop`, latency `1230 ms`), strict no-op trigger smoke PASS, disposable real-patch trigger rehearsal PASS (`write_set_validation`, `git_apply_check`, targeted tests, and evidence contract all PASS; no repair/fallback used).
+- **Trigger regression suite:** `npm.cmd run test:trigger -- tests/trigger/llamacpp_agent_trigger.test.ts` passed with the full trigger bundle (`7 files`, `97 tests`).
+
 ## 2026-06-21 (two-root migration + prompts SSoT correction)
 
 - **Two-root repository layout documented.** Project is split: `CODE_ROOT` (`D:\Projects\hometutor`, editable install) holds `app/`, `DOCS_ROOT` (`hometutor-studio`, this repo) holds `doc/`, `tests/`, `scripts/`. New `§ Two-Root Repository Layout` section added to `CLAUDE.md`. Active prompt docs updated with `[two-root]` preamble or root annotations (default scope of `check_prompt_two_root.py` passes clean).

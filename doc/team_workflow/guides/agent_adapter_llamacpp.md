@@ -361,6 +361,44 @@ Invoke-RestMethod http://127.0.0.1:8080/v1/models | ConvertTo-Json -Depth 5
 Критерий: `data[].id` или `aliases[]` содержит `qwen/qwen3-coder-next`, а
 `meta.n_ctx` не меньше `32768`.
 
+Latest validation 2026-06-28:
+
+```text
+coding benchmark: ACCEPTED_SINGLE_MODEL_CANDIDATE
+benchmark date: 2026-06-28
+score: 94.89
+quality: 13.5/13.5
+avg tps: 63.2
+decision: accepted for local coding benchmark
+
+local trigger endpoint: http://127.0.0.1:8080/v1
+/v1/models: PASS
+model alias: qwen/qwen3-coder-next
+ctx: 32768
+identity smoke: PASS
+response.model: qwen/qwen3-coder-next
+marker: CODER_NEXT_OK
+finish_reason: stop
+identity latency_ms: 1230
+strict no-op trigger smoke: PASS
+disposable real patch trigger rehearsal: PASS
+write_set_validation: PASS
+git_apply_check: PASS
+targeted_tests: PASS
+execution_contract.md: generated from evidence
+hunk_count_normalized: True
+recount_used: False
+repair_used: False
+adapter_fallback_used: False
+trigger regression suite: 7 files / 97 tests PASS
+```
+
+Verdict: `qwen/qwen3-coder-next` is accepted as the current single local
+coding-trigger candidate for controlled low-risk patch execution. Keep the
+existing gates: exact alias check, `ctx >= 32768`, strict structured sections,
+no hidden thinking, fenced diff, write-set subset validation, `git apply --check`,
+targeted tests, and evidence-only `execution_contract.md`.
+
 Validated locally:
 
 ```text

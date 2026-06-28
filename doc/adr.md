@@ -895,6 +895,20 @@ Evidence from the 2026-05-18/19 smoke tests:
   tokens on `deepseek-v4-flash`, so a 20k hard budget is not realistic for this
   CLI without additional upstream context controls.
 
+Evidence from the 2026-06-28 local llama.cpp trigger validation:
+
+- `qwen3-coder-next` is accepted as `ACCEPTED_SINGLE_MODEL_CANDIDATE` for the
+  local coding benchmark (`score 94.89`, quality `13.5/13.5`, avg `63.2 tps`).
+- `qwen/qwen3-coder-next` passed the local trigger preflight on
+  `http://127.0.0.1:8080/v1`: exact `/v1/models` alias match, `n_ctx=32768`,
+  identity smoke PASS (`response.model` exact, marker exact, `finish_reason=stop`).
+- The llama.cpp adapter passed strict no-op trigger smoke and disposable real
+  patch rehearsal: section order, no `<think>`, write-set validation,
+  `git apply --check`, targeted tests, and evidence contract all PASS, with
+  no repair or fallback path used.
+- Decision: keep `qwen/qwen3-coder-next` as the current single local
+  coding-trigger candidate for controlled low-risk patch execution only.
+
 DeepSeek -> IDE/local-agent alternatives:
 
 | Option | Role | Pros | Cons | Decision |
