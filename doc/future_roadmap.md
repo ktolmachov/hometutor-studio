@@ -63,6 +63,9 @@ daily backlog и не должен конкурировать с `doc/backlog_re
   2026-06-21: `qwen/qwen3-coder-next` через llama.cpp (`/v1`, AutoFit,
   `ctx=32768`, `parallel=1`, q8 KV, reasoning off) прошёл strict no-op,
   disposable real patch и live `scripts/llamacpp_agent_trigger.ts` smoke.
+  Benchmark 2026-06-29 принял `ctx=65536` как recommended coding default
+  (`rank_score 94.82`, quality `13.5/13.5`, avg `62.43 tps`); `ctx=32768`
+  остаётся fast fallback.
   Trigger injects read-set context, validates fenced diff against `WRITE_SET`,
   applies via `git apply --check/apply`, runs targeted tests and writes
   `execution_contract.md` only from evidence. Scope remains controlled

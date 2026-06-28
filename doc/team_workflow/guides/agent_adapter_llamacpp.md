@@ -5,6 +5,7 @@
 
 Целевая модель первого этапа: `qwen/qwen3-coder-next`. Основной режим:
 локальная разработка кода приложения через llama.cpp OpenAI-compatible server.
+Recommended coding default: `ctx=65536`; fast fallback: `ctx=32768`.
 
 ---
 
@@ -62,11 +63,13 @@ RUN_CMD: |
 - выполнить cleanup в пределах строгого write-set;
 - быстро получить patch без внешних API и без расходов на cloud tokens.
 
-`qwen/qwen3-coder-next` - лучший основной локальный coding-кандидат, но
-стартовый дизайн должен учитывать менее надежный long-context, риск потери
-инструкций и слабый self-review на длинных пакетах. Скорость и latency зависят
-от quant/offload; перед auto-selection нужно измерять duration, tokens/sec и
-time-to-first-token на реальных задачах.
+`qwen/qwen3-coder-next` - лучший основной локальный coding-кандидат. После
+benchmark 2026-06-29 режим `ctx=65536` принят как default coding mode: качество
+совпадает с 32K, а скорость просела только примерно на 1.2%. Стартовый дизайн
+всё равно должен учитывать риск потери инструкций и слабый self-review на
+длинных пакетах. Скорость и latency зависят от quant/offload; перед
+auto-selection нужно измерять duration, tokens/sec и time-to-first-token на
+реальных задачах.
 
 ---
 
@@ -198,9 +201,11 @@ exit codes, test output и known risks.
 Если модель начинает терять инструкции, снижать не temperature, а размер
 prompt: меньше файлов, меньше истории, отдельные sessions для ролей.
 
-Budget `24000 + 6000` требует server context около `32768`. При `ctx-size
-16384` trigger должен снижать input/output caps или останавливать run до
-запроса модели.
+Budget `24000 + 6000` требует server context около `32768`; это fast fallback.
+Default coding server context после 64K benchmark - `65536`, потому что он
+почти не снижает throughput на текущем наборе задач и заметно полезнее для code
+review, больших diff, логов и multi-file задач. При `ctx-size 16384` trigger
+должен снижать input/output caps или останавливать run до запроса модели.
 
 ---
 
@@ -306,26 +311,30 @@ Workflow ожидает OpenAI-compatible endpoint llama.cpp (`/v1`) и model al
 
 ```powershell
 cd D:\AI\llama_cpp_server_pack_v1
-pwsh -ExecutionPolicy Bypass -File .\Start-Qwen3-Coder-Next-LlamaCpp-AgentAdapter-AutoFit.ps1 `
+pwsh -ExecutionPolicy Bypass -File .\Start-Qwen3-Coder-Next-80B-Q4KM-LlamaCpp.ps1 `
   -StopExisting `
-  -PersistTriggerEnv
+  -CtxSize 65536
 ```
 
 Если autodetect не нашел GGUF:
 
 ```powershell
-pwsh -ExecutionPolicy Bypass -File .\Start-Qwen3-Coder-Next-LlamaCpp-AgentAdapter-AutoFit.ps1 `
+pwsh -ExecutionPolicy Bypass -File .\Start-Qwen3-Coder-Next-80B-Q4KM-LlamaCpp.ps1 `
   -ModelPath "D:\AI\models\gguf\Qwen3-Coder-Next-Q4_K_M.gguf" `
   -StopExisting `
-  -PersistTriggerEnv
+  -CtxSize 65536
 ```
+
+Legacy AutoFit launcher fallback: use
+`Start-Qwen3-Coder-Next-LlamaCpp-AgentAdapter-AutoFit.ps1 -Profile LongCtxExperimental`
+for 64K, or the default `AgentAdapterAutoFit` profile for the 32K fast fallback.
 
 Стартовый launch contract:
 
 | Параметр | Значение |
 |---|---|
 | alias | `qwen/qwen3-coder-next` |
-| ctx-size | `32768` |
+| ctx-size | `65536` default coding mode; `32768` fast fallback |
 | parallel | `1` |
 | batch-size | `2048` |
 | ubatch-size | `512` |
@@ -359,7 +368,36 @@ Invoke-RestMethod http://127.0.0.1:8080/v1/models | ConvertTo-Json -Depth 5
 ```
 
 Критерий: `data[].id` или `aliases[]` содержит `qwen/qwen3-coder-next`, а
-`meta.n_ctx` не меньше `32768`.
+`meta.n_ctx` не меньше `65536` для default coding mode (`32768` допустим только
+как fast fallback).
+
+Latest validation 2026-06-29:
+
+```text
+coding benchmark: ACCEPTED_SINGLE_MODEL_CANDIDATE
+model: Qwen3-Coder-Next 80B Q4_K_M
+context: 65536
+rank_score: 94.82
+quality: 13.5/13.5
+avg_predicted_tps: 62.43
+model_identity_passed: True
+graph_json_passed: True
+abstain_passed: True
+graph_probe_passed: False (external -RunGraphLlmProbe was not run)
+
+32K baseline: score 94.89, avg tps 63.20, quality 13.5/13.5
+64K delta: score -0.07, tps -0.77 tok/s, loss ~1.2%
+
+default coding mode: ctx=65536
+fast fallback: ctx=32768
+final report: D:\AI\logs\home_rag_model_benchmark_2026-06-28_23-58-06\HOME_RAG_MODEL_RANKING_REPORT.md
+```
+
+Final decision: `qwen/qwen3-coder-next` with `ctx=65536` is accepted for
+coding benchmark, patch generation, code review, large diff analysis, and local
+coding-agent experiments. It is not promoted here as the primary graph compiler:
+the built-in synthetic graph JSON check passed, but the external graph LLM probe
+was intentionally not run in this benchmark.
 
 Latest validation 2026-06-28:
 
@@ -395,9 +433,10 @@ trigger regression suite: 7 files / 97 tests PASS
 
 Verdict: `qwen/qwen3-coder-next` is accepted as the current single local
 coding-trigger candidate for controlled low-risk patch execution. Keep the
-existing gates: exact alias check, `ctx >= 32768`, strict structured sections,
-no hidden thinking, fenced diff, write-set subset validation, `git apply --check`,
-targeted tests, and evidence-only `execution_contract.md`.
+existing gates: exact alias check, `ctx >= 65536` for default mode (`32768` for
+fast fallback), strict structured sections, no hidden thinking, fenced diff,
+write-set subset validation, `git apply --check`, targeted tests, and
+evidence-only `execution_contract.md`.
 
 Validated locally:
 

@@ -909,6 +909,21 @@ Evidence from the 2026-06-28 local llama.cpp trigger validation:
 - Decision: keep `qwen/qwen3-coder-next` as the current single local
   coding-trigger candidate for controlled low-risk patch execution only.
 
+Evidence from the 2026-06-29 64K coding benchmark:
+
+- Qwen3-Coder-Next 80B Q4_K_M at `ctx=65536` is accepted as
+  `ACCEPTED_SINGLE_MODEL_CANDIDATE` (`rank_score 94.82`, quality `13.5/13.5`,
+  avg predicted `62.43 tps`, `model_identity_passed=True`,
+  `graph_json_passed=True`, `abstain_passed=True`).
+- Compared with the 32K run (`score 94.89`, avg `63.20 tps`, quality
+  `13.5/13.5`), the 64K mode loses only `0.07` score and `0.77 tok/s`
+  (~1.2%) with no quality regression.
+- Decision update: recommended coding context is `65536`; `32768` remains the
+  fast fallback. Role remains coding benchmark, patch generation, code review,
+  large diff analysis, and local coding-agent experiments. The benchmark does
+  not promote this model as the primary graph compiler because the external
+  graph LLM probe was not run.
+
 DeepSeek -> IDE/local-agent alternatives:
 
 | Option | Role | Pros | Cons | Decision |

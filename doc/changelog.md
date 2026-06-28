@@ -1,6 +1,12 @@
 
 # Журнал Изменений
 
+## 2026-06-29 (qwen3-coder-next 64K coding default)
+
+- **Coding model decision:** `qwen/qwen3-coder-next` remains the accepted single local coding model; recommended coding context is now **`65536` tokens** with **`32768`** as fast fallback. Scope: coding benchmark, patch generation, code review, large diff analysis, and local coding-agent experiments.
+- **64K benchmark:** Qwen3-Coder-Next 80B Q4_K_M at `ctx=65536` passed as `ACCEPTED_SINGLE_MODEL_CANDIDATE` (`rank_score 94.82`, quality `13.5/13.5`, avg predicted `62.43 tps`, identity clean, `graph_json_passed=True`, `abstain_passed=True`). Versus 32K: score `-0.07`, speed `-0.77 tok/s` (~1.2% loss), no quality regression.
+- **Final report generated:** `D:\AI\logs\home_rag_model_benchmark_2026-06-28_23-58-06\HOME_RAG_MODEL_RANKING_REPORT.md` / `.html` / `.compact.csv` / `home_rag_single_model_recommendation.env`.
+
 ## 2026-06-28 (qwen3-coder-next local trigger validation)
 
 - **Local coding benchmark recorded:** `qwen3-coder-next` accepted as `ACCEPTED_SINGLE_MODEL_CANDIDATE` for the local coding benchmark (`score 94.89`, quality `13.5/13.5`, avg `63.2 tps`; benchmark date `2026-06-28`).
