@@ -112,6 +112,7 @@ def test_build_query_engine_appends_lost_in_middle_postprocessor(monkeypatch):
             enable_tutor_pedagogical_orchestrator=False,
             enable_graph_augmented_retrieval=False,
             graph_augment_max_extra_docs=0,
+            rag_context_token_budget=0,
         ),
     )
 

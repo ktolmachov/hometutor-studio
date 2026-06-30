@@ -13,11 +13,13 @@ class _FakeEmbedModel:
 @pytest.fixture
 def faq_env(tmp_path, monkeypatch):
     """Отдельный chroma_db и jsonl на тест — без пересечения состояния."""
+    faq_memory.reset_faq_embed_circuit_for_tests()
     chroma = tmp_path / "chroma_db"
     chroma.mkdir(parents=True)
     monkeypatch.setattr(faq_memory, "CHROMA_DIR", chroma)
     faq_memory.FAQ_MEMORY_PATH = tmp_path / "faq_test.jsonl"
     monkeypatch.setattr(faq_memory, "_get_embed_model", lambda: _FakeEmbedModel())
+    monkeypatch.setattr(faq_memory, "_loopback_tcp_reachable", lambda *_a, **_k: True)
 
 
 def test_save_and_find_similar(faq_env):
