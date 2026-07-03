@@ -88,9 +88,14 @@ def test_demo_mode_allows_missing_data_dirs_when_demo_data_exists(tmp_path: Path
     assert by_name["logs/"].status == "warn"
 
 
-def test_main_returns_zero_for_minimal_ready_repo(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+def test_main_returns_zero_for_minimal_ready_repo(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     _minimal_repo(tmp_path)
     (tmp_path / ".env").write_text("OPENAI_API_KEY=local\n", encoding="utf-8")
+    monkeypatch.setattr(local_readiness, "_port_available", lambda _host, _port: True)
 
     code = local_readiness.main(["--root", str(tmp_path), "--json"])
 

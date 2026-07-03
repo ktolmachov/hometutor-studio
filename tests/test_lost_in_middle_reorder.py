@@ -68,11 +68,16 @@ def test_build_query_engine_appends_lost_in_middle_postprocessor(monkeypatch):
         captured["graph_called"] = True
         return postprocessors + ["graph_pp"]
 
+    def fake_append_budget(postprocessors):
+        captured["budget_input"] = list(postprocessors)
+        return postprocessors + ["budget_pp"]
+
     def fake_append_lim(postprocessors):
         captured["lim_input"] = list(postprocessors)
         return postprocessors + [LostInMiddleReorderPostprocessor()]
 
     monkeypatch.setattr(retrieval, "append_graph_expansion_postprocessor", fake_append_graph)
+    monkeypatch.setattr(retrieval, "append_context_budget_postprocessor", fake_append_budget)
     monkeypatch.setattr(retrieval, "append_lost_in_middle_reorder_postprocessor", fake_append_lim)
     monkeypatch.setattr(retrieval, "build_postprocessors", lambda params: ["base_pp"])
     monkeypatch.setattr(retrieval, "get_query_engine_cache_result", lambda key: {"engine": None, "cache_latency_ms": 0.0})
@@ -119,5 +124,6 @@ def test_build_query_engine_appends_lost_in_middle_postprocessor(monkeypatch):
     retrieval.build_query_engine("test question", QueryOptions())
 
     assert captured.get("graph_called") is True
-    assert captured["lim_input"] == ["base_pp", "graph_pp"]
+    assert captured["budget_input"] == ["base_pp", "graph_pp"]
+    assert captured["lim_input"] == ["base_pp", "graph_pp", "budget_pp"]
     assert isinstance(captured["node_postprocessors"][-1], LostInMiddleReorderPostprocessor)

@@ -31,7 +31,7 @@ def vault_env(tmp_path, monkeypatch):
             return _FakeResponse("### Тема\n- сведённый тезис")
         return _FakeResponse("# 📝 Конспект: Тест\n\nГотовый конспект.")
 
-    monkeypatch.setattr(oe, "get_obsidian_export_llm", lambda: object())
+    monkeypatch.setattr(oe, "_get_llm", lambda: object())
     monkeypatch.setattr(oe, "complete_with_resilience", _fake_complete)
     return data_dir, calls
 
