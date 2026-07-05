@@ -120,7 +120,7 @@ def _patch_common(monkeypatch, fake_client):
     monkeypatch.setattr(ingestion, "_apply_contextualized_chunks", lambda docs: docs)
     monkeypatch.setattr(ingestion, "_configure_document_for_metadata_aware_split", lambda doc: None)
     monkeypatch.setattr(ingestion_loader, "_build_nodes", lambda docs: ["node-1"])
-    monkeypatch.setattr(ingestion_loader, "get_embed_model", lambda: object())
+    monkeypatch.setattr(ingestion_loader, "get_embed_model", lambda **kwargs: object())
 
     class _FakeChromaBackend:
         def __init__(self, fc: _FakeClient):
@@ -270,7 +270,7 @@ def test_build_index_skips_when_file_manifest_and_index_are_current(monkeypatch)
     monkeypatch.setattr(
         ingestion_loader,
         "get_embed_model",
-        lambda: (_ for _ in ()).throw(AssertionError("preflight skipped")),
+        lambda **kwargs: (_ for _ in ()).throw(AssertionError("preflight skipped")),
     )
     monkeypatch.setattr(
         ingestion_index_full,

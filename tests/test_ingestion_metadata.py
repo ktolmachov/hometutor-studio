@@ -13,7 +13,7 @@ def test_enrich_document_metadata_with_cost_returns_usage(monkeypatch):
         def complete(prompt):
             return _FakeResponse()
 
-    monkeypatch.setattr(ingestion_metadata, "get_ingestion_llm", lambda: _FakeLLM())
+    monkeypatch.setattr(ingestion_metadata, "get_ingestion_llm", lambda **kwargs: _FakeLLM())
 
     enrichment, cost = ingestion_metadata.enrich_document_metadata_with_cost("Test document")
 
@@ -36,7 +36,7 @@ def test_build_document_summary_with_cost_returns_usage(monkeypatch):
         def complete(prompt):
             return _FakeResponse()
 
-    monkeypatch.setattr(ingestion_metadata, "get_ingestion_llm", lambda: _FakeLLM())
+    monkeypatch.setattr(ingestion_metadata, "get_ingestion_llm", lambda **kwargs: _FakeLLM())
 
     summary, cost = ingestion_metadata.build_document_summary_with_cost("Test document")
 

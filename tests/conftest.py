@@ -55,30 +55,48 @@ def _default_micro_quiz_offline(monkeypatch: MonkeyPatch) -> None:
     reset_settings_cache()
 
 
+def _patch_bound_getters(monkeypatch: MonkeyPatch, targets: tuple[str, ...], getter) -> None:
+    for target in targets:
+        monkeypatch.setattr(target, getter)
+
+
+_EFFECTIVE_RETRIEVAL_SETTINGS_TARGETS = (
+    "app.config.get_retrieval_settings",
+    "app.rag_runtime_preferences.effective_retrieval_settings",
+    "app.retrieval.effective_retrieval_settings",
+    "app.pipeline_factory.effective_retrieval_settings",
+    "app.retrieval_router.effective_retrieval_settings",
+    "app.multi_query_expansion.effective_retrieval_settings",
+    "app.pipeline_runner.effective_retrieval_settings",
+)
+
+_EFFECTIVE_SETTINGS_TARGETS = (
+    "app.rag_runtime_preferences.effective_settings",
+    "app.retrieval.effective_settings",
+    "app.multi_query_expansion.effective_settings",
+    "app.retrieval_cache.effective_settings",
+)
+
+
 def patch_retrieval_faq_cache_enabled(monkeypatch: MonkeyPatch, **settings_updates: object) -> None:
-    """Только ``app.retrieval.get_settings`` — для тестов ``resolve_query_execution_plan`` без ``query_service``."""
+    """Подмена ``effective_settings`` для ``resolve_query_execution_plan`` без ``query_service``."""
     from app.config import get_settings
-    import app.retrieval as retrieval
 
     def _gs():
         updates = {"enable_faq_cache": True, **settings_updates}
         return get_settings().model_copy(update=updates)
 
-    monkeypatch.setattr(retrieval, "get_settings", _gs)
+    _patch_bound_getters(monkeypatch, _EFFECTIVE_SETTINGS_TARGETS, _gs)
 
 
 def patch_retrieval_settings(monkeypatch: MonkeyPatch, **settings_kwargs: object) -> app_config.RetrievalSettings:
-    """Подмена ``get_retrieval_settings`` в pipeline_factory и retrieval_router."""
-    import app.pipeline_factory as pipeline_factory
-    import app.retrieval_router as retrieval_router
-
+    """Подмена ``get_retrieval_settings`` / ``effective_retrieval_settings`` для retrieval-тестов."""
     settings = app_config.RetrievalSettings(**settings_kwargs)
 
     def _getter() -> app_config.RetrievalSettings:
         return settings
 
-    monkeypatch.setattr(pipeline_factory, "get_retrieval_settings", _getter)
-    monkeypatch.setattr(retrieval_router, "get_retrieval_settings", _getter)
+    _patch_bound_getters(monkeypatch, _EFFECTIVE_RETRIEVAL_SETTINGS_TARGETS, _getter)
     return settings
 
 
@@ -105,16 +123,15 @@ def settings_env(monkeypatch: MonkeyPatch):
 
 
 def patch_faq_cache_enabled(monkeypatch: MonkeyPatch, **settings_updates: object) -> None:
-    """Подмена ``get_settings`` в ``query_service`` и ``retrieval`` (``_faq_cache_policy`` в ``resolve_query_execution_plan``)."""
+    """Подмена FAQ-политики: ``query_service.get_settings`` + ``effective_settings`` в retrieval."""
     from app.config import get_settings
     import app.query_service as query_service
-    import app.retrieval as retrieval
 
     def _gs():
         updates = {"enable_faq_cache": True, **settings_updates}
         return get_settings().model_copy(update=updates)
 
     monkeypatch.setattr(query_service, "get_settings", _gs)
-    monkeypatch.setattr(retrieval, "get_settings", _gs)
+    _patch_bound_getters(monkeypatch, _EFFECTIVE_SETTINGS_TARGETS, _gs)
 
 

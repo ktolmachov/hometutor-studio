@@ -92,19 +92,21 @@ def test_get_base_services_uses_active_collection_marker(monkeypatch):
         "get_active_collection_names",
         lambda: ("active_chunks_v2", "active_summary_v2"),
     )
+    settings = SimpleNamespace(
+        openai_api_key="sk-test",
+        embed_model="text-embedding-3-small",
+        enable_document_summaries=True,
+        query_engine_cache_size=32,
+        query_engine_ttl_sec=1800,
+    )
     monkeypatch.setattr(retrieval_cache, "get_index_embed_model", lambda: None)
-    monkeypatch.setattr(retrieval_cache, "get_embed_model", lambda: object())
+    monkeypatch.setattr(retrieval_cache, "get_embed_model", lambda **kwargs: object())
     monkeypatch.setattr(retrieval_cache, "get_llm", lambda: object())
+    monkeypatch.setattr(retrieval_cache, "effective_settings", lambda: settings)
     monkeypatch.setattr(
         retrieval_cache,
         "_settings",
-        lambda: SimpleNamespace(
-            openai_api_key="sk-test",
-            embed_model="text-embedding-3-small",
-            enable_document_summaries=True,
-            query_engine_cache_size=32,
-            query_engine_ttl_sec=1800,
-        ),
+        lambda: settings,
     )
     monkeypatch.setattr(retrieval_cache, "ChromaVectorStore", lambda chroma_collection: {"collection": chroma_collection})
     monkeypatch.setattr(

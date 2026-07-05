@@ -110,13 +110,9 @@ def test_flashcard_handoff_seed_uses_document_deck_source_id() -> None:
 
 
 def test_resolve_plan_uses_shared_cache_for_flashcard_handoff_session(monkeypatch):
-    from app.config import RetrievalSettings
+    from conftest import patch_retrieval_settings
 
-    monkeypatch.setattr(
-        pipeline_factory,
-        "get_retrieval_settings",
-        lambda: RetrievalSettings(rag_profile="quality", retrieval_mode="hybrid"),
-    )
+    patch_retrieval_settings(monkeypatch, rag_profile="quality", retrieval_mode="hybrid")
     plan = retrieval.resolve_query_execution_plan(
         "Explain card concept",
         QueryOptions(

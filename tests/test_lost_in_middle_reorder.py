@@ -43,7 +43,7 @@ def test_lost_in_middle_postprocessor_delegates_to_helper():
 
 def test_append_lost_in_middle_reorder_respects_setting(monkeypatch):
     monkeypatch.setattr(
-        "app.config.get_retrieval_settings",
+        "app.rag_runtime_preferences.effective_retrieval_settings",
         lambda: RetrievalSettings(enable_lost_in_middle_reorder=True),
     )
     with_pp = append_lost_in_middle_reorder_postprocessor([])
@@ -51,7 +51,7 @@ def test_append_lost_in_middle_reorder_respects_setting(monkeypatch):
     assert isinstance(with_pp[0], LostInMiddleReorderPostprocessor)
 
     monkeypatch.setattr(
-        "app.config.get_retrieval_settings",
+        "app.rag_runtime_preferences.effective_retrieval_settings",
         lambda: RetrievalSettings(enable_lost_in_middle_reorder=False),
     )
     without_pp = append_lost_in_middle_reorder_postprocessor([])
@@ -108,9 +108,11 @@ def test_build_query_engine_appends_lost_in_middle_postprocessor(monkeypatch):
             prompt_key="qa",
         ),
     )
+    import app.rag_runtime_preferences as rag_prefs
+
     monkeypatch.setattr(
-        retrieval,
-        "get_settings",
+        rag_prefs,
+        "effective_settings",
         lambda: SimpleNamespace(
             enable_tutor_inline_quiz=False,
             tutor_inline_quiz_separate_llm_call=False,

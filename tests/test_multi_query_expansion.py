@@ -21,10 +21,7 @@ from conftest import patch_retrieval_settings
 
 
 def _patch_mq_retrieval_settings(monkeypatch, **kwargs) -> RetrievalSettings:
-    settings = patch_retrieval_settings(monkeypatch, **kwargs)
-    monkeypatch.setattr("app.config.get_retrieval_settings", lambda: settings)
-    monkeypatch.setattr("app.multi_query_expansion.get_retrieval_settings", lambda: settings)
-    return settings
+    return patch_retrieval_settings(monkeypatch, **kwargs)
 
 
 def _node(chunk_id: str, score: float = 0.5) -> SimpleNamespace:
@@ -99,7 +96,7 @@ def test_merge_deduped_candidates_zero_duplicate_chunk_id():
 
 def test_should_expand_queries_gating_matrix(monkeypatch):
     _patch_mq_retrieval_settings(monkeypatch, enable_multi_query=True, multi_query_count=3)
-    monkeypatch.setattr("app.multi_query_expansion.get_settings", lambda: SimpleNamespace(enable_rewrite=True))
+    monkeypatch.setattr("app.multi_query_expansion.effective_settings", lambda: SimpleNamespace(enable_rewrite=True))
 
     ctx = QueryContext(original_question="What is RAG?", rewritten_query="RAG definition")
     ctx.query_type = "qa"
@@ -114,12 +111,12 @@ def test_should_expand_queries_gating_matrix(monkeypatch):
     assert reason_off == "flag_off"
 
     _patch_mq_retrieval_settings(monkeypatch, enable_multi_query=True, multi_query_count=3)
-    monkeypatch.setattr("app.multi_query_expansion.get_settings", lambda: SimpleNamespace(enable_rewrite=False))
+    monkeypatch.setattr("app.multi_query_expansion.effective_settings", lambda: SimpleNamespace(enable_rewrite=False))
     ok_rw, reason_rw = should_expand_queries(execution_plan=_plan(), query_context=ctx)
     assert ok_rw is False
     assert reason_rw == "rewrite_off"
 
-    monkeypatch.setattr("app.multi_query_expansion.get_settings", lambda: SimpleNamespace(enable_rewrite=True))
+    monkeypatch.setattr("app.multi_query_expansion.effective_settings", lambda: SimpleNamespace(enable_rewrite=True))
     ok_kw, reason_kw = should_expand_queries(
         execution_plan=_plan(query_type=KEYWORD_QUERY, retrieval_mode="bm25_only"),
         query_context=ctx,
@@ -173,7 +170,7 @@ def test_expand_queries_llm_failure_degrades_to_anchor(monkeypatch):
 
 def test_prepare_multi_query_expansion_flag_off_passthrough(monkeypatch):
     _patch_mq_retrieval_settings(monkeypatch, enable_multi_query=False, multi_query_count=3)
-    monkeypatch.setattr("app.multi_query_expansion.get_settings", lambda: SimpleNamespace(enable_rewrite=True))
+    monkeypatch.setattr("app.multi_query_expansion.effective_settings", lambda: SimpleNamespace(enable_rewrite=True))
     ctx = QueryContext(original_question="Q", rewritten_query="Q rewritten")
     ctx.query_type = "qa"
     variants, trace = prepare_multi_query_expansion(
@@ -188,7 +185,7 @@ def test_prepare_multi_query_expansion_flag_off_passthrough(monkeypatch):
 
 def test_prepare_multi_query_expansion_budget_precheck_degrades(monkeypatch):
     _patch_mq_retrieval_settings(monkeypatch, enable_multi_query=True, multi_query_count=4)
-    monkeypatch.setattr("app.multi_query_expansion.get_settings", lambda: SimpleNamespace(enable_rewrite=True))
+    monkeypatch.setattr("app.multi_query_expansion.effective_settings", lambda: SimpleNamespace(enable_rewrite=True))
     monkeypatch.setattr(
         "app.multi_query_expansion.expand_queries",
         lambda *_a, **_k: (

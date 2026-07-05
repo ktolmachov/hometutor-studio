@@ -24,20 +24,22 @@ class _FakeClient:
 
 
 def _patch_base_services_dependencies(monkeypatch):
+    settings = SimpleNamespace(
+        openai_api_key="sk-test",
+        embed_model="text-embedding-3-small",
+        enable_document_summaries=True,
+        query_engine_cache_size=32,
+        query_engine_ttl_sec=1800,
+    )
     monkeypatch.setattr(retrieval_cache, "OPENAI_API_KEY", "sk-test")
     monkeypatch.setattr(retrieval_cache, "get_index_embed_model", lambda: None)
-    monkeypatch.setattr(retrieval_cache, "get_embed_model", lambda: object())
+    monkeypatch.setattr(retrieval_cache, "get_embed_model", lambda **kwargs: object())
     monkeypatch.setattr(retrieval_cache, "get_llm", lambda: object())
+    monkeypatch.setattr(retrieval_cache, "effective_settings", lambda: settings)
     monkeypatch.setattr(
         retrieval_cache,
         "_settings",
-        lambda: SimpleNamespace(
-            openai_api_key="sk-test",
-            embed_model="text-embedding-3-small",
-            enable_document_summaries=True,
-            query_engine_cache_size=32,
-            query_engine_ttl_sec=1800,
-        ),
+        lambda: settings,
     )
     monkeypatch.setattr(retrieval_cache, "ChromaVectorStore", lambda chroma_collection: chroma_collection)
     monkeypatch.setattr(

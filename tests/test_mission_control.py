@@ -83,7 +83,7 @@ def test_navigate_to_sets_view_origin_and_slot(monkeypatch: pytest.MonkeyPatch) 
     st = SimpleNamespace(session_state=state, rerun=MagicMock())
     monkeypatch.setattr(mc, "st", st)
     mc._navigate_to("Flashcards", slot_hint="flashcards")
-    assert state["current_view"] == "Flashcards"
+    assert state[PENDING_CURRENT_VIEW_KEY] == "Flashcards"
     assert state["home_breadcrumb_origin"] == "Mission Control"
     assert state["home_last_primary_mode_slot"] == "flashcards"
     st.rerun.assert_called_once()
@@ -100,7 +100,7 @@ def test_activate_course_callback_sets_state(monkeypatch: pytest.MonkeyPatch) ->
 
     assert result is True
     assert captured == {"folder_rel": "ml", "title": "Курс: ML", "source_paths": ["ml/intro.md"]}
-    assert state["current_view"] == "Темы"
+    assert state[PENDING_CURRENT_VIEW_KEY] == "Темы"
     assert state["home_last_primary_mode_slot"] == "course"
     st.rerun.assert_not_called()
 

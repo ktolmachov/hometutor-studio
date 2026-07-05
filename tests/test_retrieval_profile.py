@@ -9,22 +9,14 @@ from conftest import patch_retrieval_faq_cache_enabled, patch_retrieval_settings
 
 
 def _patch_mq_retrieval_settings(monkeypatch, **kwargs):
-    import app.config as app_config
-
-    settings = patch_retrieval_settings(monkeypatch, **kwargs)
-    monkeypatch.setattr(app_config, "get_retrieval_settings", lambda: settings)
-    monkeypatch.setattr("app.multi_query_expansion.get_retrieval_settings", lambda: settings)
-    return settings
+    return patch_retrieval_settings(monkeypatch, **kwargs)
 
 
 def test_resolve_profile_params_quality(monkeypatch):
-    """Параметры quality-профиля: подмена get_retrieval_settings в pipeline_factory."""
-    monkeypatch.setattr(
-        pipeline_factory,
-        "get_retrieval_settings",
-        lambda: RetrievalSettings(rag_profile="quality", retrieval_mode="vector_only"),
+    """Параметры quality-профиля через явный retrieval_settings."""
+    params = pipeline_factory.resolve_pipeline_params(
+        retrieval_settings=RetrievalSettings(rag_profile="quality", retrieval_mode="vector_only"),
     )
-    params = pipeline_factory.resolve_pipeline_params()
     defaults = RetrievalSettings()
 
     assert params["profile"] == "quality"
@@ -35,12 +27,9 @@ def test_resolve_profile_params_quality(monkeypatch):
 
 
 def test_resolve_profile_params_fast(monkeypatch):
-    monkeypatch.setattr(
-        pipeline_factory,
-        "get_retrieval_settings",
-        lambda: RetrievalSettings(rag_profile="fast", retrieval_mode="vector_only"),
+    params = pipeline_factory.resolve_pipeline_params(
+        retrieval_settings=RetrievalSettings(rag_profile="fast", retrieval_mode="vector_only"),
     )
-    params = pipeline_factory.resolve_pipeline_params()
     defaults = RetrievalSettings()
 
     assert params["profile"] == "fast"
@@ -52,11 +41,7 @@ def test_resolve_profile_params_fast(monkeypatch):
 
 
 def test_query_options_rag_profile_overrides_retrieval_settings(monkeypatch):
-    monkeypatch.setattr(
-        pipeline_factory,
-        "get_retrieval_settings",
-        lambda: RetrievalSettings(rag_profile="fast", retrieval_mode="vector_only"),
-    )
+    patch_retrieval_settings(monkeypatch, rag_profile="fast", retrieval_mode="vector_only")
 
     plan = retrieval.resolve_query_execution_plan(
         "What is RAG?",
@@ -68,11 +53,7 @@ def test_query_options_rag_profile_overrides_retrieval_settings(monkeypatch):
 
 
 def test_build_query_engine_uses_resolved_profile_for_postprocessors(monkeypatch):
-    monkeypatch.setattr(
-        pipeline_factory,
-        "get_retrieval_settings",
-        lambda: RetrievalSettings(rag_profile="fast", retrieval_mode="vector_only"),
-    )
+    patch_retrieval_settings(monkeypatch, rag_profile="fast", retrieval_mode="vector_only")
 
     captured = {}
 
@@ -106,10 +87,11 @@ def test_build_query_engine_uses_resolved_profile_for_postprocessors(monkeypatch
 
 
 def test_build_query_engine_switches_keyword_queries_to_bm25_only(monkeypatch):
-    monkeypatch.setattr(
-        pipeline_factory,
-        "get_retrieval_settings",
-        lambda: RetrievalSettings(rag_profile="quality", retrieval_mode="hybrid", enable_reranker=True),
+    patch_retrieval_settings(
+        monkeypatch,
+        rag_profile="quality",
+        retrieval_mode="hybrid",
+        enable_reranker=True,
     )
 
     captured = {}
@@ -163,11 +145,7 @@ def test_build_query_engine_switches_keyword_queries_to_bm25_only(monkeypatch):
 
 
 def test_build_query_engine_disables_shared_cache_for_session_requests(monkeypatch):
-    monkeypatch.setattr(
-        pipeline_factory,
-        "get_retrieval_settings",
-        lambda: RetrievalSettings(rag_profile="fast", retrieval_mode="vector_only"),
-    )
+    patch_retrieval_settings(monkeypatch, rag_profile="fast", retrieval_mode="vector_only")
 
     calls = {"get_cache": 0, "set_cache": 0}
 
@@ -205,11 +183,7 @@ def test_build_query_engine_disables_shared_cache_for_session_requests(monkeypat
 
 
 def test_build_query_engine_keeps_shared_cache_for_non_session_requests(monkeypatch):
-    monkeypatch.setattr(
-        pipeline_factory,
-        "get_retrieval_settings",
-        lambda: RetrievalSettings(rag_profile="fast", retrieval_mode="vector_only"),
-    )
+    patch_retrieval_settings(monkeypatch, rag_profile="fast", retrieval_mode="vector_only")
 
     calls = {"get_cache": 0, "set_cache": 0}
 
@@ -242,11 +216,7 @@ def test_build_query_engine_keeps_shared_cache_for_non_session_requests(monkeypa
 
 def test_resolve_query_execution_plan_centralizes_session_and_faq_policy(monkeypatch):
     patch_retrieval_faq_cache_enabled(monkeypatch)
-    monkeypatch.setattr(
-        pipeline_factory,
-        "get_retrieval_settings",
-        lambda: RetrievalSettings(rag_profile="fast", retrieval_mode="vector_only"),
-    )
+    patch_retrieval_settings(monkeypatch, rag_profile="fast", retrieval_mode="vector_only")
 
     plan = retrieval.resolve_query_execution_plan(
         "What is RAG?",
@@ -304,11 +274,7 @@ def test_resolve_query_execution_plan_no_hybrid_boost_second_turn(monkeypatch):
 
 def test_resolve_query_execution_plan_centralizes_tutor_prompt_and_faq_policy(monkeypatch):
     patch_retrieval_faq_cache_enabled(monkeypatch)
-    monkeypatch.setattr(
-        pipeline_factory,
-        "get_retrieval_settings",
-        lambda: RetrievalSettings(rag_profile="fast", retrieval_mode="vector_only"),
-    )
+    patch_retrieval_settings(monkeypatch, rag_profile="fast", retrieval_mode="vector_only")
 
     plan = retrieval.resolve_query_execution_plan(
         "Explain retrieval",
@@ -323,12 +289,7 @@ def test_resolve_query_execution_plan_centralizes_tutor_prompt_and_faq_policy(mo
 
 def test_build_query_engine_returns_plan_derived_pipeline_params(monkeypatch):
     patch_retrieval_faq_cache_enabled(monkeypatch)
-    fast_settings = RetrievalSettings(rag_profile="fast", retrieval_mode="vector_only")
-    monkeypatch.setattr(
-        pipeline_factory,
-        "get_retrieval_settings",
-        lambda: fast_settings,
-    )
+    fast_settings = patch_retrieval_settings(monkeypatch, rag_profile="fast", retrieval_mode="vector_only")
 
     class _FakeIndex:
         def as_query_engine(self, **kwargs):
@@ -375,11 +336,7 @@ def test_build_query_engine_returns_plan_derived_pipeline_params(monkeypatch):
 
 def test_build_query_engine_uses_tutor_generation_prompt(monkeypatch):
     patch_retrieval_faq_cache_enabled(monkeypatch)
-    monkeypatch.setattr(
-        pipeline_factory,
-        "get_retrieval_settings",
-        lambda: RetrievalSettings(rag_profile="fast", retrieval_mode="vector_only"),
-    )
+    patch_retrieval_settings(monkeypatch, rag_profile="fast", retrieval_mode="vector_only")
 
     captured = {}
 
@@ -652,7 +609,7 @@ def test_build_query_engine_flag_off_writes_trace_and_skips_expansion(monkeypatc
 
     reset_settings_cache()
     monkeypatch.setattr(
-        "app.multi_query_expansion.get_settings",
+        "app.multi_query_expansion.effective_settings",
         lambda: type("S", (), {"enable_rewrite": True})(),
     )
 
@@ -712,7 +669,7 @@ def test_build_query_engine_multi_query_wraps_retriever_when_enabled(monkeypatch
         retrieval_mode="hybrid",
     )
     monkeypatch.setattr(
-        "app.multi_query_expansion.get_settings",
+        "app.multi_query_expansion.effective_settings",
         lambda: type("S", (), {"enable_rewrite": True})(),
     )
     monkeypatch.setattr(
