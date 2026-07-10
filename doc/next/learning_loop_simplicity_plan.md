@@ -1,399 +1,307 @@
 # Learning Loop Simplicity Plan
 
-Updated: 2026-07-10
+Updated: 2026-07-11 (audit reconciliation; см. «История ревизий»)
 
-Status: proposed (candidates — не в `backlog_registry.yaml`)
+Status: mixed: A1 done; A2/B1/B2/B3/C2/C3 proposed; C1 needs discovery. Это по-прежнему кандидаты; `backlog_registry.yaml` этим документом не меняется.
 Owner: product / learning experience
-Source: эволюционный UX/продуктовый разбор hometutor 2026-07-10 (формат —
-[`../presentations/evolutionary_analysis_guide.md`](../presentations/evolutionary_analysis_guide.md));
-полный читаемый разбор — HTML-артефакт той сессии (Mission Control/петля обучения/карта фич).
+Source: эволюционный UX/продуктовый разбор hometutor 2026-07-10 (формат — [`../presentations/evolutionary_analysis_guide.md`](../presentations/evolutionary_analysis_guide.md)).
+Полный читаемый разбор: HTML-артефакт той сессии — https://claude.ai/code/artifact/c715212c-86fa-477d-96d0-76f749b7a4a8 (приватная session-ссылка; исходный scratchpad-файл не гарантированно переживает сессию).
 
 Related docs:
-- `doc/backlog_registry.yaml` — SSoT исполнения (сюда кандидаты попадают решением владельца)
+- `doc/backlog_registry.yaml` — SSoT исполнения; кандидаты попадают туда только решением владельца
 - `doc/roadmap.md`, `doc/future_roadmap.md`
 - `doc/next/roadmap_recommendations_2026-06-11.md` — соседний recommendations-регистр
 - hometutor: `docs/user_guide.md`, `docs/conventions_architecture.md`, `docs/api_reference.md`
 
+## История ревизий
+
+- **2026-07-10** — первая версия: все кандидаты были `proposed`.
+- **2026-07-11** — сверено с актуальным `hometutor` commit `680345d` (`148`). Основные исправления:
+  - **A1 закрыт (`done`)**: `app/ui/study_scope.py`, `app/ui/main.py`, `docs/user_guide.md`, `tests/test_study_scope.py` уже сохраняют и гидратируют course scope через `app_kv`.
+  - **A2 evidence сужен**: cold-user уже видит только 3 плитки, а tiles фильтруются по tier. Оставшаяся проблема — конкуренция блоков у non-cold / tier 2+ пользователя вокруг SSR hero.
+  - **B1 evidence уточнён**: `dashboards_graph.py` только рендерит caption; D3 stats считаются в `app/ui/knowledge_graph_d3.py`. Несостыковка счётчиков остаётся реальной, но root cause переписан точнее.
+  - **B2 сужен**: Mission Control SSR details уже свёрнуты по умолчанию через `<details>` без `open`; оставшаяся проблема — сырой диагностический язык внутри раскрытого блока.
+  - **B3 дополнен осторожностью про deep-link**: текст баннера не должен обещать доступность скрытых views, пока не проверены переходы через `PENDING_CURRENT_VIEW_KEY`.
+  - **C1 понижен до `needs discovery`**: `source:` tags у карточек обозначают документ-источник, а не стабильный `concept_id`; нужен контракт card→concept до реализации.
+  - **C2 переименован** из «уровни 0–4» в **ступени петли обучения** (`learner_stage`), чтобы не конфликтовать с существующими XP-уровнями в `app/gamification_service.py`.
+  - **C3 Files расширен**: добавлен `app/ui/pages/3_Мой_прогресс.py` и pre-flight inventory для e2e/deep-link ссылок.
+
 ## Как использовать этот документ
 
-Это **не** SSoT исполнения. Каждый пункт ниже — кандидат-пакет с достаточной детализацией,
-чтобы владелец мог либо (а) промоутить его напрямую в волну/пакет `backlog_registry.yaml`
-через `scripts/backlog_registry_lint.py`, либо (б) отклонить/отложить с причиной. Реализация
-кода происходит в репозитории `hometutor` (не здесь) и подчиняется его `CLAUDE.md`: тесты по
-затронутой области перед закрытием, doc-sync в `docs/*.md` при изменении поведения, никаких
-внеплановых рефакторингов сверх описанного.
+Это **не** SSoT исполнения. Каждый пункт ниже — candidate-package с достаточной детализацией, чтобы владелец мог промоутить его в wave/package `backlog_registry.yaml` или отклонить/отложить с причиной. Реализация кода происходит в `hometutor` и подчиняется его runtime-правилам: targeted tests, doc-sync при изменении поведения, никаких попутных рефакторингов вне согласованного write-set.
 
-Статусы ведутся так же, как в `roadmap_recommendations_2026-06-11.md`: `proposed` →
-`accepted` (владелец выбрал, указать wave/package id) → `in_progress` → `done` / `declined`
-/ `superseded`.
+Статусы: `proposed` → `accepted` → `in_progress` → `done` / `declined` / `superseded`. В этой ревизии добавлен `needs discovery` — идея ценна, но контракт данных ещё не готов к реализации.
 
-## Суть разбора (контекст для всех пунктов ниже)
+## Суть разбора
 
-Ядро продукта — не набор режимов, а одна петля: **вопрос → понимание → проверка → память
-(SM-2) → возврат в точное место лекции** (раздел · строка · таймкод видео). Всё, что не
-крутит эту петлю и не обслуживает её, — кандидат на «спрятать глубже», а не на удаление.
-Полный разбор карты фич, противоречий и лестницы уровней студента — в HTML-артефакте той
-сессии; здесь фиксируется только то, что готово к реализации.
+Ядро продукта — не набор режимов, а одна петля: **вопрос → понимание → проверка → память (SM-2) → возврат в точное место лекции** (раздел · строка · таймкод видео). Всё, что не крутит эту петлю и не обслуживает её, — кандидат на «спрятать глубже», а не обязательно удалить.
 
 ---
 
 ## Волна-кандидат A: `wave-learning-loop-hero` (P0)
 
-**North star (кандидат):** «Пользователь возвращается в приложение и продолжает обучение
-одним действием — без переактивации курса и без выбора из множества плиток».
-**Kill switch (кандидат):** если скрытие плиток с главного экрана снижает discovery
-основных режимов у новых пользователей (замер: доля новых пользователей, ни разу не
-открывших Тьютор/Quiz/Flashcards за первую неделю, растёт >10пп) — вернуть плитки на
-первый экран вторым рядом, не убирать совсем.
+**North star (кандидат):** пользователь возвращается и продолжает обучение одним действием — без переактивации курса и без выбора из множества равнозначных плиток.
+
+**Kill switch (кандидат):** если скрытие плиток с первого экрана снижает discovery основных режимов у новых пользователей (доля новых пользователей, ни разу не открывших Tutor/Quiz/Flashcards за первую неделю, растёт >10пп), вернуть плитки на первый экран вторым рядом.
 
 ### Кандидат A1 — Персистентный активный курс (scope)
 
-**Приоритет:** P0 · **Усилие:** малое (паттерн уже есть в кодовой базе)
+**Статус: `done`** — реализован в `hometutor` commit `680345d` (`148`, 2026-07-11). Раздел оставлен как исторический контракт, а не pending-задача.
 
-**Проблема.** Активный курс (`study scope`) живёт только в `st.session_state` и полностью
-теряется при перезапуске Streamlit-процесса. Пользователь каждый день заново нажимает
-«Активировать курс».
+**Приоритет:** P0 · **Усилие:** малое, подтвердилось
 
-**Evidence (файл:строка, hometutor):**
-- `app/ui/study_scope.py:32-49` — `activate_scope()` пишет только в
-  `st.session_state[ACTIVE_SCOPE_KEY]`, без записи в `app_kv`.
-- `app/ui/study_scope.py:67-84` — `_save_last_deactivated_scope()` / `deactivate_scope()`
-  тоже работают только с `st.session_state[LAST_DEACTIVATED_SCOPE_KEY]`.
-- `app/ui/study_scope.py:97-121` — `restore_scope()` / `get_active_scope()` читают
-  исключительно `st.session_state`; при новом процессе оба ключа пусты.
-- Контраст-паттерн (как должно быть): корзина «Живого конспекта» уже автосохраняется в
-  `app_kv` → `user_state.db` и переживает перезапуск (см. `app/ui/mission_control.py:778`,
-  комментарий `# Корзина автосохраняется в app_kv, поэтому карточка переживает перезапуск`).
+**Изначальная проблема.** Активный курс жил только в `st.session_state` и терялся после перезапуска Streamlit.
 
-**Proposed change.**
-1. В `activate_scope()` — параллельно с записью в `session_state`, писать тот же payload
-   (folder_rel, title, scope_id) в `app_kv` под ключом вида `study_scope.active`.
-2. В `deactivate_scope()` — писать снимок в `app_kv` под `study_scope.last_deactivated`
-   (тот же payload, что сейчас уходит в `LAST_DEACTIVATED_SCOPE_KEY`).
-3. Добавить `restore_scope_from_app_kv()` — вызывается один раз при старте UI-сессии
-   (там же, где сейчас идёт первичная инициализация `session_state`, например
-   `app/ui/main.py` или ранняя точка `mission_control.py`): если `session_state` не содержит
-   `ACTIVE_SCOPE_KEY`, но `app_kv` содержит `study_scope.active` — тихо восстановить, **с
-   проверкой, что папка ещё существует** (иначе — мягкая деградация в no-scope + одна строка
-   уведомления, без падения).
-4. Аналогично подхватывать `study_scope.last_deactivated` для кнопки «Восстановить курс»
-   в `app/ui/sidebar.py:438-448` и `app/ui/mission_control.py:404-417`.
+**Что реализовано (evidence, hometutor@680345d):**
+- `app/ui/study_scope.py:26-28` задаёт ключи `study_scope.active`, `study_scope.last_deactivated`, `_study_scope_hydrated`.
+- `app/ui/study_scope.py:78-92` пишет active/last-deactivated scope payload через `app.user_state_core.set_kv`.
+- `app/ui/study_scope.py:146-172` сохраняет active scope из `activate_scope()` при `state is None`.
+- `app/ui/study_scope.py:184-195` сохраняет last deactivated scope и очищает active scope в `app_kv` из `deactivate_scope()`.
+- `app/ui/study_scope.py:227-264` добавляет `restore_scope_from_app_kv()`: гидратация один раз за сессию, проверка существования папки курса, однострочное уведомление при деградации.
+- `app/ui/main.py:103-109` вызывает `restore_scope_from_app_kv()` на старте UI и показывает notice через `st.info()`.
+- `docs/user_guide.md:300-303` документирует, что активный курс и последний деактивированный курс переживают рестарт.
+- `tests/test_study_scope.py:64-205` покрывает persist, hydration, missing-folder degradation, idempotence и no-DB поведение при injected state.
 
-**Files (hometutor):** `app/ui/study_scope.py` (основная логика), `app/ui/main.py` или
-`app/ui/mission_control.py` (точка восстановления при старте), возможно
-`app/user_state_db.py` (если нужен типизированный helper для `app_kv` scope-записи —
-сверить с существующими `app_kv`-хелперами перед добавлением нового).
-
-**DoD.**
-- Перезапуск приложения с ранее активным курсом → курс активен без повторного клика.
-- Если папка курса удалена/переименована между запусками → no-scope state + одна строка
-  подсказки (не крах, не тихая порча состояния).
-- «Восстановить курс» (последний деактивированный) тоже переживает перезапуск.
-- Тест: `tests/test_navigation_visibility.py` или новый `tests/test_study_scope_persistence.py`
-  (по аналогии с существующими тестами `app_kv`-персистентности корзины конспекта — найти
-  соответствующий тест-файл для Живого конспекта как образец).
-
-**Doc-sync:** `docs/user_guide.md` (раздел «Темы и курс» — course scope переживает
-перезапуск), `docs/conventions_architecture.md` (если там описан app_kv-паттерн
-персистентности — добавить scope как ещё один пример).
+**DoD:** выполнено.
+- Рестарт после активного курса → курс восстановлен.
+- Удалённая/переименованная папка → no-scope + notice, без краша.
+- Последний деактивированный курс переживает рестарт для restore-кнопок.
 
 ---
 
-### Кандидат A2 — Один герой-CTA на Mission Control
+### Кандидат A2 — Один hero-CTA на Mission Control
 
-**Приоритет:** P0 · **Усилие:** среднее (перестановка layout + копирайт, не новая логика)
+**Статус: `proposed`; требует owner sign-off перед стартом** — меняет главный экран и широкий UI write-set.
 
-**Проблема.** Главный экран показывает ~7 плиток режимов и до 4 конкурирующих CTA
-одновременно («Начать», «Пройти», «Повторить», «Спросить», «Открыть», «Собрать» + плитка
-активации курса). Для нового пользователя это паралич выбора; Smart Study Router (SSR),
-который уже умеет выбрать один правильный следующий шаг, представлен как одна карточка
-среди равных, а не как герой экрана.
+**Приоритет:** P0 · **Усилие:** среднее
 
-**Evidence:** скриншоты Mission Control сессии 2026-07-10 (сетка из 4+3 плиток, отдельная
-SSR-подсказка сверху, отдельные resume-карточки); `app/ui/mission_control.py` и
-`app/ui/sidebar.py` — рендер плиток (`TILE_FEATURE_IDS` в `app/ui/feature_registry.py:94-102`,
-7 записей, все видны одновременно на уровне 2+).
+**Проблема (уточнена).** V1 завышал масштаб: текущий `Mission Control` уже сфокусирован для cold-user:
+- `_COLD_USER_TILE_IDS` содержит только `quick_question`, `tutor`, `quiz` (`app/ui/mission_control.py:142-146`).
+- `_render_tile_grid(..., cold_user=True)` фильтрует до этих 3 плиток (`app/ui/mission_control.py:464-466`).
+- Non-cold users видят SSR banner + tier-filtered tiles + KG card + Living Konspekt resume-card (`app/ui/mission_control.py:827-886`).
 
-**Proposed change.**
-1. Верх экрана: одна строка контекста («Курс «X» · уровень N · стрик M дней» — данные уже
-   доступны через course scope + gamification/user_state) + один герой-CTA, текст и action
-   которого берутся из существующей SSR-рекомендации (`hint_kind`, primary action) — то есть
-   переиспользовать уже работающую логику SSR, но вывести её в главный, а не в один из
-   элементов списка.
-2. Не более двух resume-карточек под героем (сейчас видно больше: тьютор, due, курс, живой
-   конспект — выбрать по recency/приоритету, не показывать все сразу).
-3. Существующие 7 плиток режимов — переносятся в свёрнутый блок/expander «Ещё режимы» под
-   героем. Ничего не удаляется и не становится недоступным — только не конкурирует за
-   первый взгляд.
-4. Активация курса перестаёт быть плиткой среди учебных режимов (см. кандидат A1 — после
-   персистентности она вообще не должна требоваться повторно; для первой активации —
-   перенести в explicit onboarding/first-run flow, не в постоянную плитку).
+Оставшаяся проблема — warm/non-cold первый экран: SSR уже похож на hero, но конкурирует с сеткой и дополнительными карточками. Tier 2 обычно видит 5 плиток, tier 3+ — до 7.
 
-**Files:** `app/ui/mission_control.py` (основной layout), `app/ui/home_hub.py`,
-`app/ui/cockpit_rotator.py`, `app/ui/smart_study_next_step_card.py`,
-`app/ui/resume_cards*.py` (выбор, какие 2 карточки показать), `app/ui/sidebar.py` (плитки
-режимов, если переносятся).
+**Evidence:**
+- `app/ui/mission_control.py:294-368` рендерит SSR banner с видимой причиной и primary button.
+- `app/ui/mission_control.py:432-489` связывает tiles с `TILE_FEATURE_IDS` и `feature_visible()`.
+- `app/ui/feature_registry.py:27-41` задаёт tier-видимость: `quick_answer` tier 1; `tutor`, `quiz`, `flashcards`, `topics`, `progress` tier 2; `course`, `adaptive_plan`, `knowledge_graph`, `living_konspekt` tier 3.
+- `app/ui/mission_control.py:878-885` для non-cold рендерит SSR, tiles, configure button, KG mini-card и Living Konspekt card.
 
-**DoD.**
-- Above the fold на Mission Control: 1 строка контекста + 1 герой-CTA + ≤2 resume-карточки.
-- Все 7 существующих плиток доступны за один клик («Ещё режимы»), ни одна фича не потеряла
-  entry point.
-- SSR остаётся единственным источником текста/действия героя — переиспользуется, не
-  дублируется новой логикой выбора.
+**Proposed change:**
+1. Оставить SSR единственным hero CTA; не создавать второй decision engine.
+2. Добавить компактную строку контекста: активный курс, learner_stage/XP level при наличии, streak.
+3. Под hero показывать не больше двух resume-карточек по priority/recency.
+4. Полную сетку tiles перенести в свёрнутый блок «Ещё режимы»; entry points не теряются.
+5. Course activation после A1 не должна быть постоянной peer-плиткой; первая активация относится к onboarding/course setup.
 
-**Doc-sync:** `docs/user_guide.md` (раздел «Главная: Mission Control» — переписать под новую
-структуру экрана).
+**Files:** прежде всего `app/ui/mission_control.py`; возможно `app/ui/home_hub.py`, `app/ui/cockpit_rotator.py`, `app/ui/smart_study_next_step_card.py`, `app/ui/resume_cards*.py`, `app/ui/sidebar.py`.
+
+**DoD:**
+- Above the fold для warm users: 1 context row, 1 SSR hero CTA, ≤2 resume cards.
+- Полная сетка режимов доступна за один клик.
+- SSR остаётся единственным источником текста/action hero.
+- Cold-user 3-tile focus не регрессирует.
+
+**Doc-sync:** `docs/user_guide.md`, раздел Mission Control.
 
 ---
 
 ## Волна-кандидат B: `wave-trust-signals` (P1)
 
-**North star (кандидат):** «Каждое число и каждая рекомендация на экране заслуживают
-доверия с первого взгляда — без противоречий между экранами и без языка разработчика на
-пользовательской поверхности».
-**Kill switch:** нет (низкий риск, чисто корректирующие изменения).
+**North star (кандидат):** каждое число и каждая рекомендация заслуживают доверия с первого взгляда — без противоречивых счётчиков и developer-language диагностики на learner surface.
 
-### Кандидат B1 — Единый источник счётчиков графа/mastery
+### Кандидат B1 — Единый источник счётчиков Knowledge Graph
+
+**Статус: `proposed`**
 
 **Приоритет:** P1 · **Усилие:** малое–среднее
 
-**Проблема.** Mission Control и экран Knowledge Graph показывают разные числа под
-одинаковыми подписями «концептов» и «готово учить» для одного и того же графа
-(наблюдалось: 76 vs 89 «концептов»; 0 vs 89 «готово учить»). Причина найдена и подтверждена
-кодом — это **две независимые реализации подсчёта**, а не разные данные:
+**Проблема.** Mission Control и Knowledge Graph могут показывать разные значения под похожими подписями: «концептов», «готово учить». V1 верно нашёл дублирующуюся логику, но неточно назвал место вычисления D3 stats.
 
-**Evidence (файл:строка, hometutor) — подтверждённый root cause:**
-- `app/ui/mission_control.py:714-721` (`render_kg_mission_card`): `total = len(valid)`
-  считает **все** узлы (концепты + лекции) из `knowledge_graph.get_concepts()`, затем
-  `concept_nodes = total - lessons` — **вычитает** узлы-лекции — и именно `concept_nodes`
-  подписывается «концептов». `frontier = sum(1 for d in valid.values() if d.get("frontier"))`
-  считает флаг `frontier` напрямую с сырых concept-данных — подписывается «готово учить».
-- `app/ui/dashboards_graph.py:1089-1093`: `stats = payload.get("stats", {})` — читает **уже
-  готовый** словарь статистики из отдельного payload (собран graph-bundle/visualization
-  слоем, не пересчитан здесь), где `stats["total"]` включает лекции **вместе** с концептами
-  (89 = 76 концептов + 13 лекций, числа сходятся ровно), а `stats["frontier"]` — отдельно
-  вычисленное значение из того же payload, не пересекающееся по логике с `frontier`-флагом
-  из `mission_control.py`.
-- Итог: слово «концептов» и слово «готово учить» на двух экранах привязаны к двум разным
-  вычислениям без общего источника истины.
+**Уточнённый evidence:**
+- `app/ui/mission_control.py:715-721`: Mission Control читает raw `knowledge_graph.get_concepts()`, считает `total`, вычитает `lesson` nodes в `concept_nodes`, а `frontier` берёт из raw `data.get("frontier")`.
+- `app/ui/dashboards_graph.py:1089-1093`: graph tab только рендерит `payload["stats"]` в caption.
+- `app/ui/knowledge_graph_d3.py:323-381`: D3 payload пересчитывает `frontier` из `mastery`, `learned` и prerequisite readiness, затем задаёт `stats["total"] = len(nodes)` вместе с lesson nodes.
+- `app/ui/dashboards_graph.py:1064-1084` передаёт active `source_paths`, но `app/ui/knowledge_graph_d3.py:463-469` использует их только для `compiler_health`, а не для фильтрации nodes. Значит mismatch не объясняется scope filtering.
 
-**Proposed change.** Вынести один общий helper (например,
-`get_knowledge_graph_counters() -> dict` в `app/knowledge_service.py` или
-`app/visualization_service.py` — выбрать по факту, где уже живёт логика построения
-`payload["stats"]`), который возвращает согласованные `total_concepts` (без лекций, явно
-исключая узлы `level == "lesson"`), `total_lessons`, `frontier_count` (одно определение
-«готово учить» — по `frontier`-флагу, синхронизированному с тем, что реально показывает граф),
-`avg_mastery`, `clusters`. Оба вызывающих места (`mission_control.py:694-751` и
-`dashboards_graph.py:1089-1093`) переключить на этот helper вместо параллельных расчётов.
-Если числа отличаются между экранами законно (например, staging preview graph vs published
-bundle — см. `docs/user_guide.md` раздел «Knowledge Graph: точные разделы лекций» про
-published/staging/legacy read-path), UI обязан явно показать, какая версия графа отображена
-(бейдж «published» / «staging-preview»), а не молча показывать разные числа под одной
-подписью.
+**Proposed change.** Вынести shared helper (после выбора ownership: `app/knowledge_service.py`, `app/visualization_service.py` или рядом с D3 payload), который возвращает:
+- `total_concepts` без lesson nodes;
+- `total_lessons`;
+- одно определение `frontier_count`;
+- `avg_mastery` с явным denominator;
+- `clusters`;
+- optional `bundle_state` / source label, если published/staging/legacy differs.
 
-**Files:** `app/knowledge_service.py` и/или `app/visualization_service.py` (новый shared
-helper), `app/ui/mission_control.py:694-751`, `app/ui/dashboards_graph.py:1089-1093`.
+Mission Control и Knowledge Graph используют один helper. Если экраны намеренно показывают разные graph versions, UI явно показывает это.
 
-**DoD.**
-- Одна и та же версия графа (published/staging) даёт идентичные числа на Mission Control и
-  на экране Knowledge Graph.
-- Если версии графа различаются — на обоих экранах виден явный бейдж состояния бандла.
-- Тест: unit-тест на shared-helper (граница: узлы с/без `level=="lesson"`, узлы с/без
-  `frontier`), плюс regression-проверка, что оба UI-места используют один вызов (grep на
-  дублирующийся расчёт `total - lessons` не должен находить второй независимый экземпляр).
+**Files:** shared helper + `app/ui/mission_control.py`, `app/ui/dashboards_graph.py`, targeted tests.
 
-**Doc-sync:** не требуется (внутренняя консистентность, не новый контракт), кроме случая
-явного бейджа bundle-состояния — тогда обновить `docs/user_guide.md` соответствующий раздел.
+**DoD:**
+- Одна версия графа даёт одинаковые counters на Mission Control и Knowledge Graph.
+- Разные версии графа явно промаркированы.
+- Regression test не даёт вернуть независимый `total - lessons` расчёт.
+
+**Doc-sync:** только если добавляется пользовательский bundle/source label.
 
 ---
 
-### Кандидат B2 — SSR-карточка: одна фраза вместо диагностического дампа
+### Кандидат B2 — SSR explanation без сырой диагностики
+
+**Статус: `proposed`, сужен после аудита**
 
 **Приоритет:** P1 · **Усилие:** малое
 
-**Проблема.** SSR-подсказка на главном экране по умолчанию показывает ~10 строк
-диагностики уровня разработчика: «Локальный руль SSR (сохранено): нет (базовая политика)»,
-«Коррекция по опоре на базу (source-trust): нет», «Сигналы тьютора (доверие к выдержкам):
-недоступны в этом снимке» и т. д. — под заголовком «Как выбрана подсказка», который на
-скриншоте уже отображается развёрнутым по умолчанию.
+**Проблема (уточнена).** V1 утверждал, что «Как выбрана подсказка» раскрыта по умолчанию. Сейчас Mission Control рендерит native `<details class="ssr-details">` без `open`, то есть блок уже свёрнут (`app/ui/mission_control.py:356-357`).
 
-**Evidence:** скриншот Mission Control 2026-07-10 (полностью раскрытая панель «Как выбрана
-подсказка» с блоками «Другие варианты», «Если выбрать иначе», «Маршрут», «Локальные
-сигналы» — 8+ строк телеметрии видны без единого клика).
+Оставшаяся проблема — содержимое после раскрытия: «Локальные сигналы» всё ещё могут показывать implementation-language вроде `source-trust` и SSR policy internals.
 
-**Proposed change.** По умолчанию — коллапс: одна фраза-объяснение («Почему это подходит»,
-без остальных блоков) + primary action. Существующий expander «Как выбрана подсказка»
-оставить, но: (а) по умолчанию свёрнут (сейчас, судя по скриншоту, разворачивается сам или
-разворачивается слишком легко), (б) блоки «Локальные сигналы» с сырыми флагами
-(`source-trust: нет`, `SSR-руль: нет`) переносятся в панель tier 5 (`panel:debug_summary` из
-`app/ui/feature_registry.py:77-84`), а не остаются в пользовательском expander'е.
+**Evidence:**
+- `app/ui/mission_control.py:303-319` собирает `ledger_lines` и рендерит их в секции «Локальные сигналы».
+- `app/ui/mission_control.py:356-357` показывает, что details свёрнуты по умолчанию.
+- `app/ui/smart_study_next_step_card.py:112-145` содержит отдельный confidence-ledger expander, тоже collapsed.
 
-**Files:** `app/ui/ssr_feedback.py`, `app/ui/smart_study_next_step_card.py`,
-`app/ui/resume_cards_smart_study.py`.
+**Proposed change.** Оставить человекочитаемые секции («Другие варианты», «Если выбрать иначе», «Маршрут») в обычном details, но сырые evidence ledger lines перенести в tier 5 debug surfaces (`panel:debug_summary`) или переписать на learner-language.
 
-**DoD.** Свежий пользователь по умолчанию видит одну фразу объяснения; полная телеметрия
-доступна только на уровне интерфейса «Эксперт» (tier 5) или через явный клик «Подробнее»,
-который не разворачивается сам.
+**Files:** `app/ui/mission_control.py`, `app/ui/smart_study_next_step_card.py`, `app/smart_study_evidence.py` если текст меняется на источнике.
 
-**Doc-sync:** `docs/user_guide.md` раздел «Smart Study Router».
+**DoD:** non-expert users не видят raw `source-trust` / SSR policy flags даже после раскрытия обычных SSR details; expert/debug tier сохраняет inspectability.
+
+**Doc-sync:** `docs/user_guide.md`, раздел Smart Study Router.
 
 ---
 
-### Кандидат B3 — Мягкое предложение тира «Основной» существующим пользователям
+### Кандидат B3 — Предложить существующим пользователям пресет «Основной»
+
+**Статус: `proposed`**
 
 **Приоритет:** P1 · **Усилие:** малое
 
-**Проблема.** Уровневая модель видимости UI (`app/ui/feature_registry.py`, tiers 1–5,
-уже валидируется `validate_registry()`) по умолчанию не работает для существующих
-пользователей: они получают режим «Всё включено» (см. `docs/user_guide.md`, раздел
-«Панель управления и уровни интерфейса»: «Существующие пользователи автоматически получают
-режим «Всё включено», чтобы привычный интерфейс не менялся»). Построенный механизм
-прогрессивного раскрытия не применяется к тем, кто как раз тонет в разделах.
+**Проблема.** Existing users default to «Всё включено», поэтому progressive disclosure не помогает пользователям, у которых уже накоплена перегрузка UI.
 
-**Proposed change.** Добавить одноразовый ненавязчивый баннер (dismissible, хранит флаг
-показа в `app_kv`, чтобы не появляться повторно) с предложением переключиться на пресет
-«Основной» — с явной формулировкой «всё остальное останется доступным через deep-link и
-раздел «Ещё разделы»». Принятие — переключает пресет; отклонение — больше не показывается
-(отдельно от текущего явного выбора пользователя в панели управления, который имеет
-приоритет и не должен быть перезаписан).
+**Evidence:**
+- `docs/user_guide.md:70-76` документирует пресеты «Основной» и «Всё включено» и default для existing users.
+- `app/ui_preferences.py:109-115` возвращает `LEVEL_ALL` и сохраняет его, если `_has_existing_activity()` true и явного уровня нет.
+- `tests/test_ui_preferences.py:24-29` фиксирует это поведение.
 
-**Files:** `app/ui/navigation_visibility.py`, `app/ui_preferences.py`,
-`app/ui/control_panel.py` (компонент баннера), `app/ui/feature_registry.py` (без изменения
-схемы — только логика дефолта/предложения).
+**Proposed change.** Одноразовый dismissible banner для existing users без explicit saved choice: предложить «Основной». Accept ставит UI level `2`; dismiss пишет app_kv-флаг «не показывать снова».
 
-**DoD.** Существующий пользователь без явно сохранённого выбора тира видит баннер один раз;
-после решения (принять/отклонить) баннер не показывается повторно; явный прежний выбор
-пользователя в панели управления не переопределяется автоматически.
+**Осторожность.** Не обещать в тексте «всё останется доступным через deep-link», пока это не проверено. Hidden-view navigation идёт через `PENDING_CURRENT_VIEW_KEY` и visible/hidden nav handling; перед такой формулировкой вручную проверить хотя бы один hidden tier-3 view под level 2.
 
-**Doc-sync:** `docs/user_guide.md` раздел «Панель управления и уровни интерфейса» —
-обновить фразу про дефолт «Всё включено».
+**Files:** `app/ui_preferences.py`, `app/ui/control_panel.py`, возможно `app/ui/navigation_visibility.py`, tests.
+
+**DoD:** banner показан один раз eligible existing users; accept/dismiss persisted; explicit user choice never overwritten; hidden-view/deep-link claim verified before shipping copy.
+
+**Doc-sync:** `docs/user_guide.md`, раздел UI levels.
 
 ---
 
 ## Волна-кандидат C: `wave-difficulty-and-mastery-mirror` (P2)
 
-**North star (кандидат):** «Студент в любой момент видит, где он на самом деле застревает,
-и куда расти дальше — в одном месте, а не в трёх».
-**Kill switch:** если объединение экранов прогресса теряет deep-link'и, на которые ссылаются
-resume-карточки/Course Cockpit — откатить объединение навигации, оставив общий индекс
-трудности как отдельную фичу.
+**North star (кандидат):** студент видит, где он застревает и куда расти дальше, в одном месте, а не на трёх поверхностях.
 
 ### Кандидат C1 — Индекс трудности концепта («Сложные темы»)
 
-**Приоритет:** P2 · **Усилие:** среднее–большое (новая скоринг-логика + интеграция)
+**Статус: `needs discovery`**
 
-**Проблема/возможность.** Сигналы сложности концепта уже существуют по отдельности, но
-нигде не агрегированы: вес концепта в графе (сколько тем он «Открывает»), доля
-`misconception`/`cannot_apply` в оценках quiz, Again-rate карточек, флаги weak-concept из
-mastery/tutor-сигналов. Без агрегации студент не может увидеть «вот твои реально сложные
-темы» одним взглядом.
+**Приоритет:** P2 · **Усилие:** пока не оценивать надёжно
 
-**Proposed change.** Новый сервис (например, `app/concept_difficulty_service.py` —
-свериться, нет ли уже частично подходящего места в `app/learner_model_service.py`) считает
-`difficulty_score(concept_id)` как взвешенную комбинацию:
-- вес в графе (`out_degree` / «Открывает N» — уже доступно через `knowledge_graph`);
-- доля `misconception` + `cannot_apply` из quiz-оценок (диагностика уже пишется —
-  `docs/user_guide.md` раздел «Quiz»: `recognized/recalled/misconception/cannot_apply`);
-- Again-rate карточек, привязанных к концепту (`source:`-тег, как в разделе «Живой
-  конспект» → «Память конспекта»);
-- weak-concept флаг из mastery/tutor-сигналов (`app/learner_model_service.py`).
+**Проблема/возможность.** Сигналы сложности существуют по отдельности: reach в графе, quiz diagnostic status, SM-2/flashcard outcomes, weak concept lists. Они не агрегированы в стабильную поверхность «сложные темы».
 
-Топ-N по score — новая секция «Сложные темы» в экране прогресса (см. кандидат C3), и новый
-кандидат `hint_kind` для SSR («повтори сложную тему X»).
+**Важное исправление.** V1 предполагал, что Again-rate карточек можно агрегировать по концепту через `source:` tags. Текущий код этого напрямую не поддерживает:
+- `app/flashcard_service.py:300` пишет `source:{source_path}`.
+- `tests/test_term_cards.py:102-132` документирует `source:` как corpus-relative path convention.
+- `tests/test_living_konspekt_view_smoke.py:311-346` использует `source:` для фильтрации document/konspekt memory, а не `concept_id`.
 
-**Files:** новый `app/concept_difficulty_service.py` (или расширение
-`app/learner_model_service.py`), `app/ui/dashboards_progress.py` (секция «Сложные темы»),
-интеграция в `app/smart_study_*.py` роутинг SSR.
+Итого: `source:` даёт card → document, не card → concept. Индексу трудности нужен explicit mapping или аккуратно описанный lossy resolver.
 
-**DoD.** Ранжированный список сложных концептов виден с явной причиной («открывает 16 тем»,
-«3 из 5 quiz — misconception», «карточка падает в Again 4-й раз подряд»); SSR может
-предложить сложную тему как hint с этим же обоснованием.
+**Discovery перед реализацией:**
+1. Выбрать card → concept mapping:
+   - добавить explicit `concept:` tag/field при генерации карточек из concept-aware flows; или
+   - выводить через document → related concepts из KG с известной неоднозначностью.
+2. Найти точное хранилище diagnostic statuses (`recognized`, `recalled`, `misconception`, `cannot_apply`) и решить, агрегировать ли из `quiz_results`, `micro_quiz_events`, tutor snapshots или нового normalized helper.
+3. Определить веса скоринга на реальных данных, а не произвольными constants.
+4. До нового `hint_kind` составить SSR blast radius: `SmartStudyRouterHintKind`, scoring, evidence/explanation, feedback, `HINT_TO_TILE`, `assert_hint_mapping_complete()`.
 
-**Doc-sync:** `docs/user_guide.md` (новый подраздел в «Прогресс обучения» и в «Smart Study
-Router» — новый `hint_kind`), `docs/api_reference.md` если появляется новый endpoint.
+**Evidence для SSR blast radius:**
+- `app/smart_study_recommendation.py:12` задаёт `SmartStudyRouterHintKind`.
+- `app/ui/mission_control.py:48` мапит hints в tiles.
+- `app/ui/mission_control.py:889-893` проверяет, что каждый hint имеет tile mapping.
+
+**Files после discovery:** вероятно `app/concept_difficulty_service.py` или `app/learner_model_service.py`, `app/ui/dashboards_progress.py`, SSR routing/explanation files, tests.
+
+**Doc-sync после реализации:** `docs/user_guide.md`; `docs/api_reference.md` только если появится endpoint.
 
 ---
 
-### Кандидат C2 — Видимая лестница студента (уровни 0–4)
+### Кандидат C2 — Видимая ступень петли обучения (ранее «уровни 0–4»)
+
+**Статус: `proposed`, переименован после аудита**
 
 **Приоритет:** P2 · **Усилие:** среднее
 
-**Проблема/возможность.** Прогресс сейчас не имеет единой, легко достижимой шкалы.
-Разбор 2026-07-10 предложил 5 уровней с конкретными достижениями: 0 Старт (первый ответ с
-источником), 1 Понимание (первый пройденный quiz), 2 Память (карточка, вспомненная через
-неделю), 3 Карта (закрытый пробел графа), 4 Мастерство (graduation курса). Уровень может
-дополнительно управлять предложением тиров интерфейса (кандидат B3): уровень 0–1 → предлагать
-«Основной» пресет, уровень 3+ → предлагать разблокировку курса/графа/адаптивного плана.
+**Исправление.** Не называть это «level 0–4» в коде или UI. В `app/gamification_service.py` уже есть XP-level система:
+- `level_from_total_xp()` — `app/gamification_service.py:113`;
+- `level_title()` — `app/gamification_service.py:119`;
+- XP progress и level-up logic дальше в том же модуле.
 
-**Proposed change.** Расширить существующий `app/gamification_service.py` (не дублировать)
-полем текущего уровня 0–4 с явными триггерами перехода (перечислены выше). Показать одной
-строкой на Mission Control («уровень 2 · Память»). При пересечении порога — одно короткое
-уведомление о разблокировке связанной фичи (опционально завязать на
-`feature_registry.py` через новый необязательный `requires=("min_level:3",)` — **только
-если** это не усложняет `validate_registry()`; иначе — обычная UI-подсказка без изменения
-схемы реестра).
+Использовать отдельный термин: **ступень петли обучения** (`learner_stage`). Это прогресс по learning loop, а не XP.
 
-**Files:** `app/gamification_service.py`, `app/ui/mission_control.py` (строка статуса),
-`app/ui/feature_registry.py` (опционально, см. выше), доки.
+**Предложение ступеней:**
+- 0 Старт: первый grounded answer с источником;
+- 1 Понимание: первый завершённый quiz;
+- 2 Память: карточка вспомнена после интервала хотя бы в неделю;
+- 3 Карта: закрыт graph gap;
+- 4 Мастерство: course/concept graduation.
 
-**DoD.** Уровень виден одной строкой; переход уровня даёт ровно одно ненавязчивое
-уведомление, привязанное к конкретному новому разблокированному действию.
+**Proposed change.** Добавить небольшой сервис или аккуратно изолированный блок в `app/gamification_service.py`, который считает/хранит `learner_stage`. Показывать компактной строкой на Mission Control. Transition state хранить в `app_kv`, чтобы unlock/toast messages были идемпотентны.
 
-**Doc-sync:** `docs/user_guide.md` — новый раздел «Уровни студента» или расширение
-существующего описания прогресса.
+**Открытые вопросы перед реализацией:**
+- Какое событие доказывает «remembered after a week» из `spaced_repetition`?
+- Какое существующее событие доказывает «graph gap closed»?
+- Stage 4 — course graduation, concept graduation или оба?
+
+**Files:** сервис/модуль TBD, `app/ui/mission_control.py`, docs, tests.
+
+**DoD:** stage виден и не конфликтует с XP-level; transition notification показывается один раз; restart/rerender не повторяет старые transition messages.
+
+**Doc-sync:** `docs/user_guide.md`, новый раздел «Ступени петли обучения».
 
 ---
 
 ### Кандидат C3 — Слияние «зеркала» прогресса
 
-**Приоритет:** P2 · **Усилие:** среднее–большое (навигационный рефакторинг — требует
-owner sign-off по правилу CLAUDE.md «Большие рефакторинги без sign-off владельца» —
-**не начинать без явного подтверждения**)
+**Статус: `proposed`; требует owner sign-off**
 
-**Проблема.** Прогресс размазан по 3+ поверхностям: «Прогресс обучения», «Адаптивный
-план» (отдельный nav-пункт), weekly narrative, плюс страница `app/ui/pages/3_Мой_прогресс.py`.
-Разные экраны могут показывать несогласованные акценты одного и того же состояния.
+**Приоритет:** P2 · **Усилие:** среднее–большое
 
-**Proposed change.** Объединить в один nav-пункт «Прогресс» с фиксированным порядком
-секций: дневной ритуал (1 due-повтор + 1 новая тема) → уровень/стрик (кандидат C2) →
-mastery/слабые места → сложные темы (кандидат C1) → пробелы графа → weekly narrative.
-`view:adaptive_plan` в `app/ui/feature_registry.py:41` и `ALL_VIEWS` в
-`app/ui/constants.py:12` — либо убрать как отдельный nav-пункт (секция внутри «Прогресса»),
-либо оставить deep-link-совместимым редиректом, если на него ссылаются существующие
-resume-карточки/Course Cockpit (**проверить перед изменением** — это единственный пункт
-плана, помеченный как требующий явного sign-off из-за риска сломать deep-link'и).
+**Проблема.** Progress размазан по «Прогресс обучения», «Адаптивный план», weekly narrative и отдельной Streamlit page `app/ui/pages/3_Мой_прогресс.py`.
 
-**Files:** `app/ui/dashboards.py`, `app/ui/dashboards_progress.py`,
-`app/ui/adaptive_plan_hub_layout.py`, `app/ui/adaptive_daily_plan_layout.py`,
-`app/ui/weekly_study_narrative_ui.py`, `app/ui/constants.py` (`ALL_VIEWS`),
-`app/ui/feature_registry.py`.
+**Proposed change.** Один nav item «Прогресс» с фиксированным порядком секций: daily ritual → loop stage/streak → mastery/weak spots → сложные темы (после C1 discovery) → graph gaps → weekly narrative. Deep-links на adaptive plan должны работать как redirects/anchors, а не становиться мёртвыми views.
 
-**DoD.** Один nav-пункт «Прогресс» содержит весь список секций в фиксированном порядке;
-все существующие deep-link'и на «Адаптивный план» продолжают работать (редирект на секцию,
-не 404/пустой экран).
+**Files:** `app/ui/dashboards.py`, `app/ui/dashboards_progress.py`, `app/ui/adaptive_plan_hub_layout.py`, `app/ui/adaptive_daily_plan_layout.py`, `app/ui/weekly_study_narrative_ui.py`, `app/ui/constants.py`, `app/ui/feature_registry.py`, `app/ui/pages/3_Мой_прогресс.py`.
 
-**Doc-sync:** `docs/user_guide.md` разделы «Прогресс обучения» и «Темы и курс» (Course
-Cockpit ссылки), `docs/architecture.md` если меняется структура вкладок.
+**Pre-flight inventory:** e2e view-map, screenshot fixtures, resume-card links, Course Cockpit links, все hard-coded `Адаптивный план` view names.
+
+**DoD:** один Progress surface содержит ordered sections; все existing adaptive-plan links попадают в полезное место; отдельная progress page либо merged, либо явно оставлена с документированной причиной.
+
+**Doc-sync:** `docs/user_guide.md`; `docs/architecture.md`, если меняется navigation structure.
 
 ---
 
 ## Рекомендованный порядок реализации
 
-1. **A1** (персистентный курс) — минимальное усилие, максимальный эффект на ежедневное
-   раздражение; не требует решений по дизайну.
-2. **A2** (герой-CTA Mission Control) — сразу следом, пока контекст волны A свежий.
-3. **B1** (единый источник счётчиков) — короткий фикс доверия, независим от A.
-4. **B2, B3** — по мере освобождения слота, оба малые и независимые друг от друга.
-5. **C1** — после B1 (использует те же graph-сигналы, которые B1 делает согласованными).
-6. **C2** — после C1 (лестница ссылается на «закрытый пробел» и «сложную тему»).
-7. **C3** — последним и только после owner sign-off (риск для deep-link'ов).
+1. ~~A1~~ — done in `680345d`.
+2. A2 — следующий кандидат, но только после owner sign-off на Mission Control write-set.
+3. B1 — независимый trust fix, можно до или после A2.
+4. B2 и B3 — малые независимые cleanup packages.
+5. C1 — сначала discovery; implementation только после settled data contracts.
+6. C2 — после уточнения semantics/events; не блокируется C1 scoring.
+7. C3 — последним, с owner sign-off и deep-link/e2e inventory.
 
 ## Связанные документы
 
-- [`../presentations/evolutionary_analysis_guide.md`](../presentations/evolutionary_analysis_guide.md) —
-  формат, из которого получен этот план
+- [`../presentations/evolutionary_analysis_guide.md`](../presentations/evolutionary_analysis_guide.md) — формат исходного анализа
 - [`../backlog_registry.yaml`](../backlog_registry.yaml) — SSoT исполнения
-- [`../next/roadmap_recommendations_2026-06-11.md`](roadmap_recommendations_2026-06-11.md) —
-  соседний recommendations-регистр (более стратегический уровень, без файловых evidence)
-- hometutor: `docs/user_guide.md`, `docs/conventions_architecture.md`, `docs/api_reference.md`,
-  `CLAUDE.md` (правила теста/doc-sync для каждого промотированного пакета)
+- [`../next/roadmap_recommendations_2026-06-11.md`](roadmap_recommendations_2026-06-11.md) — соседний recommendations-регистр
+- hometutor: `docs/user_guide.md`, `docs/conventions_architecture.md`, `docs/api_reference.md`, `CLAUDE.md`
