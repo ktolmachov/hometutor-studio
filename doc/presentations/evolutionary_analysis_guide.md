@@ -148,6 +148,9 @@
 
 ## 7. Связанные файлы
 
+- [`evolutionary_analyses/`](evolutionary_analyses/) — папка готовых HTML-разборов
+  ("нескучных разборов") + `generate_analysis_prompt.py`, который заполняет шаблон
+  из раздела 2 под конкретную область (не вызывает LLM — только собирает промпт)
 - [`../next/learning_loop_simplicity_plan.md`](../next/learning_loop_simplicity_plan.md) —
   implementation-ready план, полученный из этого формата (hometutor, разбор 2026-07-10)
 - [`../next/roadmap_recommendations_2026-06-11.md`](../next/roadmap_recommendations_2026-06-11.md) —

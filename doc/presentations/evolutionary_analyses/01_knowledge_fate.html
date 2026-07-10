@@ -1,0 +1,544 @@
+<title>Судьба одного знания — разбор №1 из 5 · hometutor</title>
+<style>
+  :root {
+    --bg: #F5F7F6; --surface: #FFFFFF; --ink: #1C2622; --muted: #5C6B65;
+    --line: #DDE4E1; --accent: #14705F; --accent-soft: #E3F0EC;
+    --leak: #B3492A; --leak-soft: #F7E8E2; --amber: #9A6B15; --amber-soft: #F5EDDC;
+    --code-bg: #EDF1EF; --shadow: 0 1px 3px rgba(28,38,34,.07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101715; --surface: #17201D; --ink: #E3EAE6; --muted: #93A39C;
+      --line: #2A3630; --accent: #4CC2A8; --accent-soft: #16302A;
+      --leak: #E08663; --leak-soft: #33201A; --amber: #D9A94E; --amber-soft: #2E2618;
+      --code-bg: #1E2A26; --shadow: 0 1px 3px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101715; --surface: #17201D; --ink: #E3EAE6; --muted: #93A39C;
+    --line: #2A3630; --accent: #4CC2A8; --accent-soft: #16302A;
+    --leak: #E08663; --leak-soft: #33201A; --amber: #D9A94E; --amber-soft: #2E2618;
+    --code-bg: #1E2A26; --shadow: 0 1px 3px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"] {
+    --bg: #F5F7F6; --surface: #FFFFFF; --ink: #1C2622; --muted: #5C6B65;
+    --line: #DDE4E1; --accent: #14705F; --accent-soft: #E3F0EC;
+    --leak: #B3492A; --leak-soft: #F7E8E2; --amber: #9A6B15; --amber-soft: #F5EDDC;
+    --code-bg: #EDF1EF; --shadow: 0 1px 3px rgba(28,38,34,.07);
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 16px/1.65 "Segoe UI", system-ui, -apple-system, sans-serif;
+    margin: 0; padding: 0 20px 80px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; font-weight: 600; text-wrap: balance; }
+  h1 { font-size: 2.3rem; line-height: 1.2; margin: .3em 0 .2em; }
+  h2 { font-size: 1.55rem; line-height: 1.25; margin: 0 0 .5em; }
+  h3 { font-size: 1.12rem; margin: 1.4em 0 .4em; }
+  p { margin: .7em 0; max-width: 68ch; }
+  code, .path {
+    font-family: Consolas, "Cascadia Mono", monospace; font-size: .86em;
+    background: var(--code-bg); padding: .1em .35em; border-radius: 3px; white-space: nowrap;
+  }
+  .eyebrow {
+    font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); font-weight: 600; margin-bottom: .4em;
+  }
+  header.top { padding: 56px 0 8px; border-bottom: 2px solid var(--ink); margin-bottom: 8px; }
+  .subtitle { color: var(--muted); font-size: 1.05rem; max-width: 62ch; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px 22px; color: var(--muted); font-size: .82rem; padding: 14px 0 26px; }
+  .meta b { color: var(--ink); font-weight: 600; }
+
+  .series { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 6px; }
+  .series a, .series span.card {
+    display: block; flex: 1 1 140px; min-width: 140px; text-decoration: none;
+    border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px;
+    background: var(--surface); color: var(--muted); font-size: .8rem; line-height: 1.4;
+  }
+  .series .here { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); }
+  .series .rank { font-family: Georgia, serif; font-size: 1.15rem; color: var(--accent); display: block; }
+
+  section.part { margin-top: 56px; }
+  .partnum {
+    font-family: Georgia, serif; font-style: italic; font-size: .95rem;
+    color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; margin-bottom: 4px;
+  }
+  .lede { font-size: 1.13rem; line-height: 1.6; }
+
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 14px 0; }
+  th { text-align: left; font-size: .72rem; letter-spacing: .09em; text-transform: uppercase;
+       color: var(--muted); font-weight: 600; padding: 8px 12px 6px; border-bottom: 2px solid var(--line); }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  td.num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  .tablebox { overflow-x: auto; }
+
+  .chip { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .06em;
+          padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
+  .chip.keep { background: var(--accent-soft); color: var(--accent); }
+  .chip.fix { background: var(--leak-soft); color: var(--leak); }
+  .chip.add { background: var(--amber-soft); color: var(--amber); }
+  .chip.hide { background: var(--code-bg); color: var(--muted); }
+
+  .callout { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent);
+             border-radius: 6px; padding: 16px 20px; margin: 18px 0; box-shadow: var(--shadow); }
+  .callout.pain { border-left-color: var(--leak); }
+  .callout .label { font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: var(--leak); }
+  .callout.good .label { color: var(--accent); }
+  .callout p:first-of-type { margin-top: .4em; }
+
+  .evidence { font-family: Consolas, "Cascadia Mono", monospace; font-size: .8rem; line-height: 1.7;
+              background: var(--code-bg); border-radius: 6px; padding: 14px 18px; overflow-x: auto; margin: 12px 0; }
+  .evidence .cm { color: var(--muted); }
+  .evidence .hl { color: var(--leak); font-weight: 600; }
+
+  .diagram-box { background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+                 padding: 12px; margin: 20px 0; overflow-x: auto; box-shadow: var(--shadow); }
+  .diagram-box svg { display: block; min-width: 880px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: .78rem; color: var(--muted); padding: 8px 6px 2px; }
+  .legend i { display: inline-block; width: 22px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+
+  .plan { display: grid; gap: 12px; margin: 18px 0; }
+  .plan .move { background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+                padding: 16px 20px; box-shadow: var(--shadow); }
+  .plan .move.p0 { border-left: 4px solid var(--accent); }
+  .plan .move.p1 { border-left: 4px solid var(--amber); }
+  .plan .move.p2 { border-left: 4px solid var(--line); }
+  .plan .tag { font-size: .7rem; font-weight: 700; letter-spacing: .1em; color: var(--muted); }
+  .plan .move.p0 .tag { color: var(--accent); }
+  .plan .move.p1 .tag { color: var(--amber); }
+  .plan h3 { margin: .2em 0 .3em; }
+  .plan p { margin: .3em 0; font-size: .92rem; }
+
+  .ladder { list-style: none; padding: 0; margin: 14px 0; }
+  .ladder li { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+  .ladder .lvl { font-family: Georgia, serif; font-size: 1.1rem; color: var(--accent); min-width: 2.2em; }
+
+  footer { margin-top: 70px; padding-top: 16px; border-top: 1px solid var(--line);
+           color: var(--muted); font-size: .78rem; }
+  @media (max-width: 640px) { h1 { font-size: 1.7rem; } body { padding: 0 14px 60px; } }
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">Эволюционный разбор · область 1 из 5 · hometutor</div>
+  <h1>Судьба одного знания</h1>
+  <p class="subtitle">End-to-end аудит петли памяти: где знание рождается, где оставляет след,
+  а где исчезает бесследно. Каждое утверждение проверено по коду.</p>
+</header>
+
+<div class="meta">
+  <span>Коммит <b>bde34e4</b> (HEAD, чистое дерево)</span>
+  <span>Дата <b>2026-07-11</b></span>
+  <span>Хранилищ памяти <b>5</b></span>
+  <span>Событий обучения <b>4</b>, бесследны <b>2</b></span>
+</div>
+
+<div class="series">
+  <span class="card here"><span class="rank">№1</span>Судьба одного знания — петля памяти <b>(этот разбор)</b></span>
+  <span class="card"><span class="rank">№2</span>Первые 10 минут — онбординг и активация</span>
+  <span class="card"><span class="rank">№3</span>Материал как продукт — конспект, граф, таймкоды</span>
+  <span class="card"><span class="rank">№4</span>Агент как одна кнопка — Coach → UI</span>
+  <span class="card"><span class="rank">№5</span>Доверие под нагрузкой — провайдер, скорость, честность</span>
+</div>
+
+<!-- ======================= 1 СУТЬ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 1 · Суть</div>
+  <h2>Чего по-настоящему хочет студент, когда учится</h2>
+  <p class="lede">Студент хочет одного: чтобы усилие не пропадало. Каждый момент понимания —
+  дорогая, трудно добытая вещь. Смысл системы с памятью не в карточках и не в SM-2 —
+  а в обещании: <em>«всё, что ты однажды понял, я сохраню, верну в нужный момент
+  и покажу, как ты растёшь»</em>.</p>
+  <p>Отсюда первый принцип петли: <b>понимание → след → возврат</b>. Знание, не оставившее
+  следа, для системы не существует. А для студента именно оно и было главным событием дня:
+  он час разбирался с тьютором, ему объяснили, он понял — и наутро система смотрит на него
+  как на чистый лист. Это предательство обещания, даже если ни одна строка кода не «сломана».</p>
+</section>
+
+<!-- ======================= 2 РЕАЛЬНОСТЬ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 2 · Реальность</div>
+  <h2>Пять хранилищ, четыре события, один гейт</h2>
+  <p>Вид с высоты: «что я знаю» записано в <b>пяти</b> независимых местах, учебных событий —
+  четыре, и только одно из них (квиз) доходит до концептной памяти.</p>
+
+  <div class="diagram-box">
+  <svg viewBox="0 0 960 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Диаграмма потоков памяти">
+    <defs>
+      <marker id="mA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0L10 5L0 10z" style="fill:var(--accent)"/>
+      </marker>
+      <marker id="mG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0L10 5L0 10z" style="fill:var(--muted)"/>
+      </marker>
+      <marker id="mL" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0L10 5L0 10z" style="fill:var(--leak)"/>
+      </marker>
+    </defs>
+    <style>
+      .colhead { font: 700 11px "Segoe UI", sans-serif; letter-spacing: .12em; fill: var(--muted); }
+      .box { fill: var(--surface); stroke: var(--line); rx: 6; }
+      .boxT { font: 600 13px "Segoe UI", sans-serif; fill: var(--ink); }
+      .boxS { font: 11px "Segoe UI", sans-serif; fill: var(--muted); }
+      .boxM { font: 11px Consolas, monospace; fill: var(--muted); }
+      .flowA { stroke: var(--accent); stroke-width: 2; fill: none; }
+      .flowG { stroke: var(--muted); stroke-width: 1.3; fill: none; opacity: .75; }
+      .flowL { stroke: var(--leak); stroke-width: 2; fill: none; stroke-dasharray: 6 5; }
+      .leakX { font: 700 15px "Segoe UI", sans-serif; fill: var(--leak); }
+      .note { font: italic 11px Georgia, serif; fill: var(--leak); }
+      .gate { stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: 3 4; }
+      .gateT { font: italic 11px Georgia, serif; fill: var(--accent); }
+    </style>
+
+    <text x="18" y="20" class="colhead">СОБЫТИЯ ОБУЧЕНИЯ</text>
+    <text x="372" y="20" class="colhead">ХРАНИЛИЩА «ЧТО Я ЗНАЮ»</text>
+    <text x="736" y="20" class="colhead">ВИТРИНЫ</text>
+
+    <!-- events -->
+    <rect class="box" x="14" y="36" width="216" height="56" rx="6"/>
+    <text class="boxT" x="26" y="59">Квиз</text>
+    <text class="boxS" x="26" y="77">scoped · micro · inline в чате</text>
+
+    <rect class="box" x="14" y="152" width="216" height="56" rx="6"/>
+    <text class="boxT" x="26" y="175">Повторение карточки</text>
+    <text class="boxM" x="26" y="193">review_flashcard()</text>
+
+    <rect class="box" x="14" y="268" width="216" height="56" rx="6"/>
+    <text class="boxT" x="26" y="291">Ответ тьютора</text>
+    <text class="boxS" x="26" y="309">объяснение, диалог, разбор</text>
+
+    <rect class="box" x="14" y="384" width="216" height="56" rx="6"/>
+    <text class="boxT" x="26" y="407">Чтение конспекта</text>
+    <text class="boxS" x="26" y="425">Живой конспект, документы</text>
+
+    <!-- provenance gate -->
+    <line class="gate" x1="300" y1="34" x2="300" y2="150"/>
+    <text class="gateT" x="238" y="30">provenance-gate</text>
+
+    <!-- stores -->
+    <rect class="box" x="372" y="30" width="250" height="50" rx="6"/>
+    <text class="boxT" x="384" y="51">quiz_mastery</text>
+    <text class="boxM" x="384" y="68">quiz_adaptive.update_mastery…</text>
+
+    <rect class="box" x="372" y="132" width="250" height="50" rx="6"/>
+    <text class="boxT" x="384" y="153">spaced_repetition · SM-2</text>
+    <text class="boxM" x="384" y="170">+ generation_id / lineage</text>
+
+    <rect class="box" x="372" y="234" width="250" height="50" rx="6"/>
+    <text class="boxT" x="384" y="255">profile.mastery_vector</text>
+    <text class="boxM" x="384" y="272">learner_model_service</text>
+
+    <rect class="box" x="372" y="336" width="250" height="50" rx="6"/>
+    <text class="boxT" x="384" y="357">flashcards · SM-2 карточек</text>
+    <text class="boxM" x="384" y="374">update_flashcard_sr()</text>
+
+    <rect class="box" x="372" y="438" width="250" height="50" rx="6"/>
+    <text class="boxT" x="384" y="459">tutor_sessions.mastery_level</text>
+    <text class="boxM" x="384" y="476">user_state_tutor</text>
+
+    <!-- surfaces -->
+    <rect class="box" x="736" y="30" width="210" height="50" rx="6"/>
+    <text class="boxT" x="748" y="51">Граф знаний</text>
+    <text class="boxM" x="748" y="68">get_mastery_vector()</text>
+
+    <rect class="box" x="736" y="132" width="210" height="50" rx="6"/>
+    <text class="boxT" x="748" y="153">Радар · adaptive plan</text>
+    <text class="boxM" x="748" y="170">visualization_service</text>
+
+    <rect class="box" x="736" y="234" width="210" height="50" rx="6"/>
+    <text class="boxT" x="748" y="255">Tutor chat</text>
+    <text class="boxS" x="748" y="272">⚠ два разных числа «due»</text>
+
+    <rect class="box" x="736" y="336" width="210" height="50" rx="6"/>
+    <text class="boxT" x="748" y="357">Mission Control</text>
+    <text class="boxM" x="748" y="374">count_due_flashcards()</text>
+
+    <rect class="box" x="736" y="438" width="210" height="50" rx="6"/>
+    <text class="boxT" x="748" y="459">Микробар тьютора</text>
+    <text class="boxM" x="748" y="476">tutor_mastery_ui</text>
+
+    <!-- quiz flows (through gate) -->
+    <path class="flowA" d="M230 56 C 310 50, 330 55, 368 55" marker-end="url(#mA)"/>
+    <path class="flowA" d="M230 66 C 320 80, 320 150, 368 155" marker-end="url(#mA)"/>
+    <path class="flowA" d="M230 78 C 330 110, 310 250, 368 258" marker-end="url(#mA)"/>
+
+    <!-- review flow: only card layer -->
+    <path class="flowA" d="M230 186 C 320 200, 300 350, 368 359" marker-end="url(#mA)"/>
+    <!-- review leak toward concept memory -->
+    <path class="flowL" d="M230 172 C 280 168, 300 162, 330 160" marker-end="url(#mL)"/>
+    <text class="leakX" x="336" y="164">✕</text>
+    <text class="note" x="26" y="118">провал карточки не доходит</text>
+    <text class="note" x="26" y="132">до концептной памяти</text>
+
+    <!-- tutor leak -->
+    <path class="flowL" d="M230 296 C 270 296, 295 296, 322 296" marker-end="url(#mL)"/>
+    <text class="leakX" x="328" y="301">✕</text>
+    <text class="note" x="26" y="345">outcome={} — след только</text>
+    <text class="note" x="26" y="359">cognitive_load −0.05</text>
+
+    <!-- reading leak -->
+    <path class="flowL" d="M230 412 C 270 412, 295 412, 322 412" marker-end="url(#mL)"/>
+    <text class="leakX" x="328" y="417">✕</text>
+    <text class="note" x="240" y="459">нет следа вообще</text>
+
+    <!-- store → surface -->
+    <path class="flowG" d="M622 55 C 680 55, 690 55, 732 55" marker-end="url(#mG)"/>
+    <path class="flowG" d="M622 259 C 680 250, 680 165, 732 158" marker-end="url(#mG)"/>
+    <path class="flowG" d="M622 157 C 690 165, 680 250, 732 255" marker-end="url(#mG)"/>
+    <path class="flowG" d="M622 361 C 690 355, 690 275, 732 265" marker-end="url(#mG)"/>
+    <path class="flowG" d="M622 371 C 680 371, 690 363, 732 361" marker-end="url(#mG)"/>
+    <path class="flowG" d="M622 463 C 680 463, 690 463, 732 463" marker-end="url(#mG)"/>
+  </svg>
+  <div class="legend">
+    <span><i style="background:var(--accent)"></i>записывается</span>
+    <span><i style="background:var(--leak); background-image:linear-gradient(90deg, var(--leak) 55%, transparent 55%); background-size:9px 3px;"></i>разрыв — след теряется</span>
+    <span><i style="background:var(--muted)"></i>чтение витриной</span>
+  </div>
+  </div>
+
+  <h3>Инвентаризация: зачем каждое хранилище и что с ним не так</h3>
+  <div class="tablebox">
+  <table>
+    <tr><th>Хранилище</th><th>Зачем появилось</th><th>Сильное</th><th>Слабое</th></tr>
+    <tr>
+      <td><code>quiz_mastery</code></td>
+      <td>уровень освоения концепта после квизов</td>
+      <td>единственный вход — через provenance-gate</td>
+      <td>слеп ко всему, кроме квизов</td>
+    </tr>
+    <tr>
+      <td><code>spaced_repetition</code></td>
+      <td>SM-2 очередь «когда повторить концепт»</td>
+      <td>lineage: переживает переиндексацию корпуса</td>
+      <td>пополняется только из квизов</td>
+    </tr>
+    <tr>
+      <td><code>profile.mastery_vector</code></td>
+      <td>вектор для радара и adaptive plan</td>
+      <td>фильтруется по активному индексу</td>
+      <td>дубль quiz_mastery, третья копия истины</td>
+    </tr>
+    <tr>
+      <td><code>flashcards</code> (SM-2 карточек)</td>
+      <td>расписание повторения карточек</td>
+      <td>undo, expert-настройки, recovery, лог ревью</td>
+      <td>остров: не сообщает концептной памяти ничего</td>
+    </tr>
+    <tr>
+      <td><code>tutor_sessions.mastery_level</code></td>
+      <td>микробар уровня в чате тьютора</td>
+      <td>дёшев, сессионный</td>
+      <td>пятое независимое «что я знаю»</td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="callout good">
+    <span class="label">Что уже образцово — не трогать</span>
+    <p><b>Provenance-gate</b> (<code>fact_source_binding.require_fact_provenance</code>):
+    mastery меняется только от проверяемого события, и вход один —
+    <code>apply_quiz_outcome_to_learner_state()</code>. Дисциплина «нет освоения без доказательства» —
+    редкая и правильная. <b>Flashcard-handoff</b> (карточка → мгновенное объяснение тьютора без
+    RAG-раунда) — направление «память → понимание» уже сделано отлично. <b>Планировщик один</b>:
+    <code>compute_flashcard_schedule</code> строится поверх <code>apply_sm2</code> — дубля алгоритма нет,
+    вопреки первому впечатлению.</p>
+  </div>
+</section>
+
+<!-- ======================= 3 ПРОТИВОРЕЧИЯ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 3 · Противоречия</div>
+  <h2>Три напряжения — и синтез для каждого</h2>
+
+  <h3>Строгость доказательств ↔ полнота памяти</h3>
+  <p>Гейт пускает в mastery только квиз-события — и это правильно. Но большинство реального
+  обучения происходит в диалоге и чтении, которые бесследны. <b>Синтез: два слоя памяти.</b>
+  Ниже гейта — лёгкий слой <em>exposure</em> («видел, объяснялось» — без изменения mastery);
+  выше гейта — <em>evidence</em> (квиз, ревью). Гейт не ослабляется ни на йоту — под ним
+  появляется пол.</p>
+
+  <h3>Карточки как продукт ↔ карточки как интерфейс памяти</h3>
+  <p>Сейчас карточный SM-2 — самодостаточный остров с прекрасной механикой. Но карточка —
+  это <em>представление</em> концепта, а не отдельная сущность знания. <b>Синтез:</b> карточка
+  получает связь с концептом (тег <code>concept:</code>), ревью пишет в оба слоя через ту же
+  единую точку с новым типом provenance <code>flashcard_review</code>. Механика карточек не меняется —
+  меняется то, что о ревью узнаёт весь организм.</p>
+
+  <h3>Пять зеркал ↔ одна истина</h3>
+  <p>Каждое хранилище появилось честно — для своей витрины. Но пять мест записи = пять шансов
+  разойтись (случай «76 vs 89 концептов» из прошлого разбора — то же семейство болезней).
+  <b>Синтез: одна запись, много представлений.</b> Не сливать таблицы силой — объявить
+  <code>quiz_mastery</code> + <code>spaced_repetition</code> источником истины, остальное постепенно
+  переводить в derived views.</p>
+</section>
+
+<!-- ======================= 4 БОЛЬ-ЯКОРЬ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 4 · Боль-якорь</div>
+  <h2>«Час занимался — наутро система считает, что я ничего не учил»</h2>
+
+  <div class="callout pain">
+    <span class="label">Точная причина в коде, не в теории</span>
+    <p>После каждого tutor-ответа learner model получает <b>пустой</b> результат:</p>
+  </div>
+
+  <div class="evidence">
+<span class="cm"># app/query_response_postprocessing.py:407</span><br>
+update_learner_model_after_interaction("local", "tutor", <span class="hl">{}</span>, session_id=…)<br><br>
+<span class="cm"># app/learner_model_service.py:528 — вся ветка "tutor" целиком:</span><br>
+elif it == "tutor":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;profile.cognitive_load = max(0.1, float(profile.cognitive_load) <span class="hl">− 0.05</span>)
+  </div>
+
+  <p>Итог часа диалога: ни mastery, ни записи в очередь повторения, ни карточки —
+  только «когнитивная нагрузка −0.05». Единственный шанс оставить след — пройти inline-квиз
+  после ответа; пропустил кнопку — след нулевой. Сохранить ответ как карточку тоже нельзя:
+  <code>add_flashcard()</code> вызывается только из API-роутера, в UI — ни одного вызова.</p>
+
+  <p>Вторая створка той же боли: <code>review_flashcard()</code>
+  (<span class="path">flashcard_service.py:798</span>) обновляет SR карточки, лог и недельный
+  счётчик — и <b>не трогает</b> ни <code>spaced_repetition</code>, ни <code>quiz_mastery</code>.
+  Студент три раза подряд провалил карточку по теме X — граф знаний остаётся зелёным,
+  SSR не узнаёт. Особенно обидно: карточка <em>знает</em> свой источник
+  (<code>source_path_from_card</code>) — данные для связи есть, связи нет.</p>
+</section>
+
+<!-- ======================= 5 ВЕРДИКТЫ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 5 · Вердикты</div>
+  <h2>Позиция по каждому элементу</h2>
+  <div class="tablebox">
+  <table>
+    <tr><th>Элемент</th><th>Вердикт</th><th>Почему</th></tr>
+    <tr>
+      <td>Provenance-gate + единая точка записи</td>
+      <td><span class="chip keep">Оставить</span></td>
+      <td>ядро честности системы; расширить типами событий <code>flashcard_review</code> и <code>exposure</code></td>
+    </tr>
+    <tr>
+      <td><code>review_flashcard</code> → концептная память</td>
+      <td><span class="chip fix">Починить</span></td>
+      <td>самый короткий разрыв: вся инфраструктура уже есть, нужен проброс quality в единую точку</td>
+    </tr>
+    <tr>
+      <td>Tutor-ответ с <code>outcome={}</code></td>
+      <td><span class="chip fix">Починить</span></td>
+      <td>писать exposure-след по концептам ответа (концепты уже известны в контексте маршрута)</td>
+    </tr>
+    <tr>
+      <td>Жест «ответ → карточка» в чате</td>
+      <td><span class="chip add">Добавить</span></td>
+      <td>единственное новое в плане; endpoint готов, нужна кнопка + теги source/concept из ответа</td>
+    </tr>
+    <tr>
+      <td><code>profile.mastery_vector</code></td>
+      <td><span class="chip hide">Спрятать глубже</span></td>
+      <td>перевести в derived view от quiz_mastery + SR; не независимый источник истины</td>
+    </tr>
+    <tr>
+      <td><code>tutor_sessions.mastery_level</code></td>
+      <td><span class="chip hide">Спрятать глубже</span></td>
+      <td>оставить как сессионный кэш, кормить из quiz_mastery, не расширять</td>
+    </tr>
+    <tr>
+      <td>Два числа «к повторению» (карточки ≠ концепты)</td>
+      <td><span class="chip fix">Объединить витрину</span></td>
+      <td>одна очередь «Повторить сегодня» из двух источников; два числа = подрыв доверия</td>
+    </tr>
+    <tr>
+      <td>SM-2 планировщик</td>
+      <td><span class="chip keep">Оставить как есть</span></td>
+      <td>проверено: дубля нет, карточный планировщик построен поверх <code>apply_sm2</code></td>
+    </tr>
+  </table>
+  </div>
+</section>
+
+<!-- ======================= 6 ЦЕННОСТЬ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 6 · Ценность</div>
+  <h2>Коэффициент следа — измеримое доказательство</h2>
+  <p>Уникальность hometutor — замкнутая петля с возвратом в точное место лекции. Этот разбор
+  показывает: петля замкнута <b>только для квиз-пути</b>. Метрика прогресса — «коэффициент
+  следа»: доля учебных событий, оставляющих след в памяти системы.</p>
+  <div class="tablebox">
+  <table>
+    <tr><th>Событие обучения</th><th class="num">След сейчас</th><th>Цель после P0–P1</th></tr>
+    <tr><td>Квиз (scoped / micro / inline)</td><td class="num"><b>100%</b></td><td>100% — не трогать</td></tr>
+    <tr><td>Повторение карточки</td><td class="num">50%</td><td>100% — оба слоя (P0-1)</td></tr>
+    <tr><td>Диалог с тьютором</td><td class="num" style="color:var(--leak)"><b>0%</b></td><td>&gt;0 — exposure-след (P0-2) + карточка по кнопке (P1)</td></tr>
+    <tr><td>Чтение конспекта</td><td class="num" style="color:var(--leak)"><b>0%</b></td><td>P2 — exposure от собранных фрагментов корзины</td></tr>
+  </table>
+  </div>
+  <p>Проверяется из существующих данных: чат-сессии и <code>agent_runs</code> против записей
+  в <code>spaced_repetition</code> / review-лога за ту же неделю — без новой телеметрии.</p>
+</section>
+
+<!-- ======================= 7 ПУТЬ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 7 · Путь</div>
+  <h2>Один золотой путь и лестница уровней</h2>
+  <p class="lede">Спросил → понял → проверил себя (inline) → знание легло во все слои →
+  через N дней пришла карточка → провалил → мгновенное объяснение (handoff — уже работает) →
+  вернулся в точное место лекции → проверил снова. Один цикл, ни одного тупика.</p>
+  <ul class="ladder">
+    <li><span class="lvl">L0</span><span>Просто спрашиваю — и вижу: «система запомнила N концептов из нашего разговора» (exposure)</span></li>
+    <li><span class="lvl">L1</span><span>Прохожу проверки после ответов — концепты переходят из «видел» в «доказал»</span></li>
+    <li><span class="lvl">L2</span><span>Повторяю по одной очереди «Повторить сегодня» — карточки и концепты вместе</span></li>
+    <li><span class="lvl">L3</span><span>Вижу карту памяти: граф с двумя яркостями — бледное «встречал», яркое «подтвердил»</span></li>
+    <li><span class="lvl">L4</span><span>Управляю расписанием — expert-настройки SM-2 (уже существуют)</span></li>
+  </ul>
+</section>
+
+<!-- ======================= 8 ПЛАН ======================= -->
+<section class="part">
+  <div class="partnum">Часть 8 · План</div>
+  <h2>P0–P2 по соотношению «эффект / усилие»</h2>
+  <div class="plan">
+    <div class="move p0">
+      <span class="tag">P0 · ХОД 1</span>
+      <h3>Замкнуть ревью карточки в концептную память</h3>
+      <p><code>review_flashcard()</code> пробрасывает quality в
+      <code>apply_quiz_outcome_to_learner_state</code>-путь с новым provenance-типом
+      <code>flashcard_review</code>; концепт — из тегов карточки. Провал карточки впервые
+      становится виден графу и SSR. Малое усилие: единая точка записи уже существует.</p>
+    </div>
+    <div class="move p0">
+      <span class="tag">P0 · ХОД 2</span>
+      <h3>Exposure-след тьюторского ответа</h3>
+      <p>Вместо <code>outcome={}</code> — лёгкая запись «встречены концепты …» (без изменения
+      mastery, ниже гейта). Система впервые «видит» диалоговое обучение; в чате появляется
+      честная строка «запомнил за тебя: N концептов».</p>
+    </div>
+    <div class="move p1">
+      <span class="tag">P1</span>
+      <h3>Кнопка «→ в карточку» из ответа + concept-теги + одна очередь</h3>
+      <p>Жест сохранения ответа карточкой (front = вопрос, back = teaching_summary,
+      теги source/concept из источников ответа); генератор карточек пишет
+      <code>concept:</code>-тег; витрины сводятся к одной очереди «Повторить сегодня».</p>
+    </div>
+    <div class="move p2">
+      <span class="tag">P2</span>
+      <h3>Одна истина + точный возврат из карточки</h3>
+      <p><code>mastery_vector</code> → derived view; карточка получает section-anchor
+      (возврат в раздел·строку·таймкод, а не только в файл); «коэффициент следа»
+      выводится на дашборд метрик.</p>
+    </div>
+  </div>
+  <p>Планка неизменна: гениальность — в простоте. P0 не добавляет ни одной новой сущности —
+  он соединяет два уже построенных, образцовых механизма (гейт и карточный SM-2), которые
+  просто не были знакомы друг с другом.</p>
+</section>
+
+<footer>
+  Эволюционный разбор №1 из 5 · hometutor @ bde34e4 · 2026-07-11 ·
+  все файлы и номера строк проверены по текущему коду: query_response_postprocessing.py:407,
+  learner_model_service.py:516–529, flashcard_service.py:798–870, fact_source_binding.py:110–136,
+  spaced_repetition.py:123–213, knowledge_graph.py:862, flashcards_scheduling.py:25/71,
+  ui/mission_control.py:132, ui/tutor_chat_render.py:336, flashcard_handoff.py:76–175.
+</footer>
+
+</div>
