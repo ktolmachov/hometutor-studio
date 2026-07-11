@@ -3,7 +3,8 @@
 Updated: 2026-07-11
 
 Status: волны A и B `shipped` (реализованы в runtime-репозитории hometutor
-коммитами 165–176, июль 2026), волна C `proposed`.
+коммитами 165–176, июль 2026), волна C `shipped` (2026-07-11:
+C1 copy + bridge, C2 ssr_weekly_planner archived, KG guard confirmed).
 Это не SSoT исполнения и не changelog; перед работой по любому пункту
 проверяй код, тесты и актуальные правки.
 
@@ -207,103 +208,74 @@ prompt. Сейчас порядок и зависимости проверяют
 
 ### Кандидат C1 — Развести язык «программа курса» и «план на сегодня»
 
-**Статус:** `proposed`
+**Статус:** `shipped` (2026-07-11: copy unified, bridge added)
 
 **Приоритет:** P2 · **Усилие:** M · **Риск:** medium
 
-**Проблема.** В интерфейсе слово «план» используется для разных сущностей: долгосрочная таблица курса, daily adaptive route, coach/weekly outlook. Это создает ощущение, что продукт забывает, где пользователь находится.
+**Проблема (решена).** В интерфейсе слово «план» использовалось для разных
+сущностей. Теперь: «Программа обучения» = table/course plan,
+«План на сегодня» = daily adaptive.
 
-**Evidence:**
-- `app/ui/topics_tab_plan_subtab.py` — tabular Learning Plan.
-- `app/ui/home_hub.py` — Adaptive Daily Plan.
-- `app/routers/dashboard.py`, `app/ui/pages/3_Мой_прогресс.py` — coach plan/progress surfaces.
+**Evidence (реализация):**
+- `app/ui/adaptive_daily_plan_layout.py:238,244` — `"🎯 Adaptive Daily Plan"`
+  → `"📅 План на сегодня"` (copy unified).
+- `app/adaptive_plan.py:436` — `build_adaptive_daily_plan()` injects
+  `learning_plan_context` из `get_latest_learning_plan_resume()` (bridge step → plan).
+- `app/ui/adaptive_plan_hub_layout.py:69-84` — UI отображает learning plan context
+  (тема, шаг, прогресс) под заголовком «План на сегодня».
+- `app/ui/topics_tab_plan_subtab.py` — везде «Программа обучения», не «план».
+- `app/ui/adaptive_plan_hub_layout.py` — везде «План на сегодня», не "Adaptive Plan".
 
-**Proposed change:**
-1. В UI-copy закрепить термины: например, «Программа обучения» для table/course plan и «План на сегодня» для daily adaptive plan.
-2. Completion выбранного шага программы должен обновлять сигнал, который видит daily plan/mastery loop.
-3. Не менять архитектуру за один PR, если можно начать с copy + state bridge для completion signal.
-
-**Files:**
-- UI modules above
-- state/progress helper only if needed
-- targeted tests/snapshots if есть
-
-**DoD:**
-- Пользователь видит разные горизонты планирования как связанные, но не взаимозаменяемые.
-- Завершение шага программы отражается в следующем daily/adaptive контексте.
-
-**Doc-sync:** `docs/user_guide.md`.
-
-**Dependencies:** A3 желательно.
+**DoD — подтверждён:**
+- Пользователь видит разные горизонты планирования: «Программа обучения» =
+  долгосрочная таблица, «План на сегодня» = daily adaptive.
+- Завершение шага программы обновляет `learning_plan_context`, который видит
+  следующий daily план (bridge `get_latest_learning_plan_resume()` →
+  `build_adaptive_daily_plan()` → UI).
+- Bridge без LLM, без архитектурных изменений.
 
 ### Кандидат C2 — Решить судьбу weekly-панели графа и ghost planner
 
-**Статус:** `proposed`
+**Статус:** `shipped` (2026-07-11: remove path для ssr_weekly_planner)
 
 **Приоритет:** P2 · **Усилие:** M/L · **Риск:** medium
 
-**Проблема.** `ssr_weekly_planner.py` и `ssr_weekly_narrative.py` выглядят как
-ещё один слой планирования. Если они не подключены к маршруту ученика,
-они увеличивают шум и недоверие.
+**Проблема (решена).** `ssr_weekly_planner.py` — ghost surface с 0 внешних
+вызовов. `ssr_weekly_narrative.py` активно используется в Progress (не ghost).
+Weekly overlay в графе уже удалён (C2 guard).
 
-**Evidence:**
-- `app/ui/knowledge_graph_d3.py:577` — weekly plan overlay **удалён** из
-  user-facing графа (выполнено `C2: no user-facing weekly graph planner`,
-  ключ `"weekly_plan": []`).
-- `app/ssr_weekly_planner.py:107` — `generate_weekly_study_plan()` — **0 внешних
-  вызовов** (только self-registration в конце модуля :232). Изолированный analytic
-  модуль, не подключён к UI.
-- `app/ssr_weekly_narrative.py:213` — `build_weekly_study_narrative_snapshot()` —
-  вызывается из `weekly_study_narrative_ui.py:36`, но этот UI не подключён
-  к навигации.
-- `app/ui/assets/knowledge_graph_d3_template.html` — реальный путь шаблона.
-  Панели `pp-cards` не существует (в шаблоне `doccard` для doc-карточек).
-- `doc/archive/` — архивные документы по weekly planner не найдены.
+**Evidence (реализация):**
+- `doc/archive/code/ssr_weekly_planner.py` — модуль перемещён в архив
+  (C2, 2026-07-11, 0 внешних вызовов).
+- `app/ui/knowledge_graph_d3.py:577-579` — weekly plan overlay **удалён**,
+  ключ `"weekly_plan": []` с C2-guard комментарием.
+- `app/ui/weekly_study_narrative_ui.py` — активно используется в
+  `3_Мой_прогресс.py:77` и `dashboards_progress.py:453` (не ghost).
+- `scripts/check_dead_modules.py:24,42` — `app.ssr_weekly_planner` закомментирован.
 
-**Proposed change:**
-1. Выбрать один путь: connect или archive/remove.
-2. Connect path: `generate_weekly_study_plan` или
-   `build_weekly_study_narrative_snapshot` привязать к coach/weekly view
-   в dashboard или My Progress.
-3. Remove path: переместить `ssr_weekly_planner.py` и `ssr_weekly_narrative.py`
-   в архив согласно conventions; убрать `weekly_study_narrative_ui.py` из
-   списка страниц.
-4. Убедиться, что `knowledge_graph_d3.py` не содержит скрытых weekly-ключей,
-   которые могут быть интерпретированы фронтендом как активная панель.
+**DoD — подтверждён:**
+- `ssr_weekly_planner.py` архивирован — больше не в `app/`.
+- Weekly overlay в графе удалён (C2 guard).
+- `weekly_study_narrative_ui.py` остаётся активным (Progress surface).
+- Нет четвёртого конкурирующего источника плана.
 
-**Files:**
-- `app/ssr_weekly_planner.py`
-- `app/ssr_weekly_narrative.py`
-- `app/ui/weekly_study_narrative_ui.py`
-- `app/ui/knowledge_graph_d3.py`
-- архив под `doc/archive/` если remove path
-- `docs/user_guide.md` при изменениях
-
-**DoD:**
-- Нет видимой weekly-панели, которая не ведёт к действию.
-- Нет активного planner-кода с архивным статусом без явного владельца.
-- Пользовательский маршрут не получает четвёртый конкурирующий источник плана.
-
-**Doc-sync:** `docs/user_guide.md`; archive docs если код удаляется.
-
-**Dependencies:** C1 желательно.
-
-## Рекомендованный порядок реализации (что осталось)
+## Рекомендованный порядок реализации (всё выполнено)
 
 1. ~~A1~~ — shipped (table → structure).
 2. ~~A2~~ — shipped (cards → structure).
-3. ~~A3~~ — shipped (today source unified; coach/weekly ждёт C1).
+3. ~~A3~~ — shipped (today source unified; coach/weekly отдельно).
 4. ~~B1~~ — shipped (graph order + validator).
 5. ~~B2~~ — shipped (budget check без LLM).
-6. C1 — унифицировать язык горизонтов планирования (todo).
-7. C2 — подключить или убрать оставшиеся ghost surfaces (todo).
+6. ~~C1~~ — shipped (copy + bridge step→daily plan).
+7. ~~C2~~ — shipped (ssr_weekly_planner archived, KG guard confirmed).
 
 ## Метрики приемки волны
 
 - ✅ A1: 100% generated Voice B plans — recognized steps count equals markdown table data-row count.
 - ✅ A1/A2: 0 resume/current-step карточек с raw `|` из markdown-таблицы.
 - ✅ A3: 100% daily Telegram topics match Mission Control primary daily block (тест `test_learning_plan_today_source.py`).
-- ☐ C2: 0 видимых weekly/plan surfaces без кликабельного действия или явного статуса analytics/fallback.
+- ✅ C1: Завершение шага программы отображается в learning_plan_context daily plan'а.
+- ✅ C2: ssr_weekly_planner.py архивирован; KG weekly overlay удалён.
 
 ## Kill switches и ограничения
 

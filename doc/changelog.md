@@ -1,6 +1,12 @@
 
 # Журнал Изменений
 
+## 2026-07-11 (learning-plan-single-source C1+C2 closure)
+
+- **C1 copy/bridge shipped.** `adaptive_daily_plan_layout.py` — заголовок `"🎯 Adaptive Daily Plan"` → `"📅 План на сегодня"`. `adaptive_plan.py:build_adaptive_daily_plan()` injects `learning_plan_context` из `get_latest_learning_plan_resume()` — bridge между завершением шага программы и daily plan. UI в `adaptive_plan_hub_layout.py` отображает тему/шаг/прогресс программы под заголовком плана.
+- **C2 ghost archived.** `app/ssr_weekly_planner.py` (0 внешних вызовов) перемещён в `doc/archive/code/ssr_weekly_planner.py`. `scripts/check_dead_modules.py` — entries закомментированы. KG weekly overlay guard подтверждён (`knowledge_graph_d3.py:577-579`).
+- **Detail-plan синхронизирован.** `doc/next/learning_plan_single_source_plan.md` — A/B/C все `shipped`, evidence исправлен (8 factual errors), реальные пути/символы.
+
 ## 2026-06-29 (qwen3-coder-next 64K coding default)
 
 - **Coding model decision:** `qwen/qwen3-coder-next` remains the accepted single local coding model; recommended coding context is now **`65536` tokens** with **`32768`** as fast fallback. Scope: coding benchmark, patch generation, code review, large diff analysis, and local coding-agent experiments.

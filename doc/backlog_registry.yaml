@@ -1542,6 +1542,23 @@ waves:
     created: 2026-06-11
     last_touched_mot: null
 
+  - id: wave-learning-plan-single-source
+    theme: "Learning Plan — единый источник и честные шаги"
+    north_star: >-
+      Markdown-таблица плана парсится как структура; preview-карточки строятся
+      из колонок; «сегодня» едино в Mission Control / Telegram / My Progress;
+      порядок и бюджет проверяются графом и локальными правилами (без LLM).
+      C1: «Программа обучения» vs «План на сегодня»; C2: ghost surfaces.
+    entry_mot: "#8 Learning plan"
+    exit_mot: "#8 Learning plan"
+    packages:
+      - learning-plan-single-source-v1
+    kill_switch: null
+    status: completed
+    created: 2026-07-11
+    closed_date: 2026-07-11
+    last_touched_mot: "#8 Learning plan"
+
 items:
   - id: epoch-mission-control-home
     wave_id: wave-mission-control-home
@@ -9871,3 +9888,45 @@ items:
       a 160 cap truncated штатную прозу and was reverted). UI source-count fix in
       tutor_chat_render.py (effective trust_signals from persisted sources) covered by
       test_effective_tutor_trust_signals_prefers_persisted_sources.
+
+  - id: learning-plan-single-source-v1
+    wave_id: wave-learning-plan-single-source
+    wave_position: 1
+    status: closed
+    created: 2026-07-11
+    last_review: 2026-07-11
+    cjm_moments: ["#8 Learning plan"]
+    user_stories: []
+    impact: loop-improvement
+    blocks: >-
+      A1: parse_plan_table() + _COLUMN_ALIASES + steps_from_markdown legacy fallback.
+      A2: preview_cards_from_plan_text() в learning_plan_state.py,
+      _preview_cards_from_plan() в course_prepare_view.py.
+      A3: get_today_primary_learning_item() — canonical cross-channel helper;
+      telegram использует его, не generate_personalized_plan().
+      B1: _reorder_validator(parse_plan_table(...), dynamic_plan) —
+      graph-backed проверка порядка; checkbox auto-enable при графе.
+      B2: check_budget() / BudgetCompliance / hours_summary_from_markdown
+      — проверка бюджета без LLM.
+      C1: copy «План на сегодня» в adaptive_daily_plan_layout.py;
+      learning_plan_context bridge в build_adaptive_daily_plan().
+      C2: ssr_weekly_planner.py архивирован в doc/archive/code/;
+      knowledge_graph_d3.py weekly guard подтверждён.
+    depends_on: []
+    cost_estimate: S
+    files:
+      - app/learning_plan_state.py
+      - app/user_state_core.py
+      - app/ui/course_prepare_view.py
+      - app/learning_plan_adaptive.py
+      - app/telegram_notifications.py
+      - app/knowledge_planning.py
+      - app/adaptive_plan.py
+      - app/ui/adaptive_daily_plan_layout.py
+      - app/ui/adaptive_plan_hub_layout.py
+      - app/ui/topics_tab_plan_subtab.py
+      - doc/archive/code/ssr_weekly_planner.py
+      - scripts/check_dead_modules.py
+      - tests/test_learning_plan_state.py
+      - tests/test_learning_plan_today_source.py
+      - doc/next/learning_plan_single_source_plan.md
