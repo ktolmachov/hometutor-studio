@@ -1,0 +1,553 @@
+<title>Первые 10 минут — разбор №2 из 5 · hometutor</title>
+<style>
+  :root {
+    --bg: #F5F7F6; --surface: #FFFFFF; --ink: #1C2622; --muted: #5C6B65;
+    --line: #DDE4E1; --accent: #14705F; --accent-soft: #E3F0EC;
+    --leak: #B3492A; --leak-soft: #F7E8E2; --amber: #9A6B15; --amber-soft: #F5EDDC;
+    --code-bg: #EDF1EF; --shadow: 0 1px 3px rgba(28,38,34,.07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101715; --surface: #17201D; --ink: #E3EAE6; --muted: #93A39C;
+      --line: #2A3630; --accent: #4CC2A8; --accent-soft: #16302A;
+      --leak: #E08663; --leak-soft: #33201A; --amber: #D9A94E; --amber-soft: #2E2618;
+      --code-bg: #1E2A26; --shadow: 0 1px 3px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101715; --surface: #17201D; --ink: #E3EAE6; --muted: #93A39C;
+    --line: #2A3630; --accent: #4CC2A8; --accent-soft: #16302A;
+    --leak: #E08663; --leak-soft: #33201A; --amber: #D9A94E; --amber-soft: #2E2618;
+    --code-bg: #1E2A26; --shadow: 0 1px 3px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"] {
+    --bg: #F5F7F6; --surface: #FFFFFF; --ink: #1C2622; --muted: #5C6B65;
+    --line: #DDE4E1; --accent: #14705F; --accent-soft: #E3F0EC;
+    --leak: #B3492A; --leak-soft: #F7E8E2; --amber: #9A6B15; --amber-soft: #F5EDDC;
+    --code-bg: #EDF1EF; --shadow: 0 1px 3px rgba(28,38,34,.07);
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 16px/1.65 "Segoe UI", system-ui, -apple-system, sans-serif;
+    margin: 0; padding: 0 20px 80px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; font-weight: 600; text-wrap: balance; }
+  h1 { font-size: 2.3rem; line-height: 1.2; margin: .3em 0 .2em; }
+  h2 { font-size: 1.55rem; line-height: 1.25; margin: 0 0 .5em; }
+  h3 { font-size: 1.12rem; margin: 1.4em 0 .4em; }
+  p { margin: .7em 0; max-width: 68ch; }
+  code, .path {
+    font-family: Consolas, "Cascadia Mono", monospace; font-size: .86em;
+    background: var(--code-bg); padding: .1em .35em; border-radius: 3px; white-space: nowrap;
+  }
+  .eyebrow {
+    font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); font-weight: 600; margin-bottom: .4em;
+  }
+  header.top { padding: 56px 0 8px; border-bottom: 2px solid var(--ink); margin-bottom: 8px; }
+  .subtitle { color: var(--muted); font-size: 1.05rem; max-width: 62ch; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px 22px; color: var(--muted); font-size: .82rem; padding: 14px 0 26px; }
+  .meta b { color: var(--ink); font-weight: 600; }
+
+  .series { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 6px; }
+  .series span.card {
+    display: block; flex: 1 1 140px; min-width: 140px;
+    border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px;
+    background: var(--surface); color: var(--muted); font-size: .8rem; line-height: 1.4;
+  }
+  .series .here { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); }
+  .series .done { border-style: dashed; }
+  .series .rank { font-family: Georgia, serif; font-size: 1.15rem; color: var(--accent); display: block; }
+
+  section.part { margin-top: 56px; }
+  .partnum {
+    font-family: Georgia, serif; font-style: italic; font-size: .95rem;
+    color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; margin-bottom: 4px;
+  }
+  .lede { font-size: 1.13rem; line-height: 1.6; }
+
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 14px 0; }
+  th { text-align: left; font-size: .72rem; letter-spacing: .09em; text-transform: uppercase;
+       color: var(--muted); font-weight: 600; padding: 8px 12px 6px; border-bottom: 2px solid var(--line); }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  td.num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  .tablebox { overflow-x: auto; }
+
+  .chip { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .06em;
+          padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
+  .chip.keep { background: var(--accent-soft); color: var(--accent); }
+  .chip.fix { background: var(--leak-soft); color: var(--leak); }
+  .chip.add { background: var(--amber-soft); color: var(--amber); }
+  .chip.hide { background: var(--code-bg); color: var(--muted); }
+
+  .callout { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent);
+             border-radius: 6px; padding: 16px 20px; margin: 18px 0; box-shadow: var(--shadow); }
+  .callout.pain { border-left-color: var(--leak); }
+  .callout .label { font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: var(--leak); }
+  .callout.good .label { color: var(--accent); }
+  .callout p:first-of-type { margin-top: .4em; }
+
+  .evidence { font-family: Consolas, "Cascadia Mono", monospace; font-size: .8rem; line-height: 1.7;
+              background: var(--code-bg); border-radius: 6px; padding: 14px 18px; overflow-x: auto; margin: 12px 0; }
+  .evidence .cm { color: var(--muted); }
+  .evidence .hl { color: var(--leak); font-weight: 600; }
+
+  .diagram-box { background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+                 padding: 12px; margin: 20px 0; overflow-x: auto; box-shadow: var(--shadow); }
+  .diagram-box svg { display: block; min-width: 880px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: .78rem; color: var(--muted); padding: 8px 6px 2px; }
+  .legend i { display: inline-block; width: 22px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+
+  .plan { display: grid; gap: 12px; margin: 18px 0; }
+  .plan .move { background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+                padding: 16px 20px; box-shadow: var(--shadow); }
+  .plan .move.p0 { border-left: 4px solid var(--accent); }
+  .plan .move.p1 { border-left: 4px solid var(--amber); }
+  .plan .move.p2 { border-left: 4px solid var(--line); }
+  .plan .tag { font-size: .7rem; font-weight: 700; letter-spacing: .1em; color: var(--muted); }
+  .plan .move.p0 .tag { color: var(--accent); }
+  .plan .move.p1 .tag { color: var(--amber); }
+  .plan h3 { margin: .2em 0 .3em; }
+  .plan p { margin: .3em 0; font-size: .92rem; }
+
+  .ladder { list-style: none; padding: 0; margin: 14px 0; }
+  .ladder li { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+  .ladder .lvl { font-family: Georgia, serif; font-size: 1.1rem; color: var(--accent); min-width: 2.2em; }
+
+  footer { margin-top: 70px; padding-top: 16px; border-top: 1px solid var(--line);
+           color: var(--muted); font-size: .78rem; }
+  @media (max-width: 640px) { h1 { font-size: 1.7rem; } body { padding: 0 14px 60px; } }
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">Эволюционный разбор · область 2 из 5 · hometutor</div>
+  <h1>Первые 10 минут</h1>
+  <p class="subtitle">Онбординг и time-to-first-insight: от первого запуска до первого
+  заземлённого ответа. Каждое утверждение проверено по коду.</p>
+</header>
+
+<div class="meta">
+  <span>Коммит <b>60b55f3</b> (HEAD) + незакоммиченная работа по A2</span>
+  <span>Дата <b>2026-07-11</b></span>
+  <span>Дверей первого запуска <b>3</b>, к первому обзору ведут <b>0</b></span>
+  <span>Уровней LLM-fallback <b>2</b>, включено по умолчанию <b>0</b></span>
+</div>
+
+<div class="series">
+  <span class="card done"><span class="rank">№1</span>Судьба одного знания — выполнен ✓</span>
+  <span class="card here"><span class="rank">№2</span>Первые 10 минут <b>(этот разбор)</b></span>
+  <span class="card"><span class="rank">№3</span>Материал как продукт</span>
+  <span class="card"><span class="rank">№4</span>Агент как одна кнопка</span>
+  <span class="card"><span class="rank">№5</span>Доверие под нагрузкой</span>
+</div>
+
+<!-- ======================= 1 СУТЬ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 1 · Суть</div>
+  <h2>Чего по-настоящему хочет новый студент в первые 10 минут</h2>
+  <p class="lede">Не «настроить систему» и не «пройти тур». Он хочет одного доказательства:
+  <em>мои материалы оживают</em>. Момент, когда система отвечает по его собственному
+  конспекту и показывает, откуда взяла ответ, — это и есть первый инсайт. Всё до этого
+  момента — долг, всё после — доверие.</p>
+  <p>Три первых принципа: <b>ценность до конфигурации</b> (цели, уровни, туры — после
+  первого ответа), <b>ни одного тупика</b> (из любого состояния есть следующий шаг)
+  и <b>обещания исполняются немедленно</b> — интерфейс первого дня не имеет права
+  говорить «готовится», если ничего не готовится: новичку не с чем сравнить,
+  он верит буквально.</p>
+</section>
+
+<!-- ======================= 2 РЕАЛЬНОСТЬ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 2 · Реальность</div>
+  <h2>Онбординг построен дважды — и слои не пересекаются</h2>
+  <p>Инвентаризация удивляет: недостатка онбординга нет, есть <b>изобилие несоединённого</b>.
+  Слой «обещаний» (двери, hero, туры) и слой «исполнения» (пути на диске, билдер артефактов,
+  LLM-стек) разрабатывались с любовью — но смотрят в разные папки.</p>
+
+  <div class="diagram-box">
+  <svg viewBox="0 0 960 470" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Диаграмма путей первого запуска">
+    <defs>
+      <marker id="mA2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0L10 5L0 10z" style="fill:var(--accent)"/>
+      </marker>
+      <marker id="mG2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0L10 5L0 10z" style="fill:var(--muted)"/>
+      </marker>
+      <marker id="mL2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0L10 5L0 10z" style="fill:var(--leak)"/>
+      </marker>
+    </defs>
+    <style>
+      .colhead2 { font: 700 11px "Segoe UI", sans-serif; letter-spacing: .12em; fill: var(--muted); }
+      .box2 { fill: var(--surface); stroke: var(--line); }
+      .boxT2 { font: 600 13px "Segoe UI", sans-serif; fill: var(--ink); }
+      .boxS2 { font: 11px "Segoe UI", sans-serif; fill: var(--muted); }
+      .boxM2 { font: 11px Consolas, monospace; fill: var(--muted); }
+      .flowA2 { stroke: var(--accent); stroke-width: 2; fill: none; }
+      .flowL2 { stroke: var(--leak); stroke-width: 2; fill: none; stroke-dasharray: 6 5; }
+      .flowG2 { stroke: var(--muted); stroke-width: 1.3; fill: none; opacity: .75; }
+      .leakX2 { font: 700 15px "Segoe UI", sans-serif; fill: var(--leak); }
+      .note2 { font: italic 11px Georgia, serif; fill: var(--leak); }
+      .noteA2 { font: italic 11px Georgia, serif; fill: var(--accent); }
+    </style>
+
+    <text x="18" y="20" class="colhead2">ДВЕРИ ПЕРВОГО ЗАПУСКА</text>
+    <text x="360" y="20" class="colhead2">КУДА ПАДАЮТ МАТЕРИАЛЫ</text>
+    <text x="672" y="20" class="colhead2">БИЛДЕР ПЕРВОГО ОБЗОРА</text>
+
+    <!-- doors -->
+    <rect class="box2" x="14" y="36" width="250" height="56" rx="6"/>
+    <text class="boxT2" x="26" y="59">«Попробовать демо»</text>
+    <text class="boxS2" x="26" y="77">7 файлов, 20 КБ — за один клик</text>
+
+    <rect class="box2" x="14" y="126" width="250" height="56" rx="6"/>
+    <text class="boxT2" x="26" y="149">«Загрузить файлы»</text>
+    <text class="boxS2" x="26" y="167">md · txt · pdf · docx · html</text>
+
+    <rect class="box2" x="14" y="216" width="250" height="56" rx="6"/>
+    <text class="boxT2" x="26" y="239">«У меня уже есть папка»</text>
+    <text class="boxS2" x="26" y="257">+ так же советует quickstart.md</text>
+
+    <!-- targets -->
+    <rect class="box2" x="360" y="36" width="230" height="50" rx="6"/>
+    <text class="boxM2" x="372" y="57">data/demo/</text>
+    <text class="boxS2" x="372" y="74">demo_sandbox.py:22</text>
+
+    <rect class="box2" x="360" y="126" width="230" height="50" rx="6"/>
+    <text class="boxM2" x="372" y="147">data/uploads/</text>
+    <text class="boxS2" x="372" y="164">demo_sandbox.py:96</text>
+
+    <rect class="box2" x="360" y="216" width="230" height="50" rx="6"/>
+    <text class="boxM2" x="372" y="237">data/  (корень)</text>
+    <text class="boxS2" x="372" y="254">quickstart.md:66</text>
+
+    <rect class="box2" x="360" y="330" width="230" height="50" rx="6" style="stroke-dasharray:4 4"/>
+    <text class="boxM2" x="372" y="351">data/docs/&lt;курс&gt;/</text>
+    <text class="boxS2" x="372" y="368">сюда не ведёт ни одна дверь</text>
+
+    <!-- builder -->
+    <rect class="box2" x="672" y="300" width="274" height="110" rx="6"/>
+    <text class="boxT2" x="684" y="324">run_first_session_precompute_tail</text>
+    <text class="boxM2" x="684" y="343">docs_root = DATA_DIR / "docs"</text>
+    <text class="boxS2" x="684" y="362">ingestion_index_full.py:356</text>
+    <text class="boxS2" x="684" y="379">ingestion_index_partial.py:272</text>
+    <text class="boxS2" x="684" y="396">единственный писатель артефакта</text>
+
+    <!-- result -->
+    <rect class="box2" x="672" y="36" width="274" height="86" rx="6" style="stroke:var(--leak)"/>
+    <text class="boxT2" x="684" y="60">Mission Control (hero)</text>
+    <text class="boxS2" x="684" y="79">«Первый обзор курса готовится —</text>
+    <text class="boxS2" x="684" y="96">ниже есть подсказка, с чего начать»</text>
+    <text class="note2" x="684" y="113">…и не приходит никогда</text>
+
+    <!-- flows doors -> dirs -->
+    <path class="flowA2" d="M264 64 C 310 62, 320 61, 356 61" marker-end="url(#mA2)"/>
+    <path class="flowA2" d="M264 154 C 310 152, 320 151, 356 151" marker-end="url(#mA2)"/>
+    <path class="flowA2" d="M264 244 C 310 242, 320 241, 356 241" marker-end="url(#mA2)"/>
+
+    <!-- builder scans only docs -->
+    <path class="flowG2" d="M668 355 C 640 355, 620 355, 594 355" marker-end="url(#mG2)"/>
+    <text class="noteA2" x="600" y="342" text-anchor="end">сканирует только это</text>
+
+    <!-- leaks: dirs not scanned -->
+    <path class="flowL2" d="M594 61 C 630 64, 640 70, 664 76" marker-end="url(#mL2)"/>
+    <text class="leakX2" x="640" y="58">✕</text>
+    <path class="flowL2" d="M594 151 C 626 151, 640 145, 664 110" marker-end="url(#mL2)"/>
+    <text class="leakX2" x="640" y="146">✕</text>
+    <path class="flowL2" d="M594 241 C 626 241, 646 200, 668 140" marker-end="url(#mL2)"/>
+    <text class="leakX2" x="640" y="228">✕</text>
+
+    <!-- scope resolver irony -->
+    <rect class="box2" x="672" y="160" width="274" height="86" rx="6"/>
+    <text class="boxT2" x="684" y="184">Резолвер scope для hero</text>
+    <text class="boxM2" x="684" y="203">course_cache.py:861-873</text>
+    <text class="boxS2" x="684" y="222">выводит «курс demo» из путей индекса</text>
+    <text class="boxS2" x="684" y="239">→ hero ждёт артефакт, которого нет</text>
+    <path class="flowG2" d="M809 156 C 809 148, 809 140, 809 126" marker-end="url(#mG2)"/>
+  </svg>
+  <div class="legend">
+    <span><i style="background:var(--accent)"></i>материалы кладутся</span>
+    <span><i style="background:var(--leak); background-image:linear-gradient(90deg, var(--leak) 55%, transparent 55%); background-size:9px 3px;"></i>разрыв — билдер туда не смотрит</span>
+    <span><i style="background:var(--muted)"></i>что читает билдер / hero</span>
+  </div>
+  </div>
+
+  <h3>Инвентаризация: что уже построено</h3>
+  <div class="tablebox">
+  <table>
+    <tr><th>Элемент</th><th>Зачем</th><th>Состояние</th></tr>
+    <tr>
+      <td>Onboarding-диалог (<code>home_hub.py:66</code>)</td>
+      <td>выбор уровня UI, «цель — после первого ответа»</td>
+      <td>идеология «ценность сначала» — образцовая</td>
+    </tr>
+    <tr>
+      <td>Спасение пустого индекса (<code>first_run.py</code>)</td>
+      <td>3 двери: демо / загрузка / своя папка + телеметрия</td>
+      <td>работает; но ведёт мимо билдера обзора</td>
+    </tr>
+    <tr>
+      <td>First-session hero (<code>mission_control_first_session.py</code>)</td>
+      <td>миссия курса + seed-вопросы с черновиками ответов и цитатами</td>
+      <td>коронный актив онбординга; недостижим через двери</td>
+    </tr>
+    <tr>
+      <td>Seed-чипы (<code>seed_questions.py</code>)</td>
+      <td>fallback-вопросы из каталога тем</td>
+      <td>работает — единственное, что реально видит новичок</td>
+    </tr>
+    <tr>
+      <td>Интерактивный тур (<code>tutorial_chapters.py</code>)</td>
+      <td>3 главы по CJM: Discover → Trust → возврат</td>
+      <td>включён чекбоксом до того, как есть материалы</td>
+    </tr>
+    <tr>
+      <td>Wait-UX (<code>qa_wait_ux.py</code>)</td>
+      <td>skeleton, runway-фразы, progressive reveal</td>
+      <td>готов к первому долгому ответу</td>
+    </tr>
+    <tr>
+      <td>Бюджеты латентности (<code>latency_budget.py</code>)</td>
+      <td>5 поверхностей, cold/warm, JSONL-лог</td>
+      <td>query cold: цель 2.5 c, hard 8 c — измеримо</td>
+    </tr>
+    <tr>
+      <td>LLM health-проба (<code>llm_local_health.py</code>)</td>
+      <td>1.5 c проба endpoint при bootstrap + баннер</td>
+      <td>есть, но баннер преуменьшает масштаб (см. Часть 4)</td>
+    </tr>
+    <tr>
+      <td>LLM-fallback (<code>llm_resilience.py</code>)</td>
+      <td>2 уровня подстраховки ответа</td>
+      <td>оба выключены по умолчанию (<code>config.env:70</code>)</td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="callout good">
+    <span class="label">Что уже образцово — не трогать</span>
+    <p><b>«Ценность сначала»</b>: цель обучения спрашивают <em>после</em> первого ответа
+    (<code>render_post_first_answer_goal_prompt</code>), а не анкетой на входе. <b>Три двери</b>
+    с телеметрией выбора (<code>first_run_door_selected</code>). <b>Демо-набор</b> — 7 файлов
+    на 20 КБ: индексация за секунды, песочница помечена баннером и удаляется одной кнопкой.
+    <b>Заготовленный первый обзор</b> (draft-ответы до первого вопроса) — правильный ответ
+    локальному стеку, который не может быть быстрым в холодную.</p>
+  </div>
+</section>
+
+<!-- ======================= 3 ПРОТИВОРЕЧИЯ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 3 · Противоречия</div>
+  <h2>Три напряжения — и синтез для каждого</h2>
+
+  <h3>Мгновенная ценность ↔ тяжёлый локальный стек</h3>
+  <p>Локальная LLM, индексация, холодный старт — честные минуты ожидания. <b>Синтез уже
+  изобретён в этом же коде</b>: first-session артефакт с заготовленными ответами — ценность,
+  вычисленная заранее, во время индексации. Осталось одно: чтобы билдер смотрел туда,
+  куда двери кладут материалы. Не ускорять стек — соединить готовое.</p>
+
+  <h3>Провести за руку ↔ не мешать спасению</h3>
+  <p>Тур запускается чекбоксом в onboarding-диалоге — когда индекс ещё пуст. Его первый шаг
+  уводит в «Быстрый ответ» (<code>tutorial_guide.py:109-113</code>) — прочь с Mission Control,
+  где живёт единственный экран, способный дать новичку материалы. <b>Синтез:</b> тур
+  начинается не с чекбокса, а с события — первого успешного ответа. Глава 1 тура и называется
+  «Первый ответ»: пусть стартует от факта, а не от намерения.</p>
+
+  <h3>Честность о сбоях ↔ не напугать новичка</h3>
+  <p>Если LM Studio не запущена, баннер говорит: «SSR работает в template-режиме» — звучит
+  безобидно. Реальный масштаб: из коробки оба fallback-уровня выключены
+  (<code>enable_llm_fallback=False</code>, <code>HOME_RAG_LLM_FALLBACK_ENABLED=false</code>),
+  и первый же вопрос новичка умрёт по таймауту. <b>Синтез:</b> не тонкая диагностика подсистем,
+  а один преполётный светофор: «что будет работать прямо сейчас: ответы / карточка SSR /
+  индексация» — честно и без жаргона.</p>
+</section>
+
+<!-- ======================= 4 БОЛЬ-ЯКОРЬ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 4 · Боль-якорь</div>
+  <h2>«Первый обзор курса готовится» — и не приходит никогда</h2>
+
+  <div class="callout pain">
+    <span class="label">Точная причина в коде, не в теории</span>
+    <p>Новичок нажимает «Попробовать демо» — единственную кнопку, обещающую «ответы
+    с источниками без подготовки». Дальше происходит вот что:</p>
+  </div>
+
+  <div class="evidence">
+<span class="cm"># Дверь кладёт демо в data/demo (demo_sandbox.py:22-23):</span><br>
+def demo_target_dir() -> Path:  return DATA_DIR / <span class="hl">"demo"</span><br><br>
+<span class="cm"># …а единственный билдер первого обзора сканирует только data/docs</span><br>
+<span class="cm"># (ingestion_index_full.py:356-357, то же в ingestion_index_partial.py:272):</span><br>
+ing_sup.run_first_session_precompute_tail(docs_root=ing.DATA_DIR / <span class="hl">"docs"</span>, …)<br><br>
+<span class="cm"># При этом hero ВЫВОДИТ «курс demo» из путей индекса (course_cache.py:871-873)…</span><br>
+inferred = sorted({path.split("/", 1)[0] for path in files})<br><br>
+<span class="cm"># …и честно обещает (mission_control_first_session.py:216-217):</span><br>
+st.info(<span class="hl">"Первый обзор курса готовится — ниже есть подсказка, с чего начать"</span>)
+  </div>
+
+  <p>Загрузка файлов кладёт их в <code>data/uploads</code>, quickstart советует «положите
+  в <code>data/</code>» — <b>ни одна из трёх дверей и ни одна строка документации не ведёт
+  в <code>data/docs/</code></b>, единственное место, где артефакт первого обзора вообще может
+  родиться (<code>list_course_candidates</code>, <code>course_cache.py:529</code>). Коронный
+  актив онбординга — миссия курса, seed-вопросы с черновиками ответов и цитатами — структурно
+  недостижим через собственные двери продукта. А фраза «готовится» превращает разрыв в
+  невыполненное обещание, которому новичок верит буквально.</p>
+
+  <p>Вторая створка: та же архитектурная болезнь, что в разборах №0 и №1 — <b>два вычисления
+  одной истины</b>. «Что считать курсом» решают два независимых кода: билдер
+  (<code>data/docs</code> + фильтр + ≥3 файла) и hero-резолвер (первый сегмент пути любого
+  индексированного файла). Они дают разные ответы для одного и того же корпуса.</p>
+</section>
+
+<!-- ======================= 5 ВЕРДИКТЫ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 5 · Вердикты</div>
+  <h2>Позиция по каждому элементу</h2>
+  <div class="tablebox">
+  <table>
+    <tr><th>Элемент</th><th>Вердикт</th><th>Почему</th></tr>
+    <tr>
+      <td>Три двери первого запуска + телеметрия</td>
+      <td><span class="chip keep">Оставить</span></td>
+      <td>образцовый rescue-паттерн; чинить надо не двери, а то, куда они ведут</td>
+    </tr>
+    <tr>
+      <td><code>docs_root</code> билдера первого обзора</td>
+      <td><span class="chip fix">Починить</span></td>
+      <td>один резолвер кандидатов для билдера и hero — те же корни, что видит индекс (demo, uploads, корень)</td>
+    </tr>
+    <tr>
+      <td>Сообщение «Первый обзор курса готовится»</td>
+      <td><span class="chip fix">Починить</span></td>
+      <td>не обещать, если сборка не запланирована; дать CTA «Собрать обзор сейчас» или молчать</td>
+    </tr>
+    <tr>
+      <td>Тур чекбоксом в onboarding-диалоге</td>
+      <td><span class="chip hide">Спрятать глубже</span></td>
+      <td>предлагать после первого успешного ответа — его глава 1 именно об этом</td>
+    </tr>
+    <tr>
+      <td>Копирайт LLM-баннера («SSR в template-режиме»)</td>
+      <td><span class="chip fix">Починить</span></td>
+      <td>когда primary chat идёт в тот же endpoint — честно говорить «ответы не будут работать»</td>
+    </tr>
+    <tr>
+      <td>Fallback-дефолты (оба выключены)</td>
+      <td><span class="chip keep">Оставить</span></td>
+      <td>local-first и приватность важнее; но преполётный светофор обязан говорить правду</td>
+    </tr>
+    <tr>
+      <td>Wait-UX, бюджеты латентности, seed-чипы</td>
+      <td><span class="chip keep">Оставить</span></td>
+      <td>готовая механика ожидания и fallback-вопросов; менять нечего</td>
+    </tr>
+    <tr>
+      <td><code>HOME_RAG_HOME=D:\AI\app</code> в <code>local_start.ps1</code></td>
+      <td><span class="chip fix">Починить</span></td>
+      <td>машино-специфичный путь автора падает на чистом клоне — задокументированная растяжка (quickstart.md:68)</td>
+    </tr>
+    <tr>
+      <td>Метрика time-to-first-insight</td>
+      <td><span class="chip add">Добавить</span></td>
+      <td>событий достаточно (двери, latency budget), нет только события «первый заземлённый ответ»</td>
+    </tr>
+  </table>
+  </div>
+</section>
+
+<!-- ======================= 6 ЦЕННОСТЬ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 6 · Ценность</div>
+  <h2>TTFI — время до первого инсайта, измеримое уже сейчас</h2>
+  <p>Уникальность hometutor в первые 10 минут: <b>первый инсайт из собственных материалов,
+  локально, без аккаунтов и облака</b>. Ни ChatGPT (нет твоего корпуса), ни NotebookLM
+  (нет локальности), ни Anki (нет ответов) этого момента не дают. Доказательство — метрика
+  TTFI: время от первого запуска до первого ответа с непустыми источниками.</p>
+  <div class="tablebox">
+  <table>
+    <tr><th>Сигнал</th><th>Есть сейчас</th><th>Не хватает</th></tr>
+    <tr><td>Выбор двери</td><td><code>first_run_door_selected</code> (ui_events)</td><td>—</td></tr>
+    <tr><td>Завершение онбординга</td><td><code>onboarding_completed</code> + ui_level</td><td>—</td></tr>
+    <tr><td>Латентность ответа</td><td><code>latency_budget.jsonl</code> по 5 поверхностям</td><td>—</td></tr>
+    <tr><td>Первый заземлённый ответ</td><td style="color:var(--leak)"><b>события нет</b></td><td><code>first_grounded_answer</code> + TTFI = разница таймстампов</td></tr>
+  </table>
+  </div>
+  <p>North star: медиана TTFI через демо-дверь ≤ 3 минут; через собственные материалы
+  ≤ 10 минут на чистой машине. Порог провала: новичок завершил онбординг, но за первую
+  сессию не получил ни одного ответа с источником.</p>
+</section>
+
+<!-- ======================= 7 ПУТЬ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 7 · Путь</div>
+  <h2>Один золотой путь и лестница уровней</h2>
+  <p class="lede">Запуск → 30-секундный онбординг (только уровень интерфейса) → пустой
+  индекс → дверь «Демо» → индексация с прогрессом (секунды: 20 КБ) → hero с миссией
+  и seed-вопросами <em>(после P0 он реально строится)</em> → клик по seed-вопросу →
+  wait-UX → <b>первый ответ с источником</b> → «Подстроить объяснения под вас?» →
+  предложение тура. Ни одного тупика, ни одного невыполненного обещания.</p>
+  <ul class="ladder">
+    <li><span class="lvl">L0</span><span>Демо-инсайт: первый ответ с источником из демо-набора (≤ 3 мин)</span></li>
+    <li><span class="lvl">L1</span><span>Свой материал загружен и проиндексирован — «оно читает мои конспекты»</span></li>
+    <li><span class="lvl">L2</span><span>Первый ответ по собственному материалу — настоящий первый инсайт</span></li>
+    <li><span class="lvl">L3</span><span>Курс активирован — появляются обзор курса, scope и cockpit</span></li>
+    <li><span class="lvl">L4</span><span>Первая проверка пройдена — знание оставило след (мост к петле памяти, разбор №1)</span></li>
+  </ul>
+</section>
+
+<!-- ======================= 8 ПЛАН ======================= -->
+<section class="part">
+  <div class="partnum">Часть 8 · План</div>
+  <h2>P0–P2 по соотношению «эффект / усилие»</h2>
+  <div class="plan">
+    <div class="move p0">
+      <span class="tag">P0 · ХОД 1</span>
+      <h3>Один резолвер кандидатов — билдер видит то же, что hero</h3>
+      <p>Кандидаты первого обзора вычисляются тем же кодом, что и scope hero
+      (первый сегмент индексированных путей + фильтр техпапок), а не отдельным
+      сканом <code>data/docs</code>. Демо- и upload-двери впервые приводят к
+      заготовленному обзору с seed-вопросами. Коронный актив включается для 100% дверей.</p>
+    </div>
+    <div class="move p0">
+      <span class="tag">P0 · ХОД 2</span>
+      <h3>Честный статус вместо «готовится»</h3>
+      <p>Если артефакта нет и сборка не запланирована — hero не обещает: либо молчит
+      (seed-чипы уже дают следующий шаг), либо показывает CTA «Собрать первый обзор»
+      с запуском сборки для активного scope. Обещание = запланированное действие.</p>
+    </div>
+    <div class="move p1">
+      <span class="tag">P1</span>
+      <h3>Тур после первого ответа + преполётный светофор + метрика TTFI</h3>
+      <p>Чекбокс тура из onboarding-диалога переезжает в предложение после первого
+      успешного ответа. LLM-баннер говорит правду о масштабе («ответы не будут работать»),
+      одна строка-светофор. Событие <code>first_grounded_answer</code> и TTFI из
+      существующих таймстампов.</p>
+    </div>
+    <div class="move p2">
+      <span class="tag">P2</span>
+      <h3>Чистая машина без растяжек + замороженный демо-обзор</h3>
+      <p><code>local_start.ps1</code> перестаёт зависеть от пути машины автора.
+      Демо-курс поставляется с готовым артефактом первого обзора в репозитории —
+      hero мгновенен даже без единого вызова LLM.</p>
+    </div>
+  </div>
+  <p>Планка неизменна: гениальность — в простоте. P0 не строит ничего нового — он соединяет
+  два перфекционистски сделанных слоя онбординга, которые сегодня смотрят в разные папки
+  одного диска.</p>
+</section>
+
+<footer>
+  Эволюционный разбор №2 из 5 · hometutor @ 60b55f3 (+ незакоммиченный A2 в mission_control,
+  не влияет на выводы) · 2026-07-11 · все файлы и строки проверены по текущему коду:
+  demo_sandbox.py:22/96, ingestion_index_full.py:356, ingestion_index_partial.py:272,
+  ingestion_support.py:258, course_cache.py:529/861-913, mission_control_first_session.py:216,
+  first_run.py:46, home_hub.py:66/110, tutorial_guide.py:109-113, tutorial_chapters.py:32,
+  llm_local_banner.py:37, llm_local_health.py:27, llm_resilience.py:38, config.py:230,
+  config.env:70, latency_budget.py:23, qa_wait_ux.py, docs/quickstart.md:66-68.
+</footer>
+
+</div>

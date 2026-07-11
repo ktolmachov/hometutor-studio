@@ -1,0 +1,521 @@
+<title>Материал как продукт — разбор №3 из 5 · hometutor</title>
+<style>
+  :root {
+    --bg: #F5F7F6; --surface: #FFFFFF; --ink: #1C2622; --muted: #5C6B65;
+    --line: #DDE4E1; --accent: #14705F; --accent-soft: #E3F0EC;
+    --leak: #B3492A; --leak-soft: #F7E8E2; --amber: #9A6B15; --amber-soft: #F5EDDC;
+    --code-bg: #EDF1EF; --shadow: 0 1px 3px rgba(28,38,34,.07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101715; --surface: #17201D; --ink: #E3EAE6; --muted: #93A39C;
+      --line: #2A3630; --accent: #4CC2A8; --accent-soft: #16302A;
+      --leak: #E08663; --leak-soft: #33201A; --amber: #D9A94E; --amber-soft: #2E2618;
+      --code-bg: #1E2A26; --shadow: 0 1px 3px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101715; --surface: #17201D; --ink: #E3EAE6; --muted: #93A39C;
+    --line: #2A3630; --accent: #4CC2A8; --accent-soft: #16302A;
+    --leak: #E08663; --leak-soft: #33201A; --amber: #D9A94E; --amber-soft: #2E2618;
+    --code-bg: #1E2A26; --shadow: 0 1px 3px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"] {
+    --bg: #F5F7F6; --surface: #FFFFFF; --ink: #1C2622; --muted: #5C6B65;
+    --line: #DDE4E1; --accent: #14705F; --accent-soft: #E3F0EC;
+    --leak: #B3492A; --leak-soft: #F7E8E2; --amber: #9A6B15; --amber-soft: #F5EDDC;
+    --code-bg: #EDF1EF; --shadow: 0 1px 3px rgba(28,38,34,.07);
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 16px/1.65 "Segoe UI", system-ui, -apple-system, sans-serif;
+    margin: 0; padding: 0 20px 80px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; font-weight: 600; text-wrap: balance; }
+  h1 { font-size: 2.3rem; line-height: 1.2; margin: .3em 0 .2em; }
+  h2 { font-size: 1.55rem; line-height: 1.25; margin: 0 0 .5em; }
+  h3 { font-size: 1.12rem; margin: 1.4em 0 .4em; }
+  p { margin: .7em 0; max-width: 68ch; }
+  code, .path {
+    font-family: Consolas, "Cascadia Mono", monospace; font-size: .86em;
+    background: var(--code-bg); padding: .1em .35em; border-radius: 3px; white-space: nowrap;
+  }
+  .eyebrow {
+    font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); font-weight: 600; margin-bottom: .4em;
+  }
+  header.top { padding: 56px 0 8px; border-bottom: 2px solid var(--ink); margin-bottom: 8px; }
+  .subtitle { color: var(--muted); font-size: 1.05rem; max-width: 62ch; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px 22px; color: var(--muted); font-size: .82rem; padding: 14px 0 26px; }
+  .meta b { color: var(--ink); font-weight: 600; }
+
+  .series { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 6px; }
+  .series span.card {
+    display: block; flex: 1 1 140px; min-width: 140px;
+    border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px;
+    background: var(--surface); color: var(--muted); font-size: .8rem; line-height: 1.4;
+  }
+  .series .here { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); }
+  .series .done { border-style: dashed; }
+  .series .rank { font-family: Georgia, serif; font-size: 1.15rem; color: var(--accent); display: block; }
+
+  section.part { margin-top: 56px; }
+  .partnum {
+    font-family: Georgia, serif; font-style: italic; font-size: .95rem;
+    color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; margin-bottom: 4px;
+  }
+  .lede { font-size: 1.13rem; line-height: 1.6; }
+
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 14px 0; }
+  th { text-align: left; font-size: .72rem; letter-spacing: .09em; text-transform: uppercase;
+       color: var(--muted); font-weight: 600; padding: 8px 12px 6px; border-bottom: 2px solid var(--line); }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .tablebox { overflow-x: auto; }
+
+  .chip { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .06em;
+          padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
+  .chip.keep { background: var(--accent-soft); color: var(--accent); }
+  .chip.fix { background: var(--leak-soft); color: var(--leak); }
+  .chip.add { background: var(--amber-soft); color: var(--amber); }
+  .chip.hide { background: var(--code-bg); color: var(--muted); }
+
+  .callout { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent);
+             border-radius: 6px; padding: 16px 20px; margin: 18px 0; box-shadow: var(--shadow); }
+  .callout.pain { border-left-color: var(--leak); }
+  .callout .label { font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: var(--leak); }
+  .callout.good .label { color: var(--accent); }
+  .callout p:first-of-type { margin-top: .4em; }
+
+  .evidence { font-family: Consolas, "Cascadia Mono", monospace; font-size: .8rem; line-height: 1.7;
+              background: var(--code-bg); border-radius: 6px; padding: 14px 18px; overflow-x: auto; margin: 12px 0; }
+  .evidence .cm { color: var(--muted); }
+  .evidence .hl { color: var(--leak); font-weight: 600; }
+
+  .diagram-box { background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+                 padding: 12px; margin: 20px 0; overflow-x: auto; box-shadow: var(--shadow); }
+  .diagram-box svg { display: block; min-width: 880px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: .78rem; color: var(--muted); padding: 8px 6px 2px; }
+  .legend i { display: inline-block; width: 22px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+
+  .plan { display: grid; gap: 12px; margin: 18px 0; }
+  .plan .move { background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+                padding: 16px 20px; box-shadow: var(--shadow); }
+  .plan .move.p0 { border-left: 4px solid var(--accent); }
+  .plan .move.p1 { border-left: 4px solid var(--amber); }
+  .plan .move.p2 { border-left: 4px solid var(--line); }
+  .plan .tag { font-size: .7rem; font-weight: 700; letter-spacing: .1em; color: var(--muted); }
+  .plan .move.p0 .tag { color: var(--accent); }
+  .plan .move.p1 .tag { color: var(--amber); }
+  .plan h3 { margin: .2em 0 .3em; }
+  .plan p { margin: .3em 0; font-size: .92rem; }
+
+  .ladder { list-style: none; padding: 0; margin: 14px 0; }
+  .ladder li { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+  .ladder .lvl { font-family: Georgia, serif; font-size: 1.1rem; color: var(--accent); min-width: 2.2em; }
+
+  footer { margin-top: 70px; padding-top: 16px; border-top: 1px solid var(--line);
+           color: var(--muted); font-size: .78rem; }
+  @media (max-width: 640px) { h1 { font-size: 1.7rem; } body { padding: 0 14px 60px; } }
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">Эволюционный разбор · область 3 из 5 · hometutor</div>
+  <h1>Материал как продукт</h1>
+  <p class="subtitle">Конспект, граф знаний, таймкоды: как сырая лекция становится живым
+  учебником — и где доказательства качества не доходят до студента. Каждое утверждение
+  проверено по коду.</p>
+</header>
+
+<div class="meta">
+  <span>Коммит <b>60b55f3</b> (HEAD)</span>
+  <span>Дата <b>2026-07-11</b></span>
+  <span>Производственных линий <b>3</b></span>
+  <span>Проверок в гейте графа <b>10</b></span>
+  <span>Паспортов качества <b>5</b>, общая обложка <b>0</b></span>
+</div>
+
+<div class="series">
+  <span class="card done"><span class="rank">№1</span>Судьба одного знания — выполнен ✓</span>
+  <span class="card done"><span class="rank">№2</span>Первые 10 минут — выполнен ✓</span>
+  <span class="card here"><span class="rank">№3</span>Материал как продукт <b>(этот разбор)</b></span>
+  <span class="card"><span class="rank">№4</span>Агент как одна кнопка</span>
+  <span class="card"><span class="rank">№5</span>Доверие под нагрузкой</span>
+</div>
+
+<!-- ======================= 1 СУТЬ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 1 · Суть</div>
+  <h2>Чего по-настоящему хочет студент от своего материала</h2>
+  <p class="lede">Не «файлов в индексе» и не «графа». Студент хочет, чтобы его лекции
+  стали <em>живым учебником</em>: который отвечает, проверяет, помнит — и возвращает
+  в точное место (раздел · строка · таймкод). Материал как продукт — это превращение
+  сырца в организм, которому можно доверять.</p>
+  <p>Отсюда два первых принципа. <b>Карта обязана соответствовать территории</b>: если граф
+  врёт или отстаёт от индекса, рушится всё, что построено выше — маршрутизация, план,
+  mastery. И <b>честность лучше покрытия</b> — этот принцип в коде уже победил дважды
+  (гейт графа, alignment v3.4: «честное отсутствие таймкода лучше уверенного промаха»),
+  но честность пока живёт в сайдкарах и логах, не доходя до студента.</p>
+</section>
+
+<!-- ======================= 2 РЕАЛЬНОСТЬ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 2 · Реальность</div>
+  <h2>Три производственные линии и пять паспортов качества</h2>
+  <p>Материал производят три независимые линии — и у каждой свой инструмент честности,
+  живущий в своём углу.</p>
+
+  <div class="tablebox">
+  <table>
+    <tr><th>Линия</th><th>Что производит</th><th>Кто запускает</th><th>Паспорт качества</th></tr>
+    <tr>
+      <td><b>A · In-app</b><br><span style="color:var(--muted);font-size:.85em">reindex</span></td>
+      <td>чанки + гибридный индекс; граф через компилятор с гейтом; first-session артефакт</td>
+      <td>приложение, автоматически</td>
+      <td><code>graph_quality_report.json</code> в бандле + publish status во вкладке графа</td>
+    </tr>
+    <tr>
+      <td><b>B · Offline</b><br><span style="color:var(--muted);font-size:.85em">operator</span></td>
+      <td>ASR-транскрипт → smart-конспект (LLM, sha256 входов во frontmatter) → media-sidecar с таймкодами (anchor-lis-v3.4)</td>
+      <td>владелец, PowerShell-скриптами (<code>Run-MediaKonspektBatch.ps1</code>)</td>
+      <td>confidence + честное покрытие в <code>.media.json</code></td>
+    </tr>
+    <tr>
+      <td><b>C · Student</b><br><span style="color:var(--muted);font-size:.85em">living</span></td>
+      <td>Живой конспект: корзина → артефакт с манифестом (round-trip, ADR-0004), video citations</td>
+      <td>студент, в UI</td>
+      <td>konspekt coverage (topics tab) + артефакт-манифест</td>
+    </tr>
+  </table>
+  </div>
+
+  <p>Ещё два инструмента качества вне линий: <b>source readiness</b> (триаж сырых файлов:
+  нативный ли PDF, нужен ли docling — <code>source_readiness.py</code>, отдаётся через API)
+  и <b>аудит дубликатов концептов</b> (<code>knowledge_graph_audit.py</code>) — который
+  запускается <em>только</em> ручным скриптом <code>rebuild_knowledge_graph.py</code>,
+  никогда при штатном реиндексе.</p>
+
+  <h3>Гейт графа: десять проверок перед публикацией</h3>
+  <p>Компилятор графа (<code>course_graph_compiler.py:699</code>) не публикует бандл, пока
+  не пройдены все проверки: ≥3 документов, ≥12 концептов, ≥10 семантических связей,
+  ≥3 междокументных, <b>100% концептов и связей с evidence</b>, ≤25% сирот, 0 висячих
+  ссылок, 0 циклов prerequisites, 0 filename-fallback узлов, 100% документов участвуют.
+  Провал любой — бандл остаётся в staging, активным продолжает служить предыдущий граф.</p>
+
+  <div class="diagram-box">
+  <svg viewBox="0 0 960 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Диаграмма рассинхронизации индекса и графа">
+    <defs>
+      <marker id="mA3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0L10 5L0 10z" style="fill:var(--accent)"/>
+      </marker>
+      <marker id="mL3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0L10 5L0 10z" style="fill:var(--leak)"/>
+      </marker>
+    </defs>
+    <style>
+      .box3 { fill: var(--surface); stroke: var(--line); }
+      .box3g { fill: var(--surface); stroke: var(--accent); }
+      .box3r { fill: var(--surface); stroke: var(--leak); }
+      .boxT3 { font: 600 13px "Segoe UI", sans-serif; fill: var(--ink); }
+      .boxS3 { font: 11px "Segoe UI", sans-serif; fill: var(--muted); }
+      .boxM3 { font: 11px Consolas, monospace; fill: var(--muted); }
+      .flowA3 { stroke: var(--accent); stroke-width: 2; fill: none; }
+      .flowL3 { stroke: var(--leak); stroke-width: 2; fill: none; stroke-dasharray: 6 5; }
+      .lblA3 { font: italic 11px Georgia, serif; fill: var(--accent); }
+      .lblL3 { font: italic 11px Georgia, serif; fill: var(--leak); }
+    </style>
+
+    <!-- reindex -->
+    <rect class="box3" x="14" y="190" width="180" height="66" rx="6"/>
+    <text class="boxT3" x="26" y="216">Реиндекс курса</text>
+    <text class="boxS3" x="26" y="234">добавлена лекция 6</text>
+
+    <!-- index -->
+    <rect class="box3g" x="250" y="42" width="230" height="62" rx="6"/>
+    <text class="boxT3" x="262" y="66">Индекс (чанки)</text>
+    <text class="boxS3" x="262" y="84">активируется всегда</text>
+
+    <!-- compiler + gate -->
+    <rect class="box3" x="250" y="300" width="230" height="72" rx="6"/>
+    <text class="boxT3" x="262" y="324">Граф-компилятор → гейт</text>
+    <text class="boxS3" x="262" y="342">10 проверок качества</text>
+    <text class="boxM3" x="262" y="359">course_graph_compiler.py:699</text>
+
+    <!-- pass -->
+    <rect class="box3g" x="536" y="230" width="200" height="62" rx="6"/>
+    <text class="boxT3" x="548" y="254">Promote в активный</text>
+    <text class="boxS3" x="548" y="272">граф-бандл поколения</text>
+
+    <!-- fail -->
+    <rect class="box3r" x="536" y="352" width="200" height="76" rx="6"/>
+    <text class="boxT3" x="548" y="376">Promote skip</text>
+    <text class="boxM3" x="548" y="394">только строка в логе:</text>
+    <text class="boxM3" x="548" y="410">knowledge_graph_promote_skip</text>
+
+    <!-- surfaces -->
+    <rect class="box3g" x="760" y="42" width="186" height="62" rx="6"/>
+    <text class="boxT3" x="772" y="66">Быстрый ответ</text>
+    <text class="boxS3" x="772" y="84">лекция 6 уже отвечает ✓</text>
+
+    <rect class="box3" x="760" y="266" width="186" height="96" rx="6"/>
+    <text class="boxT3" x="772" y="290">Карта · План · SSR</text>
+    <text class="boxS3" x="772" y="308">живут по графу</text>
+    <text class="boxS3" x="772" y="325">gate ✓: лекция 6 на карте</text>
+    <text class="boxS3" x="772" y="342" style="fill:var(--leak)">gate ✗: лекции 6 нет — молча</text>
+
+    <!-- flows -->
+    <path class="flowA3" d="M194 208 C 220 190, 220 90, 246 76" marker-end="url(#mA3)"/>
+    <path class="flowA3" d="M194 238 C 220 250, 220 330, 246 334" marker-end="url(#mA3)"/>
+    <path class="flowA3" d="M480 70 C 640 70, 680 70, 756 70" marker-end="url(#mA3)"/>
+
+    <path class="flowA3" d="M480 318 C 500 310, 510 280, 532 264" marker-end="url(#mA3)"/>
+    <text class="lblA3" x="484" y="286">гейт пройден</text>
+    <path class="flowL3" d="M480 350 C 500 358, 510 380, 532 386" marker-end="url(#mL3)"/>
+    <text class="lblL3" x="450" y="398">гейт провален /</text>
+    <text class="lblL3" x="450" y="412">LLM недоступна</text>
+
+    <path class="flowA3" d="M736 258 C 748 250, 750 300, 756 300" marker-end="url(#mA3)"/>
+    <path class="flowL3" d="M736 388 C 750 384, 752 360, 756 350" marker-end="url(#mL3)"/>
+    <text class="lblL3" x="700" y="446">витрины продолжают жить по предыдущему графу</text>
+  </svg>
+  <div class="legend">
+    <span><i style="background:var(--accent)"></i>штатный путь</span>
+    <span><i style="background:var(--leak); background-image:linear-gradient(90deg, var(--leak) 55%, transparent 55%); background-size:9px 3px;"></i>молчаливая рассинхронизация</span>
+  </div>
+  </div>
+
+  <div class="callout good">
+    <span class="label">Что уже образцово — не трогать</span>
+    <p><b>Gate-before-promote</b> — редкая дисциплина: непроверенный граф физически не может
+    стать активным (<code>graph_generation_paths.py:49</code>), а heuristic-fallback честно
+    помечает себя «gate не пройден». <b>Alignment v3.4</b>: медианная ошибка таймкодов
+    233с → 86с, честное покрытие (объединение интервалов), «одинокий слабый якорь»
+    отбрасывается. <b>Провенанс конспекта</b>: sha256 входов во frontmatter. <b>Концепты
+    с evidence</b>: гейт требует 100% привязки к chunk_ids — каждый узел карты знает своё
+    место в тексте. <b>Fail reasons уже локализованы</b> («Мало междокументных связей») —
+    материал для честного статуса готов, он просто не доходит до витрин.</p>
+  </div>
+</section>
+
+<!-- ======================= 3 ПРОТИВОРЕЧИЯ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 3 · Противоречия</div>
+  <h2>Три напряжения — и синтез для каждого</h2>
+
+  <h3>Честность ↔ покрытие</h3>
+  <p>Гейт строг: курс из 1–2 документов <em>никогда</em> не получит семантическую карту
+  (порог <code>min_documents ≥ 3</code>), любой из 10 провалов блокирует публикацию целиком.
+  Это правильно — но для студента выглядит как беспричинное отсутствие. <b>Синтез:</b> не
+  ослаблять гейт, а превратить порог в лестницу: «добавьте третий документ — появится
+  семантическая карта». Fail reasons уже написаны по-русски; им не хватает только сцены.</p>
+
+  <h3>Автоматика ↔ операторская линия</h3>
+  <p>Конспекты и таймкоды рождаются вне приложения (PowerShell + CUDA), граф — внутри,
+  аудит дубликатов — в третьем, ручном скрипте. <b>Синтез:</b> не втаскивать ASR в
+  приложение — операторская линия легитимна. Объединять надо не производство, а
+  <em>витрину</em>: один «паспорт материала», агрегирующий готовые сайдкары всех линий.</p>
+
+  <h3>Свежесть ↔ стабильность</h3>
+  <p>При провале гейта система выбирает стабильность: индекс новый, граф старый. Выбор
+  верный — но молчаливый: рассинхронизация фиксируется одной строкой в логе. <b>Синтез:</b>
+  рассинхронизация — это <em>статус материала</em>, а не деталь вкладки графа. Карта может
+  отставать от территории, но студент должен видеть, на сколько.</p>
+</section>
+
+<!-- ======================= 4 БОЛЬ-ЯКОРЬ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 4 · Боль-якорь</div>
+  <h2>«Лекция уже отвечает — а на карте знаний её нет, и никто не сказал почему»</h2>
+
+  <div class="callout pain">
+    <span class="label">Точная причина в коде, не в теории</span>
+    <p>Студент добавил лекцию 6 и переиндексировал. Быстрый ответ по ней работает.
+    Карта, план и маршрутизация — нет:</p>
+  </div>
+
+  <div class="evidence">
+<span class="cm"># Развилка качества в момент реиндекса (knowledge_graph.py:947):</span><br>
+use_compiler = graph_llm_probe_ok()  <span class="cm"># LLM недоступна → эвристика</span><br><br>
+<span class="cm"># Эвристика честно не проходит гейт (knowledge_graph_bundle.py:303-310):</span><br>
+"gate_passed": <span class="hl">False</span>, "fail_reasons": ["Heuristic fallback path — semantic gate не пройден"]<br><br>
+<span class="cm"># Promote пропускается — след остаётся только в логе (graph_generation_paths.py:49-54):</span><br>
+if not staging_bundle_gate_allows_promote(...):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;logger.info(<span class="hl">"knowledge_graph_promote_skip | reason=gate_not_passed"</span>)<br><br>
+<span class="cm"># Активным продолжает служить граф предыдущего поколения (knowledge_graph.py:999-1022)</span>
+  </div>
+
+  <p>Единственное место, где об этом узнаёт человек, — вкладка графа, глубоко и на языке
+  разработчика: «для active generation promoted bundle не найден», expander «Последний
+  staging graph не опубликован» (<code>dashboards_graph.py:707-726</code>). Mission Control,
+  учебный план и SSR молча продолжают жить по старой карте. Та же самая недоступность
+  LM Studio, которая в разборе №2 убивала первый ответ, здесь молча портит реиндекс —
+  один корень, две беды.</p>
+
+  <p>Вторая створка: <b>аудит дубликатов концептов не входит в штатный цикл</b>.
+  <code>write_graph_audit_report</code> вызывается только из ручного
+  <code>scripts/rebuild_knowledge_graph.py:107</code> — при обычном реиндексе дубликаты
+  («LLM» ≈ «ЛЛМ» ≈ «языковая модель») не ловятся никем. А дубликат концепта — это
+  размытое mastery: знание студента делится между двумя узлами (прямая связь с
+  разбором №1).</p>
+</section>
+
+<!-- ======================= 5 ВЕРДИКТЫ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 5 · Вердикты</div>
+  <h2>Позиция по каждому элементу</h2>
+  <div class="tablebox">
+  <table>
+    <tr><th>Элемент</th><th>Вердикт</th><th>Почему</th></tr>
+    <tr>
+      <td>Гейт 10 проверок + gate-before-promote</td>
+      <td><span class="chip keep">Оставить</span></td>
+      <td>ядро честности материала; менять пороги — только по данным, не по ощущению</td>
+    </tr>
+    <tr>
+      <td>Молчаливый promote-skip</td>
+      <td><span class="chip fix">Починить</span></td>
+      <td>рассинхронизация карта↔индекс — статус материала на видимых поверхностях, человеческим языком; fail reasons уже готовы</td>
+    </tr>
+    <tr>
+      <td>Аудит дубликатов только в ручном скрипте</td>
+      <td><span class="chip fix">Починить</span></td>
+      <td>перенести в штатный reindex-хвост: он дешёвый, без LLM, а дубликаты размывают mastery</td>
+    </tr>
+    <tr>
+      <td>Порог min_documents &lt; 3 без объяснения</td>
+      <td><span class="chip fix">Починить</span></td>
+      <td>не порог, а сообщение: «добавьте третий документ — появится семантическая карта»</td>
+    </tr>
+    <tr>
+      <td>Пять паспортов качества по разным углам</td>
+      <td><span class="chip add">Объединить витрину</span></td>
+      <td>одна страница «Паспорт материала» из готовых сайдкаров — ноль новых вычислений</td>
+    </tr>
+    <tr>
+      <td>Операторская линия (ASR → конспект → sidecar)</td>
+      <td><span class="chip keep">Оставить вне приложения</span></td>
+      <td>PowerShell-конвейер легитимен; в приложение идут только его выходы и их статус</td>
+    </tr>
+    <tr>
+      <td>Язык publish status во вкладке графа</td>
+      <td><span class="chip fix">Починить</span></td>
+      <td>«promoted bundle не найден» → learner-language; механизм не трогать (та же болезнь, что SSR-диагностика в разборе №0)</td>
+    </tr>
+    <tr>
+      <td>Alignment v3.4, sha256-провенанс конспекта, evidence-привязка концептов</td>
+      <td><span class="chip keep">Оставить</span></td>
+      <td>три победы честности; использовать как источники паспорта, не переделывать</td>
+    </tr>
+  </table>
+  </div>
+</section>
+
+<!-- ======================= 6 ЦЕННОСТЬ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 6 · Ценность</div>
+  <h2>Материал с доказуемым качеством — и индекс свежести карты</h2>
+  <p>Уникальность hometutor здесь: <b>материал с доказательствами</b>. Каждый концепт карты
+  обязан иметь evidence в тексте (гейт: 100%), каждый таймкод — честный или отсутствует
+  (v3.4), каждый конспект несёт sha256 своих источников. NotebookLM и ChatGPT не дают ни
+  gate-метрик, ни честных таймкодов, ни провенанса. Но доказательства, которых не видно,
+  не создают доверия.</p>
+  <div class="tablebox">
+  <table>
+    <tr><th>Метрика</th><th>Из чего считается</th><th>Статус</th></tr>
+    <tr>
+      <td><b>Индекс свежести карты</b> = документы в индексе − документы в опубликованном графе</td>
+      <td>манифест индекса + <code>docs_participating</code> из quality report</td>
+      <td>обе величины уже существуют; нигде не сопоставляются</td>
+    </tr>
+    <tr>
+      <td>Доля курса с конспектами</td>
+      <td><code>konspekt_discovery.coverage_summary</code></td>
+      <td>есть, показывается в topics tab</td>
+    </tr>
+    <tr>
+      <td>Честное видео-покрытие</td>
+      <td><code>.media.json</code> coverage (объединение интервалов)</td>
+      <td>есть, живёт в сайдкаре</td>
+    </tr>
+    <tr>
+      <td>Дубликаты концептов</td>
+      <td><code>knowledge_graph_audit</code></td>
+      <td>считается только при ручном rebuild</td>
+    </tr>
+  </table>
+  </div>
+  <p>North star: после каждого успешного реиндекса индекс свежести карты = 0; при провале
+  гейта он виден на витрине — не в логе.</p>
+</section>
+
+<!-- ======================= 7 ПУТЬ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 7 · Путь</div>
+  <h2>Один золотой путь материала и лестница уровней</h2>
+  <p class="lede">Положил лекцию → реиндекс → чанки в индексе, граф прошёл гейт, карта
+  обновилась → (есть видео? операторская линия дала конспект и честные таймкоды) →
+  студент открывает паспорт материала: «6 документов · карта покрывает 6 · конспекты 5/6 ·
+  видео-привязка честная на 86%» — и знает, чему верить.</p>
+  <ul class="ladder">
+    <li><span class="lvl">L0</span><span>Файлы отвечают — материал в индексе, вопросы работают</span></li>
+    <li><span class="lvl">L1</span><span>Карта опубликована — гейт пройден, каждый концепт с evidence</span></li>
+    <li><span class="lvl">L2</span><span>Конспекты покрывают курс — по каждой лекции есть смысловой слой</span></li>
+    <li><span class="lvl">L3</span><span>Видео привязано честно — таймкоды с confidence, возврат в момент лекции</span></li>
+    <li><span class="lvl">L4</span><span>Паспорт полный — материал «готов к обучению», все линии сошлись</span></li>
+  </ul>
+</section>
+
+<!-- ======================= 8 ПЛАН ======================= -->
+<section class="part">
+  <div class="partnum">Часть 8 · План</div>
+  <h2>P0–P2 по соотношению «эффект / усилие»</h2>
+  <div class="plan">
+    <div class="move p0">
+      <span class="tag">P0 · ХОД 1</span>
+      <h3>Видимый статус «карта отстаёт от материалов»</h3>
+      <p>Индекс свежести карты (разница уже существующих величин) выводится на scope/context
+      строку Mission Control и в шапку карты — человеческим языком: «Карта не включает
+      2 новых документа — Мало междокументных связей». Ноль новых вычислений: publish
+      status + fail reasons уже есть.</p>
+    </div>
+    <div class="move p0">
+      <span class="tag">P0 · ХОД 2</span>
+      <h3>Аудит дубликатов в штатный reindex-хвост</h3>
+      <p><code>write_graph_audit_report</code> вызывается после каждой сборки бандла
+      (он без LLM и дешёвый), отчёт кладётся рядом с quality report. Дубликаты концептов
+      перестают жить незамеченными между ручными запусками скрипта.</p>
+    </div>
+    <div class="move p1">
+      <span class="tag">P1</span>
+      <h3>«Паспорт материала» + лестница вместо порога</h3>
+      <p>Одна секция, агрегирующая готовые сайдкары: гейт-метрики, konspekt coverage,
+      видео-покрытие, source readiness, дубликаты. Для курса &lt;3 документов — не пустота,
+      а «добавьте третий документ — появится семантическая карта».</p>
+    </div>
+    <div class="move p2">
+      <span class="tag">P2</span>
+      <h3>Свежесть конспекта + learner-language</h3>
+      <p>Сравнение sha256 из frontmatter конспекта с текущими входами → бейдж «конспект
+      устарел» (needs discovery: где дёшево пересчитывать). Language-pass по вкладке
+      графа: «staging bundle» → человеческие слова.</p>
+    </div>
+  </div>
+  <p>Планка неизменна: гениальность — в простоте. P0 не добавляет ни одной новой проверки
+  качества — он выносит на сцену доказательства, которые система уже собирает, и включает
+  в штатный цикл аудит, который уже написан.</p>
+</section>
+
+<footer>
+  Эволюционный разбор №3 из 5 · hometutor @ 60b55f3 · 2026-07-11 · все файлы и строки
+  проверены по текущему коду: knowledge_graph.py:929-1022, knowledge_graph_bundle.py:84-330,
+  graph_generation_paths.py:40-73, course_graph_compiler.py:699-747, ingestion_index_full.py:220-291,
+  knowledge_graph_audit.py:48-202, scripts/rebuild_knowledge_graph.py:107, dashboards_graph.py:693-726,
+  graph_publish_status.py:76, source_readiness.py:132, smart_konspekt.py:193-267,
+  konspekt_discovery.py:95, konspekt_artifact.py:140-308, media_alignment.py:69 (anchor-lis-v3.4),
+  ui/topics_tab.py:43-44, course_cache.py:309-317.
+</footer>
+
+</div>
