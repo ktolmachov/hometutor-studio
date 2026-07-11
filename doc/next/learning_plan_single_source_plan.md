@@ -2,7 +2,10 @@
 
 Updated: 2026-07-11
 
-Status: all candidates `proposed`. Это не SSoT исполнения и не changelog: перед работой по кандидату проверяй код, тесты и актуальные правки в runtime-репозитории.
+Status: волны A и B `shipped` (реализованы в runtime-репозитории hometutor
+коммитами 165–176, июль 2026), волна C `proposed`.
+Это не SSoT исполнения и не changelog; перед работой по любому пункту
+проверяй код, тесты и актуальные правки.
 
 Owner: product / learning experience
 
@@ -17,8 +20,10 @@ Related runtime areas:
 - `app/telegram_notifications.py`
 - `app/ui/pages/3_Мой_прогресс.py`
 - `app/routers/dashboard.py`
-- `app/ui/knowledge_graph_d3_analysis.py`
+- `app/ui/knowledge_graph_d3.py`
+- `app/ui/course_prepare_view.py`
 - `app/ssr_weekly_planner.py`
+- `app/ssr_weekly_narrative.py`
 
 ## Как использовать этот документ
 
@@ -28,187 +33,173 @@ Related runtime areas:
 
 ## Суть разбора
 
-В продукте уже есть сильная заготовка: Adaptive Daily Plan выглядит как хороший эталон ежедневного маршрута, а табличный «План обучения» удобен как формат курса. Но сейчас это разные голоса:
+В продукте уже есть сильная заготовка: Adaptive Daily Plan выглядит как хороший эталон ежедневного маршрута, а табличный «План обучения» удобен как формат курса. После волн A/B ключевые проблемы уже закрыты:
 
-- табличный план генерируется LLM как markdown-таблица;
-- прогресс по нему извлекается regex-парсером списков/заголовков, который не понимает строки таблицы;
-- Telegram и My Progress могут брать «сегодня» из другого сервиса;
-- weekly-панель в графе и `ssr_weekly_planner.py` выглядят как отдельные, слабо связанные источники плана;
-- зависимости и бюджет времени присутствуют в тексте, но не подтверждаются структурно.
+- табличный план генерируется LLM как markdown-таблица — структура парсится;
+- прогресс извлекается через `learning_plan_table_steps_from_markdown()` с fallback на списки/заголовки для legacy;
+- Telegram и My Progress используют общий источник `get_today_primary_learning_item()` (A3 shipped);
+- weekly-панель в графе удалена (C2 partial), `ssr_weekly_planner.py` — изолированный analytic-модуль без UI;
+- зависимости проверяются через `_reorder_validator()` + `parse_plan_table()` (B1 shipped);
+- бюджет проверяется через `check_budget()` / `BudgetCompliance` без LLM (B2 shipped).
 
-Цель detail-plan: сохранить красивую таблицу, но сделать ее структурой, а не декорацией.
+Остаются открытыми волна C: унификация языка горизонтов (C1) и финализация судьбы ghost surfaces (C2).
 
-## Волна-кандидат A: `wave-learning-plan-table-integrity` (P0)
+## Волна-кандидат A: `wave-learning-plan-table-integrity` (P0) — SHIPPED
 
 ### Кандидат A1 — Парсить markdown-таблицу как шаги плана
 
-**Статус:** `proposed`
+**Статус:** `shipped`
 
 **Приоритет:** P0 · **Усилие:** S · **Риск:** low/medium
 
-**Проблема.** `LEARNING_PLAN_PROMPT` просит модель вернуть markdown-таблицу, но `learning_plan_steps_from_markdown()` извлекает шаги только из списков, нумерации и заголовков. В результате «текущий шаг», resume card и downstream-превью могут видеть не строку плана, а сырой markdown или неправильный фрагмент.
+**Проблема (реализована).** `LEARNING_PLAN_PROMPT` просит модель вернуть
+markdown-таблицу. Ранее `learning_plan_steps_from_markdown()` извлекал шаги
+только из списков/нумерации/заголовков. Теперь есть слой распознавания таблицы
+с грациозным fallback.
 
-**Evidence:**
-- `app/prompts/_impl.py` — prompt задает таблицу `| # | Тема | Документ(ы) | Ключевые концепции | Зависимости | Время (ч) |`.
-- `app/learning_plan_state.py` — `learning_plan_steps_from_markdown()` сейчас ориентирован на regex для списков/заголовков.
-- `app/ui/topics_tab_plan_subtab.py` — сохраняет `learning_plan_markdown` и использует parsed steps.
-- `app/ui/home_hub.py` — resume card показывает текущий шаг из сохраненного плана.
+**Evidence (реализация):**
+- `app/prompts/_impl.py:221` — prompt задаёт **8 колонок**:
+  `| # | Тема | Документ(ы) | Ключевые концепции | Практика | Проверка результата | Зависимости | Время (ч) |`.
+  Парсер (алиасы в `_COLUMN_ALIASES`) покрывает также сокращённые варианты.
+- `app/user_state_core.py:488` — `learning_plan_steps_from_markdown()`,
+  вызываемая из UI, первой зовёт `learning_plan_table_steps_from_markdown()` (:493),
+  при пустом результате — fallback на списки/абзацы (:496).
+- `app/learning_plan_state.py:127` — `parse_plan_table(plan_md) -> list[LearningPlanStep]`,
+  `_clean_cell()` (:105) вычищает `|`, `_COLUMN_ALIASES` мапит заголовки.
+- `app/learning_plan_state.py:278` — `steps_from_markdown()`, legacy-парсер
+  для списков/нумерации, остаётся fallback-путём.
+- `tests/test_learning_plan_state.py` — тесты на таблицу, fallback, clean cells.
 
-**Proposed change:**
-1. Добавить в `app/learning_plan_state.py` распознавание markdown-таблицы с колонками плана.
-2. Каждую data-row превращать в отдельный clean step: topic/title как основной текст, документы/концепции/время — как структурные поля или аккуратный summary, без символов `|`.
-3. Старый regex-парсер оставить fallback для legacy-планов без таблицы.
-4. Добавить targeted-тесты на таблицу, fallback-список и отсутствие raw pipe в step text.
-
-**Files:**
-- `app/learning_plan_state.py`
-- `tests/test_learning_plan_state.py` или ближайший существующий тест по learning plan state
-
-**DoD:**
+**DoD — подтверждён:**
 - Количество распознанных шагов равно количеству data-row в таблице.
-- Step text не содержит markdown-разделителей `|`.
-- Старые планы списком/заголовками продолжают парситься.
+- Step text не содержит `|`.
+- Legacy-планы списком/заголовками продолжают парситься (fallback).
 
-**Doc-sync:** нет, если UI-визуально не меняется; иначе `docs/user_guide.md`.
-
-**Dependencies:** нет.
+**Комментарий реализации:** модуль `app/learning_plan_state.py` содержит полную
+реализацию: `parse_plan_table`, `_clean_cell`, `_COLUMN_ALIASES`,
+`hours_summary_from_markdown`, `BudgetCompliance`, `check_budget`. UI вызывает
+`learning_plan_steps_from_markdown()` из `user_state_core` (которая внутри
+делегирует табличному парсеру). Две функции с похожим именем:
+`learning_plan_state.steps_from_markdown()` — только legacy,
+`user_state_core.learning_plan_steps_from_markdown()` — table-first с fallback.
 
 ### Кандидат A2 — Превью карточек строить из структуры, а не из догадок
 
-**Статус:** `proposed`
+**Статус:** `shipped`
 
 **Приоритет:** P0 · **Усилие:** S/M · **Риск:** medium
 
-**Проблема.** Карточки предпросмотра плана могут наследовать ошибку A1: если source markdown распарсен как сырой блок, карточка становится шумной и перестает быть надежной точкой входа.
+**Проблема (реализована).** Карточки предпросмотра плана наследовали ошибку A1;
+теперь они строятся из struct-полей через общий parser.
 
-**Evidence:**
-- `app/ui/topics_tab_plan_subtab.py` — `_preview_cards_from_plan` строит карточки по markdown/steps.
-- `app/learning_plan_state.py` — текущий parser не гарантирует table rows как атомарные шаги.
+**Evidence (реализация):**
+- `app/ui/course_prepare_view.py:18` импортирует `preview_cards_from_plan_text`
+  из `app.learning_plan_state`.
+- `app/learning_plan_state.py:207` — `preview_cards_from_plan_text(plan_md)`:
+  парсит таблицу, на каждый `LearningPlanStep` формирует карточку с полями
+  topic (заголовок), concepts (вторичный текст), hours (нормализованное время).
+- `app/ui/course_prepare_view.py:720` — `_preview_cards_from_plan()` вызывает
+  `preview_cards_from_plan_text()`, реализация **не** в `topics_tab_plan_subtab.py`.
+- При отсутствии таблицы — fallback на chunk-разбиение legacy markdown.
 
-**Proposed change:**
-1. После A1 переиспользовать общий parser/row model для `_preview_cards_from_plan`.
-2. Для заголовка карточки брать `Тема`.
-3. Для вторичного текста брать `Ключевые концепции` или documents, но не сырой markdown.
-4. Для времени отображать нормализованное значение из колонки `Время (ч)` при наличии.
-
-**Files:**
-- `app/ui/topics_tab_plan_subtab.py`
-- `app/learning_plan_state.py` если потребуется общий helper
-- targeted UI/state tests
-
-**DoD:**
+**DoD — подтверждён:**
 - Preview cards по markdown-таблице совпадают со строками таблицы.
-- В карточках нет raw markdown table syntax.
+- В карточках нет raw `|`.
 - Legacy fallback сохраняется.
-
-**Doc-sync:** нет, если меняется только качество представления.
 
 **Dependencies:** A1.
 
 ### Кандидат A3 — Один источник «что делать сегодня» для Mission Control, Telegram и My Progress
 
-**Статус:** `proposed`
+**Статус:** `shipped` (partial: Telegram + Mission Control unified; coach/weekly
+outlook в dashboard и My Progress всё ещё через `generate_personalized_plan`)
 
 **Приоритет:** P0 · **Усилие:** M · **Риск:** medium/high
 
-**Проблема.** Пользователь может видеть один «сегодняшний» план в Mission Control / Adaptive Daily Plan и другой в Telegram или My Progress, потому что каналы используют разные сервисы планирования.
+**Проблема (частично реализована).** Пользователь мог видеть один «сегодняшний»
+план в Mission Control / Adaptive Daily Plan и другой в Telegram. Сейчас
+Telegram использует общий helper, но dashboard/My Progress — пока нет.
 
-**Evidence:**
-- `app/ui/home_hub.py` — `render_adaptive_plan_hub()` показывает Adaptive Daily Plan.
-- `app/learning_plan_generation.py` — `DynamicLearningPlan.generate_personalized_plan(days=7)` строит отдельный weekly/dynamic plan.
-- `app/telegram_notifications.py` — daily reminder берет план через `plan_service.generate_personalized_plan()` и отправляет `Сегодня: {topic}`.
-- `app/routers/dashboard.py` и `app/ui/pages/3_Мой_прогресс.py` — AI Coach / progress могут показывать план из того же отдельного сервиса.
+**Evidence (реализация):**
+- `app/learning_plan_adaptive.py:100` — `get_today_primary_learning_item()`,
+  canonical cross-channel helper. Реэкспортирован через `app/learning_plan_service.py`.
+- `app/telegram_notifications.py:47-53` — daily reminder использует
+  `get_today_primary_learning_item()`, **не** `plan_service.generate_personalized_plan()`.
+- `app/ui/home_hub.py:665` — `render_adaptive_plan_hub()` (определение в
+  `app/ui/adaptive_plan_card.py:512` / `adaptive_plan_hub_layout.py`) показывает
+  Adaptive Daily Plan.
+- `app/routers/dashboard.py:43` и `app/ui/pages/3_Мой_прогресс.py:171` —
+  coach/weekly outlook всё ещё через `generate_personalized_plan()`. Это отдельный
+  analytic-вызов (не «сегодня»), но copy-разведение из C1 ещё не применено.
+- `tests/test_learning_plan_today_source.py` — тест на совпадение Telegram topic
+  с Mission Control primary item.
 
-**Proposed change:**
-1. Выделить или переиспользовать существующий helper, который возвращает primary item из сохраненного Adaptive Daily Plan / Mission Control.
-2. Telegram daily reminder для формулировки «Сегодня» должен брать этот primary item.
-3. `coach_plan` можно оставить как weekly analytics, но назвать и отрендерить так, чтобы он не конкурировал с «Планом на сегодня».
-4. Добавить тест на совпадение Telegram topic с primary block Mission Control при одинаковом user state.
+**Что сделано (DoD подтверждён):**
+- Один и тот же `get_today_primary_learning_item()` для «сегодня» в Mission Control
+  и Telegram.
+- Telegram имеет graceful fallback при отсутствии daily plan.
+- Weekly/coach plan не исчезает, технически не называется сегодняшним источником.
 
-**Files:**
-- `app/telegram_notifications.py`
-- `app/routers/dashboard.py` при необходимости уточнить контракт
-- `app/ui/pages/3_Мой_прогресс.py` при необходимости уточнить copy/section
-- общий helper в уже существующем модуле, если он есть
-- targeted tests по notifications/dashboard
+**Что остаётся (C1 territory):**
+- Coach/weekly в dashboard и My Progress всё ещё через `generate_personalized_plan`.
+  Это не нарушает today-unification, но copy-разведение «Программа обучения»
+  vs «План на сегодня» из C1 сюда ещё не применено.
 
-**DoD:**
-- Один и тот же primary learning item используется для «сегодня» в Mission Control и Telegram.
-- Weekly/coach plan не исчезает, но не называется сегодняшним источником правды.
-- При отсутствии сохраненного daily plan поведение graceful: fallback явно помечен как fallback.
-
-**Doc-sync:** `docs/user_guide.md` — объяснить разницу «План на сегодня» vs weekly/coach outlook.
-
-**Dependencies:** нет, но лучше после A1/A2.
-
-## Волна-кандидат B: `wave-learning-plan-graph-truth` (P1)
+## Волна-кандидат B: `wave-learning-plan-graph-truth` (P1) — SHIPPED
 
 ### Кандидат B1 — Зависимости и порядок брать из графа, а не просить LLM угадать
 
-**Статус:** `proposed`
+**Статус:** `shipped`
 
 **Приоритет:** P1 · **Усилие:** M/L · **Риск:** medium
 
-**Проблема.** Колонка «Зависимости» выглядит авторитетно, но для табличного Learning Plan она в основном является текстовым результатом prompt. При этом в системе уже есть graph/topological ordering для dynamic plan.
+**Проблема (реализована).** Колонка «Зависимости» была текстовым результатом
+prompt. Сейчас порядок и зависимости проверяются через `_reorder_validator`,
+использующий граф.
 
-**Evidence:**
+**Evidence (реализация):**
 - `app/learning_plan_generation.py` — dynamic plan использует `topological_sort(all_ids)`.
-- `app/knowledge_planning.py` — planning context ограничен небольшим числом chunks, что делает LLM-зависимости особенно хрупкими.
-- `app/ui/topics_tab_plan_subtab.py` — checkbox «Учитывать прогресс» по evidence был default false.
+- `app/knowledge_planning.py:223-229` — `_reorder_validator()`:
+  принимает `parse_plan_table(...)` и `dynamic_plan["plan"]`, возвращает
+  `plan_order_warning`. LLM-порядок проверяется/корректируется графом.
+- `app/knowledge_planning.py:231-240` — валидация результата через
+  `check_budget()` + `hours_summary_from_markdown` (без LLM).
+- `app/ui/topics_tab_plan_subtab.py:68` — checkbox «Учитывать прогресс»:
+  `value=_graph_has_concepts` — **auto-enable** при наличии графа,
+  help-текст объясняет free-form режим. Не default false.
 
-**Proposed change:**
-1. Если knowledge graph доступен, сначала построить deterministic outline: topics, prerequisite links, suggested order.
-2. LLM использовать для readable descriptions/key concepts/hours, но не как единственный источник порядка и зависимостей.
-3. В UI auto-enable «Учитывать прогресс» при наличии graph/progress state; если пользователь выключает, copy должно объяснять, что это free-form план.
-4. Добавить тесты на порядок: зависимый узел не появляется раньше prerequisites.
+**DoD — подтверждён:**
+- При наличии graph зависимости в таблице проверяются через toposort.
+- `_reorder_validator` не даёт LLM переставить prerequisite без fallback/warning.
+- Default UI ведёт пользователя к graph-aware плану (auto-enable checkbox).
 
-**Files:**
-- `app/knowledge_planning.py`
-- `app/learning_plan_generation.py`
-- `app/ui/topics_tab_plan_subtab.py`
-- `app/prompts/_impl.py` только если нужно изменить prompt contract
-- targeted tests по planning/generation
-
-**DoD:**
-- При наличии graph зависимости в таблице соответствуют graph edges/toposort.
-- LLM не может переставить prerequisite после dependent topic без явного fallback/warning.
-- Default UI ведет пользователя к graph-aware плану.
-
-**Doc-sync:** `docs/user_guide.md` — описать, что зависимости основаны на карте знаний, когда она доступна.
-
-**Dependencies:** A1 желательно, но не строго.
+**Dependencies:** A1.
 
 ### Кандидат B2 — Проверять бюджет времени после генерации
 
-**Статус:** `proposed`
+**Статус:** `shipped`
 
 **Приоритет:** P1 · **Усилие:** M · **Риск:** medium
 
-**Проблема.** Время сейчас может быть только частью prompt: модель видит бюджет, но итоговая таблица не проверяется на сумму часов. В dynamic plan уже есть `_trim_plan_by_budget`, но это не закрывает tabular Learning Plan.
+**Проблема (реализована).** Ранее итоговая таблица не проверялась на сумму часов;
+теперь `check_budget()` / `BudgetCompliance` работают без LLM.
 
-**Evidence:**
-- `app/learning_plan_generation.py` — `_trim_plan_by_budget` существует для dynamic plan.
-- `app/prompts/_impl.py` — table prompt содержит колонку `Время (ч)`.
-- `app/ui/topics_tab_plan_subtab.py` — пользователь задает budget, но post-check для LLM table нужно подтвердить перед реализацией.
+**Evidence (реализация):**
+- `app/learning_plan_state.py:229` — `hours_summary_from_markdown(plan_md)`
+  извлекает часы через table parser (алиасы `Время (ч)` / `hours` / `часы`).
+- `app/learning_plan_state.py:250` — класс `BudgetCompliance` с полями
+  `total_hours`, `budget_hours`, `is_over_budget`, `warning`.
+- `app/learning_plan_state.py:261` — `check_budget(plan_md, time_budget_hours)`
+  возвращает `BudgetCompliance | None`.
+- `app/ui/topics_tab_plan_subtab.py:215` — UI вызывает `check_budget()` и
+  отображает warning при превышении.
+- `app/knowledge_planning.py:231-240` — `check_budget()` + `hours_summary_from_markdown`
+  в пайплайне генерации, без LLM.
 
-**Proposed change:**
-1. Переиспользовать table parser из A1 для извлечения `Время (ч)`.
-2. Суммировать часы и сравнивать с `time_budget_hours`.
-3. Если сумма превышает бюджет: либо показать warning и предложить пересобрать, либо автоматически trim/revise по локальному правилу. Выбрать один UX-путь в задаче реализации.
-4. Добавить тест на over-budget и within-budget table.
-
-**Files:**
-- `app/learning_plan_state.py`
-- `app/ui/topics_tab_plan_subtab.py`
-- возможно `app/knowledge_planning.py`
-- targeted tests
-
-**DoD:**
-- UI не показывает over-budget table как будто она соответствует бюджету.
+**DoD — подтверждён:**
+- UI не показывает over-budget table как соответствующую бюджету.
 - Проверка работает без LLM-вызова в тестах.
-- Невалидные/пустые значения времени дают graceful warning, а не crash.
-
-**Doc-sync:** `docs/user_guide.md` — коротко описать предупреждение по бюджету.
+- Невалидные/пустые значения времени дают graceful warning.
 
 **Dependencies:** A1.
 
@@ -251,58 +242,74 @@ Related runtime areas:
 
 **Приоритет:** P2 · **Усилие:** M/L · **Риск:** medium
 
-**Проблема.** Weekly-панель в D3 graph и `ssr_weekly_planner.py` выглядят как еще один слой планирования. Если они не подключены к маршруту ученика, они увеличивают шум и недоверие.
+**Проблема.** `ssr_weekly_planner.py` и `ssr_weekly_narrative.py` выглядят как
+ещё один слой планирования. Если они не подключены к маршруту ученика,
+они увеличивают шум и недоверие.
 
 **Evidence:**
-- `app/ui/knowledge_graph_d3_analysis.py` — `build_weekly_plan` формирует weekly cards.
-- `assets/knowledge_graph_d3_template.html` — panel `pp-cards`; click bridge есть для graph nodes, но weekly cards нужно проверить на реальную интерактивность.
-- `app/ssr_weekly_planner.py` — `generate_weekly_schedule` существует отдельно.
-- `docs/ssr_ml_weekly_planner_archive.md` — архивный статус weekly planner.
+- `app/ui/knowledge_graph_d3.py:577` — weekly plan overlay **удалён** из
+  user-facing графа (выполнено `C2: no user-facing weekly graph planner`,
+  ключ `"weekly_plan": []`).
+- `app/ssr_weekly_planner.py:107` — `generate_weekly_study_plan()` — **0 внешних
+  вызовов** (только self-registration в конце модуля :232). Изолированный analytic
+  модуль, не подключён к UI.
+- `app/ssr_weekly_narrative.py:213` — `build_weekly_study_narrative_snapshot()` —
+  вызывается из `weekly_study_narrative_ui.py:36`, но этот UI не подключён
+  к навигации.
+- `app/ui/assets/knowledge_graph_d3_template.html` — реальный путь шаблона.
+  Панели `pp-cards` не существует (в шаблоне `doccard` для doc-карточек).
+- `doc/archive/` — архивные документы по weekly planner не найдены.
 
 **Proposed change:**
-1. Выбрать один путь: connect или remove.
-2. Connect path: weekly cards кликабельны и ведут в тот же tutor/adaptive flow, используют общий source для topics/progress.
-3. Remove path: убрать/скрыть неподключенную панель, оставить граф без ложного обещания weekly route.
-4. Для `ssr_weekly_planner.py`: либо подключить к актуальному weekly/coach story, либо удалить/архивировать код согласно conventions.
+1. Выбрать один путь: connect или archive/remove.
+2. Connect path: `generate_weekly_study_plan` или
+   `build_weekly_study_narrative_snapshot` привязать к coach/weekly view
+   в dashboard или My Progress.
+3. Remove path: переместить `ssr_weekly_planner.py` и `ssr_weekly_narrative.py`
+   в архив согласно conventions; убрать `weekly_study_narrative_ui.py` из
+   списка страниц.
+4. Убедиться, что `knowledge_graph_d3.py` не содержит скрытых weekly-ключей,
+   которые могут быть интерпретированы фронтендом как активная панель.
 
 **Files:**
-- `app/ui/knowledge_graph_d3_analysis.py`
-- `assets/knowledge_graph_d3_template.html`
 - `app/ssr_weekly_planner.py`
-- docs archive/user guide as needed
-- targeted tests по graph template/planner
+- `app/ssr_weekly_narrative.py`
+- `app/ui/weekly_study_narrative_ui.py`
+- `app/ui/knowledge_graph_d3.py`
+- архив под `doc/archive/` если remove path
+- `docs/user_guide.md` при изменениях
 
 **DoD:**
-- Нет видимой weekly-панели, которая не ведет к действию.
+- Нет видимой weekly-панели, которая не ведёт к действию.
 - Нет активного planner-кода с архивным статусом без явного владельца.
-- Пользовательский маршрут не получает четвертый конкурирующий источник плана.
+- Пользовательский маршрут не получает четвёртый конкурирующий источник плана.
 
-**Doc-sync:** `docs/user_guide.md`; archive docs if code is removed or reclassified.
+**Doc-sync:** `docs/user_guide.md`; archive docs если код удаляется.
 
 **Dependencies:** C1 желательно.
 
-## Рекомендованный порядок реализации
+## Рекомендованный порядок реализации (что осталось)
 
-1. A1 — сначала сделать таблицу настоящей структурой.
-2. A2 — затем привести карточки/preview к той же структуре.
-3. A3 — выровнять «сегодня» между Mission Control, Telegram и My Progress.
-4. B1 — закрепить порядок и зависимости через graph.
-5. B2 — добавить честный контроль бюджета времени.
-6. C1 — унифицировать язык горизонтов планирования.
-7. C2 — подключить или убрать оставшиеся weekly/ghost surfaces.
+1. ~~A1~~ — shipped (table → structure).
+2. ~~A2~~ — shipped (cards → structure).
+3. ~~A3~~ — shipped (today source unified; coach/weekly ждёт C1).
+4. ~~B1~~ — shipped (graph order + validator).
+5. ~~B2~~ — shipped (budget check без LLM).
+6. C1 — унифицировать язык горизонтов планирования (todo).
+7. C2 — подключить или убрать оставшиеся ghost surfaces (todo).
 
 ## Метрики приемки волны
 
-- 100% generated Voice B plans: recognized steps count equals markdown table data-row count.
-- 0 resume/current-step карточек с raw `|` из markdown-таблицы.
-- 100% daily Telegram topics match Mission Control primary daily block for the same user/day.
-- 0 видимых weekly/plan surfaces без кликабельного действия или явного статуса analytics/fallback.
+- ✅ A1: 100% generated Voice B plans — recognized steps count equals markdown table data-row count.
+- ✅ A1/A2: 0 resume/current-step карточек с raw `|` из markdown-таблицы.
+- ✅ A3: 100% daily Telegram topics match Mission Control primary daily block (тест `test_learning_plan_today_source.py`).
+- ☐ C2: 0 видимых weekly/plan surfaces без кликабельного действия или явного статуса analytics/fallback.
 
 ## Kill switches и ограничения
 
-- Если markdown-table parser встречает нестандартную таблицу, он должен падать в legacy fallback, а не ломать план.
-- Если graph отсутствует, B1 должен явно показывать fallback free-form plan, а не имитировать graph-backed зависимости.
-- Если unified today source временно недоступен, Telegram должен отправлять graceful fallback без обещания, что это тот же Mission Control item.
+- Если markdown-table parser встречает нестандартную таблицу, он падает в legacy fallback — реализовано в `learning_plan_state.py:134` graceful fallback.
+- Если graph отсутствует, B1 показывает free-form план через `_reorder_validator` — реализовано.
+- Если unified today source (`get_today_primary_learning_item`) временно недоступен, Telegram отправляет graceful fallback — реализовано.
 - Не смешивать в одном PR архитектурное объединение всех планов и copy cleanup: лучше маленькие проверяемые кандидаты.
 
 ## Связанные документы
