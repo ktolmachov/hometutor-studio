@@ -52,6 +52,7 @@ Read ONLY (do not read other files):
 
 | Задача | Дата | Тип |
 |---|---|---|
+| `learning-plan-single-source-v1` | 2026-07-11 | Learning Plan single source: A/B/C shipped, C1 copy+bridge, C2 ghost archived |
 | `workflow-dx-p1-quick-wins` | 2026-05-02 | Workflow DX wave |
 | `workflow-dx-p2-team-workflow-cleanup` | 2026-05-02 | Workflow DX wave |
 | `workflow-dx-p3-smart-router` | 2026-05-02 | Workflow DX wave |
