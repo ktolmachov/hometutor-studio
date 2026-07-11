@@ -1,0 +1,557 @@
+<title>Инфографика: живая карта материала — спецвыпуск · hometutor</title>
+<style>
+  :root {
+    --bg: #F5F7F6; --surface: #FFFFFF; --ink: #1C2622; --muted: #5C6B65;
+    --line: #DDE4E1; --accent: #14705F; --accent-soft: #E3F0EC;
+    --leak: #B3492A; --leak-soft: #F7E8E2; --amber: #9A6B15; --amber-soft: #F5EDDC;
+    --code-bg: #EDF1EF; --shadow: 0 1px 3px rgba(28,38,34,.07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101715; --surface: #17201D; --ink: #E3EAE6; --muted: #93A39C;
+      --line: #2A3630; --accent: #4CC2A8; --accent-soft: #16302A;
+      --leak: #E08663; --leak-soft: #33201A; --amber: #D9A94E; --amber-soft: #2E2618;
+      --code-bg: #1E2A26; --shadow: 0 1px 3px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101715; --surface: #17201D; --ink: #E3EAE6; --muted: #93A39C;
+    --line: #2A3630; --accent: #4CC2A8; --accent-soft: #16302A;
+    --leak: #E08663; --leak-soft: #33201A; --amber: #D9A94E; --amber-soft: #2E2618;
+    --code-bg: #1E2A26; --shadow: 0 1px 3px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"] {
+    --bg: #F5F7F6; --surface: #FFFFFF; --ink: #1C2622; --muted: #5C6B65;
+    --line: #DDE4E1; --accent: #14705F; --accent-soft: #E3F0EC;
+    --leak: #B3492A; --leak-soft: #F7E8E2; --amber: #9A6B15; --amber-soft: #F5EDDC;
+    --code-bg: #EDF1EF; --shadow: 0 1px 3px rgba(28,38,34,.07);
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 16px/1.65 "Segoe UI", system-ui, -apple-system, sans-serif;
+    margin: 0; padding: 0 20px 80px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; font-weight: 600; text-wrap: balance; }
+  h1 { font-size: 2.3rem; line-height: 1.2; margin: .3em 0 .2em; }
+  h2 { font-size: 1.55rem; line-height: 1.25; margin: 0 0 .5em; }
+  h3 { font-size: 1.12rem; margin: 1.4em 0 .4em; }
+  p { margin: .7em 0; max-width: 68ch; }
+  code, .path {
+    font-family: Consolas, "Cascadia Mono", monospace; font-size: .86em;
+    background: var(--code-bg); padding: .1em .35em; border-radius: 3px; white-space: nowrap;
+  }
+  .eyebrow {
+    font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); font-weight: 600; margin-bottom: .4em;
+  }
+  header.top { padding: 56px 0 8px; border-bottom: 2px solid var(--ink); margin-bottom: 8px; }
+  .subtitle { color: var(--muted); font-size: 1.05rem; max-width: 62ch; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px 22px; color: var(--muted); font-size: .82rem; padding: 14px 0 26px; }
+  .meta b { color: var(--ink); font-weight: 600; }
+
+  .series { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 6px; }
+  .series span.card {
+    display: block; flex: 1 1 130px; min-width: 130px;
+    border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px;
+    background: var(--surface); color: var(--muted); font-size: .8rem; line-height: 1.4;
+  }
+  .series .here { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); }
+  .series .done { border-style: dashed; }
+  .series .rank { font-family: Georgia, serif; font-size: 1.15rem; color: var(--accent); display: block; }
+
+  section.part { margin-top: 56px; }
+  .partnum {
+    font-family: Georgia, serif; font-style: italic; font-size: .95rem;
+    color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; margin-bottom: 4px;
+  }
+  .lede { font-size: 1.13rem; line-height: 1.6; }
+
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 14px 0; }
+  th { text-align: left; font-size: .72rem; letter-spacing: .09em; text-transform: uppercase;
+       color: var(--muted); font-weight: 600; padding: 8px 12px 6px; border-bottom: 2px solid var(--line); }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .tablebox { overflow-x: auto; }
+
+  .chip { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .06em;
+          padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
+  .chip.keep { background: var(--accent-soft); color: var(--accent); }
+  .chip.fix { background: var(--leak-soft); color: var(--leak); }
+  .chip.add { background: var(--amber-soft); color: var(--amber); }
+  .chip.hide { background: var(--code-bg); color: var(--muted); }
+
+  .callout { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent);
+             border-radius: 6px; padding: 16px 20px; margin: 18px 0; box-shadow: var(--shadow); }
+  .callout.pain { border-left-color: var(--leak); }
+  .callout .label { font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: var(--leak); }
+  .callout.good .label { color: var(--accent); }
+  .callout p:first-of-type { margin-top: .4em; }
+
+  .evidence { font-family: Consolas, "Cascadia Mono", monospace; font-size: .8rem; line-height: 1.7;
+              background: var(--code-bg); border-radius: 6px; padding: 14px 18px; overflow-x: auto; margin: 12px 0; }
+  .evidence .cm { color: var(--muted); }
+  .evidence .hl { color: var(--leak); font-weight: 600; }
+
+  .diagram-box { background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+                 padding: 12px; margin: 20px 0; overflow-x: auto; box-shadow: var(--shadow); }
+  .diagram-box svg { display: block; min-width: 880px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: .78rem; color: var(--muted); padding: 8px 6px 2px; }
+  .legend i { display: inline-block; width: 22px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+
+  .plan { display: grid; gap: 12px; margin: 18px 0; }
+  .plan .move { background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+                padding: 16px 20px; box-shadow: var(--shadow); }
+  .plan .move.p0 { border-left: 4px solid var(--accent); }
+  .plan .move.p1 { border-left: 4px solid var(--amber); }
+  .plan .move.p2 { border-left: 4px solid var(--line); }
+  .plan .tag { font-size: .7rem; font-weight: 700; letter-spacing: .1em; color: var(--muted); }
+  .plan .move.p0 .tag { color: var(--accent); }
+  .plan .move.p1 .tag { color: var(--amber); }
+  .plan h3 { margin: .2em 0 .3em; }
+  .plan p { margin: .3em 0; font-size: .92rem; }
+
+  .ladder { list-style: none; padding: 0; margin: 14px 0; }
+  .ladder li { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+  .ladder .lvl { font-family: Georgia, serif; font-size: 1.1rem; color: var(--accent); min-width: 2.2em; }
+
+  .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 16px 0; }
+  .flow .step { background: var(--accent-soft); color: var(--ink); border: 1px solid var(--accent);
+                border-radius: 20px; padding: 5px 14px; font-size: .85rem; white-space: nowrap; }
+  .flow .arr { color: var(--muted); font-size: 1rem; }
+
+  footer { margin-top: 70px; padding-top: 16px; border-top: 1px solid var(--line);
+           color: var(--muted); font-size: .78rem; }
+  @media (max-width: 640px) { h1 { font-size: 1.7rem; } body { padding: 0 14px 60px; } }
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">Эволюционный разбор · спецвыпуск серии</div>
+  <h1>Инфографика: живая карта материала</h1>
+  <p class="subtitle">Как встроить визуальную выжимку в самое выгодное место продукта — и сделать
+  «невозможное» (инфографику уровня NotebookLM, локально, без image-модели) возможным.</p>
+</header>
+
+<div class="meta">
+  <span>Дата: <b>2026-07-11</b></span>
+  <span>Код: <b>fc0f696 («159»)</b></span>
+  <span>Планка: <b>каждое утверждение проверяемо (файл:строка)</b></span>
+</div>
+
+<div class="series">
+  <span class="card done"><span class="rank">№1 ✓</span>Судьба одного знания</span>
+  <span class="card done"><span class="rank">№2 ✓</span>Первые 10 минут</span>
+  <span class="card done"><span class="rank">№3 ✓</span>Материал как продукт</span>
+  <span class="card"><span class="rank">№4</span>Агент как одна кнопка</span>
+  <span class="card"><span class="rank">№5</span>Доверие под нагрузкой</span>
+  <span class="card here"><span class="rank">Спец</span>Инфографика — этот разбор</span>
+</div>
+
+<!-- ============ 1. СУТЬ ============ -->
+<section class="part">
+  <div class="partnum">Часть 1 из 8</div>
+  <h2>Суть: чего студент по-настоящему хочет от «картинки»</h2>
+  <p class="lede">Студент не хочет иллюстрацию. Разложим по первым принципам — инфографика
+  закрывает три потребности, и все три уже названы в документах продукта.</p>
+
+  <div class="tablebox"><table>
+    <tr><th>Потребность</th><th>Что это на самом деле</th><th>Где это уже зафиксировано</th></tr>
+    <tr><td><b>Ориентация за 30 секунд</b></td>
+        <td>Увидеть весь материал одним взглядом: его форму, границы, «за что хвататься».
+            Прямой ответ на страх №3 — «утонуть в материале».</td>
+        <td>Три страха студента — ядро продукта (см. разбор №2: время до первого инсайта)</td></tr>
+    <tr><td><b>Двойное кодирование</b></td>
+        <td>Слова + пространственная структура строят более прочную ментальную модель —
+            если картинка связана с сутью, а не украшает.</td>
+        <td><span class="path">docs/multimodal_konspekt_plan.md</span> §5: dual coding,
+            coherence, анти-паттерн «декоративные иллюстрации»</td></tr>
+    <tr><td><b>Точка возврата</b></td>
+        <td>Картинка как карта: с неё можно прыгнуть в точное место материала —
+            раздел · строка · минута видео.</td>
+        <td>Суть hometutor из разбора-родоначальника: возврат в точное место лекции —
+            главное отличие от ChatGPT/NotebookLM/Anki</td></tr>
+  </table></div>
+
+  <div class="callout good">
+    <span class="label">Определение</span>
+    <p><b>Инфографика в hometutor — это не жанр иллюстрации, а сжатие материала до формы,
+    которую мозг схватывает за секунды и с которой можно вернуться в материал.</b>
+    Красота — побочный эффект ясности. Всё, что не ведёт обратно в материал, — постер, а не инструмент.</p>
+  </div>
+</section>
+
+<!-- ============ 2. РЕАЛЬНОСТЬ ============ -->
+<section class="part">
+  <div class="partnum">Часть 2 из 8</div>
+  <h2>Реальность: визуальный конвейер уже наполовину построен</h2>
+  <p class="lede">С высоты видно четыре группы. Поразительный факт: <b>потребляющая сторона
+  (рендереры) готова почти целиком, производящая — почти пуста.</b></p>
+
+  <h3>Группа A — рендереры (готовы и ждут)</h3>
+  <div class="tablebox"><table>
+    <tr><th>Что</th><th>Где</th><th>Зачем / плюсы</th><th>Минусы</th></tr>
+    <tr><td><b>Mermaid-рендерер</b></td>
+        <td><span class="path">living_konspekt_reader.py:196-276</span></td>
+        <td>Любой блок <code>```mermaid</code> в конспекте становится интерактивной SVG-схемой</td>
+        <td>Грузит mermaid@11 с CDN (строка 253) — offline схемы молча исчезают</td></tr>
+    <tr><td><b>Инлайнер картинок</b></td>
+        <td><span class="path">living_konspekt_reader.py:154-193</span></td>
+        <td>Локальные изображения конспекта → base64 data-URI, с кэшем по mtime/size</td>
+        <td>Только транспорт; сам ничего не создаёт</td></tr>
+    <tr><td><b>D3-карта курса</b></td>
+        <td><span class="path">knowledge_graph_d3.py</span> +
+            шаблон <span class="path">assets/knowledge_graph_d3_template.html</span></td>
+        <td>Полноценная интерактивная инфографика: уровни, кластеры, затухание памяти,
+            недельный план, маршруты «от А к Б» (KG-05), диагностика, экспорт SVG (KG-04).
+            D3 — локальный (<span class="path">assets/d3.v7.min.js</span>)</td>
+        <td>Заперта на тире 3 (<span class="path">feature_registry.py:42</span>);
+            наружу отдаёт только мёртвый SVG-снимок</td></tr>
+    <tr><td><b>Plotly-слой прогресса</b></td>
+        <td><span class="path">visualization_service.py</span>,
+            <span class="path">progress_visuals.py</span></td>
+        <td>Gauge, радар, treemap, эмоц. теплокарта, таймлайн квизов — зеркало прогресса</td>
+        <td>Про студента, не про материал; живёт на страницах «Прогресс»/«Аналитика»</td></tr>
+  </table></div>
+
+  <h3>Группа B — данные, готовые стать инфографикой (уже посчитаны)</h3>
+  <div class="tablebox"><table>
+    <tr><th>Данные</th><th>Где лежат</th><th>Что из них можно нарисовать</th></tr>
+    <tr><td>Граф-payload: узлы, рёбра, уровни, кластеры, здоровье, недельный план,
+            <code>decay_vector</code>, история mastery</td>
+        <td><span class="path">knowledge_graph_d3.py:481-587</span> (<code>build_kg_payload</code>)</td>
+        <td>Карту курса, «мою карту» знания, маршрут недели — уже рисуется, но только внутри вкладки</td></tr>
+    <tr><td>Структура лекции: разделы, slug, диапазоны строк</td>
+        <td><span class="path">section_index.py</span></td>
+        <td>Скелет «одной страницы лекции» с кликабельными разделами</td></tr>
+    <tr><td>Таймкоды разделов + смысловые блоки</td>
+        <td>media sidecar v1 (<span class="path">media_sidecar.py</span>, anchor-lis-v3.4)</td>
+        <td>Кнопки «смотреть с этой минуты» прямо на инфографике</td></tr>
+    <tr><td>Гейт качества графа: 10 проверок, evidence 100%</td>
+        <td><span class="path">course_graph_compiler.py:699-747</span> (разбор №3)</td>
+        <td>Гарантию: на карте нет выдуманных узлов — честность как фича</td></tr>
+  </table></div>
+
+  <h3>Группа C — каналы выдачи</h3>
+  <p>Streamlit-вкладки (тиры: граф и Живой конспект — 3, «Чистый вид» — 4,
+  <span class="path">feature_registry.py:23-47</span>); «Чистый вид» умеет скачивать
+  <b>только Markdown</b> (<span class="path">print_view.py:46-53</span>); deep-links в
+  Obsidian/VS Code (<span class="path">obsidian_export.py</span>); артефакты Живого конспекта
+  в vault (<span class="path">konspekt_artifact.py</span>); Telegram — только текст.</p>
+
+  <h3>Группа D — спроектировано, но не построено</h3>
+  <p>US-M2.2 «Обогатить раздел» в <span class="path">docs/multimodal_konspekt_plan.md</span>:
+  кнопка, которая генерирует <b>mermaid-схему, аналогию, пример</b> через preview
+  «принять/отклонить», промпт в <span class="path">app/prompts/</span>. Контракт написан
+  2026-07-05 — код не начат. Vision-слой (слайды) — фаза M2.1, тоже контракт без кода.</p>
+
+  <div class="diagram-box">
+    <svg viewBox="0 0 920 400" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+      <!-- column headers -->
+      <text x="120" y="30" font-size="13" font-weight="700" fill="var(--muted)" text-anchor="middle" letter-spacing="1">ДАННЫЕ · ГОТОВЫ</text>
+      <text x="460" y="30" font-size="13" font-weight="700" fill="var(--leak)" text-anchor="middle" letter-spacing="1">ПРОИЗВОДИТЕЛИ · ОБРЫВ</text>
+      <text x="790" y="30" font-size="13" font-weight="700" fill="var(--muted)" text-anchor="middle" letter-spacing="1">РЕНДЕРЕРЫ · ГОТОВЫ</text>
+
+      <!-- data column -->
+      <g font-size="12" fill="var(--ink)">
+        <rect x="20" y="50" width="200" height="42" rx="6" fill="var(--accent-soft)" stroke="var(--accent)"/>
+        <text x="120" y="70" text-anchor="middle">граф-payload: узлы, уровни,</text>
+        <text x="120" y="85" text-anchor="middle">decay, недельный план</text>
+        <rect x="20" y="104" width="200" height="42" rx="6" fill="var(--accent-soft)" stroke="var(--accent)"/>
+        <text x="120" y="124" text-anchor="middle">section_index:</text>
+        <text x="120" y="139" text-anchor="middle">структура лекции</text>
+        <rect x="20" y="158" width="200" height="42" rx="6" fill="var(--accent-soft)" stroke="var(--accent)"/>
+        <text x="120" y="178" text-anchor="middle">media sidecar:</text>
+        <text x="120" y="193" text-anchor="middle">таймкоды разделов</text>
+        <rect x="20" y="212" width="200" height="42" rx="6" fill="var(--accent-soft)" stroke="var(--accent)"/>
+        <text x="120" y="232" text-anchor="middle">mastery / quiz-история</text>
+        <text x="120" y="247" text-anchor="middle">на каждый концепт</text>
+      </g>
+
+      <!-- broken middle -->
+      <rect x="330" y="50" width="260" height="204" rx="8" fill="none" stroke="var(--leak)" stroke-width="2" stroke-dasharray="8 6"/>
+      <text x="460" y="120" font-size="30" text-anchor="middle" fill="var(--leak)">∅</text>
+      <g font-size="11.5" fill="var(--muted)">
+        <text x="460" y="150" text-anchor="middle">ни один промпт не выпускает mermaid</text>
+        <text x="460" y="168" text-anchor="middle">«одной страницы лекции» нет</text>
+        <text x="460" y="186" text-anchor="middle">живой HTML собирается — и выбрасывается</text>
+        <text x="460" y="204" text-anchor="middle">US-M2.2 спроектирован, не построен</text>
+      </g>
+
+      <!-- renderers column -->
+      <g font-size="12" fill="var(--ink)">
+        <rect x="690" y="50" width="200" height="42" rx="6" fill="var(--surface)" stroke="var(--accent)"/>
+        <text x="790" y="70" text-anchor="middle">mermaid-рендерер</text>
+        <text x="790" y="85" text-anchor="middle" fill="var(--leak)">(зависит от CDN)</text>
+        <rect x="690" y="104" width="200" height="42" rx="6" fill="var(--surface)" stroke="var(--accent)"/>
+        <text x="790" y="124" text-anchor="middle">d3-карта курса</text>
+        <text x="790" y="139" text-anchor="middle">(d3 локальный ✓)</text>
+        <rect x="690" y="158" width="200" height="42" rx="6" fill="var(--surface)" stroke="var(--accent)"/>
+        <text x="790" y="178" text-anchor="middle">инлайнер картинок</text>
+        <text x="790" y="193" text-anchor="middle">(base64 + кэш)</text>
+        <rect x="690" y="212" width="200" height="42" rx="6" fill="var(--surface)" stroke="var(--accent)"/>
+        <text x="790" y="232" text-anchor="middle">plotly-слой прогресса</text>
+        <text x="790" y="247" text-anchor="middle">(gauge, радар, теплокарта)</text>
+      </g>
+
+      <!-- arrows -->
+      <g stroke="var(--muted)" stroke-width="1.6" fill="none">
+        <line x1="222" y1="150" x2="326" y2="150"/>
+        <line x1="592" y1="150" x2="686" y2="150"/>
+      </g>
+      <text x="274" y="142" font-size="16" fill="var(--leak)" text-anchor="middle" font-weight="700">✗</text>
+      <text x="639" y="142" font-size="16" fill="var(--leak)" text-anchor="middle" font-weight="700">✗</text>
+
+      <!-- consequence strip -->
+      <rect x="20" y="300" width="870" height="72" rx="8" fill="var(--leak-soft)" stroke="var(--leak)"/>
+      <text x="455" y="330" font-size="13.5" text-anchor="middle" fill="var(--ink)" font-weight="600">Следствие: за визуальной выжимкой собственного материала владелец продукта уходит в NotebookLM,</text>
+      <text x="455" y="352" font-size="13.5" text-anchor="middle" fill="var(--ink)">а студент не получает её вовсе — хотя обе половины конвейера уже написаны и оплачены.</text>
+    </svg>
+    <div class="legend">
+      <span><i style="background:var(--accent)"></i>готово в коде на fc0f696</span>
+      <span><i style="background:var(--leak)"></i>обрыв / зависимость, ломающая local-first</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. ПРОТИВОРЕЧИЯ ============ -->
+<section class="part">
+  <div class="partnum">Часть 3 из 8</div>
+  <h2>Противоречия: три напряжения и их синтез</h2>
+
+  <div class="tablebox"><table>
+    <tr><th>Напряжение</th><th>Ложный выбор</th><th>Синтез</th></tr>
+    <tr><td><b>Красота ↔ достоверность</b></td>
+        <td>Либо эффектный постер, «нарисованный» LLM (красиво, но врёт),
+            либо сухая таблица (честно, но не схватывается)</td>
+        <td><b>Инфографика компилируется, а не рисуется.</b> Данные детерминированы и уже прошли
+            гейт из 10 проверок (100% evidence — разбор №3). LLM допускается максимум к подписям —
+            и только через preview. Красота — из шаблона, правда — из данных.</td></tr>
+    <tr><td><b>Файл ↔ интерактив</b></td>
+        <td>Либо статичная картинка (удобно шарить, но мертва),
+            либо живой экран (ведёт в материал, но заперт в приложении)</td>
+        <td><b>Самодостаточный HTML-файл — одновременно и файл, и интерактив.</b>
+            Паттерн уже доказан в этом же репо: <code>build_kg_html</code> = шаблон +
+            JSON-плейсхолдеры + вшитый d3. Один файл, работает offline, шарится, кликается.</td></tr>
+    <tr><td><b>Local-first ↔ богатый рендер</b></td>
+        <td>Либо отказаться от диаграмм (offline свято),
+            либо CDN и image-модели (богато, но чужое)</td>
+        <td><b>Вендорить библиотеки и рисовать SVG из данных.</b> D3 уже вендорен — mermaid
+            вендорится тем же жестом. Image-модель не нужна вовсе: невозможное достигается
+            не генерацией пикселей, а шаблоном над данными.</td></tr>
+  </table></div>
+</section>
+
+<!-- ============ 4. БОЛЬ-ЯКОРЬ ============ -->
+<section class="part">
+  <div class="partnum">Часть 4 из 8</div>
+  <h2>Боль-якорь: за картинкой о продукте — из продукта</h2>
+
+  <div class="callout pain">
+    <span class="label">Факт из жизни</span>
+    <p>2026-07-11: чтобы получить инфографику и mind-map по материалам <i>о самом hometutor</i>,
+    владелец продукта загружает их в NotebookLM. Продукт, чья суть — «материал становится
+    учебным объектом», не умеет показать материал. Ни студенту, ни собственному автору.</p>
+  </div>
+
+  <p>Точная причина — не «нет фичи», а <b>три разрыва в уже существующем коде</b>:</p>
+
+  <h3>Разрыв 1 — приёмник без передатчика</h3>
+  <div class="evidence">
+<span class="cm"># app/ui/living_konspekt_reader.py:140 — рендерер ЖДЁТ диаграммы:</span>
+_MERMAID_RE = re.compile(r"```(?:mermaid|flowchart).*?\n(.*?)\n```", ...)
+
+<span class="cm"># app/prompts/_impl.py — grep mermaid|диаграм: </span><span class="hl">0 совпадений</span>
+<span class="cm"># ни smart-konspekt, ни тьютор, ни quiz не выпускают ни одного блока ```mermaid</span>
+<span class="cm"># схема появляется, только если студент сам впишет её в markdown руками</span></div>
+
+  <h3>Разрыв 2 — живой экспорт выбрасывается, мёртвый предлагается</h3>
+  <div class="evidence">
+<span class="cm"># app/ui/knowledge_graph_d3.py:590 — самодостаточный интерактивный HTML карты курса</span>
+def build_kg_html(payload) -> str:   <span class="cm"># шаблон + JSON + вшитый d3</span>
+<span class="cm"># :670 — единственное использование: внутренний буфер Streamlit-компонента.</span>
+<span class="cm"># Файл никогда не предлагается пользователю. grep download|export|png</span>
+<span class="cm"># по dashboards_graph.py: </span><span class="hl">пусто</span>
+
+<span class="cm"># а экспорт-кнопка ВНУТРИ компонента (KG-04, template:699-706) отдаёт</span>
+<span class="cm"># knowledge_graph.svg — статичный снимок: </span><span class="hl">без кликов, без переходов в материал</span></div>
+
+  <h3>Разрыв 3 — двойной стандарт local-first</h3>
+  <div class="evidence">
+<span class="cm"># d3 — вендорен: app/ui/assets/d3.v7.min.js (CDN только как fallback, :592)</span>
+<span class="cm"># mermaid — нет (living_konspekt_reader.py:253):</span>
+import mermaid from '<span class="hl">https://cdn.jsdelivr.net/npm/mermaid@11/...</span>'
+<span class="cm"># offline: схемы молча не рендерятся — деградация без предупреждения</span></div>
+
+  <p>И поверх всего — <b>тир-замок</b>: даже готовая карта курса открывается только на уровне 3
+  (<span class="path">feature_registry.py:42</span>), а ориентация «увидеть всё сразу» нужна
+  в первый день — именно тогда страх «утонуть» максимален (разбор №2).</p>
+</section>
+
+<!-- ============ 5. ВЕРДИКТЫ ============ -->
+<section class="part">
+  <div class="partnum">Часть 5 из 8</div>
+  <h2>Вердикты</h2>
+  <p class="lede">Позиция по каждому элементу — не обзор опций.</p>
+
+  <div class="tablebox"><table>
+    <tr><th>Элемент</th><th>Вердикт</th><th>Почему</th></tr>
+    <tr><td>D3-карта курса + <code>build_kg_html</code></td>
+        <td><span class="chip keep">ОСТАВИТЬ + ОТКРЫТЬ</span></td>
+        <td>Лучший визуальный актив продукта. Одна кнопка «Скачать живую карту (HTML)» превращает
+            внутренний буфер в первый шарящийся артефакт. Паттерн «шаблон + JSON» — образец
+            для всей будущей инфографики.</td></tr>
+    <tr><td>SVG-экспорт KG-04</td>
+        <td><span class="chip keep">ОСТАВИТЬ</span></td>
+        <td>Быстрый снимок полезен. Не развивать: будущее за живым HTML, не за мёртвым SVG.</td></tr>
+    <tr><td>Mermaid-рендерер</td>
+        <td><span class="chip fix">ПОЧИНИТЬ</span></td>
+        <td>Вендорить mermaid@11 по образцу d3 — иначе local-first продукт показывает схемы
+            только при живом интернете.</td></tr>
+    <tr><td>Передатчик схем (US-M2.2)</td>
+        <td><span class="chip add">ПОСТРОИТЬ</span></td>
+        <td>Кнопка «Схема раздела»: промпт-роль в <span class="path">app/prompts/</span>,
+            preview «принять/отклонить», запись только по подтверждению. Контракт готов
+            с 2026-07-05 — нужен только код.</td></tr>
+    <tr><td>«Одна страница лекции»</td>
+        <td><span class="chip add">ПОСТРОИТЬ</span></td>
+        <td>Детерминированная сборка: section_index (скелет) + концепты лекции из граф-payload +
+            таймкоды sidecar + подсветка слабого. LLM не обязателен. Это и есть инфографика-продукт.</td></tr>
+    <tr><td>Plotly-слой прогресса</td>
+        <td><span class="chip keep">ОСТАВИТЬ НА МЕСТЕ</span></td>
+        <td>Это зеркало студента, не выжимка материала. Не смешивать жанры: на «одной странице
+            лекции» mastery — тонкий overlay, не дашборд.</td></tr>
+    <tr><td>«Чистый вид» (print_view)</td>
+        <td><span class="chip add">ОБЪЕДИНИТЬ</span></td>
+        <td>Готовая точка выдачи longform — научить отдавать не только .md, но и one-pager.
+            Не строить новый экран.</td></tr>
+    <tr><td>Инлайнер картинок</td>
+        <td><span class="chip keep">ОСТАВИТЬ</span></td>
+        <td>Готовый транспорт для будущих слайдов (M2.1) и любых встроенных визуальных артефактов.</td></tr>
+    <tr><td>Растровая генерация «как NotebookLM»</td>
+        <td><span class="chip hide">НЕ ДЕЛАТЬ</span></td>
+        <td>Против local-first, недоказуемо (LLM-иллюстрация врёт без evidence), результат мёртв —
+            не ведёт в материал. Невозможное делаем возможным другим путём.</td></tr>
+  </table></div>
+</section>
+
+<!-- ============ 6. ЦЕННОСТЬ ============ -->
+<section class="part">
+  <div class="partnum">Часть 6 из 8</div>
+  <h2>Ценность: живая инфографика вместо красивого постера</h2>
+
+  <div class="tablebox"><table>
+    <tr><th></th><th>NotebookLM / Canva</th><th>hometutor (после плана)</th></tr>
+    <tr><td>Каждый элемент ведёт в материал</td><td>нет — картинка конечна</td>
+        <td><b>да</b> — раздел · строка · минута видео (суть продукта)</td></tr>
+    <tr><td>Пересборка при изменении материала</td><td>заново руками</td>
+        <td><b>автоматически</b> — компилируется из данных</td></tr>
+    <tr><td>Достоверность</td><td>на совести генерации</td>
+        <td><b>за гейтом</b>: 10 проверок, 100% evidence</td></tr>
+    <tr><td>Offline / приватность</td><td>облако</td>
+        <td><b>локально</b>, один самодостаточный файл</td></tr>
+    <tr><td>Знает, что ты уже знаешь</td><td>нет</td>
+        <td><b>да</b> — mastery/decay overlay из существующего payload</td></tr>
+  </table></div>
+
+  <div class="callout good">
+    <span class="label">Измеримое доказательство</span>
+    <p>Северная звезда: <b>CTR возврата</b> — доля кликов из инфографики, приводящих в раздел или
+    на минуту видео. Это прямая метрика сути продукта («возврат в точное место»). Опоры:
+    (1) число скачиваний живой карты/one-pager; (2) доля лекций, у которых one-pager есть;
+    (3) вклад в TTFI из разбора №2 — новичок с картой ориентируется быстрее.</p>
+  </div>
+</section>
+
+<!-- ============ 7. ПУТЬ ============ -->
+<section class="part">
+  <div class="partnum">Часть 7 из 8</div>
+  <h2>Путь: один золотой маршрут и лестница уровней</h2>
+
+  <div class="flow">
+    <span class="step">Открыл лекцию</span><span class="arr">→</span>
+    <span class="step">Сверху — «одна страница лекции»</span><span class="arr">→</span>
+    <span class="step">30 секунд ориентации</span><span class="arr">→</span>
+    <span class="step">Клик по слабому месту</span><span class="arr">→</span>
+    <span class="step">Раздел / минута видео</span><span class="arr">→</span>
+    <span class="step">Петля обучения</span>
+  </div>
+  <p>Инфографика встраивается не как новый экран, а как <b>верхний этаж уже существующих
+  поверхностей</b>: шапка Живого конспекта и «Чистый вид». Ни одной новой вкладки.</p>
+
+  <ol class="ladder">
+    <li><span class="lvl">L0</span><div><b>Карта курса скачивается.</b> Кнопка над готовым
+      <code>build_kg_html</code>. Достигается за минуты, эффект «вау, это файл».</div></li>
+    <li><span class="lvl">L1</span><div><b>Схема раздела по кнопке.</b> Передатчик к готовому
+      mermaid-приёмнику, через preview. Первый LLM-визуал — под контролем студента.</div></li>
+    <li><span class="lvl">L2</span><div><b>«Одна страница лекции» собирается сама.</b>
+      Детерминированный билдер, без LLM. Появляется в шапке Живого конспекта.</div></li>
+    <li><span class="lvl">L3</span><div><b>One-pager выдаётся наружу.</b> «Чистый вид» отдаёт
+      HTML-файл рядом с .md; им можно поделиться.</div></li>
+    <li><span class="lvl">L4</span><div><b>«Моя карта».</b> Тот же one-pager с mastery/decay
+      overlay: зелёное — знаю, тлеющее — забываю. Данные уже в payload.</div></li>
+  </ol>
+</section>
+
+<!-- ============ 8. ПЛАН ============ -->
+<section class="part">
+  <div class="partnum">Часть 8 из 8</div>
+  <h2>План: P0–P2 по соотношению «эффект / усилие»</h2>
+
+  <div class="plan">
+    <div class="move p0">
+      <span class="tag">P0 · ХОД 1</span>
+      <h3>Отдать живую карту</h3>
+      <p><b>Что:</b> кнопка «Скачать интерактивную карту курса (HTML)» на вкладке графа —
+      <code>st.download_button</code> над результатом уже существующего <code>build_kg_html(payload)</code>.</p>
+      <p><b>Усилие:</b> ~десяток строк + smoke-тест. <b>Эффект:</b> первый экспортируемый
+      визуальный артефакт продукта; работает offline; шарится одним файлом.</p>
+    </div>
+    <div class="move p0">
+      <span class="tag">P0 · ХОД 2</span>
+      <h3>Передатчик к готовому приёмнику</h3>
+      <p><b>Что:</b> кнопка «Схема раздела» в Живом конспекте: промпт-роль в
+      <span class="path">app/prompts/_impl.py</span> (через provider-layer) → mermaid →
+      preview «принять/отклонить» → запись только по подтверждению. В том же ходе — вендорить
+      mermaid@11 в <span class="path">app/ui/assets/</span> по образцу d3.</p>
+      <p><b>Усилие:</b> контракт US-M2.2 уже спроектирован. <b>Эффект:</b> впервые продукт
+      сам производит визуальное объяснение; рендерер перестаёт зависеть от CDN.</p>
+    </div>
+    <div class="move p1">
+      <span class="tag">P1</span>
+      <h3>«Одна страница лекции»</h3>
+      <p><b>Что:</b> детерминированный билдер one-pager: скелет из section_index + концепты лекции
+      из граф-payload + таймкоды из media sidecar + подсветка слабого. Рендер — по паттерну
+      <code>build_kg_html</code> (шаблон + JSON). Выдача: шапка Живого конспекта + «Чистый вид»
+      (download HTML рядом с .md). LLM не обязателен.</p>
+      <p><b>Эффект:</b> закрывает страх «утонуть» в первый день; каждый блок — точка возврата.</p>
+    </div>
+    <div class="move p2">
+      <span class="tag">P2</span>
+      <h3>«Моя карта» + слайды</h3>
+      <p><b>Что:</b> mastery/decay overlay на one-pager («что я знаю / что тлеет») — данные уже
+      в payload; затем слайды из M2.1 через готовый инлайнер картинок. Отдельно — телеметрия
+      CTR возврата на дашборд метрик.</p>
+      <p><b>Эффект:</b> инфографика становится персональной — то, чего не может ни один
+      внешний генератор.</p>
+    </div>
+  </div>
+
+  <div class="callout good">
+    <span class="label">Почему это шедевр в простоте</span>
+    <p>Ни одной новой библиотеки визуализации, ни одной image-модели, ни одного нового экрана.
+    Весь план — <b>соединить уже написанные половины конвейера</b>: данные, прошедшие гейт,
+    и рендереры, ждущие данных. «Невозможное» — инфографика уровня NotebookLM локально —
+    оказывается не задачей генерации картинок, а задачей одной кнопки download и одного
+    промпта с preview.</p>
+  </div>
+</section>
+
+<footer>
+  Спецвыпуск серии эволюционных разборов hometutor · 2026-07-11 · код на fc0f696 («159») ·
+  метод: суть → реальность → противоречия → боль-якорь → вердикты → ценность → путь → план ·
+  каждое утверждение опирается на файл:строку в репозитории.
+</footer>
+
+</div>

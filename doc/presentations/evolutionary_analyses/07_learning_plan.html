@@ -1,0 +1,718 @@
+<title>План обучения: стол, который забывает, где вы сидите — разбор №7 · hometutor</title>
+<style>
+  :root {
+    --bg: #F5F7F6; --surface: #FFFFFF; --ink: #1C2622; --muted: #5C6B65;
+    --line: #DDE4E1; --accent: #14705F; --accent-soft: #E3F0EC;
+    --leak: #B3492A; --leak-soft: #F7E8E2; --amber: #9A6B15; --amber-soft: #F5EDDC;
+    --code-bg: #EDF1EF; --shadow: 0 1px 3px rgba(28,38,34,.07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101715; --surface: #17201D; --ink: #E3EAE6; --muted: #93A39C;
+      --line: #2A3630; --accent: #4CC2A8; --accent-soft: #16302A;
+      --leak: #E08663; --leak-soft: #33201A; --amber: #D9A94E; --amber-soft: #2E2618;
+      --code-bg: #1E2A26; --shadow: 0 1px 3px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101715; --surface: #17201D; --ink: #E3EAE6; --muted: #93A39C;
+    --line: #2A3630; --accent: #4CC2A8; --accent-soft: #16302A;
+    --leak: #E08663; --leak-soft: #33201A; --amber: #D9A94E; --amber-soft: #2E2618;
+    --code-bg: #1E2A26; --shadow: 0 1px 3px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"] {
+    --bg: #F5F7F6; --surface: #FFFFFF; --ink: #1C2622; --muted: #5C6B65;
+    --line: #DDE4E1; --accent: #14705F; --accent-soft: #E3F0EC;
+    --leak: #B3492A; --leak-soft: #F7E8E2; --amber: #9A6B15; --amber-soft: #F5EDDC;
+    --code-bg: #EDF1EF; --shadow: 0 1px 3px rgba(28,38,34,.07);
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 16px/1.65 "Segoe UI", system-ui, -apple-system, sans-serif;
+    margin: 0; padding: 0 20px 80px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; font-weight: 600; text-wrap: balance; }
+  h1 { font-size: 2.3rem; line-height: 1.2; margin: .3em 0 .2em; }
+  h2 { font-size: 1.55rem; line-height: 1.25; margin: 0 0 .5em; }
+  h3 { font-size: 1.12rem; margin: 1.4em 0 .4em; }
+  p { margin: .7em 0; max-width: 68ch; }
+  code, .path {
+    font-family: Consolas, "Cascadia Mono", monospace; font-size: .86em;
+    background: var(--code-bg); padding: .1em .35em; border-radius: 3px; white-space: nowrap;
+  }
+  .eyebrow {
+    font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); font-weight: 600; margin-bottom: .4em;
+  }
+  header.top { padding: 56px 0 8px; border-bottom: 2px solid var(--ink); margin-bottom: 8px; }
+  .subtitle { color: var(--muted); font-size: 1.05rem; max-width: 62ch; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px 22px; color: var(--muted); font-size: .82rem; padding: 14px 0 26px; }
+  .meta b { color: var(--ink); font-weight: 600; }
+
+  .series { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 6px; }
+  .series span.card {
+    display: block; flex: 1 1 120px; min-width: 120px;
+    border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px;
+    background: var(--surface); color: var(--muted); font-size: .8rem; line-height: 1.4;
+  }
+  .series .here { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); }
+  .series .done { border-style: dashed; }
+  .series .rank { font-family: Georgia, serif; font-size: 1.15rem; color: var(--accent); display: block; }
+
+  section.part { margin-top: 56px; }
+  .partnum {
+    font-family: Georgia, serif; font-style: italic; font-size: .95rem;
+    color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; margin-bottom: 4px;
+  }
+  .lede { font-size: 1.13rem; line-height: 1.6; }
+
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 14px 0; }
+  th { text-align: left; font-size: .72rem; letter-spacing: .09em; text-transform: uppercase;
+       color: var(--muted); font-weight: 600; padding: 8px 12px 6px; border-bottom: 2px solid var(--line); }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .tablebox { overflow-x: auto; }
+
+  .chip { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .06em;
+          padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
+  .chip.keep { background: var(--accent-soft); color: var(--accent); }
+  .chip.fix { background: var(--leak-soft); color: var(--leak); }
+  .chip.add { background: var(--amber-soft); color: var(--amber); }
+  .chip.hide { background: var(--code-bg); color: var(--muted); }
+
+  .callout { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent);
+             border-radius: 6px; padding: 16px 20px; margin: 18px 0; box-shadow: var(--shadow); }
+  .callout.pain { border-left-color: var(--leak); }
+  .callout .label { font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: var(--leak); }
+  .callout.good .label { color: var(--accent); }
+  .callout p:first-of-type { margin-top: .4em; }
+
+  .evidence { font-family: Consolas, "Cascadia Mono", monospace; font-size: .8rem; line-height: 1.7;
+              background: var(--code-bg); border-radius: 6px; padding: 14px 18px; overflow-x: auto; margin: 12px 0; }
+  .evidence .cm { color: var(--muted); }
+  .evidence .hl { color: var(--leak); font-weight: 600; }
+
+  .diagram-box { background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+                 padding: 12px; margin: 20px 0; overflow-x: auto; box-shadow: var(--shadow); }
+  .diagram-box svg { display: block; min-width: 880px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: .78rem; color: var(--muted); padding: 8px 6px 2px; }
+  .legend i { display: inline-block; width: 22px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+
+  .plan { display: grid; gap: 12px; margin: 18px 0; }
+  .plan .move { background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+                padding: 16px 20px; box-shadow: var(--shadow); }
+  .plan .move.p0 { border-left: 4px solid var(--accent); }
+  .plan .move.p1 { border-left: 4px solid var(--amber); }
+  .plan .move.p2 { border-left: 4px solid var(--line); }
+  .plan .tag { font-size: .7rem; font-weight: 700; letter-spacing: .1em; color: var(--muted); }
+  .plan .move.p0 .tag { color: var(--accent); }
+  .plan .move.p1 .tag { color: var(--amber); }
+  .plan h3 { margin: .2em 0 .3em; }
+  .plan p { margin: .3em 0; font-size: .92rem; }
+
+  .ladder { list-style: none; padding: 0; margin: 14px 0; }
+  .ladder li { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+  .ladder .lvl { font-family: Georgia, serif; font-size: 1.1rem; color: var(--accent); min-width: 2.2em; }
+
+  .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 16px 0; }
+  .flow .step { background: var(--accent-soft); color: var(--ink); border: 1px solid var(--accent);
+                border-radius: 20px; padding: 5px 14px; font-size: .85rem; white-space: nowrap; }
+  .flow .arr { color: var(--muted); font-size: 1rem; }
+
+  footer { margin-top: 70px; padding-top: 16px; border-top: 1px solid var(--line);
+           color: var(--muted); font-size: .78rem; }
+  @media (max-width: 640px) { h1 { font-size: 1.7rem; } body { padding: 0 14px 60px; } }
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">Эволюционный разбор · спецвыпуск серии №7</div>
+  <h1>План обучения: стол, который забывает, где вы сидите</h1>
+  <p class="subtitle">Таблица красивая. Столбец «Зависимости» — выдумка. Telegram утром говорит
+  одну тему, приложение днём — другую. А кнопка «Продолжить» на главном экране иногда
+  показывает студенту сырой markdown вместо названия темы.</p>
+</header>
+
+<div class="meta">
+  <span>Дата: <b>2026-07-11</b></span>
+  <span>Код: <b>hometutor@fc0f696</b></span>
+  <span>Планка: <b>каждое утверждение проверяемо (файл:строка)</b></span>
+</div>
+
+<div class="series">
+  <span class="card done"><span class="rank">№1 ✓</span>Судьба одного знания</span>
+  <span class="card done"><span class="rank">№2 ✓</span>Первые 10 минут</span>
+  <span class="card done"><span class="rank">№3 ✓</span>Материал как продукт</span>
+  <span class="card done"><span class="rank">№4 ✓</span>Агент как одна кнопка</span>
+  <span class="card done"><span class="rank">№5 ✓</span>Доверие под нагрузкой</span>
+  <span class="card done"><span class="rank">№6 ✓</span>Инфографика</span>
+  <span class="card here"><span class="rank">Спец</span>План обучения — этот разбор</span>
+</div>
+
+<!-- ============ 1. СУТЬ ============ -->
+<section class="part">
+  <div class="partnum">Часть 1 из 8</div>
+  <h2>Суть: чего студент хочет от «плана», а не от списка тем</h2>
+  <p class="lede">Скриншот, с которого начался этот разбор, — не мокап стороннего инструмента.
+  Это буквально формат, который hometutor сам себе прописал в промпте. Значит вопрос не
+  «а надо ли так», а «а действительно ли получается так». План обучения нужен студенту
+  ровно по трём причинам — и все три проверяемы кодом, а не мнением.</p>
+
+  <div class="tablebox"><table>
+    <tr><th>Что нужно</th><th>Что это значит технически</th></tr>
+    <tr><td><b>Верный порядок</b></td>
+        <td>«Зависимости» в таблице — это реальные пререквизиты из графа курса, а не
+            догадка модели по восьми обрывкам текста.</td></tr>
+    <tr><td><b>Честный бюджет</b></td>
+        <td>Если студент указал 6 часов, сумма столбца «Время» не должна тихо превращаться
+            в 14 — план должен либо влезать, либо явно сказать, что не влезает.</td></tr>
+    <tr><td><b>Место не теряется</b></td>
+        <td>«Текущий шаг» и карточка «Продолжить» на главном экране должны указывать на тот
+            же самый шаг, который видел студент в таблице — не на случайный абзац.</td></tr>
+    <tr><td><b>Один голос</b></td>
+        <td>Если продукт говорит «сегодня учи X» в приложении и «сегодня учи Y» в Telegram,
+            это не два мнения — это отсутствие плана как такового.</td></tr>
+  </table></div>
+
+  <div class="callout good">
+    <span class="label">Определение</span>
+    <p><b>Работающий план — это план, у которого структура является данными, а не
+    прозой.</b> Если единственный источник истины о «шаге 3» — это то, как модель
+    расставила пустые строки в своём ответе, план не работает, даже если он красиво
+    выглядит на экране.</p>
+  </div>
+</section>
+
+<!-- ============ 2. РЕАЛЬНОСТЬ ============ -->
+<section class="part">
+  <div class="partnum">Часть 2 из 8</div>
+  <h2>Реальность: у продукта минимум пять голосов, отвечающих на вопрос «что учить», и только один из них честно доведён до конца</h2>
+  <p class="lede">Слово «план» в hometutor обозначает не один механизм, а целое семейство —
+  разведка кода нашла пять независимых реализаций. Начнём с двух главных: образцовой и той,
+  что на скриншоте.</p>
+
+  <h3>Голос А — «План на сегодня» (Adaptive Daily Plan)</h3>
+  <div class="tablebox"><table>
+    <tr><th>Свойство</th><th>Где</th></tr>
+    <tr><td>Встроен прямо в главный экран, без похода в отдельную вкладку</td>
+        <td><span class="path">home_hub.py:665</span> (<code>render_adaptive_plan_hub</code>)</td></tr>
+    <tr><td>Шаги строятся из mastery, SM-2 due-очереди и графа — детерминированно</td>
+        <td><span class="path">adaptive_plan.py</span> → <code>AdaptiveDailyPlan.build_adaptive_daily_plan()</code></td></tr>
+    <tr><td>Каждый шаг — кнопка «В чат» / «Завершить» с начислением XP</td>
+        <td><span class="path">adaptive_daily_plan_layout.py:290-338</span></td></tr>
+    <tr><td>Есть блок «Почему такой порядок» и «пересчитать» без похода в код</td>
+        <td><span class="path">adaptive_daily_plan_layout.py:128-153,276-286</span></td></tr>
+  </table></div>
+
+  <h3>Голос Б — «План обучения» (то, что на скриншоте)</h3>
+  <div class="tablebox"><table>
+    <tr><th>Свойство</th><th>Где</th></tr>
+    <tr><td>Подвкладка «Темы» (tier 2 — видна очень рано, не спрятана)</td>
+        <td><span class="path">feature_registry.py:31</span>, <span class="path">topics_tab_plan_subtab.py</span></td></tr>
+    <tr><td>Таблица — это буквально формат промпта, не структура кода</td>
+        <td><span class="path">app/prompts/_impl.py:218-222</span> (<code>LEARNING_PLAN_PROMPT</code>):
+            <code>| # | Тема | Документ(ы) | Ключевые концепции | Зависимости | Время (ч) |</code></td></tr>
+    <tr><td>Контекст для генерации — максимум 8 фрагментов на весь план</td>
+        <td><span class="path">app/knowledge_planning.py:83-84</span>
+            (<code>max_chunks_per_doc=2, max_total_chunks=8</code>)</td></tr>
+    <tr><td>«Учитывать прогресс» — чекбокс, по умолчанию выключен</td>
+        <td><span class="path">topics_tab_plan_subtab.py:63-68</span> (<code>value=False</code>)</td></tr>
+  </table></div>
+
+  <p><code>DynamicLearningPlan</code> (<span class="path">learning_plan_generation.py:94</span>) —
+  <b>не тот же класс, что Голос А</b> (это отдельная находка разведки кода, уточняющая
+  первоначальную гипотезу этого разбора). У него тоже есть настоящий топологический порядок
+  графа (<span class="path">:187</span>, <code>self._kg.topological_sort(all_ids)</code>) и
+  обрезка по бюджету (<span class="path">:58-79</span>, <code>_trim_plan_by_budget</code>) —
+  но это третий, самостоятельный алгоритм. Для таблицы Плана Б он используется лишь как
+  необязательный абзац подсказки внутри промпта — и то только если чекбокс включён. А для
+  другой обязанности — предложить «что сегодня» — он используется целиком, синхронно с
+  Планом А не сверяясь. Отсюда — Голос В.</p>
+
+  <h3>Голос В — AI Coach / «Мой прогресс» / Telegram-напоминание</h3>
+  <p>Тот же <code>plan_service</code> (singleton <code>DynamicLearningPlan</code>,
+  <span class="path">learning_plan_generation.py:398</span>) отдельно вызывается через
+  <code>generate_personalized_plan(days=7)</code>
+  (<span class="path">:232-370</span>) в трёх независимых точках, ни одна из которых не
+  сверяется с Планом А:</p>
+  <div class="evidence">
+<span class="cm"># app/routers/dashboard.py:37-43 — GET /dashboard/coach_plan</span>
+d = max(1, min(14, int(days)))
+return plan_service.generate_personalized_plan(days=d, user_progress=True)
+<span class="cm"># используется на странице «Мой прогресс» (app/ui/pages/3_Мой_прогресс.py:171)</span>
+
+<span class="cm"># app/telegram_notifications.py:67-73 — ежедневное напоминание в Telegram</span>
+plan = plan_service.generate_personalized_plan(user_progress=True)
+dp = plan.get("daily_plan") or []
+if dp:
+    d0 = dp[0]
+    topic = str(d0.get("concept") or d0.get("topic") or "").strip()
+    if topic:
+        parts.append(f"<span class="hl">Сегодня: {topic}</span>")</div>
+  <p>А приложение на главном экране в это же время показывает «Следующий шаг» из
+  <b>совсем другого</b> вычисления — <code>AdaptiveDailyPlan.build_adaptive_daily_plan()</code>
+  (Голос А). Оба читают один и тот же граф и одни и те же due-повторы, но применяют разные
+  эвристики отбора (<span class="path">adaptive_plan.py:383-393</span> — топосортировка gaps/new
+  vs <span class="path">learning_plan_generation.py:256-298</span> — next-best-actions +
+  weak-concepts) — и никак не сверяют результат.</p>
+
+  <h3>Голос Г — «На неделю» в Графе знаний (только витрина)</h3>
+  <p>Четвёртый, полностью независимый алгоритм отбора темы — приоритет
+  «просроченные повторы → доступные концепты → в процессе»
+  (<span class="path">app/ui/knowledge_graph_d3_analysis.py:12-86</span>,
+  <code>build_weekly_plan</code>). Показывается панелью «📅 На неделю — план обучения»
+  внутри вкладки «Граф знаний»
+  (<span class="path">assets/knowledge_graph_d3_template.html:210</span>,
+  <code>id="pp-cards"</code>) — но карточки там не кликабельны: обработчик клика привязан
+  только к узлам самого графа (<code>_kgBridgeConceptToStreamlit</code>), не к карточкам плана.
+  Студент может увидеть тему в этой панели, но не может «начать» её отсюда одним действием.</p>
+
+  <h3>Голос-призрак — <code>ssr_weekly_planner.py</code> (написан, не подключён)</h3>
+  <p>Пятый — точнее, формально мёртвый — планировщик: полноценный, покрытый pydantic-моделями
+  недельный распределитель минут по пулам retention/recovery/continuation
+  (<span class="path">app/ssr_weekly_planner.py:105-203</span>,
+  <code>generate_weekly_study_plan</code>). У него нет ни одного вызывающего места вне
+  собственных фикстур — код сам это признаёт: модуль явно числится в трекере мёртвого кода
+  как «weekly SSR planning domain module»
+  (<span class="path">scripts/check_dead_modules.py:24,42</span>) и отдельно зафиксирован в
+  архитектурном аудите как часть кластера из ~17 никогда не вызываемых backend-модулей
+  (<span class="path">doc/archive/arch_review_2026-06-25.md:34</span>, находка
+  AR-2026-06-25-003). Это самый честный участник семьи «планов» — он не притворяется рабочим.</p>
+
+  <div class="tablebox"><table>
+    <tr><th>Голос</th><th>Что вычисляет</th><th>Где виден</th><th>Статус</th></tr>
+    <tr><td><b>А</b> — Adaptive Daily Plan</td><td>topo-sort gaps/new + mastery + SM-2 + emotional state</td>
+        <td>Главный экран, «Адаптивный план»</td><td>Работает, действия реальны (XP, чат)</td></tr>
+    <tr><td><b>Б</b> — «План обучения»</td><td>LLM по ≤8 фрагментам текста, формат — markdown-таблица</td>
+        <td>Темы → План обучения</td><td>Таблица честная, но шаги/резюме/карточки ломаются</td></tr>
+    <tr><td><b>В</b> — AI Coach / Telegram</td><td>next-best-actions + weak-concepts (другой алгоритм, тот же граф)</td>
+        <td>«Мой прогресс», Telegram-напоминание</td><td>Работает независимо от А — может назвать другую тему</td></tr>
+    <tr><td><b>Г</b> — «На неделю» в графе</td><td>overdue → frontier → in-progress</td>
+        <td>Панель во вкладке «Граф знаний»</td><td>Только витрина, карточки некликабельны</td></tr>
+    <tr><td><b>Призрак</b> — <code>ssr_weekly_planner</code></td><td>распределение минут по retention/recovery/continuation</td>
+        <td>Нигде</td><td>Формально мёртвый код</td></tr>
+  </table></div>
+
+  <p>Ниже — детальный разбор именно Голоса Б, поскольку это тот самый экран со скриншота, и его
+  поломка проверяется точнее всего: не «архитектура неидеальна», а конкретная строка кода,
+  которая ломает конкретную кнопку.</p>
+
+  <div class="diagram-box">
+    <svg viewBox="0 0 920 430" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+      <text x="230" y="28" font-size="13" font-weight="700" fill="var(--muted)" text-anchor="middle" letter-spacing="1">ГЕНЕРАЦИЯ</text>
+      <text x="620" y="28" font-size="13" font-weight="700" fill="var(--leak)" text-anchor="middle" letter-spacing="1">ПОТРЕБИТЕЛИ · ОЖИДАЮТ СПИСОК, ПОЛУЧАЮТ ТАБЛИЦУ</text>
+
+      <rect x="20" y="46" width="200" height="56" rx="6" fill="var(--accent-soft)" stroke="var(--accent)"/>
+      <text x="120" y="68" text-anchor="middle" font-size="12">DynamicLearningPlan</text>
+      <text x="120" y="84" text-anchor="middle" font-size="11" fill="var(--muted)">topological_sort · реальный граф</text>
+
+      <rect x="260" y="46" width="200" height="56" rx="6" fill="var(--surface)" stroke="var(--line)"/>
+      <text x="360" y="68" text-anchor="middle" font-size="12">LEARNING_PLAN_PROMPT</text>
+      <text x="360" y="84" text-anchor="middle" font-size="11" fill="var(--muted)">просит markdown-таблицу</text>
+
+      <line x1="220" y1="74" x2="256" y2="74" stroke="var(--muted)" stroke-width="1.6"/>
+      <text x="238" y="66" font-size="10" fill="var(--amber)" text-anchor="middle">хинт-текст,</text>
+      <text x="238" y="97" font-size="10" fill="var(--amber)" text-anchor="middle">не структура</text>
+
+      <rect x="140" y="130" width="440" height="46" rx="6" fill="var(--code-bg)" stroke="var(--line)"/>
+      <text x="360" y="158" text-anchor="middle" font-size="12" font-family="Consolas,monospace">plan_md — сплошная строка ответа LLM (таблица внутри)</text>
+
+      <line x1="360" y1="102" x2="360" y2="126" stroke="var(--muted)" stroke-width="1.6"/>
+
+      <line x1="360" y1="176" x2="360" y2="200" stroke="var(--muted)" stroke-width="1.6"/>
+
+      <rect x="140" y="200" width="440" height="50" rx="6" fill="var(--leak-soft)" stroke="var(--leak)"/>
+      <text x="360" y="221" text-anchor="middle" font-size="11.5" font-family="Consolas,monospace">learning_plan_steps_from_markdown()</text>
+      <text x="360" y="238" text-anchor="middle" font-size="10.5" fill="var(--muted)">regex ждёт «1. Текст», строки таблицы начинаются с «|»</text>
+
+      <line x1="360" y1="250" x2="360" y2="272" stroke="var(--leak)" stroke-width="1.6"/>
+      <text x="378" y="266" font-size="16" fill="var(--leak)" font-weight="700">✗</text>
+
+      <rect x="220" y="272" width="280" height="46" rx="6" fill="var(--surface)" stroke="var(--leak)" stroke-dasharray="5 4"/>
+      <text x="360" y="294" text-anchor="middle" font-size="11.5">«шаг» = вся таблица одним блоком</text>
+      <text x="360" y="309" text-anchor="middle" font-size="10.5" fill="var(--muted)">вместо N шагов — N нет, есть 3-4 абзаца</text>
+
+      <line x1="360" y1="318" x2="360" y2="340" stroke="var(--leak)" stroke-width="1.6"/>
+
+      <rect x="120" y="340" width="330" height="58" rx="6" fill="var(--leak-soft)" stroke="var(--leak)"/>
+      <text x="285" y="362" text-anchor="middle" font-size="12" font-weight="600">Карточка «Продолжить» на главном</text>
+      <text x="285" y="379" text-anchor="middle" font-size="10.5" fill="var(--muted)">resume_cards_tutor.py:584-589</text>
+      <text x="285" y="392" text-anchor="middle" font-size="10.5" fill="var(--leak)">показывает сырой текст таблицы, до 140 симв.</text>
+
+      <rect x="470" y="200" width="230" height="50" rx="6" fill="var(--leak-soft)" stroke="var(--leak)"/>
+      <text x="585" y="221" text-anchor="middle" font-size="11.5" font-family="Consolas,monospace">_preview_cards_from_plan()</text>
+      <text x="585" y="238" text-anchor="middle" font-size="10.5" fill="var(--muted)">режет строки по «-0123456789.», не по «|»</text>
+      <line x1="585" y1="250" x2="585" y2="380" stroke="var(--leak)" stroke-width="1.6"/>
+      <text x="600" y="266" font-size="16" fill="var(--leak)" font-weight="700">✗</text>
+      <rect x="470" y="380" width="230" height="46" rx="6" fill="var(--surface)" stroke="var(--leak)" stroke-dasharray="5 4"/>
+      <text x="585" y="402" text-anchor="middle" font-size="11.5">«Превью карточек по плану»</text>
+      <text x="585" y="417" text-anchor="middle" font-size="10.5" fill="var(--muted)">фрагменты строк таблицы вместо тем</text>
+
+      <text x="700" y="60" font-size="10.5" fill="var(--muted)" text-anchor="start">grep tests/ по обеим функциям</text>
+      <text x="700" y="74" font-size="10.5" fill="var(--leak)" text-anchor="start" font-weight="700">— 0 совпадений</text>
+    </svg>
+    <div class="legend">
+      <span><i style="background:var(--accent)"></i>реальные данные (граф, топосортировка)</span>
+      <span><i style="background:var(--leak)"></i>разрыв формата: строка таблицы «|…|» не распознаётся как шаг</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. ПРОТИВОРЕЧИЯ ============ -->
+<section class="part">
+  <div class="partnum">Часть 3 из 8</div>
+  <h2>Противоречия: четыре напряжения и их синтез</h2>
+
+  <div class="tablebox"><table>
+    <tr><th>Напряжение</th><th>Ложный выбор</th><th>Синтез</th></tr>
+    <tr><td><b>Много каналов ↔ одна правда</b></td>
+        <td>Либо у каждого канала (главный экран, «Мой прогресс», Telegram, граф) свой
+            алгоритм под свою задачу, либо один монолит на всё</td>
+        <td><b>Один источник факта «что сегодня» — Голос А</b>, остальные каналы либо читают
+            его результат, либо явно решают другую, непересекающуюся задачу (Голос Б —
+            маршрут по теме целиком, не «сегодня»). Не четыре мнения об одном вопросе, а
+            одно мнение и три разных вопроса.</td></tr>
+    <tr><td><b>Читаемость таблицы ↔ машиночитаемость шага</b></td>
+        <td>Либо красивая markdown-таблица для человека, либо голый JSON-список для кода —
+            выбрать одно в ущерб другому</td>
+        <td><b>Таблица остаётся, но код разбирает именно её строки</b> — не текстовые абзацы.
+            Таблица — это уже структура (заголовок + разделитель + строки); её просто никто
+            не парсит как структуру.</td></tr>
+    <tr><td><b>Свобода модели ↔ гарантия зависимостей</b></td>
+        <td>Либо доверить модели придумать «Зависимости» из 8 обрывков текста, либо убрать
+            столбец совсем</td>
+        <td><b>Столбец «Зависимости» заполняется из реального
+            <code>topological_sort</code></b>, который уже вычислен в том же классе; модели
+            остаётся описать формулировку темы и оценку часов — не порядок.</td></tr>
+    <tr><td><b>Одно слово «план» ↔ два разных механизма</b></td>
+        <td>Либо смириться с путаницей, либо переименовывать один из двух в нечто общее</td>
+        <td><b>Разделить назначение прямо в тексте UI</b>: Б — «Программа курса»
+            (маршрут по теме, готовится один раз), А — «План на сегодня» (что делать прямо
+            сейчас). А по завершению шага в Б должен обновлять тот же прогресс, что двигает А —
+            не жить в параллельной вселенной.</td></tr>
+  </table></div>
+</section>
+
+<!-- ============ 4. БОЛЬ-ЯКОРЬ ============ -->
+<section class="part">
+  <div class="partnum">Часть 4 из 8</div>
+  <h2>Боль-якорь: два конкретных момента, где план перестаёт работать</h2>
+
+  <div class="callout pain">
+    <span class="label">Факт из жизни · Голос А vs Голос В</span>
+    <p>Утро. Telegram присылает: «Сегодня: <i>каскадные ошибки</i>» — это первая строка
+    <code>daily_plan</code> из <code>plan_service.generate_personalized_plan()</code>
+    (<span class="path">telegram_notifications.py:67-73</span>). Студент открывает приложение —
+    на главном экране блок «Следующий шаг» показывает другую тему, потому что она посчитана
+    отдельным алгоритмом <code>AdaptiveDailyPlan.build_adaptive_daily_plan()</code>
+    (<span class="path">adaptive_plan_hub_layout.py:39</span>,
+    <code>get_primary_plan_block_from_plan</code>). Оба читают один и тот же граф, оба честные —
+    но ни один не знает про существование другого. Студент получает два «сегодня» из одного
+    продукта.</p>
+  </div>
+
+  <div class="callout pain">
+    <span class="label">Факт из жизни · разрыв формата Голоса Б</span>
+    <p>Студент строит план обучения по вкладке «Темы», выбирает «Текущий шаг плана» и
+    нажимает «Запомнить шаг». На главном экране появляется карточка «Продолжить тему или
+    план» — и вместо названия темы в ней может оказаться обрывок markdown-таблицы вроде
+    <code>| Тема1 | [файл] | концепция1, концепция2 | — | 1.5 |…</code>, обрезанный
+    на 140-м символе.</p>
+  </div>
+
+  <p>Второй момент — не единичный баг, а системный разрыв формата в трёх точках подряд:</p>
+
+  <h3>Разрыв 1 — парсер шагов не видит строки таблицы</h3>
+  <div class="evidence">
+<span class="cm"># app/user_state_core.py:312-332 — learning_plan_steps_from_markdown()</span>
+<span class="cm"># «шагом» считается строка, начинающаяся с цифры и пробела:</span>
+if re.match(r"<span class="hl">^\s*\d+\s+</span>", line) and current: ...
+
+<span class="cm"># но формат промпта — markdown-таблица (_impl.py:219-221):</span>
+| 1 | Тема1 | [файл] | концепция1, концепция2 | — | 1.5 |
+<span class="cm"># строка начинается с «|», а не с «1 » — regex не совпадает НИ РАЗУ</span>
+<span class="cm"># fallback: raw.split("\n\n") — вся таблица склеивается в ОДИН абзац</span></div>
+
+  <h3>Разрыв 2 — «шаг» на главном экране = абзац, не тема</h3>
+  <div class="evidence">
+<span class="cm"># app/ui/topics_tab_plan_subtab.py:186-227</span>
+plan_steps = user_state.learning_plan_steps_from_markdown(plan_md)
+<span class="cm"># typичный результат: [«## Цель…», «## План обучения», ТАБЛИЦА-ОДНИМ-БЛОКОМ, «## Рекомендации…»]</span>
+<span class="cm"># НЕ [Тема1, Тема2, Тема3…] — а именно это подразумевает selectbox «Текущий шаг плана»</span>
+
+<span class="cm"># app/ui/resume_cards_tutor.py:584-589</span>
+body = f"Вы остановились на шаге **{int(step_i) + 1}**"
+if label:
+    preview = label.replace("\n", " ")[:140]  <span class="hl">← если label — это склеенная таблица</span>
+    body += f": {preview}"</div>
+
+  <h3>Разрыв 3 — превью карточек режет таблицу по буквам, не по строкам</h3>
+  <div class="evidence">
+<span class="cm"># app/ui/course_prepare_view.py:670-673 — _preview_cards_from_plan()</span>
+lines = [line.strip(" -0123456789.").strip() for line in plan_text.splitlines()]
+return [line for line in lines if len(line) >= 8][:7]
+<span class="cm"># strip() чистит цифры/точки/дефисы по краям строки — но НЕ символ «|»</span>
+<span class="cm"># на входе — строки вида «| Тема1 | [файл] | концепция1, концепция2 | — | 1.5 |»</span>
+<span class="hl"># на выходе — обрывки табличных строк вместо названий тем в «Превью карточек по плану»</span></div>
+
+  <p>Все три функции — <code>learning_plan_steps_from_markdown</code>,
+  <code>_preview_cards_from_plan</code>, и сам путь <code>build_learning_plan</code> —
+  не покрыты ни одним тестом: <code>grep -r "learning_plan_steps_from_markdown\|
+  _preview_cards_from_plan\|build_learning_plan(" tests/</code> находит ровно один
+  посторонний хит в <span class="path">test_living_konspekt_workbench.py</span>. Разрыв
+  формата не мог быть пойман автоматически — его просто некому было проверить.</p>
+
+  <p>При этом соседние функции того же файла работают честно: «Записать покрытие плана в
+  прогресс темы» (<span class="path">topics_tab_plan_subtab.py:229-248</span>) использует
+  настоящий <code>coverage["ratio"]</code> из <code>compute_source_coverage</code> —
+  посчитанный по реальному пересечению документов, без LLM и без парсинга текста.</p>
+</section>
+
+<!-- ============ 5. ВЕРДИКТЫ ============ -->
+<section class="part">
+  <div class="partnum">Часть 5 из 8</div>
+  <h2>Вердикты</h2>
+  <p class="lede">Позиция по каждому элементу — не обзор опций.</p>
+
+  <div class="tablebox"><table>
+    <tr><th>Элемент</th><th>Вердикт</th><th>Почему</th></tr>
+    <tr><td>Формат таблицы в <code>LEARNING_PLAN_PROMPT</code></td>
+        <td><span class="chip keep">ОСТАВИТЬ</span></td>
+        <td>Таблица — хороший, читаемый формат для человека и вполне парсимая структура
+            для кода. Проблема не в таблице, а в том, что её никто не разбирает как таблицу.</td></tr>
+    <tr><td><code>learning_plan_steps_from_markdown</code></td>
+        <td><span class="chip fix">ПОЧИНИТЬ</span></td>
+        <td>Разбирать markdown-таблицу построчно (по <code>|</code> и разделителю
+            <code>|---|</code>) в первую очередь; текстовый fallback — только когда таблицы
+            в ответе действительно нет.</td></tr>
+    <tr><td><code>_preview_cards_from_plan</code></td>
+        <td><span class="chip fix">ПОЧИНИТЬ</span></td>
+        <td>Строить превью карточек из уже структурированных данных — «Ключевые концепции»
+            распарсенных строк таблицы или <code>document.key_concepts</code>, а не из
+            построчной догадки по сырому тексту.</td></tr>
+    <tr><td>Столбец «Зависимости» / порядок тем</td>
+        <td><span class="chip fix">ПОЧИНИТЬ</span></td>
+        <td>Источник истины — уже готовый <code>DynamicLearningPlan.topological_sort</code>,
+            не свободное сочинение модели по 8 обрывкам текста. LLM описывает шаг, граф
+            определяет порядок.</td></tr>
+    <tr><td>«Учитывать прогресс» — чекбокс по умолчанию выключен</td>
+        <td><span class="chip fix">ПОЧИНИТЬ</span></td>
+        <td>Если граф курса уже построен, персонализация должна включаться сама — сейчас
+            студент почти никогда не увидит связь плана со своим реальным прогрессом, пока
+            не найдёт и не включит галочку вручную.</td></tr>
+    <tr><td>Бюджет времени (столбец «Время»)</td>
+        <td><span class="chip fix">ПОЧИНИТЬ</span></td>
+        <td>Ничто не проверяет сумму столбца против заявленного бюджета — модель может её
+            игнорировать без единого предупреждения студенту. Готовый
+            <code>_trim_plan_by_budget</code> уже существует, но обрезает только
+            детерминированный <code>dynamic_plan</code>, не таблицу.</td></tr>
+    <tr><td>Adaptive Daily Plan («План на сегодня»)</td>
+        <td><span class="chip keep">ОСТАВИТЬ — ОБРАЗЕЦ</span></td>
+        <td>Тот же граф, та же mastery, но доведено до конца: детерминированный порядок,
+            рабочие кнопки, XP, «почему такой порядок». Это форма, к которой должен
+            стремиться Голос Б, а не отдельная параллельная вселенная.</td></tr>
+    <tr><td>Покрытие/пробелы (<code>coverage</code>, <code>missing_topics</code>)</td>
+        <td><span class="chip keep">ОСТАВИТЬ</span></td>
+        <td>Единственная часть Плана Б, посчитанная детерминированно и честно — не трогать.</td></tr>
+    <tr><td>Два разных смысла слова «план» в UI</td>
+        <td><span class="chip add">ОБЪЕДИНИТЬ ЯЗЫК</span></td>
+        <td>Назвать вещи разными словами («Программа курса» vs «План на сегодня») и связать
+            завершение шага программы с тем же прогрессом, что двигает ежедневный план —
+            вместо двух несвязанных систем под одним именем.</td></tr>
+    <tr><td>Голос В — <code>generate_personalized_plan</code> в Telegram/«Мой прогресс»</td>
+        <td><span class="chip fix">ПОЧИНИТЬ ИСТОЧНИК</span></td>
+        <td>«Сегодня: …» в Telegram должно браться из того же <code>AdaptiveDailyPlan</code>,
+            что и главный экран — не из параллельного алгоритма next-best-actions. Одна
+            строка правды, а не вторая независимая догадка по тому же графу.</td></tr>
+    <tr><td>Голос Г — панель «На неделю» в графе знаний</td>
+        <td><span class="chip fix">ПОЧИНИТЬ или УБРАТЬ</span></td>
+        <td>Либо сделать карточки кликабельными и подключить к тому же запуску тьютора, что
+            у Голоса А (тогда это законный alt-view), либо убрать как витрину без действия —
+            третий вариант отбора темы без применения не нужен.</td></tr>
+    <tr><td><code>app/ssr_weekly_planner.py</code></td>
+        <td><span class="chip hide">УБРАТЬ ИЛИ ПОДКЛЮЧИТЬ</span></td>
+        <td>Формально мёртвый, качественно написанный код — худший вариант «для галочки»:
+            он даже не виден, чтобы его можно было назвать плохим. Либо явное решение
+            подключить (и тогда это пятый голос, которому нужно место в общей картине), либо
+            удалить как архивный кластер, каким он уже официально признан.</td></tr>
+  </table></div>
+</section>
+
+<!-- ============ 6. ЦЕННОСТЬ ============ -->
+<section class="part">
+  <div class="partnum">Часть 6 из 8</div>
+  <h2>Ценность: план, который помнит, где вы, а не только как выглядит</h2>
+
+  <div class="tablebox"><table>
+    <tr><th></th><th>Сейчас</th><th>После плана</th></tr>
+    <tr><td>«Зависимости» в таблице</td><td>догадка модели по 8 обрывкам текста</td>
+        <td><b>реальный топологический порядок</b> графа курса</td></tr>
+    <tr><td>Бюджет времени</td><td>ничем не проверяется</td>
+        <td><b>план либо влезает в бюджет, либо честно об этом говорит</b></td></tr>
+    <tr><td>«Текущий шаг»</td><td>иногда = вся таблица одним блоком</td>
+        <td><b>ровно одна строка таблицы = один шаг</b></td></tr>
+    <tr><td>Карточка «Продолжить» на главном</td><td>может показать сырой markdown</td>
+        <td><b>всегда название темы</b> из распарсенной строки</td></tr>
+    <tr><td>Превью карточек по плану</td><td>обрывки строк таблицы</td>
+        <td><b>реальные названия тем/концептов</b></td></tr>
+    <tr><td>«Сегодня» в Telegram vs на главном экране</td><td>два независимых алгоритма, могут разойтись</td>
+        <td><b>одна и та же тема из одного источника</b></td></tr>
+  </table></div>
+
+  <div class="callout good">
+    <span class="label">Измеримое доказательство</span>
+    <p>Северная звезда №1: <b>доля дней, когда тема из Telegram-напоминания совпадает с
+    primary-блоком главного экрана</b> — сегодня не гарантировано ничем (два независимых
+    вычисления), цель — 100%, потому что оба должны читать один источник.</p>
+    <p>Северная звезда №2: <b>доля сгенерированных планов Голоса Б, где число распознанных
+    «шагов» равно числу строк в таблице</b> — сегодня эта доля практически всегда 0% (шаги
+    группируются в 3-4 текстовых абзаца независимо от того, сколько тем в таблице).
+    Цель — 100%. Вторичная метрика: доля карточек «Продолжить» с
+    <code>resource_type == "learning_plan"</code>, чей текст не содержит символ
+    <code>|</code> — сегодня не гарантировано, цель — всегда.</p>
+  </div>
+</section>
+
+<!-- ============ 7. ПУТЬ ============ -->
+<section class="part">
+  <div class="partnum">Часть 7 из 8</div>
+  <h2>Путь: один золотой маршрут и лестница уровней</h2>
+
+  <div class="flow">
+    <span class="step">Указал цель и бюджет</span><span class="arr">→</span>
+    <span class="step">Таблица с реальным порядком</span><span class="arr">→</span>
+    <span class="step">Выбрал шаг = строку таблицы</span><span class="arr">→</span>
+    <span class="step">Закрыл шаг</span><span class="arr">→</span>
+    <span class="step">Прогресс виден и в «Плане на сегодня»</span>
+  </div>
+  <p>Никакого нового экрана — существующая подвкладка «План обучения» просто начинает
+  делать то, что уже обещает своим интерфейсом: селектор шага, кнопка «Запомнить шаг»,
+  карточка «Продолжить» на главном.</p>
+
+  <ol class="ladder">
+    <li><span class="lvl">L0</span><div><b>Таблица разбирается как таблица.</b>
+      <code>learning_plan_steps_from_markdown</code> находит строки по <code>|</code>,
+      не по regex для нумерованных списков. Самый дешёвый ход — чинит сразу три
+      симптома (шаг, resume-карточку, превью карточек).</div></li>
+    <li><span class="lvl">L1</span><div><b>«Зависимости» перестают быть выдумкой.</b>
+      Столбец заполняется из <code>topological_sort</code>, LLM пишет только
+      описание темы и оценку часов.</div></li>
+    <li><span class="lvl">L2</span><div><b>Бюджет времени — обещание, не пожелание.</b>
+      Сумма столбца «Время» проверяется против <code>time_budget_hours</code>; план либо
+      обрезается, либо честно показывает «не влезает».</div></li>
+    <li><span class="lvl">L3</span><div><b>Программа курса и план на сегодня — одна
+      история.</b> Завершение шага программы обновляет тот же прогресс/mastery-сигнал,
+      что двигает Adaptive Daily Plan — вместо двух параллельных систем.</div></li>
+    <li><span class="lvl">L4</span><div><b>Одно «сегодня» на всех каналах.</b> Telegram,
+      «Мой прогресс» и главный экран называют одну и ту же тему, потому что все три читают
+      один и тот же <code>AdaptiveDailyPlan</code>, а не три независимых алгоритма по одному
+      графу.</div></li>
+  </ol>
+</section>
+
+<!-- ============ 8. ПЛАН ============ -->
+<section class="part">
+  <div class="partnum">Часть 8 из 8</div>
+  <h2>План: P0–P2 по соотношению «эффект / усилие»</h2>
+
+  <div class="plan">
+    <div class="move p0">
+      <span class="tag">P0 · ХОД 1</span>
+      <h3>Разбирать markdown-таблицу как таблицу</h3>
+      <p><b>Что:</b> в <code>learning_plan_steps_from_markdown</code> — если в тексте есть
+      блок с разделителем <code>|---|---|</code>, каждая строка данных таблицы становится
+      отдельным шагом (текст строки или, лучше, только колонка «Тема»). Текущая
+      regex-логика — fallback для планов без таблицы.</p>
+      <p><b>Усилие:</b> одна функция, чистая, без внешних зависимостей.
+      <b>Эффект:</b> чинит «Текущий шаг плана», карточку «Продолжить» и
+      косвенно — превью карточек, разом.</p>
+    </div>
+    <div class="move p0">
+      <span class="tag">P0 · ХОД 2</span>
+      <h3>Превью карточек — из структуры, не из догадки по строкам</h3>
+      <p><b>Что:</b> <code>_preview_cards_from_plan</code> берёт названия тем из уже
+      распарсенных строк таблицы (после хода 1) или из <code>document.key_concepts</code>
+      выбранных документов — не режет сырой текст ответа модели.</p>
+      <p><b>Эффект:</b> «Превью карточек по плану» показывает реальные темы вместо
+      обрывков строк таблицы.</p>
+    </div>
+    <div class="move p0">
+      <span class="tag">P0 · ХОД 3</span>
+      <h3>Telegram и «Мой прогресс» читают Голос А, а не считают заново</h3>
+      <p><b>Что:</b> в <code>telegram_notifications.py:67-73</code> заменить вызов
+      <code>plan_service.generate_personalized_plan()</code> на чтение primary-блока из
+      <code>get_saved_adaptive_daily_plan()</code> — той же функции, что уже питает главный
+      экран. Аналогично для карточки «сегодня» на странице «Мой прогресс».
+      <code>coach_plan</code> при этом не удаляется — он остаётся источником недельной
+      сводки NBA/weak-concepts там, где это явно подписано как отдельная аналитика, не
+      как «сегодня».</p>
+      <p><b>Усилие:</b> замена одного вызова данных, без новой логики.
+      <b>Эффект:</b> устраняет расхождение «два разных сегодня» — самый заметный и самый
+      дешёвый в починке момент этого разбора.</p>
+    </div>
+    <div class="move p1">
+      <span class="tag">P1</span>
+      <h3>«Зависимости» и порядок — из графа, не из догадки модели</h3>
+      <p><b>Что:</b> перед вызовом LLM вычислять <code>DynamicLearningPlan.generate()</code>
+      (сейчас это уже делается, но только как необязательный текстовый хинт) и передавать
+      его как структуру, которую LLM обязана использовать для столбца «Зависимости» —
+      не пересочинять. Заодно включить чекбокс «Учитывать прогресс» по умолчанию, когда
+      граф курса доступен.</p>
+      <p><b>Эффект:</b> план говорит правду о порядке тем, а не то, что модель угадала
+      по восьми фрагментам.</p>
+    </div>
+    <div class="move p1">
+      <span class="tag">P1</span>
+      <h3>Бюджет времени — с проверкой</h3>
+      <p><b>Что:</b> после генерации сравнить сумму столбца «Время» с
+      <code>time_budget_hours</code>; при превышении — либо попросить модель сократить план
+      повторным проходом, либо показать честное предупреждение с суммой и превышением.</p>
+      <p><b>Эффект:</b> бюджет времени — обещание интерфейса, которое выполняется, а не
+      число, которое просто уходит в промпт и забывается.</p>
+    </div>
+    <div class="move p2">
+      <span class="tag">P2</span>
+      <h3>Одна история прогресса вместо двух планов</h3>
+      <p><b>Что:</b> переименовать подвкладку в «Программа курса» (или аналог, отличимый от
+      «Плана на сегодня»); завершение шага программы курса пишет тот же сигнал прогресса,
+      что видит Adaptive Daily Plan — вместо изолированного <code>reading_status</code>.</p>
+      <p><b>Эффект:</b> план обучения курса перестаёт быть тупиковой веткой и начинает
+      питать ежедневный план — тот самый паттерн «два независимых вычисления одной истины»,
+      уже находившийся в разборах №1 и №3, здесь тоже устраняется.</p>
+    </div>
+    <div class="move p2">
+      <span class="tag">P2</span>
+      <h3>Решить судьбу Голоса Г и Голоса-призрака</h3>
+      <p><b>Что:</b> для панели «На неделю» в графе знаний — либо подключить клик по карточке
+      к тому же запуску тьютора, что у Голоса А (сделать её действующим alt-view главного
+      плана, не отдельным алгоритмом), либо убрать панель. Для
+      <code>app/ssr_weekly_planner.py</code> — явное решение владельца: подключить как основу
+      недельного слоя (тогда потребуется тесты и интеграция) или удалить как уже официально
+      признанный архивный кластер.</p>
+      <p><b>Эффект:</b> вместо пяти голосов, отвечающих на один вопрос, остаётся один источник
+      «сегодня» (Голос А) и один осознанно отдельный маршрут «программа курса» (бывший
+      Голос Б) — без витрин без действия и без мёртвого кода, выдающего себя за фичу.</p>
+    </div>
+  </div>
+
+  <div class="callout good">
+    <span class="label">Почему это не «для галочки»</span>
+    <p>Ни один пункт P0 не меняет внешний вид таблицы — студент увидит тот же красивый
+    формат со скриншота, и в Telegram по-прежнему будет приходить «Сегодня: …». Меняется
+    только то, что происходит ПОСЛЕ генерации: код наконец читает таблицу как таблицу, а
+    напоминание в Telegram наконец спрашивает тот же источник, что и главный экран. Это
+    самая дешёвая категория исправлений — не новые фичи, а починка разрывов между тем, что
+    интерфейс обещает четырьмя разными голосами, и тем, что из этого на самом деле работает
+    как один план.</p>
+  </div>
+</section>
+
+<footer>
+  Спецвыпуск серии эволюционных разборов hometutor · 2026-07-11 · код на fc0f696 («159») ·
+  метод: суть → реальность → противоречия → боль-якорь → вердикты → ценность → путь → план ·
+  каждое утверждение опирается на файл:строку в репозитории.
+</footer>
+
+</div>

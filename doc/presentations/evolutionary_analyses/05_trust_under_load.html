@@ -1,0 +1,508 @@
+<title>Доверие под нагрузкой — разбор №5 из 5 · hometutor</title>
+<style>
+  :root {
+    --bg: #F5F7F6; --surface: #FFFFFF; --ink: #1C2622; --muted: #5C6B65;
+    --line: #DDE4E1; --accent: #14705F; --accent-soft: #E3F0EC;
+    --leak: #B3492A; --leak-soft: #F7E8E2; --amber: #9A6B15; --amber-soft: #F5EDDC;
+    --code-bg: #EDF1EF; --shadow: 0 1px 3px rgba(28,38,34,.07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101715; --surface: #17201D; --ink: #E3EAE6; --muted: #93A39C;
+      --line: #2A3630; --accent: #4CC2A8; --accent-soft: #16302A;
+      --leak: #E08663; --leak-soft: #33201A; --amber: #D9A94E; --amber-soft: #2E2618;
+      --code-bg: #1E2A26; --shadow: 0 1px 3px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101715; --surface: #17201D; --ink: #E3EAE6; --muted: #93A39C;
+    --line: #2A3630; --accent: #4CC2A8; --accent-soft: #16302A;
+    --leak: #E08663; --leak-soft: #33201A; --amber: #D9A94E; --amber-soft: #2E2618;
+    --code-bg: #1E2A26; --shadow: 0 1px 3px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"] {
+    --bg: #F5F7F6; --surface: #FFFFFF; --ink: #1C2622; --muted: #5C6B65;
+    --line: #DDE4E1; --accent: #14705F; --accent-soft: #E3F0EC;
+    --leak: #B3492A; --leak-soft: #F7E8E2; --amber: #9A6B15; --amber-soft: #F5EDDC;
+    --code-bg: #EDF1EF; --shadow: 0 1px 3px rgba(28,38,34,.07);
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 16px/1.65 "Segoe UI", system-ui, -apple-system, sans-serif;
+    margin: 0; padding: 0 20px 80px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; font-weight: 600; text-wrap: balance; }
+  h1 { font-size: 2.3rem; line-height: 1.2; margin: .3em 0 .2em; }
+  h2 { font-size: 1.55rem; line-height: 1.25; margin: 0 0 .5em; }
+  h3 { font-size: 1.12rem; margin: 1.4em 0 .4em; }
+  p { margin: .7em 0; max-width: 68ch; }
+  code, .path {
+    font-family: Consolas, "Cascadia Mono", monospace; font-size: .86em;
+    background: var(--code-bg); padding: .1em .35em; border-radius: 3px; white-space: nowrap;
+  }
+  .eyebrow {
+    font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); font-weight: 600; margin-bottom: .4em;
+  }
+  header.top { padding: 56px 0 8px; border-bottom: 2px solid var(--ink); margin-bottom: 8px; }
+  .subtitle { color: var(--muted); font-size: 1.05rem; max-width: 62ch; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px 22px; color: var(--muted); font-size: .82rem; padding: 14px 0 26px; }
+  .meta b { color: var(--ink); font-weight: 600; }
+
+  .series { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 6px; }
+  .series span.card {
+    display: block; flex: 1 1 140px; min-width: 140px;
+    border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px;
+    background: var(--surface); color: var(--muted); font-size: .8rem; line-height: 1.4;
+  }
+  .series .here { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); }
+  .series .done { border-style: dashed; }
+  .series .rank { font-family: Georgia, serif; font-size: 1.15rem; color: var(--accent); display: block; }
+
+  section.part { margin-top: 56px; }
+  .partnum {
+    font-family: Georgia, serif; font-style: italic; font-size: .95rem;
+    color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; margin-bottom: 4px;
+  }
+  .lede { font-size: 1.13rem; line-height: 1.6; }
+
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 14px 0; }
+  th { text-align: left; font-size: .72rem; letter-spacing: .09em; text-transform: uppercase;
+       color: var(--muted); font-weight: 600; padding: 8px 12px 6px; border-bottom: 2px solid var(--line); }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  td.num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+  .tablebox { overflow-x: auto; }
+
+  .chip { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .06em;
+          padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
+  .chip.keep { background: var(--accent-soft); color: var(--accent); }
+  .chip.fix { background: var(--leak-soft); color: var(--leak); }
+  .chip.add { background: var(--amber-soft); color: var(--amber); }
+  .chip.hide { background: var(--code-bg); color: var(--muted); }
+
+  .callout { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent);
+             border-radius: 6px; padding: 16px 20px; margin: 18px 0; box-shadow: var(--shadow); }
+  .callout.pain { border-left-color: var(--leak); }
+  .callout .label { font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: var(--leak); }
+  .callout.good .label { color: var(--accent); }
+  .callout p:first-of-type { margin-top: .4em; }
+
+  .evidence { font-family: Consolas, "Cascadia Mono", monospace; font-size: .8rem; line-height: 1.7;
+              background: var(--code-bg); border-radius: 6px; padding: 14px 18px; overflow-x: auto; margin: 12px 0; }
+  .evidence .cm { color: var(--muted); }
+  .evidence .hl { color: var(--leak); font-weight: 600; }
+
+  .diagram-box { background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+                 padding: 12px; margin: 20px 0; overflow-x: auto; box-shadow: var(--shadow); }
+  .diagram-box svg { display: block; min-width: 880px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: .78rem; color: var(--muted); padding: 8px 6px 2px; }
+  .legend i { display: inline-block; width: 22px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+
+  .plan { display: grid; gap: 12px; margin: 18px 0; }
+  .plan .move { background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+                padding: 16px 20px; box-shadow: var(--shadow); }
+  .plan .move.p0 { border-left: 4px solid var(--accent); }
+  .plan .move.p1 { border-left: 4px solid var(--amber); }
+  .plan .move.p2 { border-left: 4px solid var(--line); }
+  .plan .tag { font-size: .7rem; font-weight: 700; letter-spacing: .1em; color: var(--muted); }
+  .plan .move.p0 .tag { color: var(--accent); }
+  .plan .move.p1 .tag { color: var(--amber); }
+  .plan h3 { margin: .2em 0 .3em; }
+  .plan p { margin: .3em 0; font-size: .92rem; }
+
+  .ladder { list-style: none; padding: 0; margin: 14px 0; }
+  .ladder li { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+  .ladder .lvl { font-family: Georgia, serif; font-size: 1.1rem; color: var(--accent); min-width: 2.2em; }
+
+  footer { margin-top: 70px; padding-top: 16px; border-top: 1px solid var(--line);
+           color: var(--muted); font-size: .78rem; }
+  @media (max-width: 640px) { h1 { font-size: 1.7rem; } body { padding: 0 14px 60px; } }
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">Эволюционный разбор · область 5 из 5 · hometutor</div>
+  <h1>Доверие под нагрузкой</h1>
+  <p class="subtitle">Provider-слой: профили LLM, circuit breaker, честность fallback.
+  Последний из пяти регулярных разборов серии. Каждое утверждение проверено по коду.</p>
+</header>
+
+<div class="meta">
+  <span>Коммит <b>60b55f3</b> (HEAD)</span>
+  <span>Дата <b>2026-07-11</b></span>
+  <span>Профилей LLM <b>3</b></span>
+  <span>record_failure() на runtime-путь primary chat <b>0</b></span>
+</div>
+
+<div class="series">
+  <span class="card done"><span class="rank">№1</span>Судьба одного знания — выполнен ✓</span>
+  <span class="card done"><span class="rank">№2</span>Первые 10 минут — выполнен ✓</span>
+  <span class="card done"><span class="rank">№3</span>Материал как продукт — выполнен ✓</span>
+  <span class="card done"><span class="rank">№4</span>Агент как одна кнопка — выполнен ✓</span>
+  <span class="card here"><span class="rank">№5</span>Доверие под нагрузкой <b>(этот разбор)</b></span>
+</div>
+
+<!-- ======================= 1 СУТЬ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 1 · Суть</div>
+  <h2>Чего по-настоящему хочет студент, когда система под нагрузкой</h2>
+  <p class="lede">Не «быстрого ответа» и не «стопроцентного аптайма» — эти вещи локальный
+  стек честно не может обещать. Студент хочет <em>предсказуемости деградации</em>: если
+  что-то не работает как обычно, он должен узнать об этом за секунды, а не после полной
+  выдержки таймаута в тишине. Доверие под нагрузкой — это не про то, что система никогда
+  не подведёт, а про то, что она никогда не подведёт молча.</p>
+  <p>Отсюда первый принцип: <b>деградация — это интерфейс, а не побочный эффект</b>.
+  Второй принцип, уже открытый предыдущими разборами серии, находит здесь свой корень:
+  molчаливые сбои LM Studio ломали первый ответ (разбор №2) и публикацию карты (разбор №3)
+  по одной и той же причине. Этот разбор ищет саму причину, а не очередное её проявление.</p>
+</section>
+
+<!-- ======================= 2 РЕАЛЬНОСТЬ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 2 · Реальность</div>
+  <h2>Три профиля, один предохранитель — и он не подключён к сети</h2>
+  <p>Инвентаризация provider-слоя показывает продуманную архитектуру: три явных профиля
+  маршрутизации (<code>local_strict</code> / <code>balanced</code> / <code>cloud_fast</code>),
+  circuit breaker с auto half-open, честный источник-бейдж с privacy-notice для облака.
+  Но у самого нагруженного пути — primary chat — предохранитель ни разу не запитан от
+  реального трафика.</p>
+
+  <div class="diagram-box">
+  <svg viewBox="0 0 960 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Диаграмма циркуляции состояния circuit breaker">
+    <defs>
+      <marker id="mA5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0L10 5L0 10z" style="fill:var(--accent)"/>
+      </marker>
+      <marker id="mL5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0 0L10 5L0 10z" style="fill:var(--leak)"/>
+      </marker>
+    </defs>
+    <style>
+      .box5 { fill: var(--surface); stroke: var(--line); }
+      .box5g { fill: var(--surface); stroke: var(--accent); }
+      .box5r { fill: var(--surface); stroke: var(--leak); }
+      .boxT5 { font: 600 13px "Segoe UI", sans-serif; fill: var(--ink); }
+      .boxS5 { font: 11px "Segoe UI", sans-serif; fill: var(--muted); }
+      .boxM5 { font: 11px Consolas, monospace; fill: var(--muted); }
+      .flowA5 { stroke: var(--accent); stroke-width: 2; fill: none; }
+      .flowL5 { stroke: var(--leak); stroke-width: 2.5; fill: none; stroke-dasharray: 2 5; stroke-linecap: round; }
+      .lblL5 { font: italic 11px Georgia, serif; fill: var(--leak); }
+      .lblA5 { font: italic 11px Georgia, serif; fill: var(--accent); }
+    </style>
+
+    <!-- good example (SSR / adaptive plan) -->
+    <rect class="box5g" x="14" y="24" width="270" height="118" rx="6"/>
+    <text class="boxT5" x="26" y="48">adaptive_plan_llm_explanation.py</text>
+    <text class="boxS5" x="26" y="66">is_open() → пробуем LLM →</text>
+    <text class="boxS5" x="26" y="83">success: record_success()</text>
+    <text class="boxS5" x="26" y="100">error: record_failure()</text>
+    <text class="lblA5" x="26" y="122">замкнутый цикл — образец</text>
+
+    <!-- circuit state -->
+    <rect class="box5" x="360" y="60" width="230" height="60" rx="6"/>
+    <text class="boxT5" x="372" y="84">llm_local_circuit</text>
+    <text class="boxS5" x="372" y="102">_STATE_BY_BASE (в памяти)</text>
+
+    <!-- startup probe -->
+    <rect class="box5g" x="14" y="180" width="270" height="80" rx="6"/>
+    <text class="boxT5" x="26" y="204">Startup-проба (api.py:126-170)</text>
+    <text class="boxS5" x="26" y="222">один раз при старте процесса</text>
+    <text class="boxS5" x="26" y="239">record_success / record_failure</text>
+
+    <!-- primary chat -->
+    <rect class="box5r" x="14" y="300" width="270" height="120" rx="6"/>
+    <text class="boxT5" x="26" y="324">Primary chat</text>
+    <text class="boxS5" x="26" y="342">provider_openai.py · llm_resilience.py</text>
+    <text class="boxS5" x="26" y="359">каждый ответ тьютора / Быстрого</text>
+    <text class="boxS5" x="26" y="376">ответа проходит здесь</text>
+    <text class="boxM5" x="26" y="398">grep "circuit" → 0 совпадений</text>
+
+    <!-- get_llm reads -->
+    <rect class="box5" x="636" y="60" width="310" height="80" rx="6"/>
+    <text class="boxT5" x="648" y="84">get_llm() читает is_open()</text>
+    <text class="boxS5" x="648" y="102">balanced + fallback выключен (default) →</text>
+    <text class="boxS5" x="648" y="119">warn, но всё равно бьёт в тот же endpoint</text>
+
+    <!-- student -->
+    <rect class="box5r" x="636" y="300" width="310" height="90" rx="6"/>
+    <text class="boxT5" x="648" y="324">Студент</text>
+    <text class="boxS5" x="648" y="342">каждое сообщение ждёт полный</text>
+    <text class="boxS5" x="648" y="359">таймаут (до 45с) — сбой не открывает</text>
+    <text class="boxS5" x="648" y="376">предохранитель, значит и не защищает</text>
+
+    <path class="flowA5" d="M284 90 C 320 90, 330 90, 356 90" marker-end="url(#mA5)"/>
+    <path class="flowA5" d="M284 220 C 320 200, 330 150, 356 118" marker-end="url(#mA5)"/>
+    <path class="flowA5" d="M590 90 C 610 80, 620 75, 632 92" marker-end="url(#mA5)"/>
+
+    <path class="flowL5" d="M284 370 C 400 370, 500 260, 590 130" marker-end="url(#mL5)"/>
+    <text class="lblL5" x="330" y="330">runtime-сбои НЕ пишутся</text>
+    <text class="lblL5" x="330" y="345">в circuit — is_open() «спит»</text>
+
+    <path class="flowL5" d="M791 140 C 791 200, 791 250, 791 296" marker-end="url(#mL5)"/>
+  </svg>
+  <div class="legend">
+    <span><i style="background:var(--accent)"></i>замкнутая петля защиты</span>
+    <span><i style="background:var(--leak); background-image:repeating-linear-gradient(90deg, var(--leak) 0 3px, transparent 3px 8px);"></i>разрыв: сбой не долетает до предохранителя</span>
+  </div>
+  </div>
+
+  <h3>Инвентаризация: три профиля, честный бейдж, разные дисциплины</h3>
+  <div class="tablebox">
+  <table>
+    <tr><th>Элемент</th><th>Зачем</th><th>Состояние</th></tr>
+    <tr>
+      <td><code>HOME_RAG_LOCAL_PROFILE</code></td>
+      <td>local_strict (жёсткий отказ) / balanced (fallback при CB) / cloud_fast</td>
+      <td>реализовано чисто; default = balanced</td>
+    </tr>
+    <tr>
+      <td><code>llm_local_circuit</code></td>
+      <td>3 сбоя/30с → open на 60с → auto half-open</td>
+      <td>механизм верный; runtime-питание отсутствует для primary chat</td>
+    </tr>
+    <tr>
+      <td><code>llm_source_badge_text</code> + privacy notice</td>
+      <td>честный бейдж «Источник ответа: … · fallback · profile · latency»</td>
+      <td>работает, виден по умолчанию — но только в «Быстром ответе»</td>
+    </tr>
+    <tr>
+      <td>Latency budgets (5 поверхностей)</td>
+      <td>cold/warm target/soft/hard пороги, JSONL-лог</td>
+      <td>измеряет опоздание, но не решает, что делать дальше</td>
+    </tr>
+    <tr>
+      <td><code>adaptive_plan_llm_explanation.py</code></td>
+      <td>SSR-explanation с честным circuit-циклом</td>
+      <td>образцовый паттерн — <code>is_open</code> → попытка → <code>record_*</code></td>
+    </tr>
+  </table>
+  </div>
+
+  <div class="callout good">
+    <span class="label">Что уже образцово — не трогать</span>
+    <p><b>Три профиля продуманы верно</b>: <code>local_strict</code> честно отказывает
+    вместо тихой деградации, <code>cloud_fast</code> прозрачен для demo-режима.
+    <b>Честный бейдж источника</b> (<code>llm_source_badge_text</code>,
+    <code>llm_source_privacy_notice</code>) — не за экспертным тиром, виден по умолчанию,
+    прямо отвечает на «откуда этот ответ» — редкая прозрачность. <b>Adaptive-plan
+    explanation</b> — образцовая реализация circuit breaker с полным циклом обратной связи,
+    ровно то, чего не хватает primary chat. <b>Auto half-open</b> в самом circuit
+    breaker — по-настоящему хорошая инженерия, просто не подключённая к нужному источнику
+    сигнала.</p>
+  </div>
+</section>
+
+<!-- ======================= 3 ПРОТИВОРЕЧИЯ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 3 · Противоречия</div>
+  <h2>Три напряжения — и синтез для каждого</h2>
+
+  <h3>Local-first ↔ мгновенная отзывчивость</h3>
+  <p>Локальная модель — правильный выбор по приватности и офлайн-автономии, но она честно
+  не может быть мгновенной на слабом железе. <b>Синтез уже в коде</b>: профиль
+  <code>balanced</code> + опциональный cloud-fallback — снаружи выбор не «локально или
+  облако», а «локально, с явно согласованной страховкой». Ничего не менять в этом выборе —
+  почему он не срабатывает, разобрано в Боли-якоре.</p>
+
+  <h3>Наблюдаемость для разработчика ↔ честность для студента</h3>
+  <p>Латентность, источник LLM, circuit state — всё это существует как измеримые сигналы.
+  Бейдж источника уже сделал правильный выбор: показывать по умолчанию, не прятать за
+  debug-тиром. <b>Синтез:</b> тот же принцип должен распространиться на Tutor chat —
+  сейчас бейдж есть только в «Быстром ответе», хотя данные для него собираются для
+  <em>любого</em> ответа единым кодом (<code>_build_generation_model_and_metadata</code>).</p>
+
+  <h3>Простой предохранитель ↔ полная петля обратной связи</h3>
+  <p>Circuit breaker спроектирован просто и без блокировок (намеренно process-local,
+  lock-free) — это правильно для UI hot path. Но простота реализации не должна означать
+  «подключен только к одному источнику сигналов». <b>Синтез:</b> не переусложнять
+  breaker — просто дать ему второй источник данных (реальные сбои `llm_resilience.py`),
+  тем же интерфейсом `record_failure`/`record_success`, что уже используется в
+  `adaptive_plan_llm_explanation.py`.</p>
+</section>
+
+<!-- ======================= 4 БОЛЬ-ЯКОРЬ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 4 · Боль-якорь</div>
+  <h2>Предохранитель, который никогда не видит реальную проводку</h2>
+
+  <div class="callout pain">
+    <span class="label">Точная причина в коде, не в теории</span>
+    <p>LM Studio падает через 10 минут после старта Streamlit. Приложение продолжает
+    работать — но каждый вопрос студента теперь молча ждёт полный таймаут:</p>
+  </div>
+
+  <div class="evidence">
+<span class="cm"># Единственные записи в circuit breaker для primary chat — api.py:135-170,</span><br>
+<span class="cm"># запускаются РОВНО ОДИН РАЗ при старте процесса (daemon-thread):</span><br>
+result = probe_local_llm(base, model, …)<br>
+if result.get("reachable"): record_success(base)<br>
+<span class="hl">else: record_failure(base, error_type="startup_probe_failed")</span><br><br>
+<span class="cm"># provider_openai.py и llm_resilience.py — реальные HTTP-вызовы чата —</span><br>
+<span class="cm"># НИ РАЗУ не упоминают circuit ни в одной ветке (grep "circuit" → 0 строк):</span><br>
+<span class="hl">grep -n "circuit" app/provider_openai.py app/llm_resilience.py  →  (пусто)</span><br><br>
+<span class="cm"># Итог: is_open(local_base) остаётся тем же, каким был при старте,</span><br>
+<span class="cm"># сколько бы реальных таймаутов ни случилось за время работы процесса.</span>
+  </div>
+
+  <p>Даже если бы circuit открылся — например, стартовая проба случайно упала раньше, чем
+  LM Studio успела подняться — поведение <code>get_llm()</code> в дефолтной конфигурации
+  (<code>balanced</code> + <code>HOME_RAG_LLM_FALLBACK_ENABLED=false</code>, оба —
+  tracked-дефолты <code>config.env</code>) не меняется: код логирует
+  <code>balanced_primary_chat_circuit_open_no_fallback_using_local_attempt</code> и всё
+  равно строит <code>OpenAI(api_base=local_base_norm, …)</code> — ту же самую мёртвую
+  точку. Предохранитель существует, но в дефолтной поставке он либо не видит проблему
+  (нет runtime-питания), либо видит и ничего не делает (нет включённого fallback).</p>
+
+  <p>Контраст рядом, в том же коммите: <code>adaptive_plan_llm_explanation.py</code>
+  делает ровно то, чего не хватает primary chat — проверяет <code>is_open</code>,
+  оборачивает попытку, вызывает <code>record_failure</code>/<code>record_success</code>
+  по факту. Решение уже написано, просто не в том файле.</p>
+</section>
+
+<!-- ======================= 5 ВЕРДИКТЫ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 5 · Вердикты</div>
+  <h2>Позиция по каждому элементу</h2>
+  <div class="tablebox">
+  <table>
+    <tr><th>Элемент</th><th>Вердикт</th><th>Почему</th></tr>
+    <tr>
+      <td>3 профиля (local_strict/balanced/cloud_fast)</td>
+      <td><span class="chip keep">Оставить</span></td>
+      <td>архитектура верна; проблема не в выборе профиля, а в питании предохранителя</td>
+    </tr>
+    <tr>
+      <td>Circuit breaker без runtime record_* на primary chat</td>
+      <td><span class="chip fix">Починить</span></td>
+      <td>единственный настоящий разрыв разбора; интерфейс уже есть, нужен один вызов на error-путь</td>
+    </tr>
+    <tr>
+      <td><code>balanced</code>+CB-open+fallback выключен → всё равно local attempt</td>
+      <td><span class="chip fix">Починить</span></td>
+      <td>не «включить fallback насильно» (это решение владельца privacy/cost), а сократить бесполезное ожидание — короткий фейл-фаст без облака</td>
+    </tr>
+    <tr>
+      <td>Бейдж источника только в «Быстром ответе»</td>
+      <td><span class="chip add">Расширить</span></td>
+      <td>данные уже собираются для любого ответа; Tutor chat — основная поверхность петли памяти (разбор №1) — их не показывает</td>
+    </tr>
+    <tr>
+      <td><code>adaptive_plan_llm_explanation.py</code> circuit-паттерн</td>
+      <td><span class="chip keep">Образец для копирования</span></td>
+      <td>единственное место, где breaker уже подключён к реальному трафику правильно</td>
+    </tr>
+    <tr>
+      <td>Latency budgets (5 поверхностей)</td>
+      <td><span class="chip keep">Оставить</span></td>
+      <td>измерение корректно; сама метрика вне scope этого разбора</td>
+    </tr>
+    <tr>
+      <td>Process-local lock-free дизайн breaker</td>
+      <td><span class="chip keep">Оставить</span></td>
+      <td>осознанный компромисс ради UI hot path, документирован в докстринге — не трогать</td>
+    </tr>
+  </table>
+  </div>
+</section>
+
+<!-- ======================= 6 ЦЕННОСТЬ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 6 · Ценность</div>
+  <h2>Честная деградация — измеримое доказательство</h2>
+  <p>Уникальность hometutor здесь — не «локальная модель работает быстро» (это не всегда
+  правда), а <b>студент никогда не остаётся в неведении дольше одного запроса</b>. Ни
+  ChatGPT, ни облачные RAG-сервисы не показывают, откуда пришёл ответ и почему он
+  задержался — у hometutor эта честность уже частично построена. Метрика: доля запросов
+  во время реального сбоя local endpoint, которые получают ответ (fallback или честный
+  отказ) быстрее полного hard-таймаута.</p>
+  <div class="tablebox">
+  <table>
+    <tr><th>Сценарий</th><th>Сейчас</th><th>После P0</th></tr>
+    <tr><td>LM Studio падает после старта, <code>local_strict</code></td><td class="num">2-й запрос ждёт полный timeout</td><td class="num">мгновенный честный отказ после 3 сбоев</td></tr>
+    <tr><td>LM Studio падает, <code>balanced</code>, fallback выключен</td><td class="num" style="color:var(--leak)">каждый запрос — полный timeout (до 45с)</td><td class="num">быстрый фейл после порога, без ложного ожидания</td></tr>
+    <tr><td>Источник ответа виден студенту</td><td class="num">только «Быстрый ответ»</td><td class="num">+ Tutor chat</td></tr>
+  </table>
+  </div>
+  <p>North star: после первых 3 сбоев подряд ни один следующий запрос в той же сессии не
+  ждёт больше нескольких секунд перед честным сообщением — вне зависимости от того,
+  включён ли cloud-fallback.</p>
+</section>
+
+<!-- ======================= 7 ПУТЬ ======================= -->
+<section class="part">
+  <div class="partnum">Часть 7 · Путь</div>
+  <h2>Один золотой путь и лестница уровней</h2>
+  <p class="lede">Локальная модель работает → студент получает ответ с честным бейджем
+  источника → модель падает (крашнулась/выгружена) → первые 1-3 запроса замечают реальный
+  сбой → предохранитель размыкается → следующие запросы получают быстрый честный ответ
+  (fallback, если настроен, или ясное «сейчас недоступно») вместо тишины на 45 секунд →
+  модель возвращается → auto half-open проверяет и молча восстанавливает нормальный режим.</p>
+  <ul class="ladder">
+    <li><span class="lvl">L0</span><span>Ответ приходит — студент видит источник и задержку одной строкой, не только в «Быстром ответе»</span></li>
+    <li><span class="lvl">L1</span><span>Локальный сбой — первые запросы честно фиксируют проблему (runtime record_failure)</span></li>
+    <li><span class="lvl">L2</span><span>Предохранитель разомкнут — следующие запросы не ждут впустую</span></li>
+    <li><span class="lvl">L3</span><span>Восстановление — auto half-open проверяет и возвращает local без вмешательства студента</span></li>
+    <li><span class="lvl">L4</span><span>Владелец видит состояние breaker в диагностике — не только в JSONL-логе, а в понятной панели</span></li>
+  </ul>
+</section>
+
+<!-- ======================= 8 ПЛАН ======================= -->
+<section class="part">
+  <div class="partnum">Часть 8 · План</div>
+  <h2>P0–P2 по соотношению «эффект / усилие»</h2>
+  <div class="plan">
+    <div class="move p0">
+      <span class="tag">P0 · ХОД 1</span>
+      <h3>Runtime record_failure/record_success для primary chat</h3>
+      <p>Обернуть реальные HTTP-вызовы в <code>llm_resilience.complete_with_resilience</code>/
+      <code>chat_with_resilience</code> тем же паттерном, что уже работает в
+      <code>adaptive_plan_llm_explanation.py</code>: успех → <code>record_success</code>,
+      ошибка соединения → <code>record_failure</code>. Предохранитель наконец получает
+      питание от реального трафика, а не только от одноразовой стартовой пробы.</p>
+    </div>
+    <div class="move p0">
+      <span class="tag">P0 · ХОД 2</span>
+      <h3>Быстрый честный отказ при открытом CB без fallback</h3>
+      <p>В <code>get_llm()</code>: при <code>balanced</code> + <code>cb_now</code> +
+      <code>not fallback_ready</code> — не тихо пытаться local endpoint с полным
+      таймаутом, а использовать короткий read-timeout для этой попытки (или сразу честную
+      ошибку с понятным сообщением) вместо штатного <code>hard_timeout_sec</code>. Не
+      включает fallback насильно — это решение остаётся за владельцем; сокращает только
+      бесполезное молчаливое ожидание.</p>
+    </div>
+    <div class="move p1">
+      <span class="tag">P1</span>
+      <h3>Бейдж источника в Tutor chat</h3>
+      <p><code>llm_source_badge_text</code>/<code>llm_source_privacy_notice</code>
+      подключаются к рендеру tutor-ответа — те же helper'ы, тот же принцип «видно по
+      умолчанию, не за debug-тиром», данные уже собираются единым кодом для любого
+      query_mode.</p>
+    </div>
+    <div class="move p2">
+      <span class="tag">P2</span>
+      <h3>Панель состояния breaker для владельца</h3>
+      <p><code>llm_local_circuit.snapshot()</code> уже существует для диагностики —
+      вывести его на существующую debug/metrics поверхность человеческим языком
+      («локальный endpoint: открыт N секунд назад, N сбоев»), не только в JSONL.</p>
+    </div>
+  </div>
+  <p>Планка неизменна: гениальность — в простоте. P0 не меняет архитектуру профилей и не
+  создаёт новый механизм — переносит уже написанный, работающий паттерн из одного файла
+  (<code>adaptive_plan_llm_explanation.py</code>) в другой (<code>llm_resilience.py</code>),
+  где он нужнее всего.</p>
+</section>
+
+<footer>
+  Эволюционный разбор №5 из 5 (последний регулярный разбор серии) · hometutor @ 60b55f3 ·
+  2026-07-11 · все файлы и строки проверены по текущему коду: provider.py:164-224,400-486,
+  llm_local_circuit.py:26-150, api.py:126-170, provider_openai.py (grep circuit → пусто),
+  llm_resilience.py:33-118 (grep circuit → пусто), ui/adaptive_plan_llm_explanation.py:
+  111-217, ui/helpers.py:181-258, ui/query_tab_answer_section.py:84-89,
+  ui/query_tab_sidebar.py:11-24, ui/debug_panel.py:10-158, query_service.py:359-443,
+  retrieval.py:44-383, retrieval_cache.py:406-486, config.py:461-560, config.env:67-76.
+</footer>
+
+</div>
