@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<title>Круглый стол №2 — Хейтеры и тролли</title>
+<style>
+  :root {
+    --paper: #f7f3ea;
+    --paper-2: #fffdf7;
+    --ink: #17211b;
+    --muted: #5c6a61;
+    --terra: #b95631;
+    --terra-deep: #7d351f;
+    --forest: #243b2c;
+    --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14);
+    --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --done: #1e6e46;
+    --silent: #b98a2d;
+    --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+      --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+      --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(157, 191, 168, 0.10);
+      --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+      --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+    --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+    --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+    --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+    --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+      radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--terra-deep); }
+  em { color: var(--muted); }
+
+  code {
+    font-family: Consolas, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--terra);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 0.95rem; color: var(--gold);
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .sec-name {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem;
+    font-weight: 700; color: var(--muted);
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.1rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+  }
+  .ev { font-size: 0.86rem; color: var(--muted); margin-top: 0.5rem; }
+  .ev code { font-size: 0.8rem; }
+
+  .panelists { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.9rem; margin-bottom: 1rem; }
+  .panelists .card { margin: 0; }
+  .panelists .nm { font-family: Georgia, serif; font-weight: 700; font-size: 1.02rem; }
+  .panelists .rl { font-size: 0.84rem; color: var(--muted); margin-top: 0.15rem; }
+
+  .say { border-left: 3px solid var(--gold); padding: 0.2rem 0 0.2rem 1.05rem; margin: 0 0 1.15rem; max-width: 72ch; }
+  .say.heat { border-left-color: var(--verdict-no); }
+  .say .who {
+    font-size: 0.76rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.09em; color: var(--terra); margin-bottom: 0.2rem;
+  }
+  .say .who em { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  .say p { margin-bottom: 0.4rem; }
+  .say .ev { margin-top: 0.15rem; }
+
+  .table-scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  td { font-variant-numeric: tabular-nums; }
+
+  .st { display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 99px; white-space: nowrap; }
+  .st-done { color: var(--done); border: 1px solid var(--done); }
+  .st-silent { color: var(--silent); border: 1px solid var(--silent); }
+  .st-hole { color: var(--hole); border: 1px solid var(--hole); }
+
+  .v { display: inline-block; font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+       letter-spacing: 0.08em; padding: 0.1rem 0.55rem; border-radius: 99px; margin-right: 0.5rem; }
+  .v-keep { color: var(--verdict-keep); border: 1.5px solid var(--verdict-keep); }
+  .v-fix { color: var(--verdict-fix); border: 1.5px solid var(--verdict-fix); }
+  .v-no { color: var(--verdict-no); border: 1.5px solid var(--verdict-no); }
+
+  .footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
+            font-size: 0.85rem; color: var(--muted); }
+  .footer code { font-size: 0.8rem; }
+
+  a { color: var(--terra); }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">Панельные дискуссии · стол 2 из 3 · после серии «Кольцо замкнулось»</div>
+  <h1>Хейтеры и тролли: стресс-тест злыми языками</h1>
+  <p class="lede">Пять самых злых голосов интернета получают микрофон без цензуры — а потом
+  каждый наезд проходит проверку фактами по коду. Хейт полезен ровно настолько, насколько
+  он проверяем: что подтвердилось — уходит в план, что нет — в архив мемов.</p>
+  <div class="meta">
+    <span>hometutor · HEAD <code>c374892</code> «194»</span>
+    <span>2026-07-12</span>
+    <span>формат: симулированная панель — персонажи вымышлены</span>
+    <span>вердикты по каждому наезду — проверены по коду</span>
+  </div>
+</header>
+
+<section id="panelists">
+  <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Участники</span></div>
+  <h2>Пять микрофонов без цензуры</h2>
+  <div class="panelists">
+    <div class="card"><div class="nm">@rag_is_dead</div><div class="rl">Твиттер-акаунт, который
+      с 2024 года хоронит RAG. Каждый новый продукт для него — «обёртка над чат-ботом».</div></div>
+    <div class="card"><div class="nm">Диванный Архитектор</div><div class="rl">Комментатор с
+      Хабра. Кода не пишет с 2019-го, но знает, как надо было. Любимое слово —
+      «оверинжиниринг».</div></div>
+    <div class="card"><div class="nm">@anki_ultras</div><div class="rl">Фанат Anki с
+      двенадцатилетним стриком. Всё, что не Anki, — «недоанки». Числа интервалов помнит
+      наизусть.</div></div>
+    <div class="card"><div class="nm">Скептичная Мама</div><div class="rl">Родительский чат,
+      1200 участников. Не верит ни одному «ИИ для детей» — и имеет на это основания.</div></div>
+    <div class="card"><div class="nm">Канал «Очередной стартап»</div><div class="rl">Телеграм-обзорщик.
+      Смотрит на всё через вопрос «а пользователи-то где?».</div></div>
+  </div>
+</section>
+
+<section id="wave">
+  <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Волна</span></div>
+  <h2>Десять наездов, как есть</h2>
+
+  <div class="say heat"><div class="who">@rag_is_dead <em>· наезд №1</em></div>
+    <p>«Очередная обёртка над чат-ботом. Векторная база, промпт, стрим — я такое на выходных
+    собираю. Десять „эволюционных разборов“ для обёртки — это уже перформанс».</p>
+  </div>
+
+  <div class="say heat"><div class="who">Диванный Архитектор <em>· наезд №2</em></div>
+    <p>«Они написали целый агентный харнесс — контракты, стоп-контроллер, семь причин
+    остановки, персистентность прогонов — и НЕ СДЕЛАЛИ КНОПКУ. Агент есть, двери нет.
+    Хрестоматийный оверинжиниринг: строим собор, забываем вход».</p>
+  </div>
+
+  <div class="say heat"><div class="who">@anki_ultras <em>· наезд №3</em></div>
+    <p>«+0.06 к „мастерству“ за то, что ты ПОГОВОРИЛ с ботом? В Anki ты либо вспомнил, либо
+    нет. А тут константа из пальца: поболтал — поумнел. Это не spaced repetition, это
+    спиритический сеанс».</p>
+  </div>
+
+  <div class="say heat"><div class="who">Скептичная Мама <em>· наезд №4</em></div>
+    <p>«Открыла главный экран — „Первый обзор курса готовится…“. Через час — готовится.
+    Утром — готовится. Если продукт врёт на первом же экране, почему я должна верить
+    остальному?»</p>
+  </div>
+
+  <div class="say heat"><div class="who">Канал «Очередной стартап» <em>· наезд №5</em></div>
+    <p>«Три тысячи тестов, десять разборов, ноль опубликованных пользовательских метрик.
+    Классика: изумительный процесс, невидимый результат. Где хоть один человек, который
+    скажет „я выучил физику“?»</p>
+  </div>
+
+  <div class="say heat"><div class="who">@anki_ultras <em>· наезд №6</em></div>
+    <p>«Два счётчика „повторить“ в одном приложении. ДВА. Карточки отдельно, концепты
+    отдельно. Вы там сами-то договорились, сколько мне сегодня учить?»</p>
+  </div>
+
+  <div class="say heat"><div class="who">@rag_is_dead <em>· наезд №7</em></div>
+    <p>«Local-first в 2026-м — это косплей на privacy. Никто не поставит LM Studio ради
+    конспектов. А как припекло — сами же выкатились в облако на Hugging Face. Принципы
+    кончились на первом демо».</p>
+  </div>
+
+  <div class="say heat"><div class="who">Диванный Архитектор <em>· наезд №8</em></div>
+    <p>«Сам себе написал десять разборов, сам себя похвалил, сам себе поставил вердикты.
+    Замкнутая петля — это у них не про обучение, это про самооценку».</p>
+  </div>
+
+  <div class="say heat"><div class="who">Скептичная Мама <em>· наезд №9</em></div>
+    <p>«Обещали „свою комнату“ — миры, цвета, фоны для девочек и мальчиков. Открываю: одна
+    серая комната. Дети такое закрывают за тридцать секунд».</p>
+  </div>
+
+  <div class="say heat"><div class="who">Канал «Очередной стартап» <em>· наезд №10</em></div>
+    <p>«Кремовая бумага, Georgia с засечками… Дизайн-система уровня „реферат 2005 года“.
+    Где неон? Где глассморфизм? Кто это вообще утверждал?»</p>
+  </div>
+</section>
+
+<section id="factcheck">
+  <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Проверка фактами</span></div>
+  <h2>Каждый наезд — под микроскоп</h2>
+  <p>Правило стола: хейт без проверки — шум; хейт с проверкой — бесплатный аудит.
+  Вердикты: <span class="st st-hole">справедливо</span> — код подтверждает;
+  <span class="st st-silent">частично</span> — есть правда, но не вся;
+  <span class="st st-done">мимо</span> — опровергается кодом.</p>
+
+  <div class="table-scroll">
+  <table>
+    <tr><th>№</th><th>Наезд</th><th>Вердикт</th><th>Что говорит код</th></tr>
+    <tr><td>1</td><td>«Обёртка над чат-ботом»</td><td><span class="st st-done">мимо</span></td>
+      <td>Гейт графа из 10 проверок с evidence-требованием, SM-2 с lineage, канонический
+      резолвер концептов, circuit breaker на живом трафике, guardrails на всех входах.
+      Обёртки такого не имеют — проверяемо по <code>course_graph_compiler.py</code>,
+      <code>llm_resilience.py</code>, <code>fact_source_binding.py</code>.</td></tr>
+    <tr><td>2</td><td>«Агент без кнопки»</td><td><span class="st st-hole">справедливо</span></td>
+      <td><code>query_mode="agent"</code> не устанавливается нигде в <code>app/ui</code>;
+      ни один FeatureSpec не использует готовый механизм <code>requires=("agent_enabled",)</code>;
+      <code>routers/agent.py</code> не существует. Разбор №4 сказал это раньше троллей.</td></tr>
+    <tr><td>3</td><td>«+0.06 из пальца»</td><td><span class="st st-silent">частично</span></td>
+      <td>Константы реальны (<code>query_response_postprocessing.py:414-418</code>:
+      0.48/0.42, прирост 0.06/0.03). Но: ключи — только канонические cid, quiz имеет право
+      перезаписать оценку вниз, счётчики взаимодействий отделены от завершённых сессий.
+      Слабый сигнал — да; хаос — нет.</td></tr>
+    <tr><td>4</td><td>«Врёт на первом экране»</td><td><span class="st st-hole">справедливо</span></td>
+      <td><code>mission_control_first_session.py:217</code> — безусловное «Первый обзор
+      курса готовится…» вне зависимости от того, готовится ли что-нибудь. Найдено разбором
+      №2, до сих пор не закрыто; в плане P1.</td></tr>
+    <tr><td>5</td><td>«Ноль пользовательских метрик»</td><td><span class="st st-silent">частично</span></td>
+      <td>Телеметрия событий и латенси-бюджеты в коде есть; опубликованных пользовательских
+      результатов — нет. Витрина HF Spaces впервые делает TTFI-замер публично проверяемым.
+      Претензия честная, но уже со сроком годности.</td></tr>
+    <tr><td>6</td><td>«Два счётчика повторить»</td><td><span class="st st-hole">справедливо</span></td>
+      <td><code>count_due_flashcards</code> и <code>count_due_reviews</code> — обе очереди
+      показываются раздельно (10 файлов UI). Это P0-2 финального плана — тролль попал в
+      действующий план дословно.</td></tr>
+    <tr><td>7</td><td>«Local-first — косплей, сами ушли в облако»</td><td><span class="st st-done">мимо</span></td>
+      <td>Дом остаётся локальным (данные и модель — на машине); витрина — отдельный
+      демо-режим, README которого честно называет облачную LLM и эфемерный диск.
+      Демо-дверь ≠ отказ от архитектуры. Friction установки — правда, ответ на неё —
+      и есть витрина.</td></tr>
+    <tr><td>8</td><td>«Сам себя похвалил»</td><td><span class="st st-done">мимо</span></td>
+      <td>Метаразбор №8 — самый жёсткий текст серии: он доказал, что закрывались только
+      «поверхности», а «провода» игнорировались. Самоаудит, который находит
+      неприятное и приводит к фиксу в тот же день (коммиты 186–191), — противоположность
+      самопохвале.</td></tr>
+    <tr><td>9</td><td>«Одна серая комната»</td><td><span class="st st-hole">справедливо</span></td>
+      <td><code>theme_presets.py</code> не существует, <code>get_ui_theme()</code> нет.
+      Разбор №9 спроектировал миры полностью — реализация не начата (осознанно отложена
+      в P2 до видимости петли).</td></tr>
+    <tr><td>10</td><td>«Дизайн 2005 года»</td><td><span class="st st-done">мимо</span></td>
+      <td>Вкусовщина. Notebook-стиль зафиксирован v1.0 как осознанный выбор
+      (тёплая бумага + терракота, три копии темы light/dark); фиксация как раз
+      закрыла реальную проблему — стилевой дрейф разборов №1–8.</td></tr>
+  </table>
+  </div>
+
+  <p><strong>Счёт стола: 4 справедливо · 2 частично · 4 мимо.</strong> Для панели, целью
+  которой было уничтожить продукт, — это комплимент кодовой базе: 60% огня либо гасится
+  фактами, либо уже стоит в плане.</p>
+</section>
+
+<section id="gift">
+  <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Подарок бэклогу</span></div>
+  <h2>Что тролли подарили плану — бесплатно</h2>
+  <div class="card"><span class="v v-fix">уже в P0</span><strong>Наезды №4, №6.</strong>
+    Лживый hero и два счётчика — тролли независимо воспроизвели выводы разборов №2 и №1.
+    Когда хейтер и методист говорят одно и то же разными словами — приоритет подтверждён
+    извне.</div>
+  <div class="card"><span class="v v-fix">уже в P1</span><strong>Наезд №2.</strong>
+    Дверь агента. Формулировка «собор без входа» — готовый заголовок для коммита.</div>
+  <div class="card"><span class="v v-fix">новый нюанс</span><strong>Наезд №5.</strong>
+    Единственное, чего серия не планировала явно: <em>публичная</em> история результата
+    («один человек, который скажет: я выучил»). Витрина делает это возможным — стоит
+    добавить в P2 сбор первой честной истории использования.</div>
+  <div class="card"><span class="v v-no">в архив мемов</span><strong>Наезды №1, №7, №8, №10.</strong>
+    Опровергнуты кодом или являются вкусовщиной. Хранить как прививку: если продукт
+    когда-нибудь станет обёрткой, потеряет local-first или начнёт хвалить себя без
+    самоаудита — тролли уже написали некролог заранее.</div>
+</section>
+
+<section id="synthesis">
+  <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Синтез</span></div>
+  <h2>Чему научил самый злой стол</h2>
+  <p>Ни один тролль не смог атаковать <strong>провода</strong> — предохранитель, гейт,
+  канонические концепты выдержали проверку злостью. Весь подтверждённый огонь пришёлся на
+  <strong>видимость</strong>: лживый экран, раздвоенный счётчик, невидимый след, пустая
+  «комната», отсутствующая дверь агента. Хейтеры, сами того не зная, слово в слово
+  повторили боль-якорь финального разбора: <em>система работает и молчит — а молчание
+  каждый заполняет худшей версией правды.</em></p>
+  <p>Практический вывод: лучший ответ троллям — не спор в комментариях, а два хода P0.
+  Пульс петли и одно число «Повторить» гасят наезды №3, №4, №5, №6 одновременно.</p>
+</section>
+
+<div class="footer">
+  <p>Круглый стол №2 из 3 · по мотивам серии эволюционных разборов №1–№10 ·
+  hometutor HEAD <code>c374892</code> «194» · 2026-07-12.</p>
+  <p>Персонажи вымышлены; вердикты фактчека проверены по коду (файлы и строки — в таблице).
+  Соседние столы: №1 «Профессионалы», №3 «Настоящие пользователи». Первоисточник фактов:
+  <code>evolutionary_analyses/10_full_circle.html</code>.</p>
+</div>
+
+</div>
+
+</body>
+</html>

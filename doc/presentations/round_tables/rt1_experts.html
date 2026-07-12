@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<title>Круглый стол №1 — Эксперты, преподаватели, конкуренты</title>
+<style>
+  :root {
+    --paper: #f7f3ea;
+    --paper-2: #fffdf7;
+    --ink: #17211b;
+    --muted: #5c6a61;
+    --terra: #b95631;
+    --terra-deep: #7d351f;
+    --forest: #243b2c;
+    --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14);
+    --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --done: #1e6e46;
+    --silent: #b98a2d;
+    --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+      --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+      --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(157, 191, 168, 0.10);
+      --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+      --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+    --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+    --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+    --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+    --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+      radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--terra-deep); }
+  em { color: var(--muted); }
+
+  code {
+    font-family: Consolas, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--terra);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 0.95rem; color: var(--gold);
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .sec-name {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem;
+    font-weight: 700; color: var(--muted);
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.1rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+  }
+  .anchor-card { border-left: 4px solid var(--terra); }
+  .ev { font-size: 0.86rem; color: var(--muted); margin-top: 0.5rem; }
+  .ev code { font-size: 0.8rem; }
+
+  .panelists { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.9rem; margin-bottom: 1rem; }
+  .panelists .card { margin: 0; }
+  .panelists .nm { font-family: Georgia, serif; font-weight: 700; font-size: 1.02rem; }
+  .panelists .rl { font-size: 0.84rem; color: var(--muted); margin-top: 0.15rem; }
+
+  .say { border-left: 3px solid var(--gold); padding: 0.2rem 0 0.2rem 1.05rem; margin: 0 0 1.15rem; max-width: 72ch; }
+  .say .who {
+    font-size: 0.76rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.09em; color: var(--terra); margin-bottom: 0.2rem;
+  }
+  .say .who em { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  .say p { margin-bottom: 0.4rem; }
+  .say .ev { margin-top: 0.15rem; }
+
+  .table-scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  td:first-child { white-space: nowrap; }
+  td { font-variant-numeric: tabular-nums; }
+
+  .st { display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 99px; white-space: nowrap; }
+  .st-done { color: var(--done); border: 1px solid var(--done); }
+  .st-silent { color: var(--silent); border: 1px solid var(--silent); }
+  .st-hole { color: var(--hole); border: 1px solid var(--hole); }
+
+  .v { display: inline-block; font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+       letter-spacing: 0.08em; padding: 0.1rem 0.55rem; border-radius: 99px; margin-right: 0.5rem; }
+  .v-keep { color: var(--verdict-keep); border: 1.5px solid var(--verdict-keep); }
+  .v-fix { color: var(--verdict-fix); border: 1.5px solid var(--verdict-fix); }
+  .v-no { color: var(--verdict-no); border: 1.5px solid var(--verdict-no); }
+
+  .footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
+            font-size: 0.85rem; color: var(--muted); }
+  .footer code { font-size: 0.8rem; }
+
+  a { color: var(--terra); }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">Панельные дискуссии · стол 1 из 3 · после серии «Кольцо замкнулось»</div>
+  <h1>Профессионалы за столом: инженер, педагог, конкурент</h1>
+  <p class="lede">Технические эксперты, преподаватели и владельцы продуктов-аналогов
+  обсуждают hometutor после десяти эволюционных разборов: что построено честно,
+  что — на эвристиках, и почему все трое, ругаясь о разном, требуют одного и того же.</p>
+  <div class="meta">
+    <span>hometutor · HEAD <code>c374892</code> «194»</span>
+    <span>2026-07-12</span>
+    <span>формат: симулированная панель — персонажи вымышлены</span>
+    <span>каждый факт о продукте проверен по коду</span>
+  </div>
+</header>
+
+<section id="panelists">
+  <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Участники</span></div>
+  <h2>Пять кресел</h2>
+  <div class="panelists">
+    <div class="card"><div class="nm">Дмитрий</div><div class="rl">ML-инженер, шесть лет строит
+      RAG-пайплайны в проде. Пришёл искать, где «локальный ИИ-тьютор» — маркетинг, а где — код.</div></div>
+    <div class="card"><div class="nm">Марина Сергеевна</div><div class="rl">Преподаватель физики,
+      22 года у доски, методист. Интервальное повторение практиковала на бумажных карточках,
+      когда это ещё не называлось SM-2.</div></div>
+    <div class="card"><div class="nm">Артём</div><div class="rl">Фаундер облачного SaaS
+      «ИИ-конспекты для вузов» — прямой аналог, только в облаке и по подписке.</div></div>
+    <div class="card"><div class="nm">Ольга</div><div class="rl">SRE-инженер. Ей всё равно, что
+      продукт учит физике, — ей важно, что он делает, когда падает его LLM.</div></div>
+    <div class="card"><div class="nm">Модератор</div><div class="rl">Задаёт три раунда:
+      архитектура и честность → педагогика → рынок. Финал — общий вердикт стола.</div></div>
+  </div>
+</section>
+
+<section id="round1">
+  <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Раунд 1</span></div>
+  <h2>Архитектура и честность: «покажите мне, что у вас под капотом при сбое»</h2>
+
+  <div class="say"><div class="who">Ольга <em>· SRE</em></div>
+    <p>Я начну с комплимента, что для меня редкость. 12 июля предохранитель локальной модели
+    подключили к живому трафику: перед каждым вызовом проверяется <code>is_open()</code>, каждый
+    успех и каждый сетевой сбой записываются. До этого circuit breaker питался единственной
+    пробой на старте процесса — то есть был украшением. Если LM Studio умирала через десять
+    минут работы, каждый следующий запрос честно ждал полный таймаут в 45 секунд.
+    Теперь — быстрый отказ порядка трёх секунд с человеческим объяснением.</p>
+    <p class="ev">Проверено: <code>llm_resilience.py:168-171</code> (is_open → skip),
+    <code>:191/:209</code> (record_success/record_failure), подсказки различают облако и
+    локальный сервер — <code>preflight.py:26-52</code>.</p>
+  </div>
+
+  <div class="say"><div class="who">Дмитрий <em>· ML-инженер</em></div>
+    <p>Подтверждаю, провайдер-слой взрослый: три профиля, фабрики, fallback выключен по
+    умолчанию — осознанно, а не забыли включить. Гейт графа знаний тоже впечатлил: десять
+    проверок перед публикацией, среди них 100% evidence у концептов и связей и ноль циклов.
+    Непрошедший бандл не публикуется — это дисциплина, которой нет у половины прод-систем.</p>
+    <p>А теперь ложка дёгтя. Я открыл, чем кормится «след» тьюторского диалога:
+    <code>mastery_hint = 0.48 if sources else 0.42</code>, прирост 0.06 или 0.03. Это не
+    измерение — это константы. Вы записываете в модель ученика уверенное число, полученное
+    из воздуха.</p>
+    <p class="ev"><code>query_response_postprocessing.py:414-418</code> — эвристика буквально
+    захардкожена.</p>
+  </div>
+
+  <div class="say"><div class="who">Модератор</div>
+    <p>Справедливости ради: ключи в модели ученика теперь только канонические concept id из
+    графа — свободный текст в mastery не попадает, а quiz сохраняет право перезаписать оценку
+    вниз. То есть эвристика — слабый сигнал в дисциплинированной системе, а не хаос.</p>
+    <p class="ev"><code>fact_source_binding.py</code> — канонический резолвер;
+    инварианты закреплены в <code>tests/test_memory_loop_closure.py</code> (7 тестов).</p>
+  </div>
+
+  <div class="say"><div class="who">Дмитрий</div>
+    <p>Принято, дисциплина есть. Но тогда следующий шаг очевиден не «добавить фич», а
+    откалибровать сигнал: пока диалог даёт +0.06 всем подряд, ваша карта mastery — карта
+    посещаемости, а не знаний. И второе: вы это число даже не показываете. Пишете в базу
+    молча. Зачем системе память, о которой не знает её хозяин?</p>
+  </div>
+</section>
+
+<section id="round2">
+  <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Раунд 2</span></div>
+  <h2>Педагогика: «возврат в лекцию — золото; невидимый след — грех»</h2>
+
+  <div class="say"><div class="who">Марина Сергеевна <em>· преподаватель</em></div>
+    <p>Коллеги спорят про константы, а я скажу, чего не хватает всем чат-ботам и что здесь
+    есть: <strong>возврат в точное место лекции</strong> — раздел, строка, таймкод видео.
+    Ученик не получает «ответ вообще», он получает дверь обратно в материал. За 22 года я
+    поняла: запоминается не ответ, запоминается дорога к нему. Это единственная функция,
+    ради которой я бы советовала продукт коллегам.</p>
+  </div>
+
+  <div class="say"><div class="who">Марина Сергеевна</div>
+    <p>Теперь претензии. Первая — формирующее оценивание не работает без обратной связи.
+    Система после диалога записывает след, обновляет модель ученика — и молчит. Ученик
+    закрывает ноутбук с вопросом «а что-то изменилось?». В классе я бы сказала: «сегодня ты
+    разобрался с индукцией, завтра проверим». Ваш тьютор этого не говорит, хотя знает.
+    Вторая — курс из одной-двух лекций не получает карту знаний вовсе: порог «минимум три
+    документа». Репетитор с одной лекцией — ваш типовой пользователь, и ему даже не
+    объясняют, почему карта пустая.</p>
+    <p class="ev">Порог — в гейте компилятора графа (проверка min_documents&lt;3);
+    молчание после диалога — <code>update_outcome</code> не доходит до экрана
+    (<code>query_response_postprocessing.py:415-430</code>).</p>
+  </div>
+
+  <div class="say"><div class="who">Модератор</div>
+    <p>Третью претензию угадаю: «повторить сегодня»?</p>
+  </div>
+
+  <div class="say"><div class="who">Марина Сергеевна</div>
+    <p>Да. У ученика два счётчика повторения в разных местах интерфейса — карточки отдельно,
+    концепты отдельно. Ребёнок не обязан знать вашу архитектуру памяти. Дверь на повторение
+    должна быть одна, с одним числом. Это не фича, это гигиена.</p>
+    <p class="ev"><code>count_due_flashcards</code> и <code>count_due_reviews</code> живут
+    в 10 файлах UI; оба уже стекаются в одну функцию рекомендации
+    (<code>tutor_chat_response_render.py:157-158</code>) — слить их дёшево.</p>
+  </div>
+</section>
+
+<section id="round3">
+  <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Раунд 3</span></div>
+  <h2>Рынок: конкурент признаётся, чего у него нет</h2>
+
+  <div class="say"><div class="who">Артём <em>· фаундер SaaS-аналога</em></div>
+    <p>Скажу как конкурент: local-first я всегда считал самоограничением. Дистрибуция —
+    боль: заставить студента поставить LM Studio ради конспектов почти невозможно. Но
+    12 июля они выкатили публичную витрину на Hugging Face Spaces — облачная LLM, демо-корпус,
+    постоянная ссылка. Это правильный ход: дом остаётся локальным, дверь — публичная. Я бы
+    сделал так же.</p>
+    <p class="ev"><code>deploy/hf-spaces/</code> — Docker SDK, README честно называет
+    ограничения: эфемерный диск, только облачные модели.</p>
+  </div>
+
+  <div class="say"><div class="who">Артём</div>
+    <p>Чего у меня нет и что мне взять неоткуда: во-первых, возврат в таймкод — у меня ответ
+    ссылается на документ целиком, здесь — на минуту видео. Во-вторых, приватность как
+    архитектура, а не галочка в соглашении: материалы вообще не покидают машину. Для школ и
+    репетиторов с чужими детскими данными это аргумент, который я в облаке не повторю
+    никогда.</p>
+    <p>Но и слабость назову: у меня пользователь через минуту после регистрации видит
+    «за эту неделю ты прошёл X». Здесь система знает больше моей — а показывает меньше.
+    Продукт, который не умеет хвастаться результатом ученика, не растёт. Ваша витрина
+    приведёт людей — и они уйдут, не поняв, что их запомнили.</p>
+  </div>
+
+  <div class="say"><div class="who">Ольга</div>
+    <p>Добавлю про витрину: в «Быстром ответе» есть честный бейдж источника — локальная
+    модель или облако, с задержкой. В tutor chat, где живёт главный сценарий, бейджа нет.
+    В облачном демо это уже не косметика: человек имеет право знать, что его вопрос ушёл в
+    облако, на каждой поверхности, а не на одной.</p>
+    <p class="ev">Хелперы готовы (<code>ui/helpers.py:213</code>,
+    <code>llm_source_badge_text</code>), подключены только в query-tab;
+    в <code>tutor_chat_response_render.py</code> рендерится лишь orchestration-бейдж.</p>
+  </div>
+</section>
+
+<section id="verdicts">
+  <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Вердикт стола</span></div>
+  <h2>О чём три профессии договорились</h2>
+
+  <div class="card"><span class="v v-keep">сильное — не трогать</span><strong>Возврат в точное
+    место, provider-слой с живым предохранителем, гейт графа, канонические concept id,
+    local-first дом + облачная витрина.</strong> Ни один из троих не предложил это менять.</div>
+
+  <div class="card"><span class="v v-fix">чинить первым</span><strong>Видимость петли.</strong>
+    Инженер («зачем память, о которой не знает хозяин»), педагог («формирующее оценивание
+    без обратной связи не существует») и конкурент («продукт, не умеющий хвастаться
+    результатом, не растёт») тремя языками потребовали одного: показать след после ответа
+    и одно число «Повторить». Это дословно P0-1 и P0-2 финального разбора №10.</div>
+
+  <div class="card"><span class="v v-fix">чинить вторым</span><strong>Калибровка сигнала
+    mastery.</strong> Константы 0.48/0.42 — законный первый шаг, но карта знаний не должна
+    навсегда остаться картой посещаемости. После того как след станет видимым — заняться
+    его качеством (диагностический quiz как арбитр уже есть).</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>Ни новых экранов, ни новых
+    подсистем.</strong> Стол не назвал ни одной недостающей крупной фичи. Все претензии —
+    к голосу системы, не к её органам.</div>
+
+  <p><strong>Синтез стола:</strong> три профессии смотрели на разные слои — надёжность,
+  дидактику, рынок — и сошлись в одной точке: <em>система уже честна внутри; теперь она
+  должна стать честной вслух.</em></p>
+</section>
+
+<div class="footer">
+  <p>Круглый стол №1 из 3 · по мотивам серии эволюционных разборов №1–№10 ·
+  hometutor HEAD <code>c374892</code> «194» · 2026-07-12.</p>
+  <p>Персонажи вымышлены; все утверждения о коде проверены (файлы и строки — в подписях
+  реплик). Продолжение: стол №2 «Хейтеры и тролли», стол №3 «Настоящие пользователи».
+  Первоисточник фактов: <code>evolutionary_analyses/10_full_circle.html</code> и
+  <code>doc/next/full_circle_visibility_plan.md</code>.</p>
+</div>
+
+</div>
+
+</body>
+</html>

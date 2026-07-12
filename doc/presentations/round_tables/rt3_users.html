@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<title>Круглый стол №3 — Настоящие пользователи: от новичка до фаната</title>
+<style>
+  :root {
+    --paper: #f7f3ea;
+    --paper-2: #fffdf7;
+    --ink: #17211b;
+    --muted: #5c6a61;
+    --terra: #b95631;
+    --terra-deep: #7d351f;
+    --forest: #243b2c;
+    --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14);
+    --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --done: #1e6e46;
+    --silent: #b98a2d;
+    --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+      --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+      --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(157, 191, 168, 0.10);
+      --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+      --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+    --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+    --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+    --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+    --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+      radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--terra-deep); }
+  em { color: var(--muted); }
+
+  code {
+    font-family: Consolas, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--terra);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 0.95rem; color: var(--gold);
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .sec-name {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem;
+    font-weight: 700; color: var(--muted);
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.1rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+  }
+  .ev { font-size: 0.86rem; color: var(--muted); margin-top: 0.5rem; }
+  .ev code { font-size: 0.8rem; }
+
+  .panelists { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.9rem; margin-bottom: 1rem; }
+  .panelists .card { margin: 0; }
+  .panelists .nm { font-family: Georgia, serif; font-weight: 700; font-size: 1.02rem; }
+  .panelists .rl { font-size: 0.84rem; color: var(--muted); margin-top: 0.15rem; }
+
+  .say { border-left: 3px solid var(--forest); padding: 0.2rem 0 0.2rem 1.05rem; margin: 0 0 1.15rem; max-width: 72ch; }
+  .say .who {
+    font-size: 0.76rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.09em; color: var(--terra); margin-bottom: 0.2rem;
+  }
+  .say .who em { text-transform: none; letter-spacing: 0; font-weight: 400; }
+  .say p { margin-bottom: 0.4rem; }
+  .say .ev { margin-top: 0.15rem; }
+
+  .table-scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  td { font-variant-numeric: tabular-nums; }
+
+  .st { display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 99px; white-space: nowrap; }
+  .st-done { color: var(--done); border: 1px solid var(--done); }
+  .st-silent { color: var(--silent); border: 1px solid var(--silent); }
+  .st-hole { color: var(--hole); border: 1px solid var(--hole); }
+
+  .v { display: inline-block; font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+       letter-spacing: 0.08em; padding: 0.1rem 0.55rem; border-radius: 99px; margin-right: 0.5rem; }
+  .v-keep { color: var(--verdict-keep); border: 1.5px solid var(--verdict-keep); }
+  .v-fix { color: var(--verdict-fix); border: 1.5px solid var(--verdict-fix); }
+  .v-no { color: var(--verdict-no); border: 1.5px solid var(--verdict-no); }
+
+  .ladder { list-style: none; padding-left: 0; }
+  .ladder li { display: flex; gap: 0.8rem; align-items: baseline; margin-bottom: 0.55rem; }
+  .ladder .num {
+    flex: none; font-family: Georgia, serif; font-weight: 700; color: var(--gold);
+    width: 1.6rem; text-align: right;
+  }
+
+  .footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
+            font-size: 0.85rem; color: var(--muted); }
+  .footer code { font-size: 0.8rem; }
+
+  a { color: var(--terra); }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">Панельные дискуссии · стол 3 из 3 · после серии «Кольцо замкнулось»</div>
+  <h1>Настоящие пользователи: пять историй, два камня</h1>
+  <p class="lede">От школьницы в первый день до фаната с двумя месяцами стажа. Каждый
+  рассказывает, что оправдалось, а что оказалось несбывшейся надеждой — и все пятеро,
+  не сговариваясь, спотыкаются об одни и те же два камня.</p>
+  <div class="meta">
+    <span>hometutor · HEAD <code>c374892</code> «194»</span>
+    <span>2026-07-12</span>
+    <span>формат: симулированная панель — персонажи-архетипы</span>
+    <span>каждый описанный опыт смоделирован по реальному поведению кода</span>
+  </div>
+</header>
+
+<section id="panelists">
+  <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Участники</span></div>
+  <h2>Пять уровней стажа</h2>
+  <div class="panelists">
+    <div class="card"><div class="nm">Соня, 16</div><div class="rl">Школьница. Стаж: 1 день.
+      Готовится к экзамену по физике, поставила приложение вчера вечером с папой.</div></div>
+    <div class="card"><div class="nm">Павел, 21</div><div class="rl">Студент-заочник. Стаж:
+      2 недели. Учится урывками в электричке, живёт карточками и «планом на сегодня».</div></div>
+    <div class="card"><div class="nm">Кирилл, 34</div><div class="rl">Инженер, self-learner,
+      фанат. Стаж: 2 месяца. Загрузил 40 лекций своего ML-курса, знает все вкладки.</div></div>
+    <div class="card"><div class="nm">Наталья, 43</div><div class="rl">Мама Сони. Сама не
+      учится — выбирала инструмент. Критерий один: данные ребёнка не уходят в интернет.</div></div>
+    <div class="card"><div class="nm">Гость с витрины</div><div class="rl">Случайный посетитель
+      публичного демо на Hugging Face. Стаж: 10 минут. Ничего не устанавливал.</div></div>
+  </div>
+</section>
+
+<section id="stories">
+  <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Истории</span></div>
+  <h2>Что оправдалось — и что нет</h2>
+
+  <h3>День первый: Соня</h3>
+  <div class="say"><div class="who">Соня <em>· стаж 1 день</em></div>
+    <p>Круто было, что первый ответ пришёл с кусочком лекции и ссылкой — я нажала и попала
+    прямо в то место конспекта, где это объясняется. Не «вот тебе текст из интернета»,
+    а «вот твоя же лекция, вот здесь». Такого нет ни у одного бота, каким я пользовалась.</p>
+    <p>А вот наверху висело «Первый обзор курса готовится…» — я честно ждала. Вечером
+    ещё готовилось. Сегодня утром тоже. Я решила, что у меня что-то сломалось, и чуть
+    не удалила. И ещё: в первый вечер я согласилась на «тур по приложению» — и он увёл
+    меня с экрана, где я хоть что-то понимала.</p>
+    <p class="ev">Оба факта — из кода: безусловное «готовится…» —
+    <code>mission_control_first_session.py:217</code>; тур, уводящий новичка, — вывод
+    разбора №2.</p>
+  </div>
+
+  <h3>Две недели: Павел</h3>
+  <div class="say"><div class="who">Павел <em>· стаж 2 недели</em></div>
+    <p>Мой сценарий — 20 минут в электричке: открыл, спросил, прогнал карточки. Карточки
+    работают честно, интервалы растут, «план на сегодня» перестал путаться в показаниях —
+    раньше «программа обучения» и «план на день» жили каждый своей жизнью, теперь это
+    один стол.</p>
+    <p>Что бесит: в одном месте написано «повторить: 4», захожу в чат тьютора — там «6».
+    Я так и не понял, сколько мне на самом деле учить сегодня. И второе — я две недели
+    разговариваю с тьютором и не могу ответить на простой вопрос: я вообще продвинулся?
+    Где-то же это должно копиться. Но после разговора — тишина. Ощущение, что говорю
+    в подушку.</p>
+    <p class="ev">Два числа — <code>count_due_flashcards</code> vs
+    <code>count_due_reviews</code> (обе очереди в UI раздельно). Продвижение реально
+    копится — с коммита 186 каждый диалог пишет след в модель ученика
+    (<code>query_response_postprocessing.py:415-430</code>), — но ни одна поверхность
+    его не показывает. Павел прав: он продвинулся и не может это узнать.</p>
+  </div>
+
+  <h3>Два месяца: Кирилл</h3>
+  <div class="say"><div class="who">Кирилл <em>· фанат</em></div>
+    <p>Я тот, кто скачал живую карту курса как HTML и отправил её коллеге в чат — она
+    интерактивная, работает без приложения, без интернета. Это лучший экспорт, что я видел
+    в такого рода софте. Схемы разделов в Живом конспекте — тоже пушка, и я заметил, что
+    недавно стало можно больше типов диаграмм.</p>
+    <p>Мои несбывшиеся надежды другого сорта. Я знаю, что внутри лежит целый агент — читал
+    роадмап — и кнопки нет; я бы жал её каждый день: «собери мне учебную сессию». Ещё я
+    завёл мини-курс из двух лекций — и карта для него просто не строится, молча. И
+    «одна страница лекции» — конспект + концепты + таймкоды на одном листе — обещана
+    разбором, но её нет.</p>
+    <p class="ev">Download карты — <code>dashboards_graph.py</code> (A1 разбора №6,
+    сделано); новые типы mermaid-диаграмм — незакоммиченный WIP в
+    <code>living_konspekt_workbench_panel.py</code>; агент без двери — 0 вхождений
+    <code>query_mode="agent"</code> в UI; порог min_documents&lt;3 — гейт компилятора;
+    one-pager — не построен.</p>
+  </div>
+
+  <h3>Родитель: Наталья</h3>
+  <div class="say"><div class="who">Наталья <em>· выбирала инструмент</em></div>
+    <p>Я выбрала это приложение по одной причине: лекции дочери и её ошибки не уезжают
+    ни в какое облако. Всё на нашем компьютере — я проверяла диспетчером сети, трафика
+    к внешним серверам при ответах нет.</p>
+    <p>Была неприятность: однажды «мозги» (та программа с моделью) не запустились, и
+    приложение на каждый вопрос думало по минуте и умирало. Дочь psychанула. После
+    недавнего обновления стало иначе: отвечает сразу и честно — «локальная модель
+    недоступна, запустите LM Studio». С ошибкой я справлюсь; с враньём и зависанием — нет.</p>
+    <p class="ev">До 12 июля цена сбоя — полный таймаут 45 с на каждый запрос
+    (предохранитель не питался от трафика); после коммитов 186–187 — быстрый честный
+    отказ ~3 с с подсказкой (<code>llm_resilience.py:168-171</code>,
+    <code>preflight.py:26-52</code>).</p>
+  </div>
+
+  <h3>Десять минут: гость с витрины</h3>
+  <div class="say"><div class="who">Гость <em>· HF Spaces, без установки</em></div>
+    <p>Зашёл по ссылке, ничего не ставил, задал три вопроса по демо-курсу — работает,
+    источники показывает. Из любопытства заглянул в «Быстрый ответ» — там честно написано,
+    какая модель отвечала и за сколько миллисекунд. А в чате тьютора такой строки нет —
+    и я, если честно, так и не понял: мой вопрос обрабатывался где-то в облаке? Чей это
+    сервер? Для случайного гостя это первый вопрос, а не последний.</p>
+    <p class="ev">Бейдж источника подключён только в query-tab
+    (<code>llm_source_badge_text</code>, <code>ui/helpers.py:213</code>); в
+    <code>tutor_chat_response_render.py</code> его нет. В облачном демо отсутствие
+    ответа «кто отвечал» заметнее, чем дома.</p>
+  </div>
+</section>
+
+<section id="scoreboard">
+  <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Табло</span></div>
+  <h2>Оправдалось / не оправдалось — сводка стола</h2>
+  <div class="table-scroll">
+  <table>
+    <tr><th>Надежда</th><th>Статус</th><th>Кто заявил</th></tr>
+    <tr><td>Ответ ведёт в точное место моей лекции</td>
+      <td><span class="st st-done">оправдалось</span></td><td>Соня, Кирилл</td></tr>
+    <tr><td>Карточки и интервалы работают честно</td>
+      <td><span class="st st-done">оправдалось</span></td><td>Павел</td></tr>
+    <tr><td>План на сегодня — один, не спорит сам с собой</td>
+      <td><span class="st st-done">оправдалось</span></td><td>Павел <em>(разбор №7 закрыт 7/7)</em></td></tr>
+    <tr><td>Данные не покидают компьютер</td>
+      <td><span class="st st-done">оправдалось</span></td><td>Наталья</td></tr>
+    <tr><td>При сбое — быстрый честный отказ, не зависание</td>
+      <td><span class="st st-done">оправдалось</span></td><td>Наталья <em>(после 186–187)</em></td></tr>
+    <tr><td>Живую карту можно скачать и подарить</td>
+      <td><span class="st st-done">оправдалось</span></td><td>Кирилл</td></tr>
+    <tr><td>Попробовать без установки</td>
+      <td><span class="st st-done">оправдалось</span></td><td>Гость <em>(витрина HF)</em></td></tr>
+    <tr><td>Видеть, что я продвинулся после занятия</td>
+      <td><span class="st st-silent">работает, но молчит</span></td><td>Павел — след пишется, экран не показывает</td></tr>
+    <tr><td>Понимать, кто и где ответил на мой вопрос</td>
+      <td><span class="st st-silent">работает, но молчит</span></td><td>Гость — бейдж есть не везде</td></tr>
+    <tr><td>Одно число «сколько повторить сегодня»</td>
+      <td><span class="st st-hole">не оправдалось</span></td><td>Павел — два счётчика</td></tr>
+    <tr><td>«Первый обзор курса» действительно приходит</td>
+      <td><span class="st st-hole">не оправдалось</span></td><td>Соня — обещание без исполнения</td></tr>
+    <tr><td>Карта для курса из 1–2 лекций</td>
+      <td><span class="st st-hole">не оправдалось</span></td><td>Кирилл — порог молчит о себе</td></tr>
+    <tr><td>Кнопка «собери мне учебную сессию» (агент)</td>
+      <td><span class="st st-hole">не оправдалось</span></td><td>Кирилл — двигатель есть, двери нет</td></tr>
+    <tr><td>«Своя комната»: цветовые миры</td>
+      <td><span class="st st-hole">не оправдалось</span></td><td>Соня — «а можно не серое?»</td></tr>
+  </table>
+  </div>
+  <p><strong>Счёт: 7 оправдалось · 2 «работает, но молчит» · 5 не оправдалось.</strong>
+  Показательно, <em>что именно</em> оправдалось: всё выполненное — «провода» (возврат,
+  память, честность, приватность, экспорт). Всё невыполненное — «голос и двери».</p>
+</section>
+
+<section id="wishes">
+  <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Лестница желаний</span></div>
+  <h2>Чего стол хочет — по возрастанию стажа</h2>
+  <ol class="ladder">
+    <li><span class="num">0</span><span><strong>Соня (день 1):</strong> «пусть первый экран
+      не обещает того, чего не будет» — честный hero вместо «готовится…».</span></li>
+    <li><span class="num">1</span><span><strong>Гость (10 минут):</strong> «скажите в каждом
+      ответе, кто отвечал» — бейдж источника в tutor chat.</span></li>
+    <li><span class="num">2</span><span><strong>Павел (2 недели):</strong> «одно число
+      повторения и строчка „что изменилось после занятия“» — пульс петли + одно число.</span></li>
+    <li><span class="num">3</span><span><strong>Кирилл (2 месяца):</strong> «кнопку агенту,
+      карту маленькому курсу, одну страницу лекции» — двери для мощи, что уже построена.</span></li>
+    <li><span class="num">4</span><span><strong>Наталья (родитель):</strong> «продолжайте
+      не врать» — честность как дефолт при любом следующем шаге.</span></li>
+  </ol>
+  <p>Ступени 0–2 — в точности P0/P1 финального разбора №10. Пользователи независимо
+  проголосовали за уже составленный план — лучший вид валидации.</p>
+</section>
+
+<section id="synthesis">
+  <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Синтез</span></div>
+  <h2>Два камня на всех</h2>
+  <p>Пять разных стажей, пять сценариев — и все спотыкаются об одно и то же:
+  <strong>невидимый след</strong> («я продвинулся? скажите хоть что-нибудь») и
+  <strong>раздвоенную дверь возврата</strong> (два числа «повторить»). Ни один участник
+  не попросил новую фичу — все просили, чтобы уже существующее <em>заговорило</em>.</p>
+  <p>И одно наблюдение, которого не дали ни эксперты, ни тролли: у пользователей
+  выполненные надежды — сплошь невидимая инфраструктура, которую они описывают
+  бытовыми словами («не врёт», «не зависает», «не уезжает в облако», «ведёт в мою
+  лекцию»). Продукт уже заработал доверие делами; осталось научить его говорить о них.</p>
+</section>
+
+<div class="footer">
+  <p>Круглый стол №3 из 3 · по мотивам серии эволюционных разборов №1–№10 ·
+  hometutor HEAD <code>c374892</code> «194» · 2026-07-12.</p>
+  <p>Персонажи — архетипы, не реальные люди; каждый описанный опыт смоделирован по
+  фактическому поведению кода (файлы и строки — в подписях). Соседние столы:
+  №1 «Профессионалы», №2 «Хейтеры и тролли». Первоисточник фактов:
+  <code>evolutionary_analyses/10_full_circle.html</code>.</p>
+</div>
+
+</div>
+
+</body>
+</html>
