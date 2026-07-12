@@ -15,6 +15,32 @@
 
 | Package | Status | CJM | Primary US | Owner | Notes |
 |---|---|---|---|---|---|
+| `invisible-half-p0-closure-v1` | `wip` | #9 Master, #8 Progress check, #10 Retrieval trust | US-8.1, US-12.9, US-12.8 | Auto | Process correction after audit: runtime diff for Invisible Half P0 had started before promotion. This item is the SSoT envelope for that diff only. After proof is written, close via scripts/workflow.py / run_autonomous post-agent; do not add new runtime scope. |
+
+### invisible-half-p0-closure-v1 Contract
+
+<!-- GENERATED from backlog_registry.yaml — do not edit manually -->
+
+- **Title:** archive/team_artifacts/invisible-half-p0-closure-v1/execution_contract.md contains proof of the already-implemented corr
+- **CJM:** ##9 Master, #8 Progress check, #10 Retrieval trust
+- **User story:** US-8.1, US-12.9, US-12.8
+- **DoD commands:**
+  ```
+  .\.venv\Scripts\python.exe -m pytest tests/test_memory_loop_closure.py tests/test_flashcards_review_keyboard.py tests/test_flashcards_interactive_card.py tests/test_flashcards_scheduling.py tests/test_provider_openai_structured.py
+  .\.venv\Scripts\python.exe -m ruff check app/fact_source_binding.py app/flashcard_service.py app/learner_model_service.py app/llm_resilience.py app/query_response_postprocessing.py tests/test_memory_loop_closure.py
+  ```
+- **Outcomes:**
+  - archive/team_artifacts/invisible-half-p0-closure-v1/execution_contract.md contains proof of the already-implemented corrective diff, targeted pytest/ruff results, and explicit confirmation that no scope beyond the registered write-set was added.
+- **Write-set max:** 8 files
+- **Target artifacts:** archive/team_artifacts/invisible-half-p0-closure-v1/execution_contract.md contains proof of the already-implemented corrective diff, targeted pytest/ruff results, and explicit confirmation that no scope beyond the registered write-set was added.
+- **Read-set hint:**
+  - app/fact_source_binding.py — provenance helper only
+  - app/flashcard_service.py — review_flashcard only
+  - app/learner_model_service.py — outcome update/canonical resolver only
+  - app/llm_resilience.py — complete/chat resilience only
+  - app/query_response_postprocessing.py — tutor postprocessing only
+  - doc/next/invisible_half_closure_plan.md — process note only
+- **Notes:** Process correction after audit: runtime diff for Invisible Half P0 had started before promotion. This item is the SSoT envelope for that diff only. After proof is written, close via scripts/workflow.py / run_autonomous post-agent; do not add new runtime scope.
 
 ### Wave queue
 

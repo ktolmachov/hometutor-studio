@@ -36,10 +36,10 @@
 schema_version: 2
 user_stories_index: doc/user_stories_index.json
 # active_wave_id: explicit override for active wave selection (null = auto: wip→ready→proposed)
-active_wave_id: wave-advanced-rag-rewrite-rerank
+active_wave_id: wave-invisible-half-p0-closure
 # active_package_id: execution-focus package id — optional mirror of sole ready/wip row;
 # auto-maintained by backlog_registry_lint.py --write-sync when registry is valid.
-active_package_id: null
+active_package_id: invisible-half-p0-closure-v1
 
 # ─── Wave Planning (schema v2) ────────────────────────────────────────────────
 # Waves are the primary planning unit. Each wave bundles 1–4 related packages
@@ -1558,6 +1558,27 @@ waves:
     created: 2026-07-11
     closed_date: 2026-07-11
     last_touched_mot: "#8 Learning plan"
+
+
+  - id: wave-invisible-half-p0-closure
+    theme: "Invisible Half P0: след обучения + честность provider"
+    north_star: >-
+      После tutor/flashcard/provider-сбоев невидимые контуры продукта честны:
+      учебные действия оставляют canonical concept trace, sessions_completed не
+      раздувается interaction-событиями, а локальный LLM circuit breaker даёт
+      быстрый честный отказ вместо долгого зависания.
+    entry_mot: "#9 Master"
+    exit_mot: "#8 Progress check"
+    packages:
+      - invisible-half-p0-closure-v1
+    kill_switch: >-
+      mastery_vector получает free-text ключи вместо canonical cid; flashcard/tutor
+      увеличивают sessions_completed; provider circuit breaker меняет fallback policy
+      или включает cloud-fallback без явного решения владельца.
+    status: wip
+    created: 2026-07-12
+    last_review: 2026-07-12
+    last_touched_mot: "#9 Master"
 
 items:
   - id: epoch-mission-control-home
@@ -8705,6 +8726,10 @@ items:
     user_stories:
       - US-16.0
     impact: loop-improvement
+    blocks: >-
+      Corrective SSoT envelope for Invisible Half P0 runtime diff: tutor/flashcard
+      learning trace writes canonical concept ids, sessions and interactions are split,
+      provider circuit honesty is wired, and agent default is honest until UI door exists.
     priority: P0
     cost_estimate: M
     write_set_max: 6
@@ -9930,3 +9955,92 @@ items:
       - tests/test_learning_plan_state.py
       - tests/test_learning_plan_today_source.py
       - doc/next/learning_plan_single_source_plan.md
+
+
+  - id: invisible-half-p0-closure-v1
+    wave_id: wave-invisible-half-p0-closure
+    wave_position: 1
+    status: wip
+    set_ready_date: 2026-07-12
+    type: corrective_package
+    theme: "Разбор №8: закрыть внепроцессный P0-diff через SSoT"
+    cjm_moments:
+      - "#9 Master"
+      - "#8 Progress check"
+      - "#10 Retrieval trust"
+    user_stories:
+      - US-8.1
+      - US-12.9
+      - US-12.8
+    impact: loop-improvement
+    priority: P0
+    cost_estimate: M
+    write_set_max: 8
+    north_star: >-
+      Tutor и flashcards пишут учебный след только через canonical concept id,
+      quiz остаётся единственным источником sessions_completed, provider resilience
+      подключён к circuit breaker, а AGENT_ENABLED не включён до появления UI-двери.
+    preconditions:
+      - >-
+        Corrective package принят задним числом для уже начатого diff после аудита;
+        дальнейшее расширение scope запрещено, только proof/verification/closure.
+      - >-
+        Composition plan doc/next/invisible_half_closure_plan.md остаётся картой
+        кандидатов; этот package — SSoT для текущего runtime write-set.
+    deliverables:
+      - >-
+        fact_source_binding: user-action provenance helper for flashcard/tutor learning trace.
+      - >-
+        flashcard_service: review_flashcard resolves canonical concept id before learner-state
+        and learner-model writes; unresolved signals do not pollute mastery_vector.
+      - >-
+        learner_model_service: tutor/flashcard outcomes canonicalize to graph cid,
+        interaction counters are separate from sessions_completed, quiz overwrite semantics preserved.
+      - >-
+        query_response_postprocessing: tutor sends non-empty learner outcome into the shared gateway.
+      - >-
+        llm_resilience: local provider circuit open/failure/success path is wired to real traffic.
+      - >-
+        config.env: AGENT_ENABLED default/comment made honest until an agent UI door exists.
+      - >-
+        tests/test_memory_loop_closure.py: regression coverage for canonical resolver, cid writes,
+        interaction counters, quiz semantics, and provider circuit behavior.
+    write_set:
+      - app/fact_source_binding.py
+      - app/flashcard_service.py
+      - app/learner_model_service.py
+      - app/llm_resilience.py
+      - app/query_response_postprocessing.py
+      - config.env
+      - tests/test_memory_loop_closure.py
+    dod_commands:
+      - '.\.venv\Scripts\python.exe -m pytest tests/test_memory_loop_closure.py tests/test_flashcards_review_keyboard.py tests/test_flashcards_interactive_card.py tests/test_flashcards_scheduling.py tests/test_provider_openai_structured.py'
+      - '.\.venv\Scripts\python.exe -m ruff check app/fact_source_binding.py app/flashcard_service.py app/learner_model_service.py app/llm_resilience.py app/query_response_postprocessing.py tests/test_memory_loop_closure.py'
+    read_set_hint:
+      - app/fact_source_binding.py — provenance helper only
+      - app/flashcard_service.py — review_flashcard only
+      - app/learner_model_service.py — outcome update/canonical resolver only
+      - app/llm_resilience.py — complete/chat resilience only
+      - app/query_response_postprocessing.py — tutor postprocessing only
+      - doc/next/invisible_half_closure_plan.md — process note only
+    constraints:
+      - No new UI screens in this corrective package.
+      - No cloud fallback enablement; provider honesty only.
+      - mastery_vector keys must be canonical graph cid, never free text.
+      - sessions_completed counts quiz/session completions only; tutor/flashcard are interactions.
+      - Do not expand into Agent UI, RAGAS, lost-in-middle, or future invisible-half P1 items.
+    kill_switch: >-
+      Free-text mastery keys appear; sessions_completed increments on tutor/flashcard;
+      circuit breaker bypasses provider/config boundaries; package expands beyond current diff.
+    depends_on: []
+    created: 2026-07-12
+    last_review: 2026-07-12
+    exit_artifact: >-
+      archive/team_artifacts/invisible-half-p0-closure-v1/execution_contract.md contains
+      proof of the already-implemented corrective diff, targeted pytest/ruff results, and
+      explicit confirmation that no scope beyond the registered write-set was added.
+    notes: >-
+      Process correction after audit: runtime diff for Invisible Half P0 had started before
+      promotion. This item is the SSoT envelope for that diff only. After proof is written,
+      close via scripts/workflow.py / run_autonomous post-agent; do not add new runtime scope.
+

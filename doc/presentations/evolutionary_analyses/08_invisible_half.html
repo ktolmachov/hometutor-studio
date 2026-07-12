@@ -1,0 +1,575 @@
+<title>Невидимая половина — разбор №8 · hometutor</title>
+<style>
+  :root {
+    --bg: #F5F7F6; --surface: #FFFFFF; --ink: #1C2622; --muted: #5C6B65;
+    --line: #DDE4E1; --accent: #14705F; --accent-soft: #E3F0EC;
+    --leak: #B3492A; --leak-soft: #F7E8E2; --amber: #9A6B15; --amber-soft: #F5EDDC;
+    --code-bg: #EDF1EF; --shadow: 0 1px 3px rgba(28,38,34,.07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #101715; --surface: #17201D; --ink: #E3EAE6; --muted: #93A39C;
+      --line: #2A3630; --accent: #4CC2A8; --accent-soft: #16302A;
+      --leak: #E08663; --leak-soft: #33201A; --amber: #D9A94E; --amber-soft: #2E2618;
+      --code-bg: #1E2A26; --shadow: 0 1px 3px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101715; --surface: #17201D; --ink: #E3EAE6; --muted: #93A39C;
+    --line: #2A3630; --accent: #4CC2A8; --accent-soft: #16302A;
+    --leak: #E08663; --leak-soft: #33201A; --amber: #D9A94E; --amber-soft: #2E2618;
+    --code-bg: #1E2A26; --shadow: 0 1px 3px rgba(0,0,0,.35);
+  }
+  :root[data-theme="light"] {
+    --bg: #F5F7F6; --surface: #FFFFFF; --ink: #1C2622; --muted: #5C6B65;
+    --line: #DDE4E1; --accent: #14705F; --accent-soft: #E3F0EC;
+    --leak: #B3492A; --leak-soft: #F7E8E2; --amber: #9A6B15; --amber-soft: #F5EDDC;
+    --code-bg: #EDF1EF; --shadow: 0 1px 3px rgba(28,38,34,.07);
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 16px/1.65 "Segoe UI", system-ui, -apple-system, sans-serif;
+    margin: 0; padding: 0 20px 80px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; font-weight: 600; text-wrap: balance; }
+  h1 { font-size: 2.3rem; line-height: 1.2; margin: .3em 0 .2em; }
+  h2 { font-size: 1.55rem; line-height: 1.25; margin: 0 0 .5em; }
+  h3 { font-size: 1.12rem; margin: 1.4em 0 .4em; }
+  p { margin: .7em 0; max-width: 68ch; }
+  code, .path {
+    font-family: Consolas, "Cascadia Mono", monospace; font-size: .86em;
+    background: var(--code-bg); padding: .1em .35em; border-radius: 3px; white-space: nowrap;
+  }
+  .eyebrow {
+    font-size: .72rem; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--accent); font-weight: 600; margin-bottom: .4em;
+  }
+  header.top { padding: 56px 0 8px; border-bottom: 2px solid var(--ink); margin-bottom: 8px; }
+  .subtitle { color: var(--muted); font-size: 1.05rem; max-width: 62ch; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px 22px; color: var(--muted); font-size: .82rem; padding: 14px 0 26px; }
+  .meta b { color: var(--ink); font-weight: 600; }
+
+  .series { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 6px; }
+  .series span.card {
+    display: block; flex: 1 1 96px; min-width: 96px;
+    border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px;
+    background: var(--surface); color: var(--muted); font-size: .8rem; line-height: 1.4;
+  }
+  .series .here { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); }
+  .series .done { border-style: dashed; }
+  .series .rank { font-family: Georgia, serif; font-size: 1.15rem; color: var(--accent); display: block; }
+
+  section.part { margin-top: 56px; }
+  .partnum {
+    font-family: Georgia, serif; font-style: italic; font-size: .95rem;
+    color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; margin-bottom: 4px;
+  }
+  .lede { font-size: 1.13rem; line-height: 1.6; }
+
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; margin: 14px 0; }
+  th { text-align: left; font-size: .72rem; letter-spacing: .09em; text-transform: uppercase;
+       color: var(--muted); font-weight: 600; padding: 8px 12px 6px; border-bottom: 2px solid var(--line); }
+  td { padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .tablebox { overflow-x: auto; }
+
+  .chip { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .06em;
+          padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
+  .chip.keep { background: var(--accent-soft); color: var(--accent); }
+  .chip.fix { background: var(--leak-soft); color: var(--leak); }
+  .chip.add { background: var(--amber-soft); color: var(--amber); }
+  .chip.hide { background: var(--code-bg); color: var(--muted); }
+
+  .callout { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent);
+             border-radius: 6px; padding: 16px 20px; margin: 18px 0; box-shadow: var(--shadow); }
+  .callout.pain { border-left-color: var(--leak); }
+  .callout .label { font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; font-weight: 700; color: var(--leak); }
+  .callout.good .label { color: var(--accent); }
+  .callout p:first-of-type { margin-top: .4em; }
+
+  .evidence { font-family: Consolas, "Cascadia Mono", monospace; font-size: .8rem; line-height: 1.7;
+              background: var(--code-bg); border-radius: 6px; padding: 14px 18px; overflow-x: auto; margin: 12px 0; }
+  .evidence .cm { color: var(--muted); }
+  .evidence .hl { color: var(--leak); font-weight: 600; }
+  .evidence .ok { color: var(--accent); font-weight: 600; }
+
+  .diagram-box { background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+                 padding: 12px; margin: 20px 0; overflow-x: auto; box-shadow: var(--shadow); }
+  .diagram-box svg { display: block; min-width: 880px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: .78rem; color: var(--muted); padding: 8px 6px 2px; }
+  .legend i { display: inline-block; width: 22px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+
+  .scoremap { display: grid; gap: 10px; margin: 18px 0; }
+  .scorerow { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 14px;
+              background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+              padding: 10px 16px; box-shadow: var(--shadow); }
+  .scorerow .area { min-width: 210px; font-size: .9rem; font-weight: 600; }
+  .scorerow .dots { display: flex; gap: 5px; align-items: center; }
+  .dot { width: 13px; height: 13px; border-radius: 50%; display: inline-block; }
+  .dot.ship { background: var(--accent); }
+  .dot.alive { background: var(--leak); }
+  .dot.later { background: transparent; border: 2px solid var(--line); }
+  .scorerow .note { color: var(--muted); font-size: .8rem; flex: 1 1 220px; }
+
+  .plan { display: grid; gap: 12px; margin: 18px 0; }
+  .plan .move { background: var(--surface); border: 1px solid var(--line); border-radius: 8px;
+                padding: 16px 20px; box-shadow: var(--shadow); }
+  .plan .move.p0 { border-left: 4px solid var(--accent); }
+  .plan .move.p1 { border-left: 4px solid var(--amber); }
+  .plan .move.p2 { border-left: 4px solid var(--line); }
+  .plan .tag { font-size: .7rem; font-weight: 700; letter-spacing: .1em; color: var(--muted); }
+  .plan .move.p0 .tag { color: var(--accent); }
+  .plan .move.p1 .tag { color: var(--amber); }
+  .plan h3 { margin: .2em 0 .3em; }
+  .plan p { margin: .3em 0; font-size: .92rem; }
+
+  .ladder { list-style: none; padding: 0; margin: 14px 0; }
+  .ladder li { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+  .ladder .lvl { font-family: Georgia, serif; font-size: 1.1rem; color: var(--accent); min-width: 2.2em; }
+
+  .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 16px 0; }
+  .flow .step { background: var(--accent-soft); color: var(--ink); border: 1px solid var(--accent);
+                border-radius: 20px; padding: 5px 14px; font-size: .85rem; white-space: nowrap; }
+  .flow .arr { color: var(--muted); font-size: 1rem; }
+
+  footer { margin-top: 70px; padding-top: 16px; border-top: 1px solid var(--line);
+           color: var(--muted); font-size: .78rem; }
+  @media (max-width: 640px) { h1 { font-size: 1.7rem; } body { padding: 0 14px 60px; } }
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="eyebrow">Эволюционный разбор №8 · метаразбор серии · просто и гениально</div>
+  <h1>Невидимая половина</h1>
+  <p class="subtitle">Репетитор с идеальными тетрадями, который не помнит вчерашний урок.
+  Семь разборов, сорок кандидатов, тридцать шесть коммитов: закрыто всё, что видно на скриншоте —
+  и почти ничего из того, что видно только со временем. Сильный ход — замкнуть невидимое: след и честность.</p>
+</header>
+
+<div class="meta">
+  <span>Дата: <b>2026-07-12</b></span>
+  <span>Код проверен на: <b>hometutor @ 35e5db3 («185»)</b></span>
+  <span>SSoT: <b>wave-advanced-rag-rewrite-rerank (wip)</b></span>
+  <span>Планка: <b>шедевр</b></span>
+</div>
+
+<div class="series">
+  <span class="card done"><span class="rank">№1</span>Судьба одного знания</span>
+  <span class="card done"><span class="rank">№2</span>Первые 10 минут</span>
+  <span class="card done"><span class="rank">№3</span>Материал как продукт</span>
+  <span class="card done"><span class="rank">№4</span>Агент как одна кнопка</span>
+  <span class="card done"><span class="rank">№5</span>Доверие под нагрузкой</span>
+  <span class="card done"><span class="rank">№6</span>Живая карта</span>
+  <span class="card done"><span class="rank">№7</span>План обучения</span>
+  <span class="card here"><span class="rank">№8</span>Невидимая половина</span>
+</div>
+
+<!-- ============================================================ I -->
+<section class="part">
+  <div class="partnum">I · Суть</div>
+  <h2>Чего по-настоящему хочет студент от репетитора-шедевра</h2>
+  <p class="lede">Не ответов. Ответы сегодня даёт любой чат в два клика. Великого репетитора
+  отличают три вещи, и все три — не «фичи»:</p>
+  <p><b>1. Он помнит каждый твой шаг.</b> Ты запнулся на интегралах во вторник — в четверг он
+  начнёт именно с них, хотя ты не просил. Следующий шаг меняется из-за предыдущего. Это и есть
+  разница между «отвечающим» и «ведущим».</p>
+  <p><b>2. Он не врёт.</b> Говорит «не знаю, давай посмотрим в конспекте» вместо красивой
+  выдумки — и не заставляет ждать сорок пять секунд, когда помочь не может.</p>
+  <p><b>3. Он возвращает тебя в точное место материала.</b> Не «почитай главу 3», а «страница 41,
+  вторая формула, минута 12:40 лекции».</p>
+  <p>hometutor уже умеет третье — это его уникальность против ChatGPT, NotebookLM и Anki.
+  Первое он умеет на четверть: из четырёх учебных действий след в памяти оставляет одно.
+  Про второе — молчит. Суть шедевра-тьютора формулируется одной строкой:
+  <b>«меня помнят, и мне не врут»</b>. Всё остальное — поверхности.</p>
+</section>
+
+<!-- ============================================================ II -->
+<section class="part">
+  <div class="partnum">II · Реальность</div>
+  <h2>Что произошло за 36 коммитов: закрыто видимое, живо невидимое</h2>
+  <p>Серия породила 7 разборов → 7 detail-планов → 40 кандидатов. Аудит плана волн подтвердил:
+  это каталог идей, не план исполнения — ни одна candidate-волна не promoted в
+  <code>backlog_registry.yaml</code>, активная волна SSoT — вообще retrieval
+  (<code>wave-advanced-rag-rewrite-rerank</code>). Но проверка кода на HEAD 185 показала вещь
+  интереснее аудита: <b>~10 из 40 кандидатов уже реализованы</b> — и все десять из одной группы.</p>
+
+  <div class="scoremap">
+    <div class="scorerow">
+      <span class="area">№7 · План обучения</span>
+      <span class="dots"><i class="dot ship"></i><i class="dot ship"></i><i class="dot ship"></i><i class="dot ship"></i><i class="dot ship"></i><i class="dot ship"></i><i class="dot ship"></i></span>
+      <span class="note">7/7 shipped: таблица→структура, граф-порядок, бюджет, «Программа» vs «План на сегодня», ghost-planner архивирован</span>
+    </div>
+    <div class="scorerow">
+      <span class="area">№6 · Живая карта</span>
+      <span class="dots"><i class="dot ship"></i><i class="dot ship"></i><i class="dot later"></i><i class="dot later"></i><i class="dot later"></i></span>
+      <span class="note">P0 закрыт: экспорт живой карты (<code>dashboards_graph.py:1090</code>), «Схема раздела» (<code>section_diagram</code>), mermaid вендорен</span>
+    </div>
+    <div class="scorerow">
+      <span class="area">№2 · Первые 10 минут</span>
+      <span class="dots"><i class="dot ship"></i><i class="dot alive"></i><i class="dot later"></i><i class="dot later"></i><i class="dot later"></i><i class="dot later"></i><i class="dot later"></i></span>
+      <span class="note">A1 shipped: единый резолвер кандидатов курса (<code>course_cache.py:493</code>). Hero всё ещё обещает «обзор готовится»</span>
+    </div>
+    <div class="scorerow">
+      <span class="area">№3 · Материал как продукт</span>
+      <span class="dots"><i class="dot alive"></i><i class="dot later"></i><i class="dot later"></i><i class="dot later"></i><i class="dot later"></i><i class="dot later"></i></span>
+      <span class="note">Метрики Docs % появились в prepare-view (<code>course_prepare_view.py:414</code>), но Mission Control о рассинхроне карты молчит</span>
+    </div>
+    <div class="scorerow">
+      <span class="area">№1 · Петля памяти</span>
+      <span class="dots"><i class="dot alive"></i><i class="dot alive"></i><i class="dot alive"></i><i class="dot alive"></i><i class="dot later"></i><i class="dot later"></i></span>
+      <span class="note">0/6. Диалог бесследен, карточки пишут в собственный silo (новый журнал — не концептная память)</span>
+    </div>
+    <div class="scorerow">
+      <span class="area">№5 · Доверие под нагрузкой</span>
+      <span class="dots"><i class="dot alive"></i><i class="dot alive"></i><i class="dot alive"></i><i class="dot later"></i></span>
+      <span class="note">0/4. Circuit breaker без питания, fallback выключен, до 45 с ожидания на каждый запрос при упавшей LM Studio</span>
+    </div>
+    <div class="scorerow">
+      <span class="area">№4 · Агент как одна кнопка</span>
+      <span class="dots"><i class="dot alive"></i><i class="dot alive"></i><i class="dot later"></i><i class="dot later"></i><i class="dot later"></i></span>
+      <span class="note">0/5 — и стало острее: <code>AGENT_ENABLED=true</code> уже в config.env, а двери всё нет</span>
+    </div>
+  </div>
+  <div class="legend">
+    <span><i style="background:var(--accent)"></i>shipped на HEAD 185</span>
+    <span><i style="background:var(--leak)"></i>живая дыра (проверено сегодня)</span>
+    <span><i style="background:transparent;border:2px solid var(--line);height:9px;width:18px"></i>кандидаты следующих очередей</span>
+  </div>
+
+  <p>Классификация напрашивается сама. Всё закрытое — <b>«поверхности»</b>: то, что видно на
+  скриншоте (таблица плана, экспорт карты, схемы, обзор курса). Всё живое — <b>«провода»</b>:
+  то, что видно только со временем — на второй день (память), при втором сбое (честность),
+  на втором часе занятий (адаптация). Продукт стал «хорошим» ровно поэтому: хорошесть живёт
+  на скриншоте. Шедевральность живёт в динамике.</p>
+
+  <div class="callout good">
+    <span class="label">Что это значит</span>
+    <p>Поверхности уже отполированы — и это не потерянное время, а <b>подготовленная сцена</b>.
+    Каждый рубль, вложенный в провода, немедленно проявится на готовых поверхностях: карта,
+    «План на сегодня», очередь повторений уже умеют красиво показывать данные, которых пока нет.</p>
+  </div>
+</section>
+
+<!-- ============================================================ III -->
+<section class="part">
+  <div class="partnum">III · Противоречия</div>
+  <h2>Три напряжения — и синтез каждого</h2>
+
+  <h3>Простота ↔ глубина</h3>
+  <p>Глубина обычно требует новых экранов, новые экраны убивают простоту. Синтез: оба P0-хода
+  этого разбора <b>не добавляют ни одного нового экрана</b>. Они добавляют провода — и уже
+  существующие поверхности начинают показывать правду. Глубина растёт, интерфейс не растёт вовсе.</p>
+
+  <h3>Мощь ↔ фокус</h3>
+  <p>Агентный харнесс построен целиком (FSM, stop-controller, 8 инструментов, персистентность) и
+  флаг уже включён. Соблазн — немедленно дать кнопку. Но без следа агент собирает «учебную сессию»
+  из quiz-only данных: мощь без питания. Синтез: <b>сначала след, потом дверь</b> — та же логика
+  «чинить приёмник до наращивания потока», по которой строилась вся серия.</p>
+
+  <h3>Видимое ↔ невидимое</h3>
+  <p>Видимое улучшение демонстрируемо сегодня; невидимое проявляется через день — поэтому
+  видимое всегда выигрывает конкуренцию за приоритет (что и произошло за 36 коммитов).
+  Синтез: невидимое, которое проявляется мгновенно. Одно число на уже готовой карте —
+  <b>«сегодня твоя карта изменилась: +2 концепта в работе»</b> — делает след видимым в ту же
+  секунду, в которую он появился.</p>
+</section>
+
+<!-- ============================================================ IV -->
+<section class="part">
+  <div class="partnum">IV · Боль-якорь</div>
+  <h2>Час занятий, не оставивший следа</h2>
+
+  <div class="callout pain">
+    <span class="label">Проверяемая боль</span>
+    <p>Студент занимается час: 20 минут диалога с тьютором, 20 минут карточек, 20 минут чтения
+    конспекта. Закрывает приложение. Назавтра «План на сегодня» и карта курса — <b>ровно те же,
+    что были бы, если бы он вообще не открывал приложение</b>. След оставляет только квиз.</p>
+  </div>
+
+  <p>Точная причина — не в теории, в трёх файлах (все строки перепроверены на HEAD 35e5db3 сегодня):</p>
+
+  <div class="evidence">
+<span class="cm"># 1. Диалог с тьютором: outcome — пустой словарь</span><br>
+app/query_response_postprocessing.py:407<br>
+&nbsp;&nbsp;update_learner_model_after_interaction("local", "tutor", <span class="hl">{}</span>, ...)<br>
+<br>
+<span class="cm"># 2. …и вся ветка "tutor" в модели ученика:</span><br>
+app/learner_model_service.py:528<br>
+&nbsp;&nbsp;elif it == "tutor":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;profile.cognitive_load = max(0.1, cognitive_load <span class="hl">− 0.05</span>)&nbsp;&nbsp;<span class="cm"># и всё</span><br>
+<br>
+<span class="cm"># 3. Карточки: SM-2 самой карточки + новый журнал, но в концептную память — ничего</span><br>
+app/flashcard_service.py — 0 упоминаний apply_sm2 / spaced_repetition / provenance<br>
+app/user_state_flashcards.py:416 — record_flashcard_review_log&nbsp;&nbsp;<span class="cm"># журнал, не память</span><br>
+<br>
+<span class="cm"># Контраст: дверь в память существует — но входит в неё только квиз</span><br>
+apply_quiz_outcome_to_learner_state ← <span class="ok">4 call-site</span>: scoped_quiz, quiz_service,<br>
+&nbsp;&nbsp;quiz_micro, fact_source_binding&nbsp;&nbsp;<span class="cm"># provenance-gate, образцовый паттерн</span>
+  </div>
+
+  <div class="diagram-box">
+    <svg viewBox="0 0 900 360" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, system-ui, sans-serif">
+      <defs>
+        <marker id="arrA" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+          <path d="M1,1 L8,4.5 L1,8" fill="none" stroke="var(--accent)" stroke-width="1.6"/>
+        </marker>
+        <marker id="arrL" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+          <path d="M1,1 L8,4.5 L1,8" fill="none" stroke="var(--leak)" stroke-width="1.6"/>
+        </marker>
+      </defs>
+
+      <text x="20" y="28" font-size="12" fill="var(--muted)" letter-spacing="1.5" font-weight="600">УЧЕБНЫЕ ДЕЙСТВИЯ</text>
+      <text x="392" y="28" font-size="12" fill="var(--muted)" letter-spacing="1.5" font-weight="600">КОНЦЕПТНАЯ ПАМЯТЬ</text>
+      <text x="700" y="28" font-size="12" fill="var(--muted)" letter-spacing="1.5" font-weight="600">ГОТОВЫЕ ПОВЕРХНОСТИ</text>
+
+      <!-- actions -->
+      <g font-size="13.5" fill="var(--ink)">
+        <rect x="20" y="48"  width="180" height="44" rx="7" fill="var(--accent-soft)" stroke="var(--accent)"/>
+        <text x="110" y="75" text-anchor="middle" font-weight="600">Квиз</text>
+        <rect x="20" y="118" width="180" height="44" rx="7" fill="var(--leak-soft)" stroke="var(--leak)"/>
+        <text x="110" y="145" text-anchor="middle" font-weight="600">Карточки</text>
+        <rect x="20" y="188" width="180" height="44" rx="7" fill="var(--leak-soft)" stroke="var(--leak)"/>
+        <text x="110" y="215" text-anchor="middle" font-weight="600">Диалог с тьютором</text>
+        <rect x="20" y="258" width="180" height="44" rx="7" fill="var(--leak-soft)" stroke="var(--leak)"/>
+        <text x="110" y="285" text-anchor="middle" font-weight="600">Чтение конспекта</text>
+      </g>
+
+      <!-- gate -->
+      <rect x="390" y="118" width="200" height="114" rx="9" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5"/>
+      <text x="490" y="163" text-anchor="middle" font-size="14" font-weight="700" fill="var(--ink)">provenance-gate</text>
+      <text x="490" y="185" text-anchor="middle" font-size="12" fill="var(--muted)">apply_quiz_outcome_</text>
+      <text x="490" y="201" text-anchor="middle" font-size="12" fill="var(--muted)">to_learner_state</text>
+
+      <!-- silo -->
+      <rect x="300" y="288" width="220" height="48" rx="7" fill="var(--code-bg)" stroke="var(--line)"/>
+      <text x="410" y="308" text-anchor="middle" font-size="12" fill="var(--muted)">SM-2 карточки + review-журнал</text>
+      <text x="410" y="325" text-anchor="middle" font-size="11.5" fill="var(--muted)">(собственный silo, граф не видит)</text>
+
+      <!-- arrows: actions -> gate -->
+      <path d="M200,70 C300,70 320,140 388,152" fill="none" stroke="var(--accent)" stroke-width="2.2" marker-end="url(#arrA)"/>
+      <text x="272" y="86" font-size="11.5" fill="var(--accent)" font-weight="600">след ✓</text>
+
+      <path d="M200,140 C250,140 260,290 298,306" fill="none" stroke="var(--leak)" stroke-width="1.8" marker-end="url(#arrL)"/>
+      <path d="M200,132 C290,128 330,160 388,172" fill="none" stroke="var(--leak)" stroke-width="1.6" stroke-dasharray="5 5" marker-end="url(#arrL)"/>
+      <text x="268" y="122" font-size="11.5" fill="var(--leak)">мимо памяти ✗</text>
+
+      <path d="M200,210 C290,210 320,200 388,192" fill="none" stroke="var(--leak)" stroke-width="1.6" stroke-dasharray="5 5" marker-end="url(#arrL)"/>
+      <text x="258" y="236" font-size="11.5" fill="var(--leak)">outcome = {} ✗</text>
+
+      <text x="222" y="285" font-size="11.5" fill="var(--muted)" font-style="italic">— ничего</text>
+
+      <!-- surfaces -->
+      <g font-size="13" fill="var(--ink)">
+        <rect x="700" y="72"  width="180" height="42" rx="7" fill="var(--surface)" stroke="var(--accent)"/>
+        <text x="790" y="98" text-anchor="middle">Карта курса</text>
+        <rect x="700" y="154" width="180" height="42" rx="7" fill="var(--surface)" stroke="var(--accent)"/>
+        <text x="790" y="180" text-anchor="middle">План на сегодня</text>
+        <rect x="700" y="236" width="180" height="42" rx="7" fill="var(--surface)" stroke="var(--accent)"/>
+        <text x="790" y="262" text-anchor="middle">Агент-коуч</text>
+      </g>
+
+      <!-- gate -> surfaces -->
+      <path d="M590,146 C640,140 650,105 698,95"  fill="none" stroke="var(--accent)" stroke-width="1.9" marker-end="url(#arrA)"/>
+      <path d="M590,175 C630,175 650,175 698,175" fill="none" stroke="var(--accent)" stroke-width="1.9" marker-end="url(#arrA)"/>
+      <path d="M590,204 C640,210 650,245 698,255" fill="none" stroke="var(--accent)" stroke-width="1.9" marker-end="url(#arrA)"/>
+      <text x="626" y="164" font-size="11.5" fill="var(--muted)">отполированы,</text>
+      <text x="626" y="152" font-size="11.5" fill="var(--muted)">поверхности уже</text>
+      <text x="626" y="230" font-size="11.5" fill="var(--muted)">питание — ¼</text>
+    </svg>
+    <div class="legend">
+      <span><i style="background:var(--accent)"></i>след доходит до памяти</span>
+      <span><i style="background:var(--leak)"></i>след теряется</span>
+    </div>
+  </div>
+
+  <p>Вторая створка той же боли — честность. Circuit breaker для основного чата существует
+  (<code>llm_local_circuit.py</code>), но в <code>llm_resilience.py</code> — <b>ноль</b> упоминаний
+  <code>circuit</code>: реальный трафик никогда не пишет в предохранитель, он «запитан» только
+  одноразовой пробой на старте процесса. Упала LM Studio через 10 минут работы — каждый следующий
+  вопрос честно ждёт до 45 секунд (<code>HOME_RAG_LLM_LOCAL_HARD_TIMEOUT_SEC=45</code>), fallback
+  выключен по умолчанию (<code>config.env:70</code>). При этом правильный паттерн уже написан
+  в этой же кодовой базе — <code>adaptive_plan_llm_explanation.py</code> подключает CB к своему
+  трафику как надо. Решение существует, просто не в том файле.</p>
+
+  <div class="callout pain">
+    <span class="label">И вишенка</span>
+    <p><code>config.env:82</code>: <code>AGENT_ENABLED=true</code> — двигатель агента уже включён
+    в tracked-дефолтах. Но <code>query_mode="agent"</code> не устанавливается нигде в UI, а
+    <code>app/routers/agent.py</code> не существует. Комментарий строкой выше уверяет:
+    «Выключено по умолчанию». Мотор работает, двери нет, табличка врёт.</p>
+  </div>
+</section>
+
+<!-- ============================================================ V -->
+<section class="part">
+  <div class="partnum">V · Вердикты</div>
+  <h2>По каждой области — позиция, не обзор</h2>
+  <div class="tablebox">
+  <table>
+    <tr><th>Область</th><th>Вердикт</th><th>Позиция</th></tr>
+    <tr>
+      <td><b>№7 План обучения</b></td>
+      <td><span class="chip keep">закрыто</span></td>
+      <td>Не трогать и не переоткрывать. Единственная область, доведённая до конца целиком — эталон того, как выглядит «закрыто».</td>
+    </tr>
+    <tr>
+      <td><b>№6 Живая карта</b></td>
+      <td><span class="chip keep">P0 закрыт</span> <span class="chip hide">B1 позже</span></td>
+      <td>Экспорт и «Схема раздела» в проде. One-pager лекции — сознательно в P2: mastery-overlay на нём осмыслен только после следа.</td>
+    </tr>
+    <tr>
+      <td><b>№1 Петля памяти</b></td>
+      <td><span class="chip fix">чинить · P0, ход 1</span></td>
+      <td>Ядро продукта. Пока 3 из 4 действий бесследны, всё остальное — украшение витрины. Делать первым.</td>
+    </tr>
+    <tr>
+      <td><b>№5 Доверие</b></td>
+      <td><span class="chip fix">чинить · P0, ход 2</span></td>
+      <td>Вторая половина ядра: «мне не врут». Паттерн решения уже в кодовой базе — перенести, не изобретать.</td>
+    </tr>
+    <tr>
+      <td><b>№4 Дверь агента</b></td>
+      <td><span class="chip add">P1 — после питания</span></td>
+      <td>Кнопка + read-роутер, строго после хода 1. Немедленно (гигиена, не волна): привести <code>config.env:81-82</code> в честность — либо дверь, либо <code>false</code>.</td>
+    </tr>
+    <tr>
+      <td><b>№2 Онбординг</b></td>
+      <td><span class="chip add">P1 — один кандидат</span></td>
+      <td>A1 закрыт. Остался честный hero: «готовится» без процесса, который готовит — то же враньё, что и молчащий CB, лечится одним условием (<code>mission_control_first_session.py:217</code>).</td>
+    </tr>
+    <tr>
+      <td><b>№3 Материал</b></td>
+      <td><span class="chip add">P1 — один кандидат</span></td>
+      <td>Метрики свежести уже считаются — вынести «карта отстаёт на N лекций» на Mission Control человеческим языком. Остальное ждёт.</td>
+    </tr>
+    <tr>
+      <td><b>Процесс серии</b></td>
+      <td><span class="chip fix">починить правило</span></td>
+      <td>Кандидаты уже реализуются, а статусы в detail-планах отстают от кода. Правило: перед промоутом — сверка с HEAD; промоут только через штатный workflow; registry руками не трогать.</td>
+    </tr>
+  </table>
+  </div>
+</section>
+
+<!-- ============================================================ VI -->
+<section class="part">
+  <div class="partnum">VI · Ценность</div>
+  <h2>Уникальность — и как доказать её числом</h2>
+  <p>Уникальность hometutor — замкнутая петля «вопрос → понимание → проверка → память → возврат
+  в точное место лекции», целиком local-first. Ни один из соседей не делает все четыре такта:
+  ChatGPT не помнит и не возвращает, NotebookLM не проверяет, Anki не понимает. Но сегодня петля
+  замкнута только для квиза — уникальность существует на четверть.</p>
+  <div class="tablebox">
+  <table>
+    <tr><th>Метрика</th><th>Сейчас (HEAD 185)</th><th>После P0</th></tr>
+    <tr>
+      <td><b>Коэффициент следа</b> — сколько типов учебных действий меняют концептную память</td>
+      <td>1 из 4 (только квиз)</td>
+      <td>3 из 4 (квиз + карточки + диалог; чтение — следующая очередь)</td>
+    </tr>
+    <tr>
+      <td><b>Дельта карты за сессию</b> — изменилась ли карта после часа занятий любым способом</td>
+      <td>0, если в сессии не было квиза</td>
+      <td>&gt; 0 для любой сессии</td>
+    </tr>
+    <tr>
+      <td><b>Цена сбоя</b> — сколько ждёт студент после падения LM Studio</td>
+      <td>до 45 с <i>каждый</i> запрос, без объяснения</td>
+      <td>после 3 сбоев подряд — честный ответ за ~2-3 с</td>
+    </tr>
+  </table>
+  </div>
+  <p>Все три метрики считаются из уже существующих данных — ни одна не требует новой телеметрии
+  сверх событий, которые появятся самим ходом.</p>
+</section>
+
+<!-- ============================================================ VII -->
+<section class="part">
+  <div class="partnum">VII · Путь</div>
+  <h2>Один золотой путь и лестница уровней</h2>
+  <div class="flow">
+    <span class="step">Открыл</span><span class="arr">→</span>
+    <span class="step">«Сегодня: X» (единый источник)</span><span class="arr">→</span>
+    <span class="step">10 минут — любым способом</span><span class="arr">→</span>
+    <span class="step">«Карта изменилась: +2 в работе»</span><span class="arr">→</span>
+    <span class="step">завтра план другой</span><span class="arr">→</span>
+    <span class="step">клик → точное место лекции</span>
+  </div>
+  <p>Ключевое слово — <b>«любым способом»</b>. Сегодня золотой путь работает только если студент
+  выбрал квиз; диалог и карточки выводят с пути. После хода 1 путь один для всех действий.</p>
+  <ul class="ladder">
+    <li><span class="lvl">L0</span><span>Демо-обзор курса без ключей и настроек — <b>уже работает</b> (онбординг A1 закрыт).</span></li>
+    <li><span class="lvl">L1</span><span>Первый grounded-ответ по своим материалам — <b>работает</b>; событие TTFI для измерения — P1.</span></li>
+    <li><span class="lvl">L2</span><span>Первое действие вне квиза меняет карту — <b>сейчас недостижимо ни для кого</b>; открывается ходом 1.</span></li>
+    <li><span class="lvl">L3</span><span>Неделя следа → «Собрать учебную сессию» одной кнопкой: агент видит реальный профиль — открывается дверью агента (P1).</span></li>
+    <li><span class="lvl">L4</span><span>Месяц → карта с mastery/decay-слоем: «моя карта», а не карта курса — P2, поверх one-pager.</span></li>
+  </ul>
+</section>
+
+<!-- ============================================================ VIII -->
+<section class="part">
+  <div class="partnum">VIII · План</div>
+  <h2>P0 — два хода. Оба невидимые, оба проявляются мгновенно</h2>
+  <div class="plan">
+    <div class="move p0">
+      <span class="tag">P0 · ХОД 1 · «СЛЕД»</span>
+      <h3>Замкнуть карточки и диалог в концептную память</h3>
+      <p>= <code>wave-memory-loop-closure</code> (A1 + A2 из detail-плана №1, evidence перепроверен сегодня).
+      A1: <code>review_flashcard</code> → концептная память через новый provenance-тип
+      <code>flashcard_review</code> — той же дверью, в которую уже входит квиз. A2: exposure-след
+      tutor-ответа слоем ниже гейта — mastery не трогает, но модель ученика перестаёт быть слепой к диалогу.</p>
+      <p><b>Эффект/усилие:</b> открывает уровень L2 всем студентам; ни одного нового экрана; паттерн (provenance-gate) уже образцовый в коде.</p>
+    </div>
+    <div class="move p0">
+      <span class="tag">P0 · ХОД 2 · «ЧЕСТНОСТЬ»</span>
+      <h3>Запитать предохранитель и научить продукт быстро говорить правду</h3>
+      <p>= <code>wave-provider-circuit-honesty</code> (A1 + A2 из detail-плана №5). A1:
+      <code>record_failure/record_success</code> в <code>llm_resilience</code> — переносом уже
+      работающего паттерна из <code>adaptive_plan_llm_explanation.py</code>. A2: быстрый честный
+      отказ ~2-3 с в ветке «CB открыт + fallback выключен» вместо полных 45 с. Fallback насильно
+      не включать — решение владельца.</p>
+      <p><b>Эффект/усилие:</b> цена сбоя падает с 45 с × N запросов до одного честного сообщения; решение уже написано в кодовой базе.</p>
+    </div>
+    <div class="move p1">
+      <span class="tag">P1 · ПОСЛЕ ЯДРА</span>
+      <h3>Дверь агента + три однострочных честности</h3>
+      <p>Кнопка «Собрать учебную сессию» + read-роутер <code>/agent/runs</code> (№4 A1+A2) — теперь
+      с питанием от полного следа. Бейдж источника ответа в Tutor chat (№5 B1). Честный hero вместо
+      «готовится» (№2 A2). «Карта отстаёт на N лекций» на Mission Control (№3 A1).</p>
+    </div>
+    <div class="move p2">
+      <span class="tag">P2 · КОГДА СЛЕД ПОТЕЧЁТ</span>
+      <h3>Поверхности следа</h3>
+      <p>Единая очередь «Повторить сегодня» вместо двух чисел due (№1 B2). Кнопка «→ в карточку»
+      из ответа тьютора (№1 B1). One-pager лекции + mastery-overlay (№6 B1/C1). Учебный журнал
+      прогонов агента (№4 C1).</p>
+    </div>
+    <div class="move p2">
+      <span class="tag">ПРОЦЕСС · НЕ КОД</span>
+      <h3>Дорога в SSoT</h3>
+      <p>Дождаться закрытия <code>multi-query-expansion-v1</code> (уже в closure-шаге) → сознательно
+      решить судьбу <code>lost-in-middle-reorder-v1</code> (доделать или заморозить волну) →
+      промоутнуть <code>wave-memory-loop-closure</code> следующей активной волной через штатный
+      workflow. <code>backlog_registry.yaml</code> руками не редактировать.</p>
+    </div>
+  </div>
+
+  <div class="callout good">
+    <span class="label">Формула сильного хода</span>
+    <p>Не строить ничего нового. Взять единственную дверь в память, в которую уже входит квиз,
+    и провести через неё остальные три действия студента. Взять предохранитель, который уже умеет
+    размыкаться, и подключить его к реальному току. <b>Шедевр — это когда невидимая половина
+    работает так же хорошо, как видимая.</b> Видимая уже готова.</p>
+  </div>
+</section>
+
+<footer>
+  Эволюционный разбор №8 (метаразбор серии) · формат «просто и гениально» ·
+  все файлы и строки перепроверены на hometutor @ 35e5db3 («185»), 2026-07-12 ·
+  SSoT: hometutor-studio/doc/backlog_registry.yaml (active: wave-advanced-rag-rewrite-rerank, wip) ·
+  серия: doc/presentations/evolutionary_analyses/
+</footer>
+
+</div>
