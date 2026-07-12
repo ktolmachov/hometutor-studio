@@ -85,5 +85,11 @@ python doc/scenarios/generate_scenario_refresh_prompt.py
 ```
 
 Скрипт не вызывает LLM: он печатает prompt для проверки freshness gap, добавления
-новых YAML-манифестов слепых зон и синхронизации с
-`doc/next/usage_scenarios_refresh_plan.md`.
+или ревизии YAML-манифестов слепых зон, синхронизации с
+`doc/next/usage_scenarios_refresh_plan.md` и сверки с парным жанром
+[`daily_use_stories`](../presentations/daily_use_stories/README.md).
+
+Daily-use stories — не замена YAML/e2e-доказательствам. Helper включает их как
+контекст ритуалов («Пять дней с hometutor»), но требует сохранять evidence-сноски:
+витрина `quickstart_demo.md` доказывает момент через кадры, daily-use stories
+объясняют ежедневную привычку через проверяемые сценарии и код.

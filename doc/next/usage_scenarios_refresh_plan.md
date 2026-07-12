@@ -72,6 +72,13 @@ YAML остаётся SSoT, `scripts/generate_demo_doc.py` и demo workflow ос
 
 - Создать парный документ «Истории ежедневного использования»: не демо-кадры, а
   дни/ритуалы, живые диалоги и переход от момента к привычке.
+- **2026-07-12 update:** жанр материализован в
+  `doc/presentations/daily_use_stories/README.md` и
+  `doc/presentations/daily_use_stories/daily_use_stories.html`. Prompt helper теперь
+  включает эти истории в handoff-контекст: Соня, Павел, Кирилл, Наталья и
+  шпаргалка первой недели. Важное ограничение сохраняется: daily-use stories не
+  являются screenshot-доказательством и не могут расширять продуктовые обещания
+  без evidence-сноски `из чего собрано`.
 - Связать gap-анализ с `.kiro/specs/user-scenarios-refresh`, если этот слой есть
   в checkout: один список слепых зон должен питать и каталог, и витрину.
 - Переснять сценарии 06/30 после Full Circle P0-1/P0-2.
@@ -102,4 +109,6 @@ YAML остаётся SSoT, `scripts/generate_demo_doc.py` и demo workflow ос
 Промпт для агент-сессии актуализации собирается скриптом
 `doc/scenarios/generate_scenario_refresh_prompt.py`. Скрипт не вызывает LLM: он
 только печатает постановку задачи для агента, который сам сверяет манифесты с
-HEAD и предлагает новые сценарии.
+HEAD, проверяет freshness/capture gaps и удерживает связь витрины с daily-use
+stories как отдельным жанром ритуалов, а не как источником неподтверждённых
+продуктовых обещаний.

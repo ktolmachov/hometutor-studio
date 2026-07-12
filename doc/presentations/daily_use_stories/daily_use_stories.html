@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<title>Истории ежедневного использования — hometutor</title>
+<style>
+  :root {
+    --paper: #f7f3ea;
+    --paper-2: #fffdf7;
+    --ink: #17211b;
+    --muted: #5c6a61;
+    --terra: #b95631;
+    --terra-deep: #7d351f;
+    --forest: #243b2c;
+    --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14);
+    --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --done: #1e6e46;
+    --silent: #b98a2d;
+    --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+      --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+      --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(157, 191, 168, 0.10);
+      --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+      --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+    --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+    --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+    --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+    --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+      radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--terra-deep); }
+  em { color: var(--muted); }
+
+  code {
+    font-family: Consolas, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--terra);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 0.95rem; color: var(--gold);
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .sec-name {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem;
+    font-weight: 700; color: var(--muted);
+  }
+  .day-time { font-size: 0.86rem; color: var(--muted); margin: -0.4rem 0 1.1rem; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.1rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+  }
+  .anchor-card { border-left: 4px solid var(--terra); }
+  .ev { font-size: 0.86rem; color: var(--muted); margin-top: 0.5rem; }
+  .ev code { font-size: 0.8rem; }
+
+  /* пошаговые инструкции */
+  .steps { list-style: none; padding-left: 0; margin: 0 0 1.3rem; counter-reset: step; }
+  .steps li {
+    counter-increment: step; position: relative; padding-left: 2.5rem; margin-bottom: 0.85rem;
+  }
+  .steps li::before {
+    content: counter(step); position: absolute; left: 0; top: 0.05rem;
+    width: 1.7rem; height: 1.7rem; border-radius: 50%; background: var(--forest); color: var(--paper-2);
+    font-family: Georgia, serif; font-weight: 700; font-size: 0.88rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  :root[data-theme="dark"] .steps li::before { color: #141a16; }
+  @media (prefers-color-scheme: dark) { .steps li::before { color: #141a16; } }
+  :root[data-theme="light"] .steps li::before { color: var(--paper-2); }
+
+  /* живой диалог */
+  .chat { display: flex; flex-direction: column; gap: 0.65rem; margin: 0 0 1.2rem; }
+  .msg { max-width: 78%; padding: 0.65rem 0.95rem; border-radius: 14px; font-size: 0.96rem; line-height: 1.55; }
+  .msg.user {
+    align-self: flex-end; background: var(--terra); color: var(--paper-2);
+    border-bottom-right-radius: 4px;
+  }
+  :root[data-theme="dark"] .msg.user, @media (prefers-color-scheme: dark) { }
+  .msg.user { color: #fffdf7; }
+  .msg.system {
+    align-self: flex-start; background: var(--card); border: 1px solid var(--line); color: var(--ink);
+    border-bottom-left-radius: 4px;
+  }
+  .msg .who { display: block; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em;
+              opacity: 0.75; margin-bottom: 0.2rem; }
+
+  .panel3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.7rem; margin: 0 0 1.1rem; }
+  .panel3 .pc { border-radius: 10px; padding: 0.7rem 0.85rem; font-size: 0.9rem; border: 1px solid var(--line); }
+  .panel3 .pc .pl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 0.3rem; }
+  .panel3 .understood { background: rgba(30, 110, 70, 0.08); }
+  .panel3 .understood .pl { color: var(--verdict-keep); }
+  .panel3 .risk { background: rgba(160, 80, 16, 0.08); }
+  .panel3 .risk .pl { color: var(--verdict-fix); }
+  .panel3 .next { background: rgba(51, 87, 148, 0.08); }
+  .panel3 .next .pl { color: var(--terra-deep); }
+
+  .chip-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0 0 1rem; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.82rem;
+    border: 1px solid var(--line); border-radius: 99px; padding: 0.25rem 0.7rem; color: var(--muted);
+  }
+  .chip strong { color: var(--ink); }
+
+  .table-scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+
+  .ladder { list-style: none; padding-left: 0; }
+  .ladder li { display: flex; gap: 0.8rem; align-items: baseline; margin-bottom: 0.55rem; }
+  .ladder .num {
+    flex: none; font-family: Georgia, serif; font-weight: 700; color: var(--gold);
+    width: 1.6rem; text-align: right;
+  }
+
+  .tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.08rem 0.5rem;
+         border-radius: 4px; color: var(--paper-2); }
+  .tag-p0 { background: var(--terra); }
+  .tag-p1 { background: var(--forest); }
+  .tag-p2 { background: var(--gold); }
+  :root[data-theme="dark"] .tag, :root[data-theme="dark"] .tag-p2 { color: #141a16; }
+  @media (prefers-color-scheme: dark) { .tag { color: #141a16; } }
+  :root[data-theme="light"] .tag { color: var(--paper-2); }
+
+  .footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
+            font-size: 0.85rem; color: var(--muted); }
+  .footer code { font-size: 0.8rem; }
+
+  a { color: var(--terra); }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">Истории ежедневного использования · компаньон витрины сценариев</div>
+  <h1>Пять дней с hometutor</h1>
+  <p class="lede">Витрина <code>quickstart_demo.md</code> продаёт момент — «вот что умеет
+  продукт». Эти истории учат ритуалу — «вот что я делаю каждый день». Пять человек,
+  пять моментов жизни с приложением: от первого вечера до месяца спустя. Каждый шаг и
+  каждая деталь экрана — из реально существующих элементов интерфейса; диалоги —
+  иллюстративные, но по форме совпадают с настоящим ответом тьютора.</p>
+  <div class="meta">
+    <span>hometutor · HEAD <code>c374892</code> «194»</span>
+    <span>2026-07-12</span>
+    <span>компаньон разбора №11 «Витрина обещаний»</span>
+    <span>герои — архетипы круглого стола №3</span>
+  </div>
+</header>
+
+<section id="how-to-read">
+  <div class="sec-label"><span class="sec-num">·</span><span class="sec-name">Как читать</span></div>
+  <p>Каждая история — это реальный экран за реальным экраном, без прыжков через
+  несуществующие фичи. Под каждой историей — сноска <code>из чего собрано</code> с
+  привязкой к коду или уже отснятому сценарию витрины. Диалоги тьютора показаны в
+  настоящей структуре ответа (три панели: «что понял» / «риск пробела» / «что делать
+  сейчас» + «проверь себя») — сама структура из <code>tutor_chat_response_render.py</code>,
+  формулировки внутри — иллюстративные.</p>
+</section>
+
+<section id="day1">
+  <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Первый вечер</span></div>
+  <h2>Соня, 16 лет — от пустой папки до первого «ага»</h2>
+  <p class="day-time">Вторник, 21:40. Экзамен по физике через три недели. Родители только
+  что помогли поставить hometutor и указать папку с конспектами.</p>
+
+  <ol class="steps">
+    <li><strong>Открыла приложение.</strong> Вместо пустого чата — сетка режимов:
+      «Быстрый ответ», «Темы», «Прогресс», «Карточки» и ещё несколько плиток. Не нужно
+      гадать, куда идти в первую очередь — самая заметная плитка ведёт в «Быстрый ответ».</li>
+    <li><strong>Задала вопрос как есть,</strong> без специальных формулировок:
+      «почему при равноускоренном движении путь растёт как квадрат времени».</li>
+    <li><strong>Получила ответ с confidence и тремя источниками</strong> — не абстрактный
+      текст из интернета, а объяснение с точными фрагментами её собственных лекций.</li>
+    <li><strong>Раскрыла источник</strong> — увидела точный абзац, на который опирается ответ.
+      Кликнула — попала в подсветку прямо в файле конспекта.</li>
+    <li><strong>Нажала «Учить эту тему 5 минут»</strong> — ответ превратился в начало
+      учебной сессии, тема и вопрос перешли в тьютора автоматически.</li>
+  </ol>
+
+  <div class="chip-row">
+    <span class="chip">confidence <strong>87%</strong></span>
+    <span class="chip">источников <strong>3</strong></span>
+    <span class="chip">время до первого ответа <strong>~5 мин</strong></span>
+  </div>
+
+  <div class="chat">
+    <div class="msg user"><span class="who">Соня</span>Учи меня этой теме, я вообще не поняла, откуда там квадрат.</div>
+    <div class="msg system"><span class="who">Тьютор</span>Смотри: если скорость растёт равномерно, путь — это площадь под графиком скорости от времени. График скорости — прямая, значит площадь под ним — треугольник, а площадь треугольника считается через произведение сторон. Отсюда и квадрат времени.</div>
+  </div>
+
+  <div class="panel3">
+    <div class="pc understood"><div class="pl">Что ты уже поняла</div>Путь — это площадь под графиком скорости, не просто «скорость × время».</div>
+    <div class="pc risk"><div class="pl">Риск пробела</div>Пока не проверено, различаешь ли ты путь при равномерном и при равноускоренном движении на графике.</div>
+    <div class="pc next"><div class="pl">Что делать сейчас</div>Пройди короткую проверку на 2 вопроса — займёт меньше двух минут.</div>
+  </div>
+
+  <div class="chat">
+    <div class="msg system"><span class="who">Тьютор</span><em>Проверь себя:</em> если скорость тела растёт линейно от 0 до 20 м/с за 4 секунды, чему равен пройденный путь?</div>
+    <div class="msg user"><span class="who">Соня</span>Это же площадь треугольника... 20 × 4 / 2 = 40 метров?</div>
+    <div class="msg system"><span class="who">Тьютор</span>Именно. Хочешь закрепить это карточкой на завтра или пойти дальше по теме?</div>
+  </div>
+
+  <p>Соня нажала «Создать карточку» — вопрос и её собственный вывод ушли в колоду на
+  завтра. Закрыла ноутбук в 22:05. За 25 минут — от пустой папки до первого настоящего
+  «я поняла, откуда квадрат», без единой минуты, потраченной на настройку.</p>
+
+  <div class="card anchor-card">
+    <p><strong>Что это ей дало, чего не даст обычный чат-бот:</strong> ответ был не «вообще
+    про физику», а именно про её лекцию — с кликабельной ссылкой на абзац. Общий чат-бот
+    объяснил бы формулу так же гладко, но никогда не сказал бы «смотри, вот твой конспект,
+    строка 47».</p>
+  </div>
+
+  <p class="ev">Из чего собрано: шаги 1–5 — реальные экраны <code>scenario_01_first_answer</code>
+  и <code>scenario_03_answer_to_tutor</code> (полностью отсняты, ✅); структура тьюторского
+  ответа (три панели + «проверь себя») — <code>app/ui/tutor_chat_response_render.py:72-98</code>;
+  кнопка «Создать карточку» после квиза — <code>scenario_04_mini_quiz</code> шаг 4.</p>
+</section>
+
+<section id="day2">
+  <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Утро следующего дня</span></div>
+  <h2>Соня — 4 минуты перед школой</h2>
+  <p class="day-time">Среда, 07:50. Автобус через 12 минут.</p>
+
+  <ol class="steps">
+    <li><strong>Открыла приложение</strong> — на главном экране сразу видна карточка
+      возврата: откуда продолжить и что предлагается дальше.</li>
+    <li><strong>Увидела бейдж «К повторению: 1»</strong> — вчерашняя карточка про путь и
+      квадрат времени созрела для первого повторения.</li>
+    <li><strong>Открыла карточку</strong> — вспомнила ответ, перевернула, оценила «Хорошо».
+      Карточка ушла в очередь на через несколько дней.</li>
+  </ol>
+
+  <div class="chat">
+    <div class="msg system"><span class="who">Карточка</span>Почему путь при равноускоренном движении растёт как квадрат времени?</div>
+    <div class="msg user"><span class="who">Соня</span>(вслух, по дороге к автобусу) Потому что это площадь треугольника на графике скорости.</div>
+    <div class="msg system"><span class="who">Система</span>Оценка «Хорошо» принята. Следующее повторение — через 4 дня.</div>
+  </div>
+
+  <p>Три минуты, один автобус ещё не ушёл. Соня не открывала «Прогресс», не листала
+  меню — карточка сама её нашла на главном экране.</p>
+
+  <div class="card">
+    <p><strong>Честно о том, что сегодня в приложении есть по-разному:</strong> в этой
+    истории Соня видит счётчик карточек Flashcards на главном экране. Если бы она вчера
+    вместо карточки продолжила разговор с тьютором дальше, у неё появился бы отдельный
+    счётчик «повторить» уже внутри тьютор-чата — сегодня это два разных числа на двух
+    разных экранах, а не одно. Это известная шероховатость, а не секрет: она в открытом
+    плане на объединение в одно число «Повторить сегодня».</p>
+  </div>
+
+  <p class="ev">Из чего собрано: <code>scenario_10_day2_resume</code> (resume-карта на
+  главной, ✅ снят) и <code>scenario_06_spaced_repetition</code> (карточка + 4 кнопки
+  оценки + пересчёт интервала, ✅ снят). Честная сноска про два счётчика —
+  <code>doc/next/full_circle_visibility_plan.md</code>, кандидат A2 «Одно surface-число».</p>
+</section>
+
+<section id="week1">
+  <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Будни</span></div>
+  <h2>Павел, 21 год — 18 минут в электричке</h2>
+  <p class="day-time">Заочник, ML-курс. Учится урывками между парами и работой.</p>
+
+  <ol class="steps">
+    <li><strong>Открыл вкладку «План на сегодня».</strong> Не весь курс сразу — три
+      приоритетные темы, отобранные по слабым местам, и внизу одна фраза:
+      «Сегодня: разобрать градиентный спуск (8 мин)».</li>
+    <li><strong>Нажал «Почему здесь»</strong> у этой темы — увидел объяснение: тема
+      приоритетна, потому что последний квиз по ней вышел ниже 50%.</li>
+    <li><strong>Прошёл разбор темы с тьютором</strong> — короткое объяснение, «проверь
+      себя», честная оценка понимания.</li>
+    <li><strong>Ошибся в квизе</strong> — вместо просто «неверно» получил объяснение и
+      кнопку «Создать flashcard» прямо из ошибки.</li>
+    <li><strong>Вышел из электрички</strong> — план автоматически показал, что изменилось
+      с прошлой сессии: diff «появилось» / «исчезло», а не голая перезапись.</li>
+  </ol>
+
+  <div class="chat">
+    <div class="msg user"><span class="who">Павел</span>Почему шаг спуска не может быть слишком большим?</div>
+    <div class="msg system"><span class="who">Тьютор</span>Представь, что ты спускаешься с горы с закрытыми глазами очень большими шагами — легко перескочить низину и оказаться на другом склоне. Слишком большой шаг спуска делает то же самое с минимумом функции: перепрыгивает его.</div>
+  </div>
+
+  <div class="panel3">
+    <div class="pc understood"><div class="pl">Что ты уже понял</div>Идея шага как «размера прыжка» вдоль градиента.</div>
+    <div class="pc risk"><div class="pl">Риск пробела</div>Пока не проверено на конкретной функции с числами — только на аналогии.</div>
+    <div class="pc next"><div class="pl">Что делать сейчас</div>Один вопрос с числами — 90 секунд.</div>
+  </div>
+
+  <p>Ошибся в числовой проверке — получил не «неверно», а короткое объяснение, где именно
+  сбился, и кнопку «Создать flashcard» прямо из этой ошибки. Через 18 минут вышел из
+  электрички с одной новой карточкой и планом, который честно показал, что вчерашняя
+  тема ушла из списка приоритетов, а сегодняшняя появилась впервые.</p>
+
+  <div class="card">
+    <p><strong>Почему это держит ритм, а не только разово помогает:</strong> Павлу не
+    нужно каждый день решать, что учить — план уже решил за него, объяснив «почему».
+    Диалог с тьютором и превращение ошибки в карточку происходят в одном потоке, без
+    переключения между «режимом вопросов» и «режимом повторения».</p>
+  </div>
+
+  <p class="ev">Из чего собрано: <code>scenario_09_personalized_plan</code> (план недели,
+  «почему здесь», «сегодня: X (N мин)», ✅ снят), <code>scenario_17_plan_diff</code>
+  (diff появилось/исчезло, ✅ снят), <code>scenario_12_quiz_to_deck</code> (ошибка → карточка,
+  ✅ снят). Единый источник «программа + план на день» — закрытая волна
+  <code>wave-learning-plan-single-source</code>, разбор №7 серии.</p>
+</section>
+
+<section id="month1">
+  <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Спустя месяц</span></div>
+  <h2>Кирилл, 34 года — воскресный ритуал фаната</h2>
+  <p class="day-time">Загрузил 40 лекций своего ML-курса. Два месяца ежедневного
+  использования сложились в привычку.</p>
+
+  <ol class="steps">
+    <li><strong>Открыл Course Cockpit</strong> — один экран «что сегодня по курсу»:
+      daily briefing вместо разбросанных вкладок.</li>
+    <li><strong>Заглянул в Knowledge Graph</strong> — увидел карту курса, кликнул на
+      слабый узел («backpropagation», mastery ниже остальных) — граф сам повёл в тьютора
+      именно по этому концепту.</li>
+    <li><strong>Скачал живую карту как HTML</strong> — тот же интерактивный граф, но уже
+      файлом на диске, чтобы открыть офлайн и переслать коллеге по учёбе.</li>
+    <li><strong>Закрыл тему целиком</strong> — получил celebration overlay: «Концепт
+      зафиксирован как освоенный» — не просто +1% в таблице, а отдельный момент.</li>
+  </ol>
+
+  <div class="table-scroll">
+  <table>
+    <tr><th>Действие</th><th>Что видно</th></tr>
+    <tr><td>Daily briefing</td><td>один экран курса, не 7 вкладок</td></tr>
+    <tr><td>Клик по слабому узлу графа</td><td>переход прямо в тьютора по этому концепту</td></tr>
+    <tr><td>Скачивание карты</td><td>отдельный файл <code>knowledge_graph.html</code>, работает офлайн</td></tr>
+    <tr><td>Освоение темы</td><td>ceremony overlay, а не строка в таблице</td></tr>
+  </table>
+  </div>
+
+  <div class="card">
+    <p><strong>Почему через месяц это не надоедает:</strong> у Кирилла нет ощущения
+    «опять то же самое» — карта в конце показывает, что реально выросло за месяц, а не
+    просто счётчик пройденных карточек. Экспорт карты стал маленьким ритуалом
+    воскресенья: он в буквальном смысле держит копию своих знаний на диске.</p>
+  </div>
+
+  <p class="ev">Из чего собрано: <code>scenario_28_course_cockpit</code> (daily briefing,
+  ✅ снят), <code>scenario_26_knowledge_graph</code> (клик по узлу → тьютор, ✅ снят),
+  скачивание HTML-карты — реальная кнопка <code>st.download_button(...)</code>,
+  <code>app/ui/dashboards_graph.py</code> около строки 1100 (то же, что закрывает
+  разбор №33 витрины сценариев); <code>scenario_29_graduation_celebration</code>
+  (ceremony overlay, ✅ снят).</p>
+</section>
+
+<section id="failure">
+  <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Когда что-то не так</span></div>
+  <h2>Наталья — вечер, когда LM Studio не запустилась</h2>
+  <p class="day-time">Дочь садится заниматься, а «мозги» приложения не отвечают.</p>
+
+  <ol class="steps">
+    <li><strong>Соня задала вопрос</strong> — обычно ответ приходит за пару секунд.</li>
+    <li><strong>Вместо зависания — баннер</strong> ровно за пару секунд:
+      «Локальная LLM недоступна — работаем в упрощённом режиме», с адресом endpoint'а и
+      именем модели, которую нужно загрузить.</li>
+    <li><strong>Наталья запустила LM Studio</strong> по инструкции из того же баннера,
+      подождала, пока модель загрузится.</li>
+    <li><strong>Задали вопрос заново</strong> — сработало как обычно.</li>
+  </ol>
+
+  <div class="chat">
+    <div class="msg system"><span class="who">Система</span>Локальная LLM недоступна — SSR работает в template-режиме. Endpoint <code>127.0.0.1:1234</code> не отвечает. Запустите LM Studio и убедитесь, что загружена модель <code>qwen2.5-7b-instruct</code>.</div>
+  </div>
+
+  <div class="card">
+    <p><strong>Почему это мотивирует новичка сильнее, чем очередной wow-момент:</strong>
+    в момент, когда что-то ломается, продукт либо теряет доверие навсегда, либо доказывает
+    его. Здесь не «500 Internal Server Error» и не бесконечная загрузка — а конкретная
+    причина и конкретное действие за пару секунд. Наталья выбирала hometutor именно за
+    то, что данные дочери не уходят в интернет; честный баннер об офлайн-сбое — то же
+    самое обещание, только в момент, когда его проще всего было бы нарушить тишиной.</p>
+  </div>
+
+  <p class="ev">Из чего собрано: реальный текст баннера —
+  <code>app/ui/llm_local_banner.py:37-46</code> (дословная цитата headline и detail);
+  скорость честного отказа вместо полного таймаута — предохранитель на живом трафике,
+  <code>app/llm_resilience.py:168-171,191,209</code> (проверено в разборе №10 серии,
+  коммиты 186–191).</p>
+</section>
+
+<section id="cheatsheet">
+  <div class="sec-label"><span class="sec-num">6</span><span class="sec-name">Шпаргалка</span></div>
+  <h2>Твоя первая неделя — если коротко</h2>
+  <ol class="ladder">
+    <li><span class="num">1</span><span><strong>Вечер 1.</strong> Задай любой вопрос как есть.
+      Раскрой источник. Нажми «Учить эту тему N минут», если хочется разобраться глубже.</span></li>
+    <li><span class="num">2</span><span><strong>Утро 2.</strong> Просто открой приложение —
+      карточка возврата и due-бейдж сами скажут, с чего продолжить.</span></li>
+    <li><span class="num">3</span><span><strong>Будни.</strong> Смотри «План на сегодня» —
+      одно действие, не весь курс сразу. Ошибся в квизе — сохрани ошибку как карточку.</span></li>
+    <li><span class="num">4</span><span><strong>Раз в неделю.</strong> Загляни в Прогресс —
+      слабые темы уже подсвечены, не нужно гадать самому.</span></li>
+    <li><span class="num">5</span><span><strong>Если что-то сломалось.</strong> Прочитай
+      баннер до конца — он обычно и есть инструкция, что делать.</span></li>
+  </ol>
+</section>
+
+<div class="footer">
+  <p>Истории ежедневного использования · hometutor HEAD <code>c374892</code> «194» ·
+  2026-07-12. Компаньон эволюционного разбора №11 «Витрина обещаний»
+  (<code>doc/presentations/evolutionary_analyses/11_usage_scenarios.html</code>) —
+  тот разбор о механике витрины сценариев, этот документ — о ежедневном ритуале.</p>
+  <p>Каждая история проверена по реально отснятым сценариям
+  <code>docs/quickstart_demo.md</code> или напрямую по коду (сноски «из чего собрано»);
+  диалоги — иллюстративные, структура ответов тьютора — настоящая.</p>
+</div>
+
+</div>
+
+</body>
+</html>
