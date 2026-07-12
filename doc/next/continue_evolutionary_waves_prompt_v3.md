@@ -46,6 +46,9 @@
 2. A1 — «Пульс петли» в tutor chat:
    - `app/query_response_postprocessing.py`
    - `app/query_rag_assembly.py`
+   - `app/query_tutor_context.py` — здесь физически живёт `_build_tutor_payload()`
+     (импортируется в `query_rag_assembly.py`); новый параметр/ключ `learner_trace`
+     добавляется именно тут, иначе он не попадёт в `tutor_payload` → `assistant_meta["tutor"]`
    - `app/ui/tutor_chat_response_render.py`
    - `app/ui/tutor_chat_render.py` или `app/ui/helpers.py`, только если нужен маленький formatter/renderer
    - `tests/test_memory_loop_closure.py` и/или targeted tutor metadata/UI test

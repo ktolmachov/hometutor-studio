@@ -50,8 +50,11 @@
   только если source summary уже доступен в `tutor_meta`; не строить новый
   provider pipeline ради бейджа.
 - **Files:** `app/query_response_postprocessing.py`, `app/query_rag_assembly.py`,
-  `app/ui/tutor_chat_response_render.py`; опционально `app/ui/tutor_chat_render.py`
-  или `app/ui/helpers.py` для маленького formatter/renderer.
+  `app/query_tutor_context.py` (здесь физически живёт `_build_tutor_payload()` —
+  новый параметр/ключ `learner_trace` добавляется в этом файле, `query_rag_assembly.py`
+  только импортирует и вызывает функцию), `app/ui/tutor_chat_response_render.py`;
+  опционально `app/ui/tutor_chat_render.py` или `app/ui/helpers.py` для маленького
+  formatter/renderer.
 - **Tests:** `tests/test_memory_loop_closure.py` должен проверить metadata trace;
   добавить/расширить targeted UI/assembly test, который доказывает, что
   `assistant_meta["tutor"]["learner_trace"]` появляется и renderer может его
