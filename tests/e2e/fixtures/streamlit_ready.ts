@@ -2,7 +2,18 @@ import type { Page } from '@playwright/test';
 import { DEMO } from './demo_timeouts';
 
 export const STREAMLIT_READY_SELECTOR = '[data-testid="e2e-streamlit-ready"]';
-const STREAMLIT_APP_SELECTOR = '.stApp';
+const STREAMLIT_APP_FALLBACK_SELECTORS = [
+  '[data-testid="stApp"]',
+  '[data-testid="stAppViewContainer"]',
+  '[data-testid="stMain"]',
+  '.stApp',
+];
+const TRANSIENT_GOTO_ERRORS = [
+  'ERR_NO_BUFFER_SPACE',
+  'ERR_CONNECTION_RESET',
+  'ERR_CONNECTION_CLOSED',
+  'ERR_EMPTY_RESPONSE',
+];
 
 export async function waitForStreamlitReady(
   page: Page,
@@ -20,10 +31,12 @@ export async function waitForStreamlitReady(
         });
         return;
       }
-      // Fallback for transient marker loss during rerun: app root is attached and visible.
-      const appRoot = page.locator(STREAMLIT_APP_SELECTOR).first();
-      if (await appRoot.isVisible({ timeout: 500 }).catch(() => false)) {
-        return;
+      // Fallback for transient marker loss during rerun and Streamlit DOM changes.
+      for (const selector of STREAMLIT_APP_FALLBACK_SELECTORS) {
+        const appRoot = page.locator(selector).first();
+        if (await appRoot.isVisible({ timeout: 250 }).catch(() => false)) {
+          return;
+        }
       }
     } catch (err) {
       lastError = err;
@@ -42,19 +55,29 @@ export async function gotoAndWaitForStreamlitReady(
   url: string,
   timeout = DEMO.navigationReadyMs,
 ): Promise<void> {
+  await gotoStreamlitPage(page, url);
+  await waitForStreamlitReady(page, timeout);
+}
+
+export async function gotoStreamlitPage(
+  page: Page,
+  url: string,
+  attempts = 3,
+): Promise<void> {
   let lastError: unknown;
-  for (let attempt = 1; attempt <= 2; attempt += 1) {
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
       await page.goto(url, { waitUntil: 'domcontentloaded' });
-      lastError = undefined;
-      break;
+      return;
     } catch (err) {
       lastError = err;
-      if (attempt === 2) {
+      const message = String(err);
+      const transient = TRANSIENT_GOTO_ERRORS.some((part) => message.includes(part));
+      if (attempt === attempts || !transient) {
         throw err;
       }
-      await page.waitForTimeout(300);
+      await page.waitForTimeout(500 * attempt);
     }
   }
-  await waitForStreamlitReady(page, timeout);
+  throw lastError;
 }

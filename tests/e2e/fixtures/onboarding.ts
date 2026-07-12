@@ -1,14 +1,30 @@
 import type { Page } from "@playwright/test";
-import { waitForStreamlitReady } from "./streamlit_ready";
+import {
+  STREAMLIT_READY_SELECTOR,
+  gotoStreamlitPage,
+  waitForStreamlitReady,
+} from "./streamlit_ready";
+
+const POST_ONBOARDING_SHELL_SELECTOR = [
+  '[data-testid="e2e-view-switcher"]',
+  STREAMLIT_READY_SELECTOR,
+  '[data-testid="mission-control-ssr-banner"]',
+  '[data-testid="first-session-hero"]',
+].join(", ");
+
+const MISSION_CONTROL_CONTENT_SELECTOR = [
+  '[data-testid^="mission-tile-"]',
+  ".mode-card",
+  '[data-testid="mission-control-ssr-banner"]',
+  '[data-testid="first-session-hero"]',
+  '[data-testid="mc-kg-card"]',
+].join(", ");
 
 /** First launch shows onboarding until «Начать обучение» (KV onboarding_v1_done). */
 export async function completeFirstRunOnboarding(page: Page): Promise<void> {
-  await page.goto("/");
+  await gotoStreamlitPage(page, "/");
   // Детеминированный e2e-профиль: приводим старт к post-onboarding состоянию, если onboarding показан.
-  await page.locator('[data-testid="stSidebar"]').waitFor({
-    state: "visible",
-    timeout: 120_000,
-  });
+  await waitForStreamlitReady(page, 120_000);
 
   const startButton = page.getByRole("button", { name: "Начать обучение" });
   if (await startButton.isVisible({ timeout: 5_000 }).catch(() => false)) {
@@ -24,10 +40,9 @@ export async function completeFirstRunOnboarding(page: Page): Promise<void> {
     await mainLink.click();
   }
 
-  // Детерминированная точка синхронизации: view-switcher Streamlit отрисовывает
-  // после mode selector + основного контента. `attached` — потому что native
-  // select скрыт Streamlit'ом, но присутствует в DOM.
-  await page.locator('[data-testid="e2e-view-switcher"]').waitFor({
+  // Детерминированная точка синхронизации после Streamlit rerun: e2e markers
+  // and home anchors are attached even when the native select itself is hidden.
+  await page.locator(POST_ONBOARDING_SHELL_SELECTOR).first().waitFor({
     state: "attached",
     timeout: 180_000,
   });
@@ -37,7 +52,7 @@ export async function completeFirstRunOnboarding(page: Page): Promise<void> {
   // reports the raw HTML node itself as hidden, so visibility is checked by
   // scenario specs that need visual assertions.
   await page
-    .locator('[data-testid^="mission-tile-"], .mode-card')
+    .locator(MISSION_CONTROL_CONTENT_SELECTOR)
     .first()
     .waitFor({ state: "attached", timeout: 60_000 });
 
