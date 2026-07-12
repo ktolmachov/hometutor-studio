@@ -42,6 +42,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
 try:
     import yaml  # type: ignore
 

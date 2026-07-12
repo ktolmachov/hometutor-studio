@@ -7,7 +7,25 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const studioRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+
+function resolveRuntimeRoot() {
+  const fromEnv = process.env.HOMETUTOR_RUNTIME_REPO || process.env.HOMETUTOR_RUNTIME_ROOT;
+  const candidates = [
+    fromEnv,
+    path.resolve(studioRoot, '..', 'hometutor'),
+    studioRoot,
+  ].filter(Boolean);
+  for (const candidate of candidates) {
+    const appPath = path.join(candidate, 'app', 'ui', 'main.py');
+    if (fs.existsSync(appPath)) {
+      return candidate;
+    }
+  }
+  return studioRoot;
+}
+
+const runtimeRoot = resolveRuntimeRoot();
 
 /** Prefer repo .venv so Streamlit/uvicorn match `pip install -r requirements.txt` (CI uses bare `python`). */
 function resolvePython(projectRoot) {
@@ -36,10 +54,10 @@ const requestedWorkers = Math.max(
   1,
   Number.parseInt(process.env.PLAYWRIGHT_WORKERS ?? process.env.DEMO_WORKERS ?? '1', 10) || 1,
 );
-const py = resolvePython(root);
+const py = resolvePython(runtimeRoot);
 
 /** Fresh SQLite so PR smoke is isolated from developer data/user_state.db. */
-const e2eDir = path.join(root, '.e2e');
+const e2eDir = path.join(studioRoot, '.e2e');
 const e2eUserStateDb = path.join(e2eDir, 'state-main.db');
 const workerStateDbs = Array.from({ length: requestedWorkers }, (_, idx) =>
   path.join(e2eDir, `state-${idx}.db`),
@@ -104,7 +122,7 @@ const seed = spawnSync(
     ].join('\n'),
   ],
   {
-    cwd: root,
+    cwd: runtimeRoot,
     env,
     stdio: 'inherit',
   },
@@ -114,7 +132,7 @@ if (seed.status !== 0) {
 }
 
 const uv = spawn(py, ['-m', 'uvicorn', 'app.api:app', '--host', host, '--port', String(apiPort)], {
-  cwd: root,
+  cwd: runtimeRoot,
   env,
   stdio: 'inherit',
 });
@@ -244,7 +262,7 @@ const st = spawn(
     'false',
   ],
   {
-    cwd: root,
+    cwd: runtimeRoot,
     env,
     stdio: ['inherit', 'inherit', 'pipe'],
   },

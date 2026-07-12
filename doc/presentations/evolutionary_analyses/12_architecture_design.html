@@ -1,0 +1,536 @@
+<title>Разбор №12 — Дом с образцовыми стенами и выключенной сигнализацией</title>
+<style>
+  /* ============================================================
+     HOMETUTOR NOTEBOOK STYLE v1.0 — LOCKED 2026-07-12
+     Извлечено из разборов №9-10 эволюционной серии. Это визитная
+     карточка формата «нескучный разбор». НЕ переизобретать палитру
+     заново в новой сессии — копировать этот файл и менять только
+     содержимое между <div class="wrap"> ... </div>.
+     Гайд: notebook_deck_guide.md (в этой же папке).
+     ============================================================ */
+  :root {
+    /* --- ЛОКОНО (locked core, 9 токенов) --- не менять значения --- */
+    --paper: #f7f3ea;
+    --paper-2: #fffdf7;
+    --ink: #17211b;
+    --muted: #5c6a61;
+    --terra: #b95631;
+    --terra-deep: #7d351f;
+    --forest: #243b2c;
+    --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14);
+    --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+    /* --- расширение: статус-токены (опционально, для сводных таблиц
+       «сделано/молчит/дыра» — см. §6 guide) --- */
+    --done: #1e6e46;
+    --silent: #b98a2d;
+    --hole: #8c2f39;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141a16;
+      --paper-2: #1b231e;
+      --ink: #ece5d4;
+      --muted: #9aa89d;
+      --terra: #d97a52;
+      --terra-deep: #e8a583;
+      --forest: #9dbfa8;
+      --gold: #d9a55e;
+      --line: rgba(236, 229, 212, 0.16);
+      --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(157, 191, 168, 0.10);
+      --verdict-keep: #6fc493;
+      --verdict-fix: #e0a35c;
+      --verdict-no: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+      --done: #6fc493;
+      --silent: #d9b45e;
+      --hole: #e08691;
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+    --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+    --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+    --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+    --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+      radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--terra-deep); }
+  em { color: var(--muted); }
+
+  code {
+    font-family: Consolas, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--terra);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 0.95rem; color: var(--gold);
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .sec-name {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem;
+    font-weight: 700; color: var(--muted);
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.1rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+  }
+  .anchor-card { border-left: 4px solid var(--terra); }
+  .ev { font-size: 0.86rem; color: var(--muted); margin-top: 0.5rem; }
+  .ev code { font-size: 0.8rem; }
+
+  .figure { margin: 1.4rem 0 0.4rem; }
+  .figure svg { width: 100%; height: auto; display: block; }
+  .figcap { font-size: 0.84rem; color: var(--muted); margin-top: 0.5rem; max-width: 70ch; }
+
+  .table-scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  td:first-child { white-space: nowrap; }
+  td { font-variant-numeric: tabular-nums; }
+
+  .st { display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 99px; white-space: nowrap; }
+  .st-done { color: var(--done); border: 1px solid var(--done); }
+  .st-silent { color: var(--silent); border: 1px solid var(--silent); }
+  .st-hole { color: var(--hole); border: 1px solid var(--hole); }
+
+  .v { display: inline-block; font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+       letter-spacing: 0.08em; padding: 0.1rem 0.55rem; border-radius: 99px; margin-right: 0.5rem; }
+  .v-keep { color: var(--verdict-keep); border: 1.5px solid var(--verdict-keep); }
+  .v-fix { color: var(--verdict-fix); border: 1.5px solid var(--verdict-fix); }
+  .v-no { color: var(--verdict-no); border: 1.5px solid var(--verdict-no); }
+
+  .tension { border-left: 4px solid var(--gold); }
+  .tension .t { font-family: Georgia, serif; font-size: 1.05rem; margin-bottom: 0.35rem; }
+  .syn { color: var(--verdict-keep); font-weight: 600; }
+
+  .ladder { list-style: none; padding-left: 0; }
+  .ladder li { display: flex; gap: 0.8rem; align-items: baseline; margin-bottom: 0.55rem; }
+  .ladder .num {
+    flex: none; font-family: Georgia, serif; font-weight: 700; color: var(--gold);
+    width: 1.6rem; text-align: right;
+  }
+
+  .tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.08rem 0.5rem;
+         border-radius: 4px; color: var(--paper-2); }
+  .tag-p0 { background: var(--terra); }
+  .tag-p1 { background: var(--forest); }
+  .tag-p2 { background: var(--gold); }
+  :root[data-theme="dark"] .tag, :root[data-theme="dark"] .tag-p2 { color: #141a16; }
+  @media (prefers-color-scheme: dark) { .tag { color: #141a16; } }
+  :root[data-theme="light"] .tag { color: var(--paper-2); }
+
+  .footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
+            font-size: 0.85rem; color: var(--muted); }
+  .footer code { font-size: 0.8rem; }
+
+  a { color: var(--terra); }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">Эволюционный разбор · №12 · Архитектура и дизайн</div>
+  <h1>Дом с образцовыми стенами и выключенной сигнализацией</h1>
+  <p class="lede">Первый инженерный разбор серии: не что видит студент, а что видит
+  инженер, когда меняет систему. Стены hometutor держатся безупречно — греп-аудит
+  не нашёл ни одного нарушения ни на одной границе. Но из трёх видов закона,
+  охраняющих каркас, жив только один: архитектурные стражи написаны год-месяц назад,
+  ни разу не подключены к CI — и код уже не проходит их молча.</p>
+  <div class="meta">
+    <span>hometutor · HEAD <code>f21c1db38</code> «206»</span>
+    <span>2026-07-12</span>
+    <span>397 py-модулей · 101 515 строк app/ · все утверждения проверены греп-аудитом на этом HEAD</span>
+  </div>
+</header>
+
+<!-- 1. СУТЬ -->
+<section id="essence">
+  <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Суть</span></div>
+  <h2>Чего по-настоящему хочет инженер</h2>
+  <p>Инженер этой системы — владелец и агент-сессии, которые меняют её каждый день,
+  темпом ~200 коммитов в месяц. Когда он вносит изменение, он хочет двух вещей:
+  чтобы <strong>место для изменения было очевидным</strong> — и чтобы
+  <strong>поломка каркаса была громкой</strong>. Всё остальное — паттерны, слои,
+  диаграммы — лишь способы купить эти два свойства.</p>
+  <p>Отсюда суть архитектуры от первых принципов: архитектура — это совокупность
+  решений, которые дорого менять, и её качество измеряется <strong>стоимостью
+  следующего изменения</strong>. У неё два инструмента. <em>Стены</em> — границы,
+  которые направляют: они экономят поиск места («настройка живёт в config, промпт —
+  в prompts, SQL — у владельца стора»). <em>Законы</em> — проверки, которые кричат:
+  они экономят доверие, потому что без них каждый обязан помнить всё и всегда.</p>
+  <p>hometutor построил образцовые стены — и почти не подключил законы. Стены
+  держатся на дисциплине жильцов, а не на сигнализации. Пока жильцы аккуратны,
+  разницы не видно. Видно её становится там, где дисциплина бессильна: там, где
+  правда должна сверяться сама, — и именно там серия №1–№10 находила все свои дыры.</p>
+</section>
+
+<!-- 2. РЕАЛЬНОСТЬ -->
+<section id="reality">
+  <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Реальность</span></div>
+  <h2>Карта каркаса: стены, масса, законы, острова</h2>
+
+  <h3>Стены — заявленное совпало с фактическим</h3>
+  <p>Fan-in анализ (398 модулей разобраны по AST) показывает: несущие стены по факту —
+  ровно те, что объявлены в <code>docs/conventions_architecture.md</code>. Это редкий
+  случай, когда карта и территория совпадают.</p>
+  <div class="table-scroll">
+    <table>
+      <tr><th>Граница</th><th>Fan-in</th><th>Проверка нарушений (греп на HEAD 206)</th><th>Статус</th></tr>
+      <tr><td><code>app/config.py</code></td><td>111 импортёров</td><td>guard <code>check_config_access</code> — passed; raw env вне разрешённых файлов: 0</td><td><span class="st st-done">держится</span></td></tr>
+      <tr><td><code>app/user_state*.py</code></td><td>44 (ядро семьи из 12 модулей)</td><td><code>sqlite3</code> только у объявленных владельцев-обёрток</td><td><span class="st st-done">держится</span></td></tr>
+      <tr><td><code>app/models.py</code></td><td>36</td><td>типовые контракты (QueryContext и др.)</td><td><span class="st st-done">держится</span></td></tr>
+      <tr><td><code>app/provider.py</code></td><td>32</td><td>клиентов <code>OpenAI(</code> вне provider-слоя: 0</td><td><span class="st st-done">держится</span></td></tr>
+      <tr><td><code>app/ui_client.py</code></td><td>28</td><td>UI ходит в API только через него; backend-импортов <code>app.ui</code>: 0</td><td><span class="st st-done">держится</span></td></tr>
+      <tr><td><code>app/guardrails.py</code></td><td>24</td><td>все 4 входа (API/CLI/UI/Telegram) проходят валидацию</td><td><span class="st st-done">держится</span></td></tr>
+      <tr><td><code>app/prompts</code></td><td>24</td><td>текст промптов в одном депо (<code>_impl.py</code>)</td><td><span class="st st-done">держится</span></td></tr>
+      <tr><td>Streamlit вне <code>app/ui</code></td><td>—</td><td><code>import streamlit</code> в бэкенде: 0</td><td><span class="st st-done">держится</span></td></tr>
+    </table>
+  </div>
+  <p class="ev">Единственное совпадение по «bare except» во всём <code>app/</code> —
+  вендоренный <code>app/ui/assets/mermaid.min.js</code>: в Python-коде их ноль
+  (ruff-правило E722 в CI это и охраняет).</p>
+
+  <h3>Масса — 397 модулей, но копится она не там, где кажется</h3>
+  <div class="card">
+    <p>397 py-модулей (275 бэкенд + 122 UI), 101 515 строк. 21 сервис, 20 роутеров,
+    12 функций-шагов пайплайна (весь пайплайн — 744 строки на два файла). Медианный
+    коммит трогает <strong>5 файлов</strong> (n=60, p90=10) — вертикальная нарезка
+    по фичам работает. Файлов длиннее 600 строк — 33; пик —
+    <code>app/prompts/_impl.py</code>, 1928 строк, но это депо текстов (20 def/class
+    на весь файл), а не логика.</p>
+    <p>Настоящая масса копится в UI-рендерах: четыре из пяти самых длинных функций —
+    Streamlit-вьюхи: <code>render_topics_plan_subtab</code> — 361 строка
+    (<code>topics_tab_plan_subtab.py:22</code>), <code>_render_learning_progress_tab</code> —
+    314, <code>build_interactive_card_html</code> — 311. Пятая —
+    <code>_ensure_schema</code>, 353 строки (<code>user_state_db.py:322</code>), —
+    декларативный DDL.</p>
+  </div>
+
+  <h3>Законы — три вида, жив один</h3>
+  <div class="figure">
+    <svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Три вида закона каркаса: pytest подключён к CI, стражи не подключены, проза не проверяется">
+      <!-- CI power source -->
+      <rect x="280" y="14" width="140" height="40" rx="8" fill="none" stroke="var(--forest)" stroke-width="2"/>
+      <text x="350" y="39" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="var(--forest)" font-weight="bold">CI · каждый push</text>
+      <!-- wire to pytest: solid -->
+      <line x1="310" y1="54" x2="130" y2="110" stroke="var(--done)" stroke-width="2.5"/>
+      <!-- wire to guards: broken -->
+      <line x1="350" y1="54" x2="350" y2="84" stroke="var(--hole)" stroke-width="2" stroke-dasharray="6 6"/>
+      <text x="362" y="80" font-size="11" fill="var(--hole)" font-family="Consolas, monospace">✂ 0 вызовов</text>
+      <!-- wire to prose: none -->
+      <line x1="390" y1="54" x2="570" y2="110" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="2 7"/>
+      <!-- pytest node -->
+      <rect x="30" y="110" width="200" height="66" rx="10" fill="var(--card)" stroke="var(--done)" stroke-width="2"/>
+      <text x="130" y="136" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="var(--ink)" font-weight="bold">pytest + ruff (E, F)</text>
+      <text x="130" y="156" text-anchor="middle" font-size="11.5" fill="var(--muted)">92 тест-файла · живой закон</text>
+      <!-- guards node -->
+      <rect x="250" y="110" width="200" height="66" rx="10" fill="var(--card)" stroke="var(--hole)" stroke-width="2"/>
+      <text x="350" y="136" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="var(--ink)" font-weight="bold">4 стража scripts/</text>
+      <text x="350" y="156" text-anchor="middle" font-size="11.5" fill="var(--muted)">написаны 25.06 · не запитаны</text>
+      <!-- prose node -->
+      <rect x="470" y="110" width="200" height="66" rx="10" fill="var(--card)" stroke="var(--silent)" stroke-width="2"/>
+      <text x="570" y="136" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="var(--ink)" font-weight="bold">Проза: CLAUDE.md, docs</text>
+      <text x="570" y="156" text-anchor="middle" font-size="11.5" fill="var(--muted)">никем не сверяется · стареет</text>
+      <!-- consequences -->
+      <text x="130" y="205" text-anchor="middle" font-size="12" fill="var(--done)">нарушение видно в том же коммите</text>
+      <text x="350" y="205" text-anchor="middle" font-size="12" fill="var(--hole)">бюджет размера уже нарушен</text>
+      <text x="570" y="205" text-anchor="middle" font-size="12" fill="var(--silent)">«~40 тестов» при факте 92</text>
+      <text x="350" y="240" text-anchor="middle" font-family="Georgia, serif" font-size="13.5" fill="var(--muted)" font-style="italic">Что не подключено к ежедневному циклу — молча расходится с реальностью</text>
+    </svg>
+    <p class="figcap">Три вида закона каркаса и их «питание». Живой закон один:
+    <code>ci.yml:28-32</code> запускает только <code>ruff check</code> (select = E, F —
+    <code>pyproject.toml:98</code>) и <code>pytest tests/ -q</code>. Стражи
+    <code>scripts/arch_regression_guards.py</code> не вызывает никто: греп по
+    <code>tests/</code>, <code>.github/</code>, <code>scripts/*.ps1</code> — ноль совпадений.</p>
+  </div>
+  <div class="card">
+    <p><strong>Закон-проза местами уже обещает то, что никто не проверяет.</strong>
+    CLAUDE.md требует <code># noqa: BLE001</code> для широких except — но ruff в CI
+    выбирает только правила E и F (<code>pyproject.toml:98</code>), BLE-семейство не
+    включено: правило существует только как текст. Там же CLAUDE.md утверждал «в tests/
+    ~40 файлов» при 92 фактических (правка запущена отдельной сессией 2026-07-12).</p>
+  </div>
+
+  <h3>Острова — local-first доехал почти до конца</h3>
+  <div class="card">
+    <p>Болезнь «двойного стандарта local-first» из разбора №6 вылечена для JS-библиотек:
+    d3 вендорен с честным CDN-fallback (<code>knowledge_graph_d3.py:609</code>), mermaid —
+    так же (<code>living_konspekt_reader.py:146-157</code>: сначала
+    <code>assets/mermaid.min.js</code>, CDN только если файла нет). Паттерн «локальное —
+    основной путь, сеть — честный fallback» изобретён и повторён.
+    <strong>Последний не переведённый остров — шрифты:</strong> <code>ui_theme.css:1-2</code>
+    грузит Manrope/Plex Mono/Material Symbols с fonts.googleapis.com без локальной копии
+    (готовый кандидат C2 плана №9).</p>
+  </div>
+</section>
+
+<!-- 3. ПРОТИВОРЕЧИЯ -->
+<section id="tensions">
+  <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Противоречия</span></div>
+  <h2>Напряжения — и их синтез</h2>
+  <div class="card tension">
+    <div class="t">модульность ↔ обозримость</div>
+    <p>397 модулей звучит как «утонуть», и контекст-политика CLAUDE.md прямо запрещает
+    глоб-чтение пакета. Но медиана 5 файлов на коммит доказывает: вертикальная нарезка
+    работает — изменение локально. Настоящая потеря обозримости не в числе модулей,
+    а внутри файлов: UI-рендеры по 300+ строк. <span class="syn">Синтез: не укрупнять и
+    не дробить, а держать карту живой</span> — fan-in и автоген диаграмм
+    (<code>scripts/generate_diagrams.py</code> уже существует) говорят, где несущие стены;
+    бюджет размера, когда его включат, не даёт массе прятаться внутри файлов.</p>
+  </div>
+  <div class="card tension">
+    <div class="t">строгость конвенций ↔ скорость изменения</div>
+    <p>Скорость уже победила — молча: законы, требовавшие отдельной команды
+    (стражи) или отдельной памяти (BLE001), умерли, а законы, живущие внутри
+    ежедневного цикла (pytest, E722), соблюдаются идеально. Это не конфликт ценностей,
+    это факт о среде: выживает закон, встроенный в цикл, который и так бежит.
+    <span class="syn">Синтез: закон обязан жить в pytest/CI — тогда строгость не
+    тормозит, а дешевеет:</span> нарушение видно в том же коммите, а не через 177.</p>
+  </div>
+  <div class="card tension">
+    <div class="t">local-first ↔ облачный мир</div>
+    <p>Провайдер разрешил это напряжение профилями (LOCAL_STRICT / BALANCED / CLOUD_FAST);
+    ассеты — парой «вендор + честный CDN-fallback» (d3, mermaid); витрина HF Spaces —
+    отдельным deploy-слоем, не трогающим ядро. Один и тот же синтез изобретён трижды
+    в разных местах кодовой базы. <span class="syn">Синтез уже найден — осталось объявить
+    его правилом каркаса</span> («сеть — всегда fallback, никогда не единственный путь»)
+    и доехать последний остров: шрифты.</p>
+  </div>
+</section>
+
+<!-- 4. БОЛЬ-ЯКОРЬ -->
+<section id="pain">
+  <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Боль-якорь</span></div>
+  <h2>Кодовая база не проходит собственные стражи — и никто не знал</h2>
+  <div class="card anchor-card">
+    <p><strong>Проверяемый факт:</strong> запуск <code>python scripts/arch_regression_guards.py</code>
+    на HEAD 206 → три стража проходят, четвёртый падает по всем метрикам:</p>
+    <ul>
+      <li><code>large_files=33</code> при бюджете 24 (+9 файлов &gt;600 строк);</li>
+      <li><code>long_functions=153</code> при бюджете 138 (+15 функций &gt;80 строк);</li>
+      <li><code>peak_file_lines=1928</code> при потолке 1651 (депо промптов выросло);</li>
+      <li><code>peak_function_lines=361</code> при потолке 338.</li>
+    </ul>
+    <p><strong>Точная причина в коде:</strong></p>
+    <ul>
+      <li><code>scripts/arch_regression_guards.py:13</code> — агрегатор четырёх стражей
+        написан 2026-06-25 (коммит <code>a64afb821</code> «29») как «no-growth budget»;</li>
+      <li><code>.github/workflows/ci.yml:28-32</code> — CI запускает только ruff и pytest;
+        греп по <code>tests/</code>, <code>.github/</code>, <code>scripts/*.ps1</code>,
+        Makefile — <strong>ноль вызовов стражей</strong>;</li>
+      <li>от «29» до «206» — 177 коммитов дрейфа, ни один не был остановлен;</li>
+      <li>ирония замыкает круг: страж бюджета сам хранит копию истины — константы
+        <code>check_size_budget.py:15-18</code> — и она устарела так же молча, как
+        числа в CLAUDE.md.</li>
+    </ul>
+    <p class="ev">Это тот же диагноз, что у circuit breaker в разборе №5 (защита без
+    питания) и у «копий истины» в №1/№2/№9/№10. Порождающая причина болезни всей серии
+    теперь названа: <strong>в каркасе есть только один вид закона, подключённый к
+    ежедневному циклу, — pytest. Всё, что не выражено тестом, стареет молча</strong> —
+    стражи, бюджеты, проза, копии истины. Дисциплина жильцов охраняет стены, но
+    дисциплина не масштабируется на то, чего не видно.</p>
+  </div>
+</section>
+
+<!-- 5. ВЕРДИКТЫ -->
+<section id="verdicts">
+  <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Вердикты</span></div>
+  <h2>Решение по каждому элементу карты</h2>
+  <div class="card"><span class="v v-keep">не трогать</span><strong>Стены: config / provider /
+    user_state / guardrails / ui_client.</strong> Ноль нарушений на 206 коммитах —
+    образцовые границы, доказано греп-аудитом, а не декларацией.</div>
+  <div class="card"><span class="v v-keep">не трогать</span><strong>Вертикальная нарезка,
+    тонкие роутеры, пайплайн-контракт.</strong> Медиана 5 файлов/коммит; 20 роутеров без
+    бизнес-логики; весь пайплайн — 744 строки. Это и есть дешёвое следующее изменение.</div>
+  <div class="card"><span class="v v-keep">не дробить</span><strong>Депо промптов
+    <code>_impl.py</code> (1928 строк).</strong> Правило «промпт живёт в одном месте»
+    важнее правила «файл ≤600 строк»: это склад текста, а не логика (20 def на весь файл).
+    Столкновение двух законов решается явным waiver'ом в бюджете, а не расчленением депо.</div>
+  <div class="card"><span class="v v-fix">починить</span><strong>Стражи каркаса.</strong>
+    Подключить к pytest — единственному живому закону. Они уже написаны и работают;
+    ход — это провод, а не механизм.</div>
+  <div class="card"><span class="v v-fix">починить</span><strong>Бюджеты стража
+    размера.</strong> Сверить константы с фактом HEAD 206, признать долг датой, добавить
+    waivers для депо текста и DDL-схемы — иначе включённый закон будет вечно-красным,
+    и его выключат второй раз (теперь уже навсегда).</div>
+  <div class="card"><span class="v v-fix">починить</span><strong>Масса UI-рендеров.</strong>
+    Лестницей, не кампанией: no-growth уже даёт включённый бюджет; при касании функции
+    &gt;300 строк — отщеплять панель (образцы: <code>living_konspekt_*_panel.py</code>).</div>
+  <div class="card"><span class="v v-fix">починить</span><strong>Числа в прозе.</strong>
+    CLAUDE.md и conventions не должны хранить счётчики (модулей, тестов, бюджетов) —
+    числа живут в стражах и автогене диаграмм, проза ссылается на них. Правка текущих
+    цифр уже запущена отдельной сессией.</div>
+  <div class="card"><span class="v v-fix">починить</span><strong>Шрифты с CDN.</strong>
+    Последний остров против local-first; вендорить по готовому образцу d3/mermaid
+    (кандидат C2 плана №9 — не изобретать заново).</div>
+  <div class="card"><span class="v v-no">не делать</span><strong>Большой рефакторинг
+    каркаса.</strong> Микросервисы, новый UI-фреймворк, дробление модулей ради числа —
+    ложные пути: стоимость изменения сегодня и так низкая, а стены целы. Болезнь не в
+    стенах — в сигнализации.</div>
+  <div class="card"><span class="v v-no">не делать</span><strong>Новый механизм
+    контроля.</strong> Никаких новых линтеров-фреймворков, дашбордов качества и
+    pre-commit-инфраструктуры: четыре стража уже написаны, pytest уже бежит. Всё
+    новое здесь — одна тестовая обёртка.</div>
+</section>
+
+<!-- 6. ЦЕННОСТЬ -->
+<section id="value">
+  <div class="sec-label"><span class="sec-num">6</span><span class="sec-name">Ценность</span></div>
+  <h2>Уникальность — и измеримое доказательство</h2>
+  <p>Инженерная уникальность hometutor — это <strong>кодовая база, спроектированная под
+  агентную разработку</strong>: конвенции написаны как контракт для LLM-сессий
+  (контекст-политика, write-set, док-синк), нарезка держит медиану 5 файлов на коммит,
+  а границы выдерживают темп ~200 коммитов в месяц без единого нарушения — при том, что
+  большую часть этих коммитов пишут агенты. Стены, которые агенты не пробили за 206
+  коммитов, — это провалидированный дизайн, а не удача. Осталось доказать то же самое
+  про законы.</p>
+  <div class="table-scroll">
+    <table>
+      <tr><th>Метрика каркаса</th><th>Сейчас (HEAD 206)</th><th>После P0</th></tr>
+      <tr><td>Видов закона, подключённых к циклу</td><td>1 из 3 (pytest)</td><td>3 из 3 (стражи в pytest, проза без чисел)</td></tr>
+      <tr><td>Вызовов стражей в CI</td><td>0</td><td>каждый push</td></tr>
+      <tr><td>Незамеченный дрейф бюджета</td><td>177 коммитов</td><td>0 — красный CI в том же коммите</td></tr>
+      <tr><td>Расхождений «проза ↔ факт»</td><td>2 задокументированных</td><td>0 — числа не живут в прозе</td></tr>
+      <tr><td>Нарушений на границах (греп-аудит)</td><td>0</td><td>0 — и теперь это проверяет машина, не дисциплина</td></tr>
+      <tr><td>Медиана файлов на коммит</td><td>5</td><td>≤5 — не ухудшить</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 7. ПУТЬ -->
+<section id="path">
+  <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Путь</span></div>
+  <h2>Золотой путь изменения и лестница зрелости</h2>
+  <p><strong>Золотой путь одного изменения:</strong> кандидат из detail-плана →
+  write-set 2–5 файлов → место очевидно по слою (настройка: <code>config.py</code> +
+  <code>config.env</code> → логика: <code>*_service.py</code> → текст: <code>prompts/</code> →
+  поверхность: <code>routers/*</code> или <code>app/ui/*</code>) → целевой
+  <code>tests/test_&lt;область&gt;.py</code> → док-синк <code>docs/*.md</code> → push,
+  где CI сверяет и поведение, и каркас. Сегодня этот путь работает до предпоследнего
+  шага — а последний («сверить каркас») не существует: его должен помнить человек.</p>
+  <ol class="ladder">
+    <li><span class="num">0</span><span><strong>Стены.</strong> Границы объявлены и
+      держатся — достигнуто и доказано (0 нарушений).</span></li>
+    <li><span class="num">1</span><span><strong>Закон.</strong> Каждое правило прозы имеет
+      исполняемого двойника в pytest — P0 этого разбора.</span></li>
+    <li><span class="num">2</span><span><strong>Честный бюджет.</strong> Долг признан явно:
+      константы = факт + waiver с причиной; рост запрещён, снижение — при касании.</span></li>
+    <li><span class="num">3</span><span><strong>Проза без чисел.</strong> Документы несут
+      принципы и ссылки; счётчики живут только там, где их сверяет машина.</span></li>
+    <li><span class="num">4</span><span><strong>Живая карта.</strong> Диаграммы и fan-in
+      регенерируются в цикле, а не по памяти мейнтейнера.</span></li>
+  </ol>
+</section>
+
+<!-- 8. ПЛАН -->
+<section id="plan">
+  <div class="sec-label"><span class="sec-num">8</span><span class="sec-name">План</span></div>
+  <h2>P0–P2 по соотношению эффект/усилие</h2>
+  <div class="table-scroll">
+    <table>
+      <tr><th></th><th>Ход</th><th>Что делается</th><th>Усилие</th></tr>
+      <tr><td><span class="tag tag-p0">P0-1</span></td><td><strong>Подключить
+        сигнализацию.</strong></td><td>Новый <code>tests/test_architecture_guards.py</code> —
+        тонкая pytest-обёртка над четырьмя уже написанными стражами (паттерн импорта готов
+        в <code>arch_regression_guards.py</code>). С этого коммита каждый push сверяет каркас.</td><td>часы</td></tr>
+      <tr><td><span class="tag tag-p0">P0-2</span></td><td><strong>Сверить закон с
+        реальностью.</strong></td><td>Константы <code>check_size_budget.py:15-18</code> →
+        факт HEAD 206 (признанный долг с датой) + waiver-список: депо промптов
+        <code>_impl.py</code>, DDL <code>_ensure_schema</code>. Без этого P0-1 даст
+        вечно-красный CI — и стражей выключат второй раз.</td><td>часы</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td><td>Числа покидают прозу.</td><td>CLAUDE.md
+        и conventions ссылаются на стражей вместо хранения счётчиков; правка текущих цифр
+        уже идёт отдельной сессией.</td><td>час</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td><td>Вендорить шрифты.</td><td>Manrope /
+        Plex Mono / Material Symbols в <code>app/ui/assets/</code> по образцу d3/mermaid —
+        готовый кандидат C2 плана №9, закрывает последний CDN-остров.</td><td>день</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td><td>Правило отщепления панелей.</td><td>В
+        conventions: при касании UI-функции &gt;300 строк — выделить панель-модуль (образцы
+        уже в кодовой базе); бюджет следит за no-growth автоматически.</td><td>час + привычка</td></tr>
+      <tr><td><span class="tag tag-p2">P2</span></td><td>BLE001 с baseline.</td><td>Включить
+        BLE-семейство в ruff с per-file-ignores для существующего кода — либо честно убрать
+        обещание из CLAUDE.md. Правило без проверки хуже отсутствия правила.</td><td>день</td></tr>
+      <tr><td><span class="tag tag-p2">P2</span></td><td>Живая карта в цикле.</td><td>
+        <code>generate_diagrams.py</code> + fan-in снапшот запускаются в CI (или стражем)
+        и падают при рассинхроне <code>docs/diagrams.md</code> с кодом.</td><td>день</td></tr>
+    </table>
+  </div>
+  <p><strong>Kill switch:</strong> если для P0 понадобился новый механизм — фреймворк,
+  pre-commit-инфраструктура, дашборд, хранилище — стоп: стражи уже написаны, весь ход —
+  один провод. Если после P0-2 CI всё ещё красный — бюджеты сверены неправильно;
+  не поднимать их вслепую ещё раз.</p>
+  <p><strong>North star:</strong> ни одно нарушение каркаса не живёт дольше одного
+  коммита. Вторичная звезда: медиана файлов на коммит не растёт при росте кода.</p>
+</section>
+
+<div class="footer">
+  <p>Разбор №12 · hometutor HEAD <code>f21c1db38</code> «206» · 2026-07-12 ·
+  первый инженерный разбор серии (архитектура и дизайн).</p>
+  <p>Правило двух слоёв: этот HTML — слой анализа; actionable-кандидаты — в
+  <code>doc/next/architecture_guards_plan.md</code>. Серия:
+  <code>doc/presentations/evolutionary_analyses/</code>.</p>
+</div>
+
+</div>

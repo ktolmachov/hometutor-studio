@@ -32,12 +32,14 @@ export async function completeFirstRunOnboarding(page: Page): Promise<void> {
     timeout: 180_000,
   });
 
-  // Плюс `.mode-card` visible — гарантирует, что Mission Control завершил
-  // рендер домашних плиток после первого запуска.
+  // Mission Control renders tiles through Streamlit HTML containers. Depending
+  // on the current Streamlit build those nodes may be attached while Playwright
+  // reports the raw HTML node itself as hidden, so visibility is checked by
+  // scenario specs that need visual assertions.
   await page
-    .locator(".mode-card")
+    .locator('[data-testid^="mission-tile-"], .mode-card')
     .first()
-    .waitFor({ state: "visible", timeout: 60_000 });
+    .waitFor({ state: "attached", timeout: 60_000 });
 
   // Streamlit keeps a websocket open, so networkidle is not a reliable ready signal.
   await waitForStreamlitReady(page, 60_000);

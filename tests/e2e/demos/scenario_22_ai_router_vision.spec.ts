@@ -7,6 +7,25 @@ import { DEMO } from '../fixtures/demo_timeouts';
 
 function assetDataUri(relativePath: string): string {
   const abs = path.resolve(process.cwd(), relativePath);
+  if (!fs.existsSync(abs)) {
+    const fallbackSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760">
+      <rect width="1200" height="760" fill="#eff7f1"/>
+      <rect x="70" y="70" width="1060" height="620" rx="32" fill="#ffffff" stroke="#c8ddd0" stroke-width="4"/>
+      <text x="120" y="160" font-family="Segoe UI, Arial, sans-serif" font-size="54" font-weight="800" fill="#19392d">Smart Study Router</text>
+      <text x="120" y="225" font-family="Segoe UI, Arial, sans-serif" font-size="34" font-weight="700" fill="#2d6f59">AI Vision: 5 эволюционных уровней</text>
+      <g font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700" fill="#173426">
+        <text x="150" y="330">1. Local ML: риск забывания</text>
+        <text x="150" y="390">2. LLM explanation: понятное почему</text>
+        <text x="150" y="450">3. Weekly planner: маршрут недели</text>
+        <text x="150" y="510">4. Concept graph: prerequisites</text>
+        <text x="150" y="570">5. Feedback loop: обучение стратегии</text>
+      </g>
+      <path d="M810 275 C920 330 920 500 810 555 C700 500 700 330 810 275Z" fill="#d7efe2" stroke="#2d6f59" stroke-width="5"/>
+      <circle cx="810" cy="415" r="58" fill="#2d6f59"/>
+      <text x="782" y="428" font-family="Segoe UI, Arial, sans-serif" font-size="36" font-weight="900" fill="#ffffff">SSR</text>
+    </svg>`;
+    return `data:image/svg+xml;base64,${Buffer.from(fallbackSvg, 'utf8').toString('base64')}`;
+  }
   const bytes = fs.readFileSync(abs);
   return `data:image/png;base64,${bytes.toString('base64')}`;
 }

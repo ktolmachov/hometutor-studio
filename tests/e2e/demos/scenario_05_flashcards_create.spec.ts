@@ -99,7 +99,7 @@ test.describe('@demo Scenario 05 — flashcards create', () => {
 
       await expect(
         page.locator('[data-testid="e2e-fc-active-section"]').first(),
-      ).toContainText(/decks/i, { timeout: DEMO.ctaMs });
+      ).toHaveAttribute('data-value', /decks/i, { timeout: DEMO.ctaMs });
       await waitForStreamlitReady(page);
 
       await demo.shot('04_save_deck', {

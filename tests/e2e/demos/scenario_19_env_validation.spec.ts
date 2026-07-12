@@ -13,8 +13,8 @@ test.describe("@demo Scenario 19 — env / sidebar validation", () => {
     try {
       await completeFirstRunOnboarding(page);
       await gotoAndWaitForStreamlitReady(page, "/");
-      await page.locator(".mode-card").first().waitFor({
-        state: "visible",
+      await page.locator('[data-testid^="mission-tile-"], .mode-card').first().waitFor({
+        state: "attached",
         timeout: DEMO.visibleMs,
       });
       await waitForStreamlitReady(page);
@@ -37,8 +37,8 @@ test.describe("@demo Scenario 19 — env / sidebar validation", () => {
       });
 
       await gotoAndWaitForStreamlitReady(page, "/");
-      await page.locator(".mode-card").first().waitFor({
-        state: "visible",
+      await page.locator('[data-testid^="mission-tile-"], .mode-card').first().waitFor({
+        state: "attached",
         timeout: DEMO.visibleMs,
       });
       await waitForStreamlitReady(page);

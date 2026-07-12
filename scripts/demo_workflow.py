@@ -32,6 +32,9 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
 ROOT = Path(__file__).resolve().parents[1]
 SCENARIOS_DIR = ROOT / "doc" / "scenarios"
 DEMOS_DIR = ROOT / "tests" / "e2e" / "demos"

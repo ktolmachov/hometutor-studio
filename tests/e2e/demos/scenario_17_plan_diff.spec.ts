@@ -31,7 +31,7 @@ test.describe("@demo Scenario 17 — adaptive plan diff", () => {
       await expect(planSection).toBeVisible({ timeout: 30_000 });
       await planSection.click();
       await waitForStreamlitReady(page, 30_000);
-      await expect(page.getByText(/Adaptive Daily Plan/i).first()).toBeVisible({
+      await expect(page.getByText(/Adaptive Daily Plan|Адаптивный план/i).first()).toBeVisible({
         timeout: 15_000,
       });
       await demo.shot("02_plan_detail_open", {

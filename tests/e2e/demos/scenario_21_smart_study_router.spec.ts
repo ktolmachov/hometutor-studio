@@ -20,7 +20,7 @@ test.describe('@demo Scenario 21 — smart study router', () => {
 
       const card = page.locator('[data-testid="mission-control-ssr-banner"]').first();
       await expect(card).toBeVisible({ timeout: DEMO.visibleMs });
-      await expect(card.getByText(/Smart Study Router/i)).toBeVisible({
+      await expect(card.getByRole('heading', { name: /С чего можно продолжить/i })).toBeVisible({
         timeout: DEMO.ctaMs,
       });
       await card.evaluate((element) => {
@@ -48,7 +48,7 @@ test.describe('@demo Scenario 21 — smart study router', () => {
         watermark: 'scenario_21 • alternatives',
       });
 
-      const trace = page.getByText(/Почему это\?/i).first();
+      const trace = page.getByText(/Как выбрана подсказка|Почему это\?/i).first();
       if (await trace.isVisible({ timeout: DEMO.ctaMs }).catch(() => false)) {
         await trace.click();
       }
