@@ -36,6 +36,7 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -87,8 +88,94 @@ DEFAULT_SCENARIO_ORDER = [
     "scenario_28",
     "scenario_29",
     "scenario_30",
+    "scenario_31",
+    "scenario_32",
+    "scenario_33",
+    "scenario_34",
+    "scenario_35",
 ]
 _SCENARIO_ORDER_INDEX = {scenario_id: i for i, scenario_id in enumerate(DEFAULT_SCENARIO_ORDER)}
+
+
+def _find_runtime_repo_root() -> Path | None:
+    """Discover sibling hometutor runtime repo from script location."""
+    candidate = Path(__file__).resolve().parents[1].parent / "hometutor"
+    if candidate.is_dir() and (candidate / ".git").is_dir():
+        return candidate.resolve()
+    return None
+
+
+def _run_git(repo_root: Path, args: list[str]) -> str:
+    try:
+        result = subprocess.run(
+            ["git"] + args,
+            capture_output=True, text=True, check=False,
+            cwd=str(repo_root),
+        )
+        return result.stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return ""
+
+
+def _compute_freshness(repo_root: Path | None, session_meta: dict | None) -> dict[str, Any]:
+    """Return {capture_sha, current_sha, gap} or all-unknown on failure."""
+    info: dict[str, Any] = {"capture_sha": "unknown", "current_sha": "unknown", "gap": -1}
+    if repo_root is None:
+        return info
+
+    try:
+        current = _run_git(repo_root, ["rev-parse", "--short", "HEAD"])
+        if current:
+            info["current_sha"] = current
+
+        capture_full = ""
+        capture_short = ""
+
+        if session_meta and session_meta.get("started_at"):
+            started = session_meta["started_at"]
+            full = _run_git(repo_root, [
+                "log", "--before", str(started),
+                "--format=%H", "--max-count=1",
+            ])
+            if full:
+                capture_full = full
+                capture_short = _run_git(repo_root, ["rev-parse", "--short", full])
+
+        if not capture_full:
+            for candidate in [
+                ["log", "--format=%H", "--diff-filter=A", "--reverse",
+                 "--", "docs/screenshots/final/scenario_01/"],
+                ["log", "--format=%H", "--diff-filter=A", "--reverse",
+                 "--", "docs/screenshots/final/"],
+            ]:
+                output = _run_git(repo_root, candidate)
+                if output:
+                    first = output.splitlines()[0].strip()
+                    if first:
+                        capture_full = first
+                        capture_short = _run_git(repo_root, ["rev-parse", "--short", first])
+                        break
+
+        if not capture_full:
+            full = _run_git(repo_root, ["rev-list", "--max-parents=0", "HEAD"])
+            if full:
+                capture_full = full
+                capture_short = _run_git(repo_root, ["rev-parse", "--short", full])
+
+        if capture_full:
+            info["capture_sha"] = capture_short if capture_short else capture_full[:10]
+            if current:
+                gap_str = _run_git(repo_root, [
+                    "rev-list", "--count", f"{capture_full}..HEAD",
+                ])
+                try:
+                    info["gap"] = int(gap_str)
+                except (ValueError, TypeError):
+                    pass
+    except Exception:  # noqa: BLE001
+        pass
+
+    return info
 
 
 def _path_is_under(path: Path, parent: Path) -> bool:
@@ -403,12 +490,40 @@ def enrich_with_screenshots(
     return scenario
 
 
+def _freshness_badge(info: dict[str, Any]) -> str:
+    if info["capture_sha"] == "unknown":
+        return ""
+    return (
+        f"> **Freshness:** снято на HEAD `{info['capture_sha']}` · "
+        f"текущий HEAD `{info['current_sha']}` · "
+        f"freshness gap `{info['gap']}` коммитов.\n"
+    )
+
+
+_FRESHNESS_OVERRIDES: dict[str, str] = {}
+
+
+def _register_freshness_note(scenario_id: str, note: str) -> None:
+    _FRESHNESS_OVERRIDES[scenario_id] = note
+
+
+def _freshness_footer(scenario_id: str) -> str:
+    note = _FRESHNESS_OVERRIDES.get(scenario_id)
+    if note:
+        return f"\n> **{note}**\n"
+    return ""
+
+
 def render_document(
-    scenarios: list[ScenarioSpec], screenshots_dir: Path, link_prefix: str
+    scenarios: list[ScenarioSpec], screenshots_dir: Path, link_prefix: str, freshness: dict[str, Any] | None = None,
 ) -> str:
     sprefix = link_prefix
     lines: list[str] = []
     lines.append("# Smart Demo — автоматически снятые кадры сценариев\n")
+
+    if freshness:
+        lines.append(_freshness_badge(freshness))
+
     lines.append(
         "> Документ собран из YAML-манифестов `doc/scenarios/*.yaml` и скриншотов "
         f"из `doc/{sprefix}/<scenario_id>/` после `npm run test:e2e:demo` "
@@ -496,9 +611,22 @@ def render_document(
         )
     lines.append("")
 
-    # Scenarios
+    # Register freshness footnotes for out-of-date captures
+    _register_freshness_note(
+        "scenario_06",
+        "⚠️ Кадры сняты до Full Circle P0. После завершения P0 интервальный алгоритм "
+        "получил UI/API-доработки, и часть кадров может не соответствовать текущему поведению. "
+        "Требуется пересъёмка после Full Circle P0.",
+    )
+    _register_freshness_note(
+        "scenario_30",
+        "⚠️ Кадры сняты до Full Circle P0. SSR micro-outcome receipt расширен после съёмки; "
+        "`03_local_metrics_changed` может не совпадать с текущим интерфейсом. "
+        "Требуется пересъёмка после Full Circle P0.",
+    )
+
     for scn in scenarios:
-        lines.extend(_render_scenario(scn, screenshots_dir, sprefix))
+        lines.extend(_render_scenario(scn, screenshots_dir, sprefix, freshness))
 
     lines.append(
         "_Документ сгенерирован `scripts/generate_demo_doc.py`. "
@@ -509,7 +637,8 @@ def render_document(
 
 
 def _render_scenario(
-    scn: ScenarioSpec, screenshots_dir: Path, screenshots_link_prefix: str
+    scn: ScenarioSpec, screenshots_dir: Path, screenshots_link_prefix: str,
+    freshness: dict[str, Any] | None = None,
 ) -> list[str]:
     out: list[str] = []
     anchor_title = f"{scn.id} — {scn.title}"
@@ -623,6 +752,19 @@ def _render_scenario(
 
     if scn.takeaway:
         out.append(f"**Takeaway:** {scn.takeaway}\n")
+
+    footer = _freshness_footer(scn.id)
+    if footer:
+        out.append(footer.strip() + "\n")
+
+    if freshness:
+        gap = freshness.get("gap", -1)
+        if gap >= 0:
+            out.append(
+                f"<sub>Freshness: снято на HEAD `{freshness['capture_sha']}` · "
+                f"текущий HEAD `{freshness['current_sha']}` · "
+                f"gap `{gap}` коммитов</sub>\n"
+            )
 
     if scn.scenario_link:
         out.append(f"[→ Полный сценарий в каталоге]({scn.scenario_link})\n")
@@ -738,12 +880,21 @@ def main() -> int:
         return 2
 
     missing: list[str] = []
+    runtime_repo = _find_runtime_repo_root()
+
     for scn in scenarios:
         enrich_with_screenshots(scn, content_dir)
         if not scn.captured:
             missing.append(scn.id)
 
-    document = render_document(scenarios, content_dir, link_prefix)
+    first_meta = None
+    for scn in scenarios:
+        if scn.session_meta is not None:
+            first_meta = scn.session_meta
+            break
+    freshness = _compute_freshness(runtime_repo, first_meta)
+
+    document = render_document(scenarios, content_dir, link_prefix, freshness)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(document, encoding="utf-8")
 

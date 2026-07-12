@@ -1,0 +1,43 @@
+id: scenario_35
+title: "Приватность и offline-проверка: данные не покидают устройство"
+level: "🟢 Первые шаги"
+persona: "Дима — privacy-ориентированный пользователь. Хочет убедиться, что его конспекты не уходят в облако."
+duration_min: 2
+why: |
+  Ключевое обещание hometutor — local-first. Сценарий доказывает: без OPENAI_API_KEY
+  приложение работает полностью локально — Chroma, SQLite, LLM через LM Studio
+  (или fallback offline-режим). Ни один HTTP-запрос не уходит вовне.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+  e2e_env:
+    HOME_RAG_E2E_OFFLINE: "1"
+  notes: |
+    Проверка через network tab / HAR-log: ни одного внешнего запроса.
+    Съёмка с HOME_RAG_E2E_OFFLINE=1 и отключённым сетевым интерфейсом
+    доказывает полную работоспособность.
+wow_moment: |
+  Отключил Wi-Fi, запустил hometutor — всё работает: поиск, flashcards,
+  knowledge graph. Ни одно действие не требует интернета.
+takeaway: |
+  Local-first — не маркетинг, а архитектура: Chroma + SQLite + LM Studio
+  = полная учебная среда без внешних зависимостей.
+scenario_link: "user_scenarios.md#сценарий-35--приватность-и-offline-проверка"
+
+shots:
+  - slug: "01_offline_banner"
+    caption: "UI в offline: баннер 'Работаем локально'"
+    narration: "Система явно показывает, что данные не покидают устройство."
+    duration_sec: 3
+  - slug: "02_offline_answer"
+    caption: "Ответ без сети: retrieval из Chroma"
+    narration: "Поиск по локальному индексу — ответ найден без единого внешнего запроса."
+    duration_sec: 4
+  - slug: "03_offline_flashcards"
+    caption: "Flashcards в offline: создание и SRS"
+    narration: "Генерация и интервальное повторение работают без LLM-провайдера."
+    duration_sec: 4
+  - slug: "04_network_tab_clean"
+    caption: "Network tab: ноль внешних запросов"
+    narration: "Вкладка сети пуста (кроме localhost): полная изоляция."
+    duration_sec: 3

@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<title>Разбор №11 — Витрина обещаний: сценарии против реальности</title>
+<style>
+  :root {
+    --paper: #f7f3ea;
+    --paper-2: #fffdf7;
+    --ink: #17211b;
+    --muted: #5c6a61;
+    --terra: #b95631;
+    --terra-deep: #7d351f;
+    --forest: #243b2c;
+    --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14);
+    --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --done: #1e6e46;
+    --silent: #b98a2d;
+    --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+      --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+      --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(157, 191, 168, 0.10);
+      --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+      --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+    --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+    --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+    --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+    --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+      radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--terra-deep); }
+  em { color: var(--muted); }
+
+  code {
+    font-family: Consolas, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--terra);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 0.95rem; color: var(--gold);
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .sec-name {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem;
+    font-weight: 700; color: var(--muted);
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.1rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+  }
+  .anchor-card { border-left: 4px solid var(--terra); }
+  .ev { font-size: 0.86rem; color: var(--muted); margin-top: 0.5rem; }
+  .ev code { font-size: 0.8rem; }
+
+  .table-scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  td { font-variant-numeric: tabular-nums; }
+
+  .st { display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 99px; white-space: nowrap; }
+  .st-done { color: var(--done); border: 1px solid var(--done); }
+  .st-silent { color: var(--silent); border: 1px solid var(--silent); }
+  .st-hole { color: var(--hole); border: 1px solid var(--hole); }
+
+  .v { display: inline-block; font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+       letter-spacing: 0.08em; padding: 0.1rem 0.55rem; border-radius: 99px; margin-right: 0.5rem; }
+  .v-keep { color: var(--verdict-keep); border: 1.5px solid var(--verdict-keep); }
+  .v-fix { color: var(--verdict-fix); border: 1.5px solid var(--verdict-fix); }
+  .v-no { color: var(--verdict-no); border: 1.5px solid var(--verdict-no); }
+
+  .tension { border-left: 4px solid var(--gold); }
+  .tension .t { font-family: Georgia, serif; font-size: 1.05rem; margin-bottom: 0.35rem; }
+  .syn { color: var(--verdict-keep); font-weight: 600; }
+
+  .ladder { list-style: none; padding-left: 0; }
+  .ladder li { display: flex; gap: 0.8rem; align-items: baseline; margin-bottom: 0.55rem; }
+  .ladder .num {
+    flex: none; font-family: Georgia, serif; font-weight: 700; color: var(--gold);
+    width: 1.6rem; text-align: right;
+  }
+
+  .tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.08rem 0.5rem;
+         border-radius: 4px; color: var(--paper-2); }
+  .tag-p0 { background: var(--terra); }
+  .tag-p1 { background: var(--forest); }
+  .tag-p2 { background: var(--gold); }
+  :root[data-theme="dark"] .tag, :root[data-theme="dark"] .tag-p2 { color: #141a16; }
+  @media (prefers-color-scheme: dark) { .tag { color: #141a16; } }
+  :root[data-theme="light"] .tag { color: var(--paper-2); }
+
+  .footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
+            font-size: 0.85rem; color: var(--muted); }
+  .footer code { font-size: 0.8rem; }
+
+  a { color: var(--terra); }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">Эволюционный разбор · №11 · сценарии использования</div>
+  <h1>Витрина обещаний: сценарии, снятые на заре, и продукт, который ушёл вперёд</h1>
+  <p class="lede">30 сценариев quickstart_demo.md — лучшая демо-механика в проекте и
+  одновременно его самая старая фотография: все кадры сняты одним прогоном 20 июня,
+  практически на первом коммите текущей истории. С тех пор — 190+ коммитов, три волны
+  честности, замкнутая петля памяти и публичная витрина. Ни одно из этих достижений
+  на витрине не показано, а одно из обещаний витрины реальность до сих пор не выполнила.</p>
+  <div class="meta">
+    <span>hometutor · HEAD <code>c374892</code> «194»</span>
+    <span>2026-07-12</span>
+    <span>объект: <code>docs/quickstart_demo.md</code> (2138 строк, 30 сценариев)</span>
+    <span>каждое утверждение проверено по коду и метаданным прогонов</span>
+  </div>
+</header>
+
+<section id="essence">
+  <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Суть</span></div>
+  <h2>Чего хочет человек, читающий сценарии использования</h2>
+  <p>Новичок, листающий витрину сценариев, ищет не список функций. Он ищет
+  <strong>себя завтрашнего</strong>: «вот человек вроде меня, вот его проблема, вот что
+  он сделал, вот что получил — значит, и я смогу». Сценарий — это <em>обещание</em>,
+  выданное продуктом до установки. А обещание живёт по законам договора: оно либо
+  выполняется на актуальной версии, либо тихо превращается в обман — даже если в момент
+  съёмки каждое слово было правдой.</p>
+  <p>Суть разбора: витрина hometutor — образцовый <em>механизм</em> с устаревшим
+  <em>содержанием</em>. Чинить нужно не кадры, а отсутствие у кадров срока годности.</p>
+</section>
+
+<section id="reality">
+  <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Реальность</span></div>
+  <h2>Что такое витрина на самом деле</h2>
+
+  <div class="card">
+    <p><strong>Механика — образцовая, лучшая в проекте.</strong> Один YAML-манифест на
+    сценарий (SSoT в <code>hometutor-studio/doc/scenarios/</code>, 30 файлов) → Playwright-тест
+    читает манифест и снимает кадры → <code>scripts/generate_demo_doc.py</code> собирает
+    документ. Изменил YAML — всё остальное консистентно. Quality gate: сценарий публикуется
+    только со всеми PNG/GIF и <code>meta.json</code>. Все 30 — со статусом «✅ полностью снят».</p>
+    <p class="ev">Схема связей задокументирована в <code>doc/scenarios/README.md</code>;
+    в runtime-репо хранится только витрина (<code>docs/screenshots/final/</code>).</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Честность дисклеймера — тоже образцовая.</strong> Шапка документа прямо
+    говорит: все 30 сценариев сняты в offline-режиме (<code>HOME_RAG_E2E_OFFLINE=1</code>),
+    «confidence 87%» — тестовая фикстура, а не LLM-метрика. Это тот же ген честности,
+    что и в предохранителе.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Свежесть — главная уязвимость.</strong> Метаданные прогонов: все 30 сценариев
+    сняты за две минуты, 2026-06-20 18:54:07–18:56:02 — в самые первые дни текущей истории
+    репозитория (коммиты «1»–«2» датированы тем же периодом). Сегодня HEAD — «194».
+    Между съёмкой и сегодняшним днём лежит <em>вся</em> эволюционная серия: замыкание петли
+    памяти, честность предохранителя, единый план обучения, скачиваемая живая карта,
+    схемы разделов, публичная витрина HF Spaces. На кадрах ничего из этого нет.</p>
+    <p class="ev">Проверка: <code>git log --until 2026-06-21</code> → коммиты «1», «2»;
+    метаданные — блоки «Технические метаданные прогона» в самом документе.</p>
+  </div>
+
+  <h3>Карта покрытия: витрина против достижений серии и архетипов стола №3</h3>
+  <div class="table-scroll">
+  <table>
+    <tr><th>Что важно сегодня</th><th>На витрине</th><th>Комментарий</th></tr>
+    <tr><td>Возврат в таймкод видео (уникальность №0)</td>
+      <td><span class="st st-hole">0 сценариев</span></td>
+      <td>грep «таймкод» — 0; scenario_08 показывает deep-link к строке файла, но не к минуте видео</td></tr>
+    <tr><td>Честный отказ при сбое LLM (суперсила после 186–191)</td>
+      <td><span class="st st-hole">0 сценариев</span></td>
+      <td>«LM Studio», «сбой», «недоступ» — 0 упоминаний; витрина показывает только happy path</td></tr>
+    <tr><td>Живой конспект, схемы разделов, скачивание карты (№6)</td>
+      <td><span class="st st-hole">0 сценариев</span></td>
+      <td>«конспект» — 1 упоминание мимоходом, «скачат» — 0</td></tr>
+    <tr><td>Публичная витрина HF Spaces (гостевой путь)</td>
+      <td><span class="st st-hole">0 сценариев</span></td>
+      <td>«Spaces» — 0; сама витрина моложе всех кадров</td></tr>
+    <tr><td>Приватность как сценарий (архетип Натальи)</td>
+      <td><span class="st st-silent">фраза в takeaway</span></td>
+      <td>«Бесплатно по privacy» — одна строка в scenario_01, без сценария проверки</td></tr>
+    <tr><td>Петля: ответ → карточка → возврат (ядро продукта)</td>
+      <td><span class="st st-done">покрыто</span></td>
+      <td>scenario_03→04→05→06 — лучшая связка витрины, живёт и на HEAD 194</td></tr>
+    <tr><td>План на сегодня, diff, SSR-маршрутизатор</td>
+      <td><span class="st st-done">покрыто щедро</span></td>
+      <td>11 из 30 сценариев — Orchestration/Mastery: перекос в сторону «мощи»</td></tr>
+  </table>
+  </div>
+
+  <p><strong>Персонажи витрины против архетипов круглого стола №3:</strong> Аня (~18
+  сценариев), Максим (2), Марк (5), Сергей (1). Аня ≈ Соня, Марк ≈ Павел — частично.
+  <em>Кирилл-фанат (экспорт, граф, агент), Наталья-родитель (приватность, сбой) и Гость
+  витрины (HF, без установки) не представлены вовсе: покрытие архетипов — 2 из 5.</em></p>
+
+  <div class="card">
+    <p><strong>Важный контекст: проблема уже была замечена.</strong> В studio лежит начатая
+    спецификация <code>.kiro/specs/user-scenarios-refresh</code> (requirements + tasks,
+    анализ закрытых волн частично выполнен) — но она нацелена на родственный каталог
+    <code>doc/user_scenarios.md</code> (22 текстовых сценария), а не на витрину
+    quickstart_demo. Новый план обязан состыковаться с ней, а не создать третий
+    параллельный трек.</p>
+  </div>
+</section>
+
+<section id="tensions">
+  <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Противоречия</span></div>
+  <h2>Три напряжения витрины</h2>
+
+  <div class="card tension">
+    <div class="t">Витрина ↔ реальность (кадр стареет с каждым коммитом)</div>
+    <p>Пересъёмка «раз в релиз» — вечная гонка, съёмка на каждый коммит — абсурд.
+    <span class="syn">Синтез: срок годности на кадре.</span> Генератор уже пишет метаданные
+    прогона — осталось выводить видимый штамп «снято на HEAD N» в шапку каждого сценария
+    и метрику «витрина отстаёт на M коммитов» в шапку документа. Устаревание перестаёт
+    быть обманом, когда оно объявлено.</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">Happy path ↔ честность (гордимся отказами — показываем только успехи)</div>
+    <p>Все 30 сценариев — истории успеха. Но три разбора серии (№2, №5, №8) доказали:
+    главная завоёванная добродетель продукта — честное поведение при сбое.
+    <span class="syn">Синтез: сбой как козырь витрины.</span> Один сценарий
+    «LM Studio выключена → ответ за 3 секунды с честным объяснением и подсказкой» продаёт
+    доверие сильнее, чем ещё один успешный квиз. Ни один конкурент такое не покажет.</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">Продающий кадр ↔ ежедневная инструкция</div>
+    <p>Витрина отвечает на «что умеет продукт», но новичок после установки спрашивает
+    другое: «что мне делать каждый день?». Растягивать витрину в учебник — убить оба жанра.
+    <span class="syn">Синтез: два жанра, две полки.</span> Витрина продаёт момент
+    (wow-кадры), «истории ежедневного использования» учат ритуалу (пошаговые дни с живыми
+    диалогами). Второй жанр создаётся сегодня же — как парный документ этого разбора.</p>
+  </div>
+</section>
+
+<section id="pain">
+  <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Боль-якорь</span></div>
+  <h2>Витрина обещает то, чего продукт ещё не сделал</h2>
+  <div class="card anchor-card">
+    <p><strong>Проверяемый факт:</strong> scenario_06 («SRS: повторение по интервальному
+    алгоритму») обещает: <em>«Аня видит бейдж „К повторению: 12“ … бейдж говорит за неё»</em> —
+    одно число, один сигнал на главной. На HEAD 194 в приложении <strong>два независимых
+    счётчика повторения</strong>: <code>count_due_flashcards</code> (mission control) и
+    <code>count_due_reviews</code> (tutor chat) — расхождение, которое пользователь Павел
+    на круглом столе №3 назвал «я так и не понял, сколько мне учить».</p>
+    <p><strong>Точная причина:</strong> кадр снят 2026-06-20 из offline-фикстуры одной
+    очереди; двойственность живёт в UI и по сей день (P0-2 плана Full Circle). Витрина
+    оказалась не устаревшей, а <em>опережающей</em>: она продаёт интерфейс, который
+    план только собирается построить.</p>
+    <p class="ev">Манифест: <code>doc/scenarios/scenario_06_spaced_repetition.yaml</code>
+    («Аня видит бейдж „К повторению: 12“»); реальность: оба счётчика стекаются раздельно,
+    <code>tutor_chat_response_render.py:131-132</code>. Зеркальный случай — scenario_30:
+    receipt «было 12 → стало 8» существует для SSR-шага, но не для tutor-диалога
+    (это P0-1 «Пульс петли»).</p>
+  </div>
+</section>
+
+<section id="verdicts">
+  <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Вердикты</span></div>
+  <h2>Позиция по каждой части витрины</h2>
+
+  <div class="card"><span class="v v-keep">оставить — образец</span><strong>Конвейер
+    YAML → Playwright → генератор и quality gate.</strong> Единственный источник, автосборка
+    документа, честный дисклеймер про offline-фикстуры. Ничего не менять в механике.</div>
+
+  <div class="card"><span class="v v-keep">оставить</span><strong>Ядро петли
+    (scenario_01–06, 08, 10)</strong> — связка «ответ → тьютор → квиз → карточки → SRS →
+    возврат» жива на HEAD 194 и остаётся лучшим маршрутом витрины.</div>
+
+  <div class="card"><span class="v v-fix">починить — штамп свежести</span><strong>Отсутствие
+    срока годности у кадров.</strong> Генератор дополняется видимым «снято на HEAD N ·
+    витрина отстаёт на M коммитов». Одна правка <code>generate_demo_doc.py</code>,
+    метаданные уже собираются.</div>
+
+  <div class="card"><span class="v v-fix">дополнить — 5 новых манифестов</span><strong>Слепые
+    зоны покрытия.</strong> По одному сценарию на непредставленный архетип и достижение:
+    честный сбой (Наталья), гость витрины HF, экспорт живой карты (Кирилл), возврат в
+    таймкод видео, приватность как проверяемый сценарий. YAML-only, по существующей схеме.</div>
+
+  <div class="card"><span class="v v-fix">синхронизировать</span><strong>scenario_06 и
+    scenario_30 с планом Full Circle.</strong> После P0-1/P0-2 эти два сценария пересъёмкой
+    превращаются из «опережающих обещаний» в честные кадры. До того — кандидат на сноску
+    в штампе свежести.</div>
+
+  <div class="card"><span class="v v-keep">состыковать, не дублировать</span><strong>Спецификация
+    <code>user-scenarios-refresh</code> в .kiro.</strong> Её gap-анализ по закрытым волнам —
+    готовый вход для новых манифестов; каталог user_scenarios.md и витрина quickstart_demo
+    должны обновляться одним движением, не двумя проектами.</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>Ручную пересъёмку кадров в
+    обход пайплайна, «просто обновить скриншоты» и переписывание всех 30 сценариев.</strong>
+    Любое движение — только через YAML-манифесты и studio-pipeline; витрина ценна именно
+    воспроизводимостью.</div>
+</section>
+
+<section id="value">
+  <div class="sec-label"><span class="sec-num">6</span><span class="sec-name">Ценность</span></div>
+  <h2>Витрина как публичный контракт — и как его измерять</h2>
+  <p>После HF Spaces витрина перестала быть внутренним документом: это первый текст,
+  который прочитает чужой человек. Уникальность hometutor — честность; витрина должна
+  быть честной тем же способом, что и предохранитель: не скрывать возраст и не показывать
+  только успехи.</p>
+  <div class="table-scroll">
+  <table>
+    <tr><th>Метрика витрины</th><th>Сейчас</th><th>Цель</th></tr>
+    <tr><td>Freshness gap (коммитов от съёмки до HEAD)</td><td>~192</td><td>видимый штамп + пересъёмка при gap &gt; 50</td></tr>
+    <tr><td>Покрытие архетипов стола №3</td><td>2 из 5</td><td>5 из 5 (+5 манифестов)</td></tr>
+    <tr><td>Сценариев честного сбоя</td><td>0</td><td>≥1 (козырь, не стыд)</td></tr>
+    <tr><td>Показана ли главная уникальность (таймкод-возврат)</td><td>нет</td><td>да, отдельным сценарием</td></tr>
+    <tr><td>Обещаний, опережающих продукт</td><td>≥2 (сц. 06, 30)</td><td>0 после P0 Full Circle + пересъёмки</td></tr>
+  </table>
+  </div>
+</section>
+
+<section id="path">
+  <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Путь</span></div>
+  <h2>Золотой путь читателя витрины</h2>
+  <p><strong>Путь:</strong> увидел человека, похожего на себя → поверил кадру (штамп «снято
+  на HEAD N» вместо неизвестного возраста) → повторил шаги на своей машине → получил тот же
+  результат → перешёл от витрины к «историям ежедневного использования» — от момента к ритуалу.</p>
+  <ol class="ladder">
+    <li><span class="num">0</span><span><strong>Гость.</strong> Открыл HF-демо по сценарию
+      «без установки» — первый ответ за 3 минуты.</span></li>
+    <li><span class="num">1</span><span><strong>Новичок.</strong> Повторил scenario_01 дома —
+      папка стала поисковиком с источниками.</span></li>
+    <li><span class="num">2</span><span><strong>Ученик.</strong> Прожил связку 03→04→05→06 —
+      петля от вопроса до повторения.</span></li>
+    <li><span class="num">3</span><span><strong>Хозяин.</strong> Сценарий сбоя показал ему,
+      что продукту можно верить и в плохой день.</span></li>
+    <li><span class="num">4</span><span><strong>Фанат.</strong> Экспортировал живую карту,
+      вернулся в лекцию по таймкоду — уникальность прожита, не прочитана.</span></li>
+  </ol>
+</section>
+
+<section id="plan">
+  <div class="sec-label"><span class="sec-num">8</span><span class="sec-name">План</span></div>
+  <h2>P0 — два хода, YAML-only</h2>
+  <div class="table-scroll">
+  <table>
+    <tr><th></th><th>Ход</th><th>Что делается</th><th>Усилие</th></tr>
+    <tr>
+      <td><span class="tag tag-p0">P0-1</span></td>
+      <td><strong>Штамп свежести</strong></td>
+      <td><code>generate_demo_doc.py</code> выводит в шапку документа и каждого сценария
+        «снято на HEAD N · отстаёт на M коммитов» из уже собираемых meta.json + git.
+        Плюс сноска у сценариев с опережающими обещаниями (06, 30).</td>
+      <td>часы</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-p0">P0-2</span></td>
+      <td><strong>5 манифестов слепых зон</strong></td>
+      <td>Новые YAML по существующей схеме: честный сбой LLM · гость HF Spaces ·
+        экспорт живой карты · возврат в таймкод · приватность (офлайн-проверка).
+        Съёмка — studio-pipeline, когда владелец запустит; манифесты не ждут съёмки,
+        чтобы попасть в SSoT.</td>
+      <td>день</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-p1">P1</span></td>
+      <td>Второй жанр + синхронизация</td>
+      <td>«Истории ежедневного использования» (пошаговые дни, живые диалоги — парный
+        документ этого разбора); связка с <code>.kiro/specs/user-scenarios-refresh</code>:
+        один gap-анализ питает и каталог, и витрину. Пересъёмка сц. 06/30 после P0 Full Circle.</td>
+      <td>2–3 дня</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-p2">P2</span></td>
+      <td>Видео и автоматизация</td>
+      <td>Нарезка видео из narration-полей манифестов (поля уже пишутся);
+        CI-напоминание «freshness gap превысил порог».</td>
+      <td>по волнам</td>
+    </tr>
+  </table>
+  </div>
+  <p><strong>Kill switch:</strong> если актуализация потребовала менять механику конвейера
+  (spec-файлы, генератор сверх штампа, структуру YAML) — стоп: сила витрины в неизменной
+  механике, весь план — это новые манифесты и одна правка вывода.</p>
+  <p><strong>Инструмент:</strong> промпт для агент-сессии актуализации собирается скриптом
+  <code>doc/scenarios/generate_scenario_refresh_prompt.py</code> (создан вместе с этим
+  разбором, по образцу генератора серии) — сверка манифестов с HEAD и предложение новых
+  сценариев не скриптуются, скриптуется постановка задачи.</p>
+</section>
+
+<div class="footer">
+  <p>Разбор №11 · hometutor HEAD <code>c374892</code> «194» · 2026-07-12. Витрина:
+  <code>docs/quickstart_demo.md</code>; SSoT манифестов:
+  <code>hometutor-studio/doc/scenarios/</code>.</p>
+  <p>Правило двух слоёв: этот HTML — слой анализа; actionable-кандидаты — в
+  <code>doc/next/usage_scenarios_refresh_plan.md</code>. Парный документ второго жанра —
+  «Истории ежедневного использования» (та же дата). Серия:
+  <code>doc/presentations/evolutionary_analyses/</code>.</p>
+</div>
+
+</div>
+
+</body>
+</html>
+

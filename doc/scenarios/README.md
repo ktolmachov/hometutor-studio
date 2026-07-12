@@ -75,3 +75,15 @@ doc/scenarios/scenario_05_flashcards_create.yaml
    ```
 
 Подробнее: `scripts/demo_workflow.py` (list/preflight/capture/preview/publish/full), PowerShell-обёртки `scripts/run_demo_refresh.ps1` и `scripts/run_scaffold_demo.ps1`.
+
+## Актуализация витрины после разбора №11
+
+Для подготовки агент-сессии по обновлению сценариев используйте helper:
+
+```powershell
+python doc/scenarios/generate_scenario_refresh_prompt.py
+```
+
+Скрипт не вызывает LLM: он печатает prompt для проверки freshness gap, добавления
+новых YAML-манифестов слепых зон и синхронизации с
+`doc/next/usage_scenarios_refresh_plan.md`.

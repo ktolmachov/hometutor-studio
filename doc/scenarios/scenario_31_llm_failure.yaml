@@ -1,0 +1,37 @@
+id: scenario_31
+title: "Честный сбой LLM: circuit breaker и fallback"
+level: "🔵 Trust drill-down"
+persona: "Аня задаёт вопрос, а LLM-провайдер отвечает ошибкой."
+duration_min: 2
+why: |
+  Показать, что hometutor не падает молча при сбое LLM: circuit breaker, fallback на
+  локальный провайдер, понятное сообщение пользователю без stacktrace.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+  e2e_env:
+    HOME_RAG_E2E_OFFLINE: "1"
+  notes: |
+    Офлайн-съёмка через мок circuit breaker в provider-layer
+    (app/provider.py PROFILE=LOCAL_STRICT). Не требует live LLM.
+wow_moment: |
+  Вместо «500 Internal Server Error» пользователь видит: «Сервис временно недоступен.
+  Ответ подготовлен по локальным материалам» — деградация, а не падение.
+takeaway: |
+  LLM-сбой не равен сбою приложения: circuit breaker + fallback +
+  человечное сообщение = доверие к системе в неидеальных условиях.
+scenario_link: "user_scenarios.md#сценарий-31--честный-сбой-llm-circuit-breaker-и-fallback"
+
+shots:
+  - slug: "01_normal_answer_with_fallback_hint"
+    caption: "Ответ без LLM: fallback по локальному retrieval"
+    narration: "Система отвечает из индекса, но сообщает, что LLM-генерация временно недоступна."
+    duration_sec: 4
+  - slug: "02_circuit_breaker_banner"
+    caption: "Circuit breaker banner: провайдер помечен как недоступный"
+    narration: "Интерфейс показывает, какой провайдер упал, и подсказывает проверить .env."
+    duration_sec: 3
+  - slug: "03_manual_retry_cta"
+    caption: "Кнопка повторной попытки после восстановления"
+    narration: "Когда провайдер снова доступен, система предлагает перегенерировать ответ."
+    duration_sec: 3

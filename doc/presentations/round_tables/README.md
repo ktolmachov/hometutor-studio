@@ -32,7 +32,13 @@
 №10 — «Пульс петли» (видимый след + источник ответа в tutor chat) и одно число
 «Повторить сегодня».
 
+## Связанный следующий разбор
+
+Круглые столы стали входом в следующий анализ витрины: [`../evolutionary_analyses/11_usage_scenarios.html`](../evolutionary_analyses/11_usage_scenarios.html).
+Actionable-план: [`../../next/usage_scenarios_refresh_plan.md`](../../next/usage_scenarios_refresh_plan.md).
+Главный вывод №11: сценарии уже сильны как демо-механика, но витрина должна честно показывать свежесть съёмки и закрыть пять слепых зон — честный сбой LLM, HF-гость, экспорт живой карты, таймкод-возврат и privacy/offline-проверку.
 Артефакты (приватные, для владельца):
 - Стол №1: https://claude.ai/code/artifact/d2c0cdd0-ad38-48b5-8b40-9d5b35c0ea55
 - Стол №2: https://claude.ai/code/artifact/dc6f9acd-5876-4767-b53a-bef36bbb67f4
 - Стол №3: https://claude.ai/code/artifact/635f69fa-a9d7-402f-b3a1-3e9e43b0256b
+

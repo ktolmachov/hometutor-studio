@@ -1,0 +1,38 @@
+id: scenario_33
+title: "Экспорт живой карты: Knowledge Graph в Markdown"
+level: "🔴 Mastery"
+persona: "Марк хочет сохранить карту знаний курса для внешнего использования."
+duration_min: 3
+why: |
+  Показать, что Knowledge Graph не только визуальный виджет: его можно
+  экспортировать как Markdown/Mermaid-диаграмму для вставки в конспекты,
+  Notion или Obsidian.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+  e2e_env:
+    HOME_RAG_E2E_OFFLINE: "1"
+  notes: |
+    Экспорт из UI Knowledge Graph: кнопка «Экспорт» → Markdown/Mermaid.
+    Не требует live LLM.
+wow_moment: |
+  Клик «Экспорт» → готовый Markdown с Mermaid-блоком, описывающим подграф
+  пользователя с мастерой. Можно вставить в конспект одной вставкой.
+takeaway: |
+  Живая карта не запирается внутри UI: экспорт в Markdown/Mermaid
+  открывает данные для внешних инструментов.
+scenario_link: "user_scenarios.md#сценарий-33--экспорт-живой-карты"
+
+shots:
+  - slug: "01_kg_export_button"
+    caption: "Knowledge Graph с кнопкой экспорта"
+    narration: "В панели графа — кнопка «Экспорт в Markdown»."
+    duration_sec: 3
+  - slug: "02_export_mermaid_preview"
+    caption: "Предпросмотр экспорта: Mermaid-диаграмма"
+    narration: "Markdown с Mermaid-блоком: узлы, связи, mastery-статус."
+    duration_sec: 4
+  - slug: "03_export_saved"
+    caption: "Файл экспорта сохранён локально"
+    narration: "Система сообщает путь к .md файлу и предлагает открыть."
+    duration_sec: 3

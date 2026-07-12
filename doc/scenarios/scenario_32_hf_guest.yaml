@@ -1,0 +1,37 @@
+id: scenario_32
+title: "Гость HF Spaces: запуск без установки и ключей"
+level: "🟢 Первые шаги"
+persona: "Лена зашла на Hugging Face Spaces, открыла hometutor без .env."
+duration_min: 2
+why: |
+  Показать, что hometutor можно попробовать в один клик на HF Spaces без регистрации,
+  установки ключей и скачивания моделей. Guest mode с ограниченным, но рабочим UI.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+  e2e_env:
+    HOME_RAG_E2E_OFFLINE: "1"
+  notes: |
+    Имитация HF Spaces: Streamlit собран с DEMO_MODE=true или HOME_RAG_E2E_OFFLINE=1.
+    Не требует live LLM, съёмка в offline.
+wow_moment: |
+  Лена нажала одну кнопку «Open in HF Spaces» и через 10 секунд видит
+  рабочий интерфейс с демо-данными, без регистрации и API-ключа.
+takeaway: |
+  HF Spaces guest mode — входной билет: попробовать можно за 10 секунд,
+  без установки, ключей и привязки карты.
+scenario_link: "user_scenarios.md#сценарий-32--гость-hf-spaces"
+
+shots:
+  - slug: "01_hf_spaces_landing"
+    caption: "Страница HF Spaces: README + Open кнопка"
+    narration: "Репозиторий на HF Spaces — документация и кнопка запуска."
+    duration_sec: 3
+  - slug: "02_guest_main_view"
+    caption: "Guest UI: упрощённый онбординг с демо-данными"
+    narration: "После запуска — рабочий интерфейс без регистрации, предзагруженные примеры."
+    duration_sec: 4
+  - slug: "03_guest_limitations_banner"
+    caption: "Баннер об ограничениях guest mode"
+    narration: "Система сообщает: сохранение сессии временное, ключи не настроены."
+    duration_sec: 3
