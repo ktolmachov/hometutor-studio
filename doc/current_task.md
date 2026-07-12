@@ -1,45 +1,54 @@
-> **ORCHESTRATION CLOSURE — write execution proof only.**
-> Replace `archive/team_artifacts/multi-query-expansion-v1/execution_contract.md` with substantive delivery proof (not `STARTED`).
-> Do **not** run `close_package.py` or `run_autonomous.py --post-agent` — workflow does that.
+# Active Runtime Task — invisible-half-p0-closure-v1
 
-# Orchestration Step 8 — Closure (proof file only)
+Package: `invisible-half-p0-closure-v1`
+Source of truth: `doc/backlog_registry.yaml`
+Runtime repo: `D:\Projects\hometutor`
+Studio docs: read-only context only.
 
-Package: `multi-query-expansion-v1`
-Target agent: `cursor_ai`
-Orchestration reference: `archive/team_artifacts/multi-query-expansion-v1/orchestration_cursor_ai.md`
+## Task
 
-Your **only** deliverable in this session is **`archive/team_artifacts/multi-query-expansion-v1/execution_contract.md`** with substantive execution proof:
+Continue/verify the active corrective package from registry: Invisible Half P0 closure.
+Work only in `D:\Projects\hometutor` runtime write-set unless the user explicitly asks for studio/doc-sync.
+Do **not** switch working directory to `D:\Projects\hometutor-studio`.
+Do **not** run workflow commands, `close_package.py`, `run_autonomous.py`, registry sync, or package closure scripts.
 
-- summary of product behavior delivered
-- exact product and test file paths changed (sp1 write-set only if applicable)
-- DoD commands and results (paste pytest output or reference artifact paths)
-- blockers or follow-up risks, if any
+## Runtime Write-Set
 
-Read for context (do not execute shell from STEP 8 closure block):
+- `app/fact_source_binding.py`
+- `app/flashcard_service.py`
+- `app/learner_model_service.py`
+- `app/llm_resilience.py`
+- `app/query_response_postprocessing.py`
+- `config.env`
+- `tests/test_memory_loop_closure.py`
 
-- `archive/team_artifacts/multi-query-expansion-v1/5a_developer_sp1.md`
-- `archive/team_artifacts/multi-query-expansion-v1/6a_tester_sp1.md`
-- Developer / tester sections in `archive/team_artifacts/multi-query-expansion-v1/orchestration_cursor_ai.md`
+## Acceptance Focus
 
-**Forbidden in this session:** `close_package.py`, registry edits, `backlog_registry_lint`, post-agent, git commit.
-Stop immediately after saving `archive/team_artifacts/multi-query-expansion-v1/execution_contract.md`.
----
+- `mastery_vector` keys are canonical graph concept ids only, never free text.
+- Tutor/flashcard outcomes use the shared learner-model gateway and do not pollute mastery when cid is unresolved.
+- `sessions_completed` grows only for quiz/session completion; tutor/flashcard use interaction counters.
+- Quiz mastery overwrite semantics are preserved.
+- Provider resilience is wired to the local circuit breaker without enabling cloud fallback.
+- Agent default/config is honest until a UI door exists.
 
-## Mandatory Final Step
+## Verification
 
-Replace `archive/team_artifacts/multi-query-expansion-v1/execution_contract.md` with the proof sections above. Do not run package closure scripts.
+Run only targeted runtime checks from `D:\Projects\hometutor`:
 
-If blocked, write a `BLOCKED` proof with last completed step and exact blocker.
-
-If delivery was already committed before this closure step (no new working-tree changes), add a machine-parseable evidence block **exactly** as shown (no backticks around SHA or paths, no parenthetical comments on the commit line):
-
-```text
-allow_verification_only
-
-## Pre-existing delivery evidence
-
-- commit: <plain 7-40 char SHA, no backticks>
-- files: app/your_module.py, tests/test_your_module.py
+```powershell
+.\.venv\Scripts\python.exe -m pytest tests\test_memory_loop_closure.py tests\test_flashcards_review_keyboard.py tests\test_flashcards_interactive_card.py tests\test_flashcards_scheduling.py tests\test_provider_openai_structured.py
+.\.venv\Scripts\python.exe -m ruff check app\fact_source_binding.py app\flashcard_service.py app\learner_model_service.py app\llm_resilience.py app\query_response_postprocessing.py tests\test_memory_loop_closure.py
 ```
 
-Do not close the package manually. `scripts/workflow.py --loop --watch-contract` is watching progress and will run `run_autonomous.py --post-agent` when proof is substantive.
+If ruff is unavailable because of sandbox/tooling, report it; do not compensate by running studio workflow commands.
+
+## Final Report
+
+Include:
+
+- package selected and why (`invisible-half-p0-closure-v1`, active in registry);
+- stale/dirty state noticed at start, if any;
+- changed runtime files;
+- targeted tests and ruff result;
+- remaining runtime risks;
+- short next step for owner/maintainer, without workflow command syntax.

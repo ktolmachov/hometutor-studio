@@ -1,136 +1,108 @@
-# Continuation prompt v3 — evolutionary waves (SSoT-gated)
+# Continuation prompt v3 — evolutionary waves (runtime-only)
 
-Продолжи реализацию волн из серии эволюционных разборов.
+Продолжи реализацию улучшений из серии эволюционных разборов только в runtime-репозитории.
 
-Контекст:
-- Runtime-репозиторий: D:\Projects\hometutor
-- Studio/backlog-документы: D:\Projects\hometutor-studio
-- Индекс серии: D:\Projects\hometutor-studio\doc\presentations\evolutionary_analyses\README.md
-- Detail-plan'ы лежат в D:\Projects\hometutor-studio\doc\next\
+## Контекст
 
-## Шаг 0 — состояние репозитория (обязательно перед всем остальным)
+- Runtime-репозиторий: `D:\Projects\hometutor`
+- Не переключайся в другие репозитории.
+- Не читай и не меняй внешние процессные документы.
+- Не запускай внешние процессные команды закрытия или синхронизации.
+- Если для выбора следующего шага не хватает контекста, не спрашивай пользователя: продолжай default-направление `Invisible Half P0 / Knowledge Fate` по runtime-коду и уже переданному аудиту в текущем чате.
 
-Выполни `git status` (и при необходимости `git diff --stat`) в `D:\Projects\hometutor`.
+## Шаг 0 — состояние runtime-репозитория
 
-- Если рабочее дерево грязное (staged/unstaged/untracked изменения), а объяснения этому
-  нет в текущем `current_task.md` — **это не твоя работа и не твой контекст**. Не строй
-  поверх, не переписывай, не удаляй. Зафиксируй список изменённых/новых файлов отдельным
-  пунктом в финальном отчёте сессии как «pre-existing uncommitted state, requires owner
-  decision» — и переходи к шагу 1 как обычно (грязное дерево само по себе не блокирует
-  анализ SSoT, но обязано быть явно назван, а не молча проигнорировано или молча принято
-  за основу).
-- Если дерево чистое — просто отметь это в финальном отчёте одной строкой.
+Выполни `git status` в `D:\Projects\hometutor`.
 
-## Шаг 1 — обязательное чтение
+- Если рабочее дерево грязное, не считай все изменения своими автоматически.
+- Сохрани пользовательские/предыдущие изменения: не откатывай, не переписывай и не удаляй их без явной просьбы.
+- Если изменение нужно продолжить, работай поверх него аккуратно и явно назови это в финале.
+- Если дерево чистое, отметь это в финале одной строкой.
 
-1. D:\Projects\hometutor\AGENTS.md
-2. D:\Projects\hometutor\docs\conventions.md
-3. D:\Projects\hometutor-studio\doc\presentations\evolutionary_analyses\README.md
-4. SSoT studio при выборе следующего package:
-   - D:\Projects\hometutor-studio\doc\backlog_registry.yaml
-   - D:\Projects\hometutor-studio\doc\current_task.md
-   - D:\Projects\hometutor-studio\doc\tasklist.md (при необходимости)
-5. Связанный detail-plan выбранной волны из README (см. карту волн ниже).
-6. Если по итогам анализа тебе нужно вывести «точную команду/шаг для активации через
-   штатный workflow» — источник этой команды: `D:\Projects\hometutor-studio\scripts\workflow.py`
-   (прочитай его usage/`--help`/docstring) и любые файлы `doc/team_workflow/*`, если они
-   существуют в этом checkout. Не выдумывай синтаксис команды — бери его из скрипта.
+## Обязательное чтение в runtime-репозитории
 
-## Важно
+1. `D:\Projects\hometutor\AGENTS.md`
+2. `D:\Projects\hometutor\docs\conventions.md`
+3. Runtime-код и тесты только в пределах задачи/аудита.
+4. Если задача касается Agent UI/roadmap — дополнительно `D:\Projects\hometutor\docs\agent_roadmap.md`.
 
-- README — индекс разборов, а не SSoT исполнения.
-- Detail-plan'ы — каталог кандидатов, не разрешение на runtime-изменения.
-- Не объявляй runtime snapshot из разборов shipped/accepted без проверки SSoT.
-- Не реализуй proposed-кандидата напрямую, если он не принят workflow'ом.
-- **Если active/accepted package нет — STOP**: не меняй runtime-код, верни shortlist
-  следующей волны и точную команду/шаг для активации через штатный workflow (см. шаг 1.6).
-- **Если current_task.md указывает на другой package — STOP**: не меняй runtime-код,
-  объясни расхождение и верни точный следующий шаг.
-- Если package уже active/accepted и есть current_task.md — реализуй только этот package,
-  не весь wave.
-- Write-set соблюдать строго. Не делать попутный рефакторинг.
-- Runtime-docs обновлять только если изменился публичный API, UI-поведение, архитектура,
-  config или persistence.
-- Python-команды в D:\Projects\hometutor запускать только через:
-  - `.\.venv\Scripts\python.exe -m pytest` — targeted-тесты по затронутым зонам (только их,
-    не полный сьют).
-  - `.\.venv\Scripts\python.exe -m ruff check <изменённые файлы>` — разрешено и рекомендуется
-    как финальная проверка write-set перед отчётом (не обязательно, если ruff недоступен в
-    окружении — тогда просто отметь это в отчёте).
-  Никаких других shell-команд, меняющих состояние (миграции БД, скрипты записи), без
-  отдельного явного разрешения.
+## Правила реализации
+
+- Работай только в `D:\Projects\hometutor`.
+- Не меняй документы/файлы вне runtime-репозитория.
+- Не останавливай runtime-работу из-за отсутствия внешнего статуса.
+- Не запускай команды из других репозиториев.
+- Write-set держи узким: меняй только runtime-файлы, необходимые для запроса.
+- Не делай попутный рефакторинг.
+- Runtime-docs обновляй только если изменился публичный API, UI-поведение, архитектура, config или persistence.
+
+
+## Default continuation target
+
+Если пользователь дал этот prompt без конкретного бага или выбора направления, продолжай автоматически, без уточняющих вопросов:
+
+1. Сначала доведи runtime-ветку `Invisible Half P0 / Knowledge Fate`:
+   - `tests/test_memory_loop_closure.py`
+   - `app/fact_source_binding.py`
+   - `app/flashcard_service.py`
+   - `app/learner_model_service.py`
+   - `app/query_response_postprocessing.py`
+2. Цель: tutor/flashcard learning trace, canonical concept id alignment, отдельные interaction-счётчики, сохранение quiz semantics.
+3. Затем проверь provider honesty:
+   - `app/llm_resilience.py`
+   - `config.env`
+4. Если всё уже реализовано и targeted-тесты зелёные, не останавливайся с вопросом. Выполни критический review текущей реализации на расхождения с инвариантами, исправь найденное, затем запусти targeted checks.
+5. Вопрос пользователю задавай только если без ответа невозможно выбрать между двумя несовместимыми runtime-изменениями с риском потери данных или изменения публичного поведения.
+
+## Python и проверки
+
+Используй только команды из `D:\Projects\hometutor`:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest <targeted tests>
+.\.venv\Scripts\python.exe -m ruff check <changed files>
+```
+
+- Запускай только targeted-тесты по затронутым зонам.
+- Полный pytest-suite не запускай без явной просьбы.
+- Если ruff недоступен из-за sandbox/tooling, сообщи это в финале.
 
 ## Критичные инварианты реализации
 
-(закреплены по итогам код-ревью предыдущих раундов — нарушение любого из них равно
-дефекту, даже если тесты проходят)
-
 - `mastery_vector` должен использовать только canonical concept id из active knowledge graph.
 - Не писать в `mastery_vector` свободный текст, названия тегов, human topic title или имя файла.
-- Если сигнал пришёл из tutor/flashcard, сначала сопоставь его с canonical cid; если cid не
-  найден — не загрязняй `mastery_vector` (тихо пропусти запись, не изобретай fallback-ключ).
-- `sessions_completed` = только завершённые учебные сессии (квиз). tutor/flashcard события
-  считать отдельными interaction-счётчиками, не увеличивать `sessions_completed`.
-- Не менять старую семантику quiz без явного задания: quiz может перезаписывать mastery
-  score, включая понижение (не делать mastery монотонно неубывающим для quiz-пути).
-- Не добавлять LLM там, где план требует deterministic/persistence/state update.
-- Не добавлять новые экраны, если package требует невидимую state/persistence доработку.
+- Если сигнал пришёл из tutor/flashcard, сначала сопоставь его с canonical cid; если cid не найден — не загрязняй `mastery_vector`.
+- `sessions_completed` = только завершённые учебные сессии/quiz-path. Tutor/flashcard события считать отдельными interaction-счётчиками.
+- Не менять старую семантику quiz без явного задания: quiz может перезаписывать mastery score, включая понижение.
+- Не добавлять LLM там, где достаточно deterministic/persistence/state update.
+- Не добавлять новые экраны, если задача требует невидимую state/persistence доработку.
+- Provider honesty: не включать cloud fallback без явного решения владельца.
+- Config читать только через runtime config-layer согласно `AGENTS.md` / `docs/conventions.md`.
 
-## Карта волн (README, 2026-07-12)
+## Карта направлений для ориентира
 
-1. **Knowledge Fate / петля памяти**
-   plan: `doc/next/knowledge_fate_memory_loop_plan.md` · порядок: A1 → A2 → B2 → B1 → C1 → C2
+Используй эту карту как ориентир. Если пользователь не выбрал направление, бери пункт 8, затем пункт 1 как default. Не ищи внешние планы.
 
-2. **First Ten Minutes / onboarding**
-   plan: `doc/next/first_ten_minutes_onboarding_plan.md` · порядок: A1 → A2 → B2 → B1 → B3 → C1 → C2
-
-3. **Material as Product**
-   plan: `doc/next/material_as_product_quality_plan.md` · порядок: A1 → A2 → B2 → B1 → C2 → C1
-
-4. **Agent as One Button**
-   plan: `doc/next/agent_as_one_button_plan.md` · порядок: A1 → A2 → B1 → B2 → C1
-   Дополнительно сверить `D:\Projects\hometutor\docs\agent_roadmap.md`.
-
-5. **Trust Under Load / provider**
-   plan: `doc/next/trust_under_load_provider_plan.md` · порядок: A1 → A2 → B1 → C1
-
-6. **Infographics / living map**
-   plan: `doc/next/infographics_living_map_plan.md` · порядок: A1 → A2 → B1 → C1 → C2
-
-7. **Learning Plan**
-   plan: `doc/next/learning_plan_single_source_plan.md` · статус: A/B/C shipped, не начинать
-   заново; только проверять, если SSoT явно указывает на follow-up.
-
-8. **Invisible Half (метаразбор — не отдельная волна с собственным id)**
-   plan: `doc/next/invisible_half_closure_plan.md`.
-   **Важно про структуру:** это не каталог с собственными кандидатами A1/A2/wave-id, а
-   синтез поверх уже существующих кандидатов волн №1 и №5. В `backlog_registry.yaml` нет и
-   не должно быть записи `wave-invisible-half` — не ищи её. Реальные кандидаты на промоут:
-   - «Ход 1 / След» = A1+A2 из `knowledge_fate_memory_loop_plan.md` (→ `wave-memory-loop-closure`)
-   - «Ход 2 / Честность» = A1+A2 из `trust_under_load_provider_plan.md` (→ `wave-provider-circuit-honesty`)
-   README/разбор №8 использовать как карту приоритетов и обоснование, не как SSoT.
+1. Knowledge Fate / петля памяти: tutor/flashcard/quiz должны оставлять корректный учебный след.
+2. First Ten Minutes / onboarding: первый экран и первые действия должны быть честными и понятными.
+3. Material as Product: конспект, источники, граф, таймкоды должны ощущаться как продукт.
+4. Agent as One Button: агент должен иметь понятную UI-дверь, а не скрытый флаг.
+5. Trust Under Load / provider: сбои LLM должны давать быстрый честный отказ, а не долгие подвисания.
+6. Infographics / living map: карта должна отражать реальное состояние материала и прогресса.
+7. Learning Plan: «программа обучения» и «план на сегодня» не должны конфликтовать.
+8. Invisible Half: невидимые контуры — память, честность, recovery, state — важнее новых экранов.
 
 ## Задача сессии
 
-1. Выполни шаг 0 (git status) и зафиксируй результат.
-2. Определи, какая wave/package сейчас является следующей по SSoT (backlog_registry.yaml
-   `active_wave_id` → `current_task.md`).
-3. Если active/accepted package есть и совпадает с одной из волн 1–8 — реализуй ровно этот
-   package в D:\Projects\hometutor.
-4. Если active/accepted package нет, или он не связан ни с одной из волн 1–8, или есть
-   расхождение с current_task.md — **остановись без runtime-изменений** и дай:
-   - shortlist следующей волны/package (с обоснованием, почему она следующая по
-     эффект/усилие и по README-приоритету);
-   - точную команду/шаг для активации через штатный workflow (источник — шаг 1.6).
-5. Обнови runtime-docs только при изменении публичного API, UI-поведения, архитектуры,
-   config или persistence.
-6. Запусти только затронутые тесты (+ ruff по изменённым файлам, если доступен).
-7. В финале дай:
-   - состояние рабочего дерева на старте (чистое / pre-existing uncommitted state — что
-     именно);
-   - выбранную wave/package и почему;
-   - что было реализовано или почему STOP;
-   - изменённые файлы;
-   - тесты и их результат;
+1. Прочитай runtime-инструкции и релевантный код.
+2. Определи ближайшее runtime-исправление из запроса пользователя или аудита в чате. Если конкретики нет, автоматически выбери default continuation target выше.
+3. Реализуй его только в `D:\Projects\hometutor`; не завершай ответ просьбой выбрать направление, пока есть проверяемая runtime-работа из default target.
+4. Обнови runtime-docs только при необходимости.
+5. Запусти targeted-тесты и ruff по изменённым runtime-файлам, если доступно.
+6. В финале дай:
+   - состояние рабочего дерева на старте;
+   - что реализовано;
+   - изменённые runtime-файлы;
+   - тесты и результат;
    - что осталось;
-   - точную следующую команду/шаг для продолжения wave.
+   - короткий следующий runtime-шаг без внешних процессных команд.

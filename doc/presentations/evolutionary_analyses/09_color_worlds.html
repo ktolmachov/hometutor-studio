@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<title>Разбор №9 — Своя комната: цветовые схемы и фоны</title>
+<style>
+  :root {
+    --paper: #f7f3ea;
+    --paper-2: #fffdf7;
+    --ink: #17211b;
+    --muted: #5c6a61;
+    --terra: #b95631;
+    --terra-deep: #7d351f;
+    --forest: #243b2c;
+    --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14);
+    --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141a16;
+      --paper-2: #1b231e;
+      --ink: #ece5d4;
+      --muted: #9aa89d;
+      --terra: #d97a52;
+      --terra-deep: #e8a583;
+      --forest: #9dbfa8;
+      --gold: #d9a55e;
+      --line: rgba(236, 229, 212, 0.16);
+      --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(157, 191, 168, 0.10);
+      --verdict-keep: #6fc493;
+      --verdict-fix: #e0a35c;
+      --verdict-no: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f3ea;
+    --paper-2: #fffdf7;
+    --ink: #17211b;
+    --muted: #5c6a61;
+    --terra: #b95631;
+    --terra-deep: #7d351f;
+    --forest: #243b2c;
+    --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14);
+    --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a16;
+    --paper-2: #1b231e;
+    --ink: #ece5d4;
+    --muted: #9aa89d;
+    --terra: #d97a52;
+    --terra-deep: #e8a583;
+    --forest: #9dbfa8;
+    --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16);
+    --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493;
+    --verdict-fix: #e0a35c;
+    --verdict-no: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+      radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--terra-deep); }
+  em { color: var(--muted); }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--terra);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 2.1rem; color: var(--terra);
+    opacity: 0.55; line-height: 1; font-style: italic;
+  }
+  .sec-name { text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.76rem; font-weight: 700; color: var(--muted); }
+
+  code, .ev {
+    font-family: Consolas, "Cascadia Mono", Menlo, monospace;
+    font-size: 0.86em; background: var(--code-bg);
+    padding: 0.1em 0.4em; border-radius: 6px;
+    overflow-wrap: anywhere;
+  }
+  .ev { display: inline-block; margin: 0.1rem 0; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 1.15rem 1.3rem; margin: 1.1rem 0; box-shadow: var(--shadow);
+  }
+  .card p:last-child, .card ul:last-child { margin-bottom: 0; }
+
+  .anchor-card { border-left: 4px solid var(--terra); }
+  .anchor-card .k { text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.72rem; font-weight: 700; color: var(--terra); }
+
+  .pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.9rem; margin: 1.2rem 0; }
+  .pillar { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 0.95rem 1.05rem; }
+  .pillar .t { font-weight: 700; margin-bottom: 0.3rem; }
+  .pillar .d { font-size: 0.92rem; color: var(--muted); }
+
+  table { border-collapse: collapse; width: 100%; font-size: 0.93rem; }
+  .table-scroll { overflow-x: auto; margin: 1.2rem 0; border: 1px solid var(--line); border-radius: 14px; background: var(--paper-2); }
+  th, td { text-align: left; padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { font-weight: 600; white-space: nowrap; }
+
+  .v { font-weight: 700; white-space: nowrap; }
+  .v-keep { color: var(--verdict-keep); }
+  .v-fix { color: var(--verdict-fix); }
+  .v-no { color: var(--verdict-no); }
+
+  .tension { margin: 1.4rem 0; }
+  .tension .vs {
+    display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap;
+    font-family: Georgia, serif; font-size: 1.12rem; margin-bottom: 0.4rem;
+  }
+  .tension .vs .sep { color: var(--terra); font-style: italic; }
+  .tension .syn { border-left: 3px solid var(--gold); padding: 0.15rem 0 0.15rem 0.9rem; }
+  .tension .syn .k { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; color: var(--gold); display: block; margin-bottom: 0.15rem; }
+
+  /* World preview cards — the sketch of five schemes */
+  .worlds { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.85rem; margin: 1.3rem 0 0.6rem; }
+  .world { border-radius: 16px; overflow: hidden; border: 1px solid var(--line); box-shadow: var(--shadow); background: var(--paper-2); }
+  .world .sky { height: 74px; position: relative; }
+  .world .sky .dot { position: absolute; right: 10px; bottom: -14px; width: 30px; height: 30px; border-radius: 50%; border: 3px solid var(--paper-2); }
+  .world .info { padding: 0.7rem 0.8rem 0.75rem; }
+  .world .nm { font-weight: 700; font-size: 0.98rem; }
+  .world .ds { font-size: 0.78rem; color: var(--muted); line-height: 1.4; margin-top: 0.15rem; }
+  .world .chips { display: flex; gap: 4px; margin-top: 0.5rem; }
+  .world .chip { width: 16px; height: 16px; border-radius: 5px; border: 1px solid rgba(0,0,0,0.12); }
+  .worlds-note { font-size: 0.85rem; color: var(--muted); max-width: 70ch; }
+
+  .ladder { list-style: none; padding: 0; margin: 1.2rem 0; counter-reset: step -1; }
+  .ladder li {
+    counter-increment: step; position: relative; padding: 0.55rem 0 0.55rem 3.1rem;
+    border-left: 2px solid var(--line); margin-left: 1.1rem;
+  }
+  .ladder li::before {
+    content: counter(step); position: absolute; left: -1.05rem; top: 0.55rem;
+    width: 2rem; height: 2rem; border-radius: 50%; background: var(--paper-2);
+    border: 2px solid var(--terra); color: var(--terra);
+    font-family: Georgia, serif; font-weight: 700; font-size: 0.95rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ladder .lt { font-weight: 700; }
+  .ladder .ld { font-size: 0.92rem; color: var(--muted); }
+
+  .plan { display: grid; gap: 0.9rem; margin: 1.2rem 0; }
+  .move { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 1rem 1.2rem; box-shadow: var(--shadow); }
+  .move .tag {
+    display: inline-block; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; border-radius: 999px; padding: 0.18rem 0.6rem; margin-bottom: 0.4rem;
+  }
+  .tag-p0 { background: var(--terra); color: #fff8f0; }
+  .tag-p1 { background: var(--code-bg); color: var(--terra-deep); border: 1px solid var(--line); }
+  .tag-p2 { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+  .move .mt { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.3rem; font-family: Georgia, serif; }
+  .move p, .move ul { font-size: 0.95rem; }
+
+  .figure { margin: 1.6rem 0; }
+  .figure svg { width: 100%; height: auto; display: block; }
+  .figcap { font-size: 0.83rem; color: var(--muted); margin-top: 0.5rem; text-align: center; }
+
+  .footer { margin-top: 4rem; border-top: 1px solid var(--line); padding-top: 1.3rem; font-size: 0.85rem; color: var(--muted); }
+  .num { font-variant-numeric: tabular-nums; }
+  a { color: var(--terra); }
+
+  @media (max-width: 640px) {
+    h1 { font-size: 1.85rem; }
+    .wrap { padding: 2rem 1rem 3rem; }
+    td:first-child { white-space: normal; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div class="kicker">Эволюционный разбор · №9 в серии</div>
+    <h1>Своя комната</h1>
+    <p class="lede">Выбор цветовой схемы из списка — для девочек и для мальчиков — и современные фоны мирового уровня. Сильный ход: тема должна стать <em>значением</em>, а не размазанным по коду фактом.</p>
+    <div class="meta">
+      <span>hometutor · 2026-07-12</span>
+      <span>проверено на HEAD <code>afb9916</code> («186»)</span>
+      <span>формат: evolutionary_analysis_guide</span>
+    </div>
+  </header>
+
+  <!-- ============ 1 СУТЬ ============ -->
+  <section>
+    <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Суть — первые принципы</span></div>
+    <h2>Чего по-настоящему хочет ребёнок, выбирая цвет?</h2>
+    <p>Не «розовый» и не «синий». Ребёнок, которому дали выбрать оформление, получает три вещи, каждая из которых напрямую работает на учёбу:</p>
+    <div class="pillars">
+      <div class="pillar">
+        <div class="t">Присвоение</div>
+        <div class="d">Обложка тетради, наклейки на ноутбуке, плакат над столом — ребёнок учится лучше в пространстве, которое считает <em>своим</em>. Тема — это «покрасить свою комнату» в цифровом виде.</div>
+      </div>
+      <div class="pillar">
+        <div class="t">Автономия</div>
+        <div class="d">В приложении, где взрослые решили всё (какой курс, какой план, когда повторять), выбор схемы — редкое решение, которое ребёнок принимает сам и в котором <em>невозможно ошибиться</em>. Автономия — топливо внутренней мотивации.</div>
+      </div>
+      <div class="pillar">
+        <div class="t">Различение</div>
+        <div class="d">Когда двое детей делят один компьютер, цвет — самый быстрый ответ на вопрос «чей это профиль открыт?». Это не декорация: перепутанный профиль портит и mastery, и очередь повторений (петля памяти из разбора №1).</div>
+      </div>
+    </div>
+    <p><strong>Важное уточнение про «для девочек и для мальчиков».</strong> Суть запроса — не два гендерных пресета, а список, в котором <em>каждый</em> ребёнок находит своё. Схемы стоит называть мирами (Лес, Океан, Закат…), а не адресатами: разнообразие покрывает вкусы, не сегрегируя их. Девочка, выбравшая «Океан», и мальчик, выбравший «Закат», — оба попали в цель списка.</p>
+    <p>А «фоны мирового уровня» — это не картинки. Это то, что уже делает лучший фон в этом коде: многослойный градиент, дорогая типографика, дисциплина контраста. И всё это обязано работать офлайн — иначе «мировой уровень» существует только при включённом интернете.</p>
+  </section>
+
+  <!-- ============ 2 РЕАЛЬНОСТЬ ============ -->
+  <section>
+    <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Реальность — инвентаризация с высоты</span></div>
+    <h2>Где сегодня живёт внешний вид</h2>
+
+    <h3>А. Слой темы — одна, зрелая, захардкоженная</h3>
+    <ul>
+      <li><span class="ev">app/ui_theme.css</span> — <span class="num">1599</span> строк. В <code>:root</code> — всего <span class="num">9</span> токенов (<code>--ink</code>, <code>--accent</code>, <code>--forest</code>…), они используются <span class="num">78</span> раз. Но <em>в том же файле</em> мимо токенов живут <span class="num">81</span> hex-литерал и <span class="num">89</span> вызовов <code>rgba()</code>.</li>
+      <li><span class="ev">app/ui/styles.py:7-11</span> — <code>inject_styles()</code> без параметров: читает статический файл и вставляет как есть. Темы как понятия в сигнатуре нет.</li>
+      <li><span class="ev">app/ui/main.py:85</span> — инъекция стилей происходит <strong>до</strong> авторизации (<span class="ev">main.py:89</span>): приложение красит комнату раньше, чем узнаёт, кто вошёл. Персональная тема при такой очерёдности невозможна по определению.</li>
+      <li><span class="ev">.streamlit/config.toml</span> — <code>base = "light"</code> закреплён не случайно: комментарий в файле и ~70 строк CSS (<span class="ev">ui_theme.css:308-375</span>) — шрам от войны с тёмной темой Streamlit, у которой выпадающие списки порталятся в <code>document.body</code> и остаются чёрными. Тёмный режим здесь уже пробовали — и отступили осознанно.</li>
+    </ul>
+
+    <h3>Б. Палитры-беглецы — компоненты, сбежавшие из токенов</h3>
+    <ul>
+      <li>SSR-баннер (<span class="ev">ui_theme.css:953-1194</span>) — собственный небесно-бирюзовый мир: <code>#4a9fd4</code>, <code>#38c4b4</code>, <code>#7c6cf0</code> и ещё десяток литералов.</li>
+      <li>CTA-кнопки в чате тьютора (<span class="ev">ui_theme.css:611-620</span>) — фиолетовый градиент <code>#667eea → #764ba2</code>, которого нет больше нигде в продукте.</li>
+      <li>Питон-модули UI: <span class="num">81</span> hex-литерал в <span class="num">21</span> файле <code>app/ui/*.py</code> (инлайн-стили в f-строках, без учёта assets).</li>
+    </ul>
+
+    <h3>В. Семантические цвета — это язык, не декорация</h3>
+    <ul>
+      <li>Кнопки оценки карточек Again/Hard/Good/Easy (<span class="ev">ui_theme.css:1533-1540</span>): красный/оранжевый/зелёный/синий — <code>#c0392b</code>, <code>#d68910</code>, <code>#1e8449</code>, <code>#1a5276</code>.</li>
+      <li>Уровни графа знаний (<span class="ev">mission_control.py:622-626</span>): lesson/beginner/intermediate/advanced — жёлтый/голубой/фиолетовый/розовый.</li>
+    </ul>
+    <p>Эти цвета кодируют <em>смысл</em>, а не настроение. Они — дорожные знаки, и перекрашивать их вместе с «обоями» нельзя ни в одной схеме.</p>
+
+    <h3>Г. Iframe-острова — миры, куда CSS не дотягивается</h3>
+    <ul>
+      <li>Интерактивная карточка (<span class="ev">flashcards_interactive_card.py:12-14</span>) прямо признаётся в докстринге: «iframe не наследует CSS хоста, поэтому каждый цвет здесь — <em>зеркалированный литерал</em>, а не переменная из ui_theme.css». Литералы: <code>_INK</code>, <code>_MUTED</code>, <code>_ACCENT</code> (<span class="ev">:26-29</span>).</li>
+      <li>Карта знаний D3 (<span class="ev">assets/knowledge_graph_d3_template.html</span>) — <span class="num">57</span> hex-литералов, собственный тёмный мир (<code>#0a0a0f</code>).</li>
+      <li><strong>Но канал уже построен:</strong> шаблон собирается в Python через <code>.replace("__NODES__", …)</code> (<span class="ev">knowledge_graph_d3.py:595-604</span>) — токены темы могут ехать в остров тем же способом, плейсхолдером <code>__THEME__</code>.</li>
+    </ul>
+
+    <h3>Д. Рельсы персистентности — уже проложены</h3>
+    <ul>
+      <li><span class="ev">app/ui_preferences.py</span> — образцовый модуль: per-user KV поверх <code>app_kv</code>, авто-миграция глобальных настроек в профиль, безопасные чтение/запись. <code>get_ui_level()/set_ui_level()</code> (<span class="ev">:109-124</span>) — готовый шаблон для <code>get_ui_theme()</code>.</li>
+      <li>Sync-бандл экспортирует таблицу <code>app_kv</code> целиком (<span class="ev">tests/test_ui_preferences_sync.py:13-17</span>) — новый ключ поедет в backup <em>автоматически, без единой строчки кода</em>.</li>
+      <li>Панель управления (<span class="ev">control_panel.py:109-121</span>) — диалог с вкладками «Интерфейс» и «RAG и ingest»; паттерн карточек выбора <code>_LEVEL_CARDS</code> (<span class="ev">:20-27</span>) — готовый UI-механизм «выбери один пресет из шести».</li>
+      <li>Мультипользовательность есть: <span class="ev">auth_service.py</span> — register/authenticate/display_name.</li>
+    </ul>
+
+    <h3>Е. Дисциплина качества и «мировой уровень» — наполовину уже здесь</h3>
+    <ul>
+      <li>Фон <code>.stApp</code> (<span class="ev">ui_theme.css:38-45</span>) — уже слоёный: два radial-градиента поверх linear. Это и есть современный приём (mesh/aurora), просто в единственном экземпляре.</li>
+      <li><code>prefers-reduced-motion</code> уважается (<span class="ev">:1282, :1306</span>), мобильные брейкпоинты 900/640 продуманы, <code>focus-visible</code> обведён. CSS зрелый — он просто монолитный.</li>
+      <li><strong>Трещина в local-first:</strong> шрифты Manrope, IBM Plex Mono и иконки Material Symbols грузятся с CDN Google (<span class="ev">ui_theme.css:1-2</span>). d3 вендорен, mermaid вендорен (<span class="ev">app/ui/assets/mermaid.min.js</span>) — та же болезнь, что нашёл разбор №6, вылечена для JS, но не для типографики. Офлайн вся «дорогая» типографика молча падает в системный sans, а иконки-лигатуры превращаются в сырой текст.</li>
+    </ul>
+
+    <div class="figure" role="img" aria-label="Диаграмма: палитра существует в четырёх несогласованных копиях">
+      <svg viewBox="0 0 860 300" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+        <defs>
+          <marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+          </marker>
+        </defs>
+        <!-- center: what SHOULD be the single source -->
+        <rect x="330" y="18" width="200" height="66" rx="14" fill="none" stroke="var(--terra)" stroke-width="2" stroke-dasharray="6 5"/>
+        <text x="430" y="45" text-anchor="middle" fill="var(--terra)" font-size="14" font-weight="700">:root — 9 токенов</text>
+        <text x="430" y="66" text-anchor="middle" fill="var(--muted)" font-size="12">покрывают 78 мест… и только их</text>
+
+        <!-- four copies -->
+        <g>
+          <rect x="20" y="170" width="190" height="100" rx="14" fill="var(--card)" stroke="var(--line)"/>
+          <text x="115" y="200" text-anchor="middle" fill="var(--ink)" font-size="13.5" font-weight="700">ui_theme.css</text>
+          <text x="115" y="222" text-anchor="middle" fill="var(--muted)" font-size="12">мимо токенов:</text>
+          <text x="115" y="243" text-anchor="middle" fill="var(--terra)" font-size="13" font-weight="700">81 hex + 89 rgba()</text>
+        </g>
+        <g>
+          <rect x="230" y="170" width="190" height="100" rx="14" fill="var(--card)" stroke="var(--line)"/>
+          <text x="325" y="200" text-anchor="middle" fill="var(--ink)" font-size="13.5" font-weight="700">app/ui/*.py</text>
+          <text x="325" y="222" text-anchor="middle" fill="var(--muted)" font-size="12">инлайн-стили в f-строках:</text>
+          <text x="325" y="243" text-anchor="middle" fill="var(--terra)" font-size="13" font-weight="700">81 hex в 21 файле</text>
+        </g>
+        <g>
+          <rect x="440" y="170" width="190" height="100" rx="14" fill="var(--card)" stroke="var(--line)"/>
+          <text x="535" y="200" text-anchor="middle" fill="var(--ink)" font-size="13.5" font-weight="700">iframe-острова</text>
+          <text x="535" y="222" text-anchor="middle" fill="var(--muted)" font-size="12">зеркалированные литералы:</text>
+          <text x="535" y="243" text-anchor="middle" fill="var(--terra)" font-size="13" font-weight="700">карта 57 hex + карточка</text>
+        </g>
+        <g>
+          <rect x="650" y="170" width="190" height="100" rx="14" fill="var(--card)" stroke="var(--line)"/>
+          <text x="745" y="200" text-anchor="middle" fill="var(--ink)" font-size="13.5" font-weight="700">CDN-шрифты</text>
+          <text x="745" y="222" text-anchor="middle" fill="var(--muted)" font-size="12">Manrope + Symbols:</text>
+          <text x="745" y="243" text-anchor="middle" fill="var(--terra)" font-size="13" font-weight="700">офлайн = молча Arial</text>
+        </g>
+
+        <!-- arrows from copies pointing up to the dashed box: they DON'T converge -->
+        <line x1="115" y1="170" x2="360" y2="90" stroke="var(--muted)" stroke-width="1.4" stroke-dasharray="3 4" marker-end="url(#arr)"/>
+        <line x1="325" y1="170" x2="410" y2="90" stroke="var(--muted)" stroke-width="1.4" stroke-dasharray="3 4" marker-end="url(#arr)"/>
+        <line x1="535" y1="170" x2="455" y2="90" stroke="var(--muted)" stroke-width="1.4" stroke-dasharray="3 4" marker-end="url(#arr)"/>
+        <line x1="745" y1="170" x2="505" y2="90" stroke="var(--muted)" stroke-width="1.4" stroke-dasharray="3 4" marker-end="url(#arr)"/>
+        <text x="430" y="135" text-anchor="middle" fill="var(--muted)" font-size="12" font-style="italic">должны сходиться сюда — но не сходятся</text>
+      </svg>
+      <div class="figcap">Палитра существует в четырёх несогласованных копиях. «Выбор схемы» невозможен не потому, что нет настройки, — а потому, что нет одного места, где тема определена.</div>
+    </div>
+  </section>
+
+  <!-- ============ 3 ПРОТИВОРЕЧИЯ ============ -->
+  <section>
+    <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Противоречия — синтез, не выбор стороны</span></div>
+    <h2>Три напряжения</h2>
+
+    <div class="tension">
+      <div class="vs"><span>Простота</span><span class="sep">против</span><span>глубины</span></div>
+      <p>Color-picker даёт бесконечную свободу — и сломанный контраст, нечитаемый текст, «вырви-глаз». Одна тема даёт ноль свободы.</p>
+      <div class="syn"><span class="k">Синтез</span>Курируемый список <strong>полных схем</strong>: ребёнок выбирает мир одним кликом, дизайнер один раз гарантирует читаемость каждого. Схема — это не «любимый цвет», а согласованный набор из ~14 токенов, где чернила остаются тёмными и контрастными во всех мирах. Свобода — в выборе, глубина — внутри каждого варианта.</div>
+    </div>
+
+    <div class="tension">
+      <div class="vs"><span>Мощь</span><span class="sep">против</span><span>фокуса</span></div>
+      <p>Соблазн построить «движок тем»: тёмный режим, редактор палитр, сезонные скины, кастомные обои. Противоположный соблазн — не делать ничего, «это же просто цвета».</p>
+      <div class="syn"><span class="k">Синтез</span>Не строить движок — <strong>достроить слой токенов, который уже начат</strong>. 9 переменных в <code>:root</code> уже обслуживают 78 мест; довести набор до ~14, вернуть беглецов в токены — и тогда N схем = N маленьких словарей значений в одном модуле. Вся «мощь» — это CSS-каскад, который уже умеет всё сам.</div>
+    </div>
+
+    <div class="tension">
+      <div class="vs"><span>Индивидуальность</span><span class="sep">против</span><span>системы</span></div>
+      <p>Ребёнок хочет «моё и не как у всех». Продукт хочет узнаваемость, WCAG-контраст и стабильный семантический язык (Again — красный, Good — зелёный, advanced — розовый) на всех профилях.</p>
+      <div class="syn"><span class="k">Синтез</span>Темизируются <strong>стены и мебель</strong> (фоны, акценты, градиенты шапок), но не <strong>дорожные знаки</strong> (кнопки оценки, уровни графа, статусы). Ребёнок красит комнату; правила дорожного движения остаются общими. И то же — про гендер: миры вместо адресатов, спектр от тёплого к холодному вместо «розовой» и «голубой» полок.</div>
+    </div>
+  </section>
+
+  <!-- ============ Интерлюдия: пять миров ============ -->
+  <section>
+    <div class="sec-label"><span class="sec-num">★</span><span class="sec-name">Эскиз — пять миров</span></div>
+    <h2>Как выглядит курируемый список</h2>
+    <p>Эскиз, не финал: пять миров, покрывающих спектр вкусов. Первый — то, что уже есть (он хорош — потому и дефолт). У каждого мира: бумага-фон, глубокий тон шапок, акцент действий. Чернила текста во всех — тёмные, контрастные, читаемые.</p>
+    <div class="worlds">
+      <div class="world">
+        <div class="sky" style="background: radial-gradient(circle at 20% 0%, rgba(231,177,104,0.5), transparent 60%), linear-gradient(150deg, #243b2c, #6b3820);"><span class="dot" style="background:#b95631;"></span></div>
+        <div class="info"><div class="nm">Лес</div><div class="ds">тёплая бумага, терракота — сегодняшний дефолт</div>
+        <div class="chips"><span class="chip" style="background:#f8f2e7"></span><span class="chip" style="background:#243b2c"></span><span class="chip" style="background:#b95631"></span><span class="chip" style="background:#132019"></span></div></div>
+      </div>
+      <div class="world">
+        <div class="sky" style="background: radial-gradient(circle at 80% 10%, rgba(120,210,220,0.45), transparent 55%), linear-gradient(150deg, #16384a, #1273a6);"><span class="dot" style="background:#1273a6;"></span></div>
+        <div class="info"><div class="nm">Океан</div><div class="ds">прохладная глубина, бирюзовое свечение</div>
+        <div class="chips"><span class="chip" style="background:#eef4f8"></span><span class="chip" style="background:#16384a"></span><span class="chip" style="background:#1273a6"></span><span class="chip" style="background:#101c22"></span></div></div>
+      </div>
+      <div class="world">
+        <div class="sky" style="background: radial-gradient(circle at 25% 0%, rgba(255,190,140,0.55), transparent 60%), linear-gradient(150deg, #5c2b3e, #d4526e);"><span class="dot" style="background:#d4526e;"></span></div>
+        <div class="info"><div class="nm">Закат</div><div class="ds">коралл и розовое золото, тёплый вечер</div>
+        <div class="chips"><span class="chip" style="background:#fdf0ec"></span><span class="chip" style="background:#5c2b3e"></span><span class="chip" style="background:#d4526e"></span><span class="chip" style="background:#241318"></span></div></div>
+      </div>
+      <div class="world">
+        <div class="sky" style="background: radial-gradient(circle at 75% 5%, rgba(170,160,255,0.5), transparent 55%), linear-gradient(150deg, #2b2b52, #6a5acd);"><span class="dot" style="background:#6a5acd;"></span></div>
+        <div class="info"><div class="nm">Космос</div><div class="ds">индиго и аметист, звёздная пыль</div>
+        <div class="chips"><span class="chip" style="background:#f0f0fa"></span><span class="chip" style="background:#2b2b52"></span><span class="chip" style="background:#6a5acd"></span><span class="chip" style="background:#16162a"></span></div></div>
+      </div>
+      <div class="world">
+        <div class="sky" style="background: radial-gradient(circle at 20% 10%, rgba(255,150,200,0.4), transparent 55%), linear-gradient(150deg, #4a1d3a, #b0367c);"><span class="dot" style="background:#b0367c;"></span></div>
+        <div class="info"><div class="nm">Ягода</div><div class="ds">малина и слива, смелый и сочный</div>
+        <div class="chips"><span class="chip" style="background:#faeff5"></span><span class="chip" style="background:#4a1d3a"></span><span class="chip" style="background:#b0367c"></span><span class="chip" style="background:#22101c"></span></div></div>
+      </div>
+    </div>
+    <p class="worlds-note">Все пять — светлая база: <code>base="light"</code> в <code>.streamlit/config.toml</code> не трогаем, портальную войну заново не начинаем. «Фон мирового уровня» для каждого мира — тот же слоёный приём, что уже стоит в <code>ui_theme.css:38-45</code>: два-три radial-градиента поверх linear, чистый CSS, ноль картинок, ноль килобайт, работает офлайн.</p>
+  </section>
+
+  <!-- ============ 4 БОЛЬ-ЯКОРЬ ============ -->
+  <section>
+    <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Боль-якорь — точная причина в коде</span></div>
+    <h2>Двое детей — одна комната на всех</h2>
+    <div class="card anchor-card">
+      <p class="k">Факт из жизни</p>
+      <p>В доме учатся двое. У каждого — свой логин (auth с display_name есть), свой прогресс, свои карточки. Ребёнок открывает «Панель управления» — там две вкладки: «Интерфейс» и «RAG и ingest» (<span class="ev">control_panel.py:111</span>). Ни одной настройки внешнего вида. Терракотовый «Лес» — один на девочку, мальчика и папу, на всех профилях и навсегда.</p>
+    </div>
+    <p><strong>Точная причина — не «нет настройки», а глубже: тема в этом коде не является значением.</strong> Цепочка проверяемых фактов:</p>
+    <ol>
+      <li><code>inject_styles()</code> не принимает параметров и читает статический файл (<span class="ev">styles.py:7-11</span>) — теме негде появиться;</li>
+      <li>вызывается она <strong>до</strong> авторизации (<span class="ev">main.py:85</span> против <span class="ev">:89</span>) — приложение красит стены раньше, чем узнаёт, чей это дом;</li>
+      <li>палитра существует в четырёх несогласованных копиях (диаграмма выше): 9 токенов <code>:root</code>, 81+89 литералов мимо них в том же CSS, 81 hex в 21 py-модуле, зеркальные литералы iframe-островов — с письменным признанием в докстринге (<span class="ev">flashcards_interactive_card.py:12-14</span>);</li>
+      <li>в <code>app_kv</code> нет ни одного ключа про внешний вид — при том что рельсы (per-user KV, миграция, backup) давно проложены и обкатаны на <code>ui_level</code>.</li>
+    </ol>
+    <p>Знакомая болезнь: та же, что нашли разборы №1, №2, №3 — «несколько вычислений одной истины». Там это были знания, курсы и карты; здесь — цвет.</p>
+  </section>
+
+  <!-- ============ 5 ВЕРДИКТЫ ============ -->
+  <section>
+    <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Вердикты — позиция, не обзор</span></div>
+    <h2>По каждому элементу</h2>
+    <div class="table-scroll">
+      <table>
+        <tr><th>Элемент</th><th>Вердикт</th><th>Почему</th></tr>
+        <tr>
+          <td>9 токенов <code>:root</code></td>
+          <td class="v v-keep">Оставить + достроить</td>
+          <td>Фундамент верный. Расширить до ~14: фон-градиент приложения, градиент hero, градиенты шапок карточек, фон чипов. Это и есть весь «движок тем».</td>
+        </tr>
+        <tr>
+          <td>81 hex + 89 rgba мимо токенов в CSS</td>
+          <td class="v v-fix">Починить выборочно</td>
+          <td>К токенам сводятся только «стены» (фоны, акценты, градиенты). Семантика и тени не трогаются. Механическая правка одного файла.</td>
+        </tr>
+        <tr>
+          <td>Кнопки Again/Hard/Good/Easy, уровни графа</td>
+          <td class="v v-keep">Не трогать ни в одной схеме</td>
+          <td>Семантический язык продукта. Красный «Again» обязан быть красным и в «Океане», и в «Ягоде».</td>
+        </tr>
+        <tr>
+          <td>Фиолетовый градиент CTA в чате (<code>#667eea</code>)</td>
+          <td class="v v-fix">Починить</td>
+          <td>Чужероден уже сейчас — единственное место с этой палитрой. Свести к <code>--accent</code>-токенам.</td>
+        </tr>
+        <tr>
+          <td>SSR-баннер со своей небесной палитрой</td>
+          <td class="v v-fix">Подключить к токенам (P1)</td>
+          <td>Дизайн хорош — перерисовывать не надо. Вынести 2–3 его акцента в токены, чтобы миры могли его подкрашивать.</td>
+        </tr>
+        <tr>
+          <td>Карта знаний D3 (тёмный остров, 57 hex)</td>
+          <td class="v v-keep">Оставить в v1</td>
+          <td>Самодостаточный тёмный мир карты не ломает выбор схемы. Канал <code>__THEME__</code> уже есть — наследование мира это P2, не блокер.</td>
+        </tr>
+        <tr>
+          <td>Литералы карточки-iframe (<code>_INK/_MUTED/_ACCENT</code>)</td>
+          <td class="v v-fix">Починить дёшево (P1)</td>
+          <td>Это Python-константы в f-строке — просто читать их из активной схемы. Докстринг-признание перестанет быть нужным.</td>
+        </tr>
+        <tr>
+          <td>Шрифты и иконки с CDN Google</td>
+          <td class="v v-fix">Вендорить (P1)</td>
+          <td>По образцу d3/mermaid (болезнь из №6, наполовину вылеченная). Без этого «мировой уровень» офлайн — это Arial и сырые имена иконок.</td>
+        </tr>
+        <tr>
+          <td>Тёмная схема</td>
+          <td class="v v-no">Не делать в v1</td>
+          <td>Шрам портальной войны реален (<code>config.toml</code> + 70 строк CSS). Тёмный мир — отдельная кампания против Base Web порталов, не пункт списка схем.</td>
+        </tr>
+        <tr>
+          <td>Фоновые картинки / анимированные обои</td>
+          <td class="v v-no">Не делать</td>
+          <td>Против local-first (вес, лицензии), отвлекает от учёбы. Слоёный CSS-градиент уже даёт «мировой уровень» бесплатно.</td>
+        </tr>
+        <tr>
+          <td>Панель управления</td>
+          <td class="v v-fix">Достроить вкладку «Оформление»</td>
+          <td>Паттерн карточек выбора готов (<code>_LEVEL_CARDS</code>), диалог готов, место очевидно.</td>
+        </tr>
+        <tr>
+          <td>Персистентность выбора</td>
+          <td class="v v-keep">Взять готовое</td>
+          <td><code>ui_preferences.py</code> — образец; ключ <code>ui_theme</code> по шаблону <code>ui_level</code>; backup — автоматом (вся <code>app_kv</code> едет в бандл).</td>
+        </tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 6 ЦЕННОСТЬ ============ -->
+  <section>
+    <div class="sec-label"><span class="sec-num">6</span><span class="sec-name">Ценность — и как её доказать</span></div>
+    <h2>Уникальность: свой угол, который переживает всё</h2>
+    <p>У облачных продуктов темы — косметика при аккаунте. Здесь уникальность иная: <strong>local-first репетитор, где у каждого ребёнка свой узнаваемый угол учёбы</strong> — он переживает перезапуск (в отличие от старой боли со scope из разбора №0), переезжает на новый компьютер внутри sync-бандла и работает без интернета, включая шрифты и фоны. И он функционален: открыл приложение — по цвету мгновенно видно, чей профиль активен, <em>до</em> того как первая карточка ушла не в ту очередь.</p>
+    <h3>Измеримое доказательство</h3>
+    <ul>
+      <li><strong>«Выбрал и оставил»</strong> — доля профилей, где схема выбрана не-дефолтная и не менялась ≥14 дней: присвоение состоялось (метрика владения, не кликов).</li>
+      <li><strong>Доля сессий «в своём мире»</strong> — по профилям; если дети выбирают и возвращаются, список миров попал в цель.</li>
+      <li><strong>Прокси перепутанных профилей</strong> — переключения профиля в первые 30 секунд сессии, до/после: цвет как маркер должен снизить число «ой, это не мой».</li>
+    </ul>
+  </section>
+
+  <!-- ============ 7 ПУТЬ ============ -->
+  <section>
+    <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Путь — золотой маршрут и лестница</span></div>
+    <h2>Тридцать секунд до своей комнаты</h2>
+    <p><strong>Золотой путь</strong> (одна развилка, ноль возможностей ошибиться): Сайдбар → Панель управления → вкладка <strong>«Оформление»</strong> → пять карточек-миров с живым превью → клик → вся комната мгновенно перекрашена → навсегда: в профиле, в backup, на всех устройствах.</p>
+    <ol class="ladder">
+      <li><span class="lt">Сегодня</span><div class="ld">Один «Лес» на всех. Он хорош — потому и остаётся дефолтом.</div></li>
+      <li><span class="lt">Выбор мира (P0)</span><div class="ld">Пять миров, вкладка «Оформление», выбор живёт в профиле и переживает перезапуск.</div></li>
+      <li><span class="lt">Мировой уровень офлайн (P1)</span><div class="ld">Слоёный фон у каждого мира + вендоренные шрифты и иконки: красота перестаёт зависеть от интернета.</div></li>
+      <li><span class="lt">Острова наследуют мир (P2)</span><div class="ld">Карточка и карта знаний получают токены активного мира через уже существующий канал плейсхолдеров.</div></li>
+      <li><span class="lt">Тёмный мир (отдельная кампания)</span><div class="ld">Только после осознанного похода на Base Web порталы. Не раньше.</div></li>
+    </ol>
+  </section>
+
+  <!-- ============ 8 ПЛАН ============ -->
+  <section>
+    <div class="sec-label"><span class="sec-num">8</span><span class="sec-name">План — эффект / усилие</span></div>
+    <h2>P0 — ровно два хода</h2>
+    <div class="plan">
+      <div class="move">
+        <span class="tag tag-p0">P0 · Ход 1</span>
+        <div class="mt">Тема становится значением</div>
+        <p>Свести «стены» <code>ui_theme.css</code> к токенам: расширить <code>:root</code> с 9 до ~14 переменных (фон приложения, градиент hero, градиенты шапок <code>home-dash-head</code>, фон чипов) и заменить их литеральные вхождения на <code>var()</code>. Рядом — новый модуль <code>app/ui/theme_presets.py</code>: пять миров как словари «токен → значение», «Лес» = сегодняшние значения, дефолт.</p>
+        <ul>
+          <li>Правки: один CSS-файл (механически) + один новый маленький модуль.</li>
+          <li>Семантические цвета и тени — не трогаются. Пиксель-дифф дефолтного «Леса» = ноль.</li>
+        </ul>
+      </div>
+      <div class="move">
+        <span class="tag tag-p0">P0 · Ход 2</span>
+        <div class="mt">Дверь и память</div>
+        <p>Гениальность в простоте — CSS-каскад делает всю работу: базовый CSS остаётся статическим и грузится как раньше, а <strong>после</strong> <code>require_ui_auth_or_stop()</code> инъектируется крошечный <code>&lt;style&gt;:root{…}&lt;/style&gt;</code> с токенами выбранного мира — каскад побеждает, ничего не мигает, экран логина остаётся нейтральным «Лесом».</p>
+        <ul>
+          <li><code>get_ui_theme()/set_ui_theme()</code> в <code>ui_preferences.py</code> — по шаблону <code>get_ui_level()</code> (:109-124), ключ <code>ui_theme</code> в per-user <code>app_kv</code>; backup — автоматом.</li>
+          <li>Вкладка «Оформление» в <code>control_panel.py</code> — карточки-превью по паттерну <code>_LEVEL_CARDS</code>, клик → <code>set_ui_theme()</code> → <code>st.rerun()</code>.</li>
+        </ul>
+      </div>
+      <div class="move">
+        <span class="tag tag-p1">P1</span>
+        <div class="mt">Мировой уровень — офлайн и без беглецов</div>
+        <ul>
+          <li>Слоёный фон на мир: свой набор radial-градиентов для каждого (приём <code>ui_theme.css:38-45</code>, токен <code>--bg-app</code>).</li>
+          <li>Вендорить Manrope, IBM Plex Mono и Material Symbols (woff2 в <code>app/ui/assets/fonts/</code>, <code>@font-face</code>) — по образцу d3/mermaid.</li>
+          <li>Карточка-iframe читает <code>_INK/_MUTED/_ACCENT</code> из активного мира (это Python-константы — правка тривиальна).</li>
+          <li>Вернуть беглецов: CTA чата и акценты SSR-баннера — на токены.</li>
+        </ul>
+      </div>
+      <div class="move">
+        <span class="tag tag-p2">P2</span>
+        <div class="mt">Наследование островами и доказательство</div>
+        <ul>
+          <li>Плейсхолдер <code>__THEME__</code> в шаблон карты D3 (канал <code>.replace()</code> готов, <code>knowledge_graph_d3.py:595-604</code>).</li>
+          <li>Телеметрия «выбрал и оставил» + прокси перепутанных профилей.</li>
+          <li>Тёмный мир — только как отдельно спланированная кампания против порталов.</li>
+        </ul>
+      </div>
+    </div>
+    <p><strong>North star:</strong> каждый профиль ребёнка живёт в своём мире («выбрал и оставил» ≥ 14 дней), и ни один пиксель этой красоты не зависит от интернета.</p>
+  </section>
+
+  <div class="footer">
+    Эволюционный разбор №9 · серия «нескучных разборов» hometutor · 2026-07-12 ·
+    все файлы и строки проверены на HEAD <code>afb9916</code> («186») в этой сессии ·
+    формат: <code>evolutionary_analysis_guide.md</code>
+  </div>
+
+</div>
+
+</body>
+</html>
