@@ -1,37 +1,44 @@
 id: scenario_32
-title: "Гость HF Spaces: запуск без установки и ключей"
+title: "Публичное демо на HF Spaces: без установки и без своего LLM"
 level: "🟢 Первые шаги"
-persona: "Лена зашла на Hugging Face Spaces, открыла hometutor без .env."
+persona: "Лена нашла ссылку на публичный Space и хочет попробовать без установки чего-либо на свой компьютер."
 duration_min: 2
 why: |
-  Показать, что hometutor можно попробовать в один клик на HF Spaces без регистрации,
-  установки ключей и скачивания моделей. Guest mode с ограниченным, но рабочим UI.
+  Показать, что hometutor можно попробовать за пару минут на публичной ссылке
+  Hugging Face Spaces: не нужно ставить Python, LM Studio или собирать индекс —
+  всё уже развёрнуто и работает на предзагруженном демо-корпусе.
 requires:
   openai_api_key: false
   offline_friendly: true
   e2e_env:
     HOME_RAG_E2E_OFFLINE: "1"
   notes: |
-    Имитация HF Spaces: Streamlit собран с DEMO_MODE=true или HOME_RAG_E2E_OFFLINE=1.
-    Не требует live LLM, съёмка в offline.
+    Реальная конфигурация: deploy/hf-spaces (Docker SDK), AUTH_ENABLED=true (по README),
+    demo_data/ + demo_chroma_db/ копируются в рабочие data/ при старте контейнера
+    (bootstrap_demo_paths.sh), облачный LLM-провайдер. НЕТ отдельного "guest mode" или
+    DEMO_MODE=true флага — посетитель проходит обычную быструю регистрацию
+    (email/пароль), после чего видит уже готовый демо-курс. Т.к. диск контейнера
+    эфемерный, аккаунт может не пережить рестарт Space — это документированное
+    ограничение демо, не баг.
 wow_moment: |
-  Лена нажала одну кнопку «Open in HF Spaces» и через 10 секунд видит
-  рабочий интерфейс с демо-данными, без регистрации и API-ключа.
+  Ни одной команды в терминале, ни одного локального сервера: за пару минут после
+  открытия ссылки и короткой регистрации Лена уже задаёт вопросы по предзагруженному
+  курсу и видит ответы с источниками.
 takeaway: |
-  HF Spaces guest mode — входной билет: попробовать можно за 10 секунд,
-  без установки, ключей и привязки карты.
-scenario_link: "user_scenarios.md#сценарий-32--гость-hf-spaces"
+  Публичная витрина — не замена local-first дома, а входной билет: попробовать
+  можно без установки; данные и приватность остаются архитектурой локального режима.
+scenario_link: "user_scenarios.md#сценарий-32--публичное-демо-на-hf-spaces-без-установки-и-без-своего-llm"
 
 shots:
-  - slug: "01_hf_spaces_landing"
-    caption: "Страница HF Spaces: README + Open кнопка"
-    narration: "Репозиторий на HF Spaces — документация и кнопка запуска."
+  - slug: "01_hf_spaces_public_url"
+    caption: "Публичная ссылка HF Space: README и статус"
+    narration: "Открывает ссылку — сразу видно, что это работающий, а не спящий Space."
     duration_sec: 3
-  - slug: "02_guest_main_view"
-    caption: "Guest UI: упрощённый онбординг с демо-данными"
-    narration: "После запуска — рабочий интерфейс без регистрации, предзагруженные примеры."
+  - slug: "02_quick_signup"
+    caption: "Короткая регистрация: email + пароль"
+    narration: "AUTH_ENABLED=true — обычная быстрая регистрация, без ключей и настроек."
+    duration_sec: 3
+  - slug: "03_demo_course_first_answer"
+    caption: "Первый ответ по предзагруженному демо-курсу"
+    narration: "Демо-корпус уже в индексе — вопрос и ответ с источниками сразу после входа."
     duration_sec: 4
-  - slug: "03_guest_limitations_banner"
-    caption: "Баннер об ограничениях guest mode"
-    narration: "Система сообщает: сохранение сессии временное, ключи не настроены."
-    duration_sec: 3

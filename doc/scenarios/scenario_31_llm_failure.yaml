@@ -1,37 +1,45 @@
 id: scenario_31
-title: "Честный сбой LLM: circuit breaker и fallback"
+title: "Честный сбой LLM: локальный endpoint недоступен"
 level: "🔵 Trust drill-down"
-persona: "Аня задаёт вопрос, а LLM-провайдер отвечает ошибкой."
+persona: "Аня работает офлайн — LM Studio не запущена. Хочет понять, что происходит, не читая логи."
 duration_min: 2
 why: |
-  Показать, что hometutor не падает молча при сбое LLM: circuit breaker, fallback на
-  локальный провайдер, понятное сообщение пользователю без stacktrace.
+  Показать, что hometutor не молчит и не зависает при сбое LLM: circuit breaker
+  (app/llm_resilience.py, app/llm_local_circuit.py) быстро размыкается на живом трафике,
+  а UI показывает конкретную причину и конкретное действие вместо общей ошибки.
 requires:
   openai_api_key: false
   offline_friendly: true
   e2e_env:
     HOME_RAG_E2E_OFFLINE: "1"
   notes: |
-    Офлайн-съёмка через мок circuit breaker в provider-layer
-    (app/provider.py PROFILE=LOCAL_STRICT). Не требует live LLM.
+    Снимается через app/ui/llm_local_banner.py (реальный банер SSR-карточки при
+    reachable=False) и/или app/ui/offline_banner.py (llm_reachable=False на общем
+    экране). Circuit breaker (app/llm_resilience.py:168-171,191,209) — backend-механизм,
+    который снижает цену такого сбоя с ~45с полного таймаута до быстрого честного отказа;
+    сам термин "circuit breaker" на экране не показывается, это внутренняя причина, не
+    UI-текст.
 wow_moment: |
-  Вместо «500 Internal Server Error» пользователь видит: «Сервис временно недоступен.
-  Ответ подготовлен по локальным материалам» — деградация, а не падение.
+  Вместо зависания на десятки секунд — за пару секунд конкретный баннер: "Локальная LLM
+  недоступна — SSR работает в template-режиме" с адресом endpoint'а, именем нужной модели
+  и инструкцией запустить LM Studio.
 takeaway: |
-  LLM-сбой не равен сбою приложения: circuit breaker + fallback +
-  человечное сообщение = доверие к системе в неидеальных условиях.
-scenario_link: "user_scenarios.md#сценарий-31--честный-сбой-llm-circuit-breaker-и-fallback"
+  LLM-сбой не равен сбою приложения: быстрый честный отказ + названная причина +
+  конкретное действие = доверие к системе в неидеальных условиях.
+scenario_link: "user_scenarios.md#сценарий-31--честный-сбой-llm-локальный-endpoint-недоступен"
 
 shots:
-  - slug: "01_normal_answer_with_fallback_hint"
-    caption: "Ответ без LLM: fallback по локальному retrieval"
-    narration: "Система отвечает из индекса, но сообщает, что LLM-генерация временно недоступна."
+  - slug: "01_llm_local_banner_reachable_false"
+    caption: "Баннер: локальная LLM недоступна"
+    narration: >-
+      «Локальная LLM недоступна — SSR работает в template-режиме»: endpoint не отвечает,
+      карточка формируется по шаблону без персонализации.
     duration_sec: 4
-  - slug: "02_circuit_breaker_banner"
-    caption: "Circuit breaker banner: провайдер помечен как недоступный"
-    narration: "Интерфейс показывает, какой провайдер упал, и подсказывает проверить .env."
+  - slug: "02_banner_action_hint"
+    caption: "Конкретное действие: какой сервер запустить и какую модель загрузить"
+    narration: "Баннер называет base_url и модель — запустите LM Studio и загрузите именно её."
     duration_sec: 3
-  - slug: "03_manual_retry_cta"
-    caption: "Кнопка повторной попытки после восстановления"
-    narration: "Когда провайдер снова доступен, система предлагает перегенерировать ответ."
+  - slug: "03_diagnostics_expander"
+    caption: "Раскрытые детали диагностики: base_url и модель одной строкой"
+    narration: "Expander «Подробности диагностики local LLM» — тот же base_url/model в code-блоке."
     duration_sec: 3

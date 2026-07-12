@@ -1,38 +1,42 @@
 id: scenario_33
-title: "Экспорт живой карты: Knowledge Graph в Markdown"
+title: "Экспорт живой карты: интерактивный HTML одним кликом"
 level: "🔴 Mastery"
-persona: "Марк хочет сохранить карту знаний курса для внешнего использования."
-duration_min: 3
+persona: "Марк хочет забрать карту знаний курса и открыть её без приложения, даже offline."
+duration_min: 2
 why: |
-  Показать, что Knowledge Graph не только визуальный виджет: его можно
-  экспортировать как Markdown/Mermaid-диаграмму для вставки в конспекты,
-  Notion или Obsidian.
+  Показать, что Knowledge Graph — не запертый в Streamlit виджет: кнопка «Скачать
+  живую карту (HTML)» отдаёт самодостаточный интерактивный файл (узлы, связи, mastery),
+  который открывается в любом браузере без интернета и без hometutor.
 requires:
   openai_api_key: false
   offline_friendly: true
   e2e_env:
     HOME_RAG_E2E_OFFLINE: "1"
   notes: |
-    Экспорт из UI Knowledge Graph: кнопка «Экспорт» → Markdown/Mermaid.
-    Не требует live LLM.
+    Реальная фича, уже отгружена: st.download_button("⬇ Скачать живую карту (HTML)",
+    data=build_kg_html(payload), file_name="knowledge_graph.html", mime="text/html")
+    в app/ui/dashboards_graph.py (~строка 1100). Экспорт — HTML с вендоренным d3.js,
+    НЕ Markdown и НЕ Mermaid. Экспортируется уже посчитанный payload — построение
+    графа отдельным шагом требует reindex/гейта, сам экспорт LLM не вызывает.
 wow_moment: |
-  Клик «Экспорт» → готовый Markdown с Mermaid-блоком, описывающим подграф
-  пользователя с мастерой. Можно вставить в конспект одной вставкой.
+  Один клик — и на диске файл knowledge_graph.html: та же интерактивная карта, что и
+  в приложении, но открывается двойным кликом в браузере, работает офлайн и её можно
+  переслать одногруппнику без установки hometutor.
 takeaway: |
-  Живая карта не запирается внутри UI: экспорт в Markdown/Mermaid
-  открывает данные для внешних инструментов.
-scenario_link: "user_scenarios.md#сценарий-33--экспорт-живой-карты"
+  Живая карта не заперта внутри UI: экспорт в самодостаточный HTML делает её
+  переносимой и вечной — файл переживает и сессию, и сам продукт.
+scenario_link: "user_scenarios.md#сценарий-33--экспорт-живой-карты-интерактивный-html-одним-кликом"
 
 shots:
-  - slug: "01_kg_export_button"
-    caption: "Knowledge Graph с кнопкой экспорта"
-    narration: "В панели графа — кнопка «Экспорт в Markdown»."
+  - slug: "01_kg_panel_download_button"
+    caption: "Панель Knowledge Graph: кнопка «Скачать живую карту (HTML)»"
+    narration: "Кнопка стоит прямо под интерактивным графом — рядом со сводкой концептов."
     duration_sec: 3
-  - slug: "02_export_mermaid_preview"
-    caption: "Предпросмотр экспорта: Mermaid-диаграмма"
-    narration: "Markdown с Mermaid-блоком: узлы, связи, mastery-статус."
+  - slug: "02_downloaded_html_opened_standalone"
+    caption: "knowledge_graph.html открыт отдельно в браузере"
+    narration: "Тот же граф, та же интерактивность — но уже не внутри Streamlit, а как обычный файл."
     duration_sec: 4
-  - slug: "03_export_saved"
-    caption: "Файл экспорта сохранён локально"
-    narration: "Система сообщает путь к .md файлу и предлагает открыть."
+  - slug: "03_offline_share_moment"
+    caption: "Файл работает без сети и без приложения"
+    narration: "Отключил интернет, открыл файл заново — граф на месте: можно отправить кому угодно."
     duration_sec: 3

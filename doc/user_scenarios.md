@@ -1581,30 +1581,31 @@ SSR card → micro-outcome receipt с локальными метриками du
 
 ---
 
-## Сценарий 31 — Честный сбой LLM: circuit breaker и fallback
-> *«Сервис временно недоступен, но я всё равно могу учиться.»*
+## Сценарий 31 — Честный сбой LLM: локальный endpoint недоступен
+> *«Локальная LLM недоступна — но мне сразу сказали, что делать.»*
 
-Circuit breaker provider-layer перехватывает ошибку LLM, fallback на локальный retrieval
-с человечным сообщением. YAML: `scenario_31_llm_failure.yaml`. Capture pending: нужна реализация
-circuit-breaker banner в UI и мок offline-сценария.
-
----
-
-## Сценарий 32 — Гость HF Spaces: запуск без установки и ключей
-> *«Открыл в Spaces — работает без регистрации.»*
-
-Hugging Face Spaces guest mode: один клик → рабочий интерфейс с демо-данными, без .env,
-ключа и установки. YAML: `scenario_32_hf_guest.yaml`. Capture pending: нужен DEMO_MODE
-сборки Streamlit для Spaces.
+Реальный баннер (`app/ui/llm_local_banner.py`) за пару секунд называет причину и
+действие вместо зависания на таймауте; circuit breaker (`app/llm_resilience.py`)
+снижает цену сбоя с ~45с до быстрого честного отказа. YAML: `scenario_31_llm_failure.yaml`.
+Готов к съёмке — банер и диагностика уже в UI.
 
 ---
 
-## Сценарий 33 — Экспорт живой карты: Knowledge Graph в Markdown
-> *«Сохранил граф знаний — вставил в конспект одной строкой.»*
+## Сценарий 32 — Публичное демо на HF Spaces: без установки и без своего LLM
+> *«Открыл ссылку, коротко зарегистрировался — уже отвечает по демо-курсу.»*
 
-Knowledge Graph экспортируется как Markdown с Mermaid-диаграммой: узлы, связи, mastery
-без привязки к UI. YAML: `scenario_33_export_living_map.yaml`. Capture pending: нужна
-кнопка экспорта в UI.
+Docker-деплой на Hugging Face Spaces с предзагруженным демо-корпусом и облачным LLM;
+обычная быстрая регистрация (`AUTH_ENABLED=true`), без установки чего-либо локально.
+YAML: `scenario_32_hf_guest.yaml`. Готов к съёмке на живом Space.
+
+---
+
+## Сценарий 33 — Экспорт живой карты: интерактивный HTML одним кликом
+> *«Скачал карту — открылась в браузере без приложения и без сети.»*
+
+Кнопка «Скачать живую карту (HTML)» (`app/ui/dashboards_graph.py`) отдаёт
+самодостаточный интерактивный HTML с узлами/связями/mastery — не Markdown, не
+Mermaid. YAML: `scenario_33_export_living_map.yaml`. Готов к съёмке — фича уже отгружена.
 
 ---
 
@@ -1618,11 +1619,12 @@ Capture pending: нужна имплементация video resume в learner s
 ---
 
 ## Сценарий 35 — Приватность и offline-проверка: данные не покидают устройство
-> *«Отключил Wi-Fi — всё работает.»*
+> *«Отключил Wi-Fi — поиск, ответы и повторение карточек всё равно работают.»*
 
-Local-first архитектура: Chroma + SQLite + LM Studio без внешних HTTP-запросов.
-Проверка через network tab. YAML: `scenario_35_privacy_offline.yaml`. Capture pending:
-нужен offline-banner UI и/или network-tab overlay.
+Local-first архитектура: Chroma + SQLite + LM Studio без внешних HTTP-запросов;
+SM-2 повторение — чисто алгоритмическое, офлайн всегда. Проверка через network tab
+и реальный источник ответа (`llm_source_summary`). YAML: `scenario_35_privacy_offline.yaml`.
+Готов к съёмке.
 
 ---
 

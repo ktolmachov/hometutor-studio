@@ -4,40 +4,45 @@ level: "🟢 Первые шаги"
 persona: "Дима — privacy-ориентированный пользователь. Хочет убедиться, что его конспекты не уходят в облако."
 duration_min: 2
 why: |
-  Ключевое обещание hometutor — local-first. Сценарий доказывает: без OPENAI_API_KEY
-  приложение работает полностью локально — Chroma, SQLite, LLM через LM Studio
-  (или fallback offline-режим). Ни один HTTP-запрос не уходит вовне.
+  Ключевое обещание hometutor — local-first. Сценарий доказывает через сетевой
+  трафик и код, а не рекламный текст: без облачного провайдера поиск, ответы и SM-2
+  повторение работают через локальный Chroma/SQLite/LM Studio, без внешних запросов.
 requires:
   openai_api_key: false
   offline_friendly: true
   e2e_env:
     HOME_RAG_E2E_OFFLINE: "1"
   notes: |
-    Проверка через network tab / HAR-log: ни одного внешнего запроса.
-    Съёмка с HOME_RAG_E2E_OFFLINE=1 и отключённым сетевым интерфейсом
-    доказывает полную работоспособность.
+    Диагностика реальна через app/ui/offline_banner.py (get_offline_status(),
+    llm_reachable) и app/ui/helpers.py::llm_source_summary (текст вида
+    "Источник ответа: <label> · <model> · profile: <profile>" в дебаг-панели/
+    query-tab). Точная формулировка "Работаем локально" — не буквальный UI-текст,
+    заменена на проверяемый: реальный источник ответа. SRS-повторение (SM-2,
+    app/spaced_repetition.py) — чисто алгоритмическое, без LLM, всегда офлайн.
+    Генерация НОВЫХ карточек вне офлайн-фикстуры E2E обычно требует достижимого
+    LLM (локального или облачного) — сценарий это не скрывает.
 wow_moment: |
-  Отключил Wi-Fi, запустил hometutor — всё работает: поиск, flashcards,
-  knowledge graph. Ни одно действие не требует интернета.
+  Отключил Wi-Fi, запустил hometutor — поиск по материалам, ответы с источниками и
+  повторение карточек по SM-2 работают. Вкладка сети пуста, кроме localhost.
 takeaway: |
   Local-first — не маркетинг, а архитектура: Chroma + SQLite + LM Studio
-  = полная учебная среда без внешних зависимостей.
-scenario_link: "user_scenarios.md#сценарий-35--приватность-и-offline-проверка"
+  = учебная среда, где SRS и retrieval не требуют интернета в принципе.
+scenario_link: "user_scenarios.md#сценарий-35--приватность-и-offline-проверка-данные-не-покидают-устройство"
 
 shots:
-  - slug: "01_offline_banner"
-    caption: "UI в offline: баннер 'Работаем локально'"
-    narration: "Система явно показывает, что данные не покидают устройство."
+  - slug: "01_offline_status_diagnostics"
+    caption: "Диагностика: локальный LLM endpoint и offline-статус"
+    narration: "Система прозрачно показывает, какой endpoint используется и достижим ли он."
     duration_sec: 3
-  - slug: "02_offline_answer"
-    caption: "Ответ без сети: retrieval из Chroma"
-    narration: "Поиск по локальному индексу — ответ найден без единого внешнего запроса."
+  - slug: "02_offline_answer_with_source"
+    caption: "Ответ без сети: retrieval из Chroma + источник ответа"
+    narration: "Поиск по локальному индексу, источник ответа виден явно, а не скрыт."
     duration_sec: 4
-  - slug: "03_offline_flashcards"
-    caption: "Flashcards в offline: создание и SRS"
-    narration: "Генерация и интервальное повторение работают без LLM-провайдера."
-    duration_sec: 4
+  - slug: "03_offline_srs_review"
+    caption: "SM-2 повторение карточек полностью офлайн"
+    narration: "Оценка «Легко/Хорошо/Забыл» и пересчёт интервала — чистый алгоритм, без LLM."
+    duration_sec: 3
   - slug: "04_network_tab_clean"
     caption: "Network tab: ноль внешних запросов"
-    narration: "Вкладка сети пуста (кроме localhost): полная изоляция."
+    narration: "Вкладка сети пуста, кроме localhost: полная изоляция во время сессии."
     duration_sec: 3
