@@ -12,10 +12,13 @@
 > **Пример-эталон.** hometutor essence-разбор 2026-07-10: полный анализ Mission
 > Control/UX/петли обучения → [`../next/learning_loop_simplicity_plan.md`](../next/learning_loop_simplicity_plan.md)
 > (implementation-ready продолжение с candidate-пакетами). Формат подачи самого
-> разбора — самодостаточный HTML-лонгрид, см. [`html_deck_guide.md`](html_deck_guide.md)
-> для принципа «без внешних зависимостей» (здесь — не слайды, а notebook-style страница).
+> разбора — самодостаточный HTML-лонгрид в **зафиксированном notebook-стиле**, см.
+> [`notebook_deck_guide.md`](notebook_deck_guide.md) — палитра, компоненты и восемь
+> секций там финальны с 2026-07-12; новый CSS с нуля не изобретать, копировать
+> [`notebook_template.html`](notebook_template.html).
 >
-> **Версия гайда:** 1.0 (2026-07-10).
+> **Версия гайда:** 1.1 (2026-07-12) — ссылка на зафиксированный notebook-стиль
+> вместо общего html_deck_guide.md.
 
 ---
 
@@ -104,10 +107,11 @@
 
 Разбор всегда даёт **два слоя**, не один:
 
-1. **Читаемый слой** — самодостаточный HTML-лонгрид (нет внешних зависимостей, инлайн-SVG
-   для диаграмм, тема light/dark). Это не слайд-дек — принцип из
-   [`html_deck_guide.md`](html_deck_guide.md) («факты из источника → токены → компоненты»)
-   применяется к одностраничному документу с секциями, а не к раскадровке 16:9.
+1. **Читаемый слой** — самодостаточный HTML-лонгрид в notebook-стиле (нет внешних
+   зависимостей, инлайн-SVG для диаграмм, тема light/dark). Это не слайд-дек —
+   палитра, восемь секций и компоненты зафиксированы в
+   [`notebook_deck_guide.md`](notebook_deck_guide.md); старт — копия
+   [`notebook_template.html`](notebook_template.html), не CSS с нуля.
 2. **Actionable-слой** — implementation-ready `.md`-план в `doc/next/` со сквозной
    структурой на каждый пункт: `Problem / Evidence (файл:строка) / Proposed / Files /
    DoD / North star / Kill switch / Effort / Priority / Dependencies`. Этого достаточно,
@@ -155,8 +159,10 @@
   implementation-ready план, полученный из этого формата (hometutor, разбор 2026-07-10)
 - [`../next/roadmap_recommendations_2026-06-11.md`](../next/roadmap_recommendations_2026-06-11.md) —
   образец recommendations-регистра для промоушена в `backlog_registry.yaml`
+- [`notebook_deck_guide.md`](notebook_deck_guide.md) / [`notebook_template.html`](notebook_template.html) —
+  **зафиксированный** формат самого разбора (палитра, восемь секций, компоненты — v1.0 с 2026-07-12)
 - [`html_deck_guide.md`](html_deck_guide.md) / [`deck_template.html`](deck_template.html) —
-  формат самодостаточного HTML (принцип, не буквальный слайд-дек)
+  парный формат для слайд-раскадровки 16:9 (другая задача — защита/питч, не разбор)
 - [`../backlog_registry.yaml`](../backlog_registry.yaml) — SSoT исполнения; сюда кандидаты
   попадают только решением владельца
 

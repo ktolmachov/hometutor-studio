@@ -1,0 +1,323 @@
+<title>Разбор №NN — ЗАГОЛОВОК-ТЕЗИС</title>
+<style>
+  /* ============================================================
+     HOMETUTOR NOTEBOOK STYLE v1.0 — LOCKED 2026-07-12
+     Извлечено из разборов №9-10 эволюционной серии. Это визитная
+     карточка формата «нескучный разбор». НЕ переизобретать палитру
+     заново в новой сессии — копировать этот файл и менять только
+     содержимое между <div class="wrap"> ... </div>.
+     Гайд: notebook_deck_guide.md (в этой же папке).
+     ============================================================ */
+  :root {
+    /* --- ЛОКОНО (locked core, 9 токенов) --- не менять значения --- */
+    --paper: #f7f3ea;
+    --paper-2: #fffdf7;
+    --ink: #17211b;
+    --muted: #5c6a61;
+    --terra: #b95631;
+    --terra-deep: #7d351f;
+    --forest: #243b2c;
+    --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14);
+    --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+    /* --- расширение: статус-токены (опционально, для сводных таблиц
+       «сделано/молчит/дыра» — см. §6 guide) --- */
+    --done: #1e6e46;
+    --silent: #b98a2d;
+    --hole: #8c2f39;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141a16;
+      --paper-2: #1b231e;
+      --ink: #ece5d4;
+      --muted: #9aa89d;
+      --terra: #d97a52;
+      --terra-deep: #e8a583;
+      --forest: #9dbfa8;
+      --gold: #d9a55e;
+      --line: rgba(236, 229, 212, 0.16);
+      --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(157, 191, 168, 0.10);
+      --verdict-keep: #6fc493;
+      --verdict-fix: #e0a35c;
+      --verdict-no: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+      --done: #6fc493;
+      --silent: #d9b45e;
+      --hole: #e08691;
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+    --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+    --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+    --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+    --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+      radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--terra-deep); }
+  em { color: var(--muted); }
+
+  code {
+    font-family: Consolas, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--terra);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 0.95rem; color: var(--gold);
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .sec-name {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem;
+    font-weight: 700; color: var(--muted);
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.1rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+  }
+  .anchor-card { border-left: 4px solid var(--terra); }
+  .ev { font-size: 0.86rem; color: var(--muted); margin-top: 0.5rem; }
+  .ev code { font-size: 0.8rem; }
+
+  .figure { margin: 1.4rem 0 0.4rem; }
+  .figure svg { width: 100%; height: auto; display: block; }
+  .figcap { font-size: 0.84rem; color: var(--muted); margin-top: 0.5rem; max-width: 70ch; }
+
+  .table-scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  td:first-child { white-space: nowrap; }
+  td { font-variant-numeric: tabular-nums; }
+
+  .st { display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 99px; white-space: nowrap; }
+  .st-done { color: var(--done); border: 1px solid var(--done); }
+  .st-silent { color: var(--silent); border: 1px solid var(--silent); }
+  .st-hole { color: var(--hole); border: 1px solid var(--hole); }
+
+  .v { display: inline-block; font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+       letter-spacing: 0.08em; padding: 0.1rem 0.55rem; border-radius: 99px; margin-right: 0.5rem; }
+  .v-keep { color: var(--verdict-keep); border: 1.5px solid var(--verdict-keep); }
+  .v-fix { color: var(--verdict-fix); border: 1.5px solid var(--verdict-fix); }
+  .v-no { color: var(--verdict-no); border: 1.5px solid var(--verdict-no); }
+
+  .tension { border-left: 4px solid var(--gold); }
+  .tension .t { font-family: Georgia, serif; font-size: 1.05rem; margin-bottom: 0.35rem; }
+  .syn { color: var(--verdict-keep); font-weight: 600; }
+
+  .ladder { list-style: none; padding-left: 0; }
+  .ladder li { display: flex; gap: 0.8rem; align-items: baseline; margin-bottom: 0.55rem; }
+  .ladder .num {
+    flex: none; font-family: Georgia, serif; font-weight: 700; color: var(--gold);
+    width: 1.6rem; text-align: right;
+  }
+
+  .tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.08rem 0.5rem;
+         border-radius: 4px; color: var(--paper-2); }
+  .tag-p0 { background: var(--terra); }
+  .tag-p1 { background: var(--forest); }
+  .tag-p2 { background: var(--gold); }
+  :root[data-theme="dark"] .tag, :root[data-theme="dark"] .tag-p2 { color: #141a16; }
+  @media (prefers-color-scheme: dark) { .tag { color: #141a16; } }
+  :root[data-theme="light"] .tag { color: var(--paper-2); }
+
+  .footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
+            font-size: 0.85rem; color: var(--muted); }
+  .footer code { font-size: 0.8rem; }
+
+  a { color: var(--terra); }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">Эволюционный разбор · №NN · &lt;область&gt;</div>
+  <h1>Заголовок-тезис, не название темы</h1>
+  <p class="lede">Один абзац — что это за разбор и какой единственный вывод он несёт.
+  Не список содержания, а лид газетной статьи.</p>
+  <div class="meta">
+    <span>&lt;проект&gt; · HEAD <code>&lt;hash&gt;</code> «&lt;номер коммита&gt;»</span>
+    <span>&lt;дата&gt;</span>
+    <span>&lt;доп. контекст: охват, база проверки&gt;</span>
+  </div>
+</header>
+
+<!-- 1. СУТЬ — обязательный раздел -->
+<section id="essence">
+  <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Суть</span></div>
+  <h2>Чего по-настоящему хочет &lt;роль&gt;</h2>
+  <p>Тезис от первых принципов, не список фич. <strong>Ключевая мысль</strong> — выделять
+  сильным, не заголовком.</p>
+</section>
+
+<!-- 2. РЕАЛЬНОСТЬ — инвентаризация, обязательно с файл:строка -->
+<section id="reality">
+  <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Реальность</span></div>
+  <h2>Что уже есть в коде/данных</h2>
+  <div class="card">
+    <p><strong>Заголовок находки.</strong> Описание с точной привязкой к коду:
+    <code>module.py:123-145</code> делает X.</p>
+    <p class="ev">Доп. свидетельство или уточнение — необязательно.</p>
+  </div>
+
+  <div class="figure">
+    <!-- inline SVG диаграмма; см. guide §7 за приёмами (кольцо, узлы, легенда) -->
+    <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Описание диаграммы для screen reader">
+      <rect x="10" y="10" width="680" height="180" rx="10" fill="none" stroke="var(--line)"/>
+      <text x="350" y="105" text-anchor="middle" font-family="Georgia, serif" font-size="16" fill="var(--muted)">— диаграмма —</text>
+    </svg>
+    <p class="figcap">Подпись диаграммы: что на ней показано и откуда цифры.</p>
+  </div>
+
+  <div class="table-scroll">
+    <table>
+      <tr><th>Колонка</th><th>Статус</th><th>Комментарий</th></tr>
+      <tr><td>Элемент A</td><td><span class="st st-done">сделано</span></td><td>видно на экране</td></tr>
+      <tr><td>Элемент B</td><td><span class="st st-silent">молчит</span></td><td>работает, но не видно</td></tr>
+      <tr><td>Элемент C</td><td><span class="st st-hole">дыра</span></td><td>двери нет</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 3. ПРОТИВОРЕЧИЯ — синтез, не выбор стороны -->
+<section id="tensions">
+  <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Противоречия</span></div>
+  <h2>Напряжения — и их синтез</h2>
+  <div class="card tension">
+    <div class="t">&lt;полюс A&gt; ↔ &lt;полюс B&gt;</div>
+    <p>Почему оба полюса имеют право на жизнь. <span class="syn">Синтез: &lt;решение&gt;.</span>
+    Что именно снимает напряжение, не выбирая сторону.</p>
+  </div>
+</section>
+
+<!-- 4. БОЛЬ-ЯКОРЬ — обязательный раздел, один проверяемый факт -->
+<section id="pain">
+  <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Боль-якорь</span></div>
+  <h2>Одна конкретная проверяемая боль</h2>
+  <div class="card anchor-card">
+    <p><strong>Проверяемый факт:</strong> &lt;наблюдение из жизни/использования&gt;.</p>
+    <p><strong>Точная причина в коде:</strong></p>
+    <ul>
+      <li><code>file.py:NN</code> — что именно происходит здесь;</li>
+      <li><code>other_file.py:NN</code> — и здесь.</li>
+    </ul>
+    <p class="ev">Житейская проверка/цитата, делающая боль осязаемой.</p>
+  </div>
+</section>
+
+<!-- 5. ВЕРДИКТЫ — позиция, не обзор опций -->
+<section id="verdicts">
+  <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Вердикты</span></div>
+  <h2>Решение по каждому элементу</h2>
+  <div class="card"><span class="v v-keep">оставить</span><strong>Элемент.</strong> Причина одной строкой.</div>
+  <div class="card"><span class="v v-fix">починить</span><strong>Элемент.</strong> Что именно и почему дёшево.</div>
+  <div class="card"><span class="v v-no">не делать</span><strong>Элемент.</strong> Почему это ложный путь.</div>
+</section>
+
+<!-- 6. ЦЕННОСТЬ -->
+<section id="value">
+  <div class="sec-label"><span class="sec-num">6</span><span class="sec-name">Ценность</span></div>
+  <h2>Уникальность — и измеримое доказательство</h2>
+  <p>В чём отличие от альтернатив, одним абзацем.</p>
+  <div class="table-scroll">
+    <table>
+      <tr><th>Метрика</th><th>Сейчас</th><th>После</th></tr>
+      <tr><td>&lt;метрика&gt;</td><td>&lt;значение&gt;</td><td>&lt;цель&gt;</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 7. ПУТЬ -->
+<section id="path">
+  <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Путь</span></div>
+  <h2>Золотой путь и лестница уровней</h2>
+  <p><strong>Золотой путь одной сессии:</strong> шаг → шаг → шаг → результат.</p>
+  <ol class="ladder">
+    <li><span class="num">0</span><span><strong>Уровень.</strong> Описание, что достижимо и почему приятно.</span></li>
+    <li><span class="num">1</span><span><strong>Уровень.</strong> Следующая ступень.</span></li>
+  </ol>
+</section>
+
+<!-- 8. ПЛАН — P0 ≤ два хода -->
+<section id="plan">
+  <div class="sec-label"><span class="sec-num">8</span><span class="sec-name">План</span></div>
+  <h2>P0–P2 по соотношению эффект/усилие</h2>
+  <div class="table-scroll">
+    <table>
+      <tr><th></th><th>Ход</th><th>Что делается</th><th>Усилие</th></tr>
+      <tr><td><span class="tag tag-p0">P0-1</span></td><td><strong>Название хода.</strong></td><td>Описание изменения.</td><td>часы</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td><td>Название.</td><td>Описание.</td><td>дни</td></tr>
+      <tr><td><span class="tag tag-p2">P2</span></td><td>Название.</td><td>Описание.</td><td>волна</td></tr>
+    </table>
+  </div>
+  <p><strong>Kill switch:</strong> что означает, что ход выбран не тот (напр. «потребовался
+  новый пайплайн/гейт/хранилище — стоп»).</p>
+</section>
+
+<div class="footer">
+  <p>Разбор №NN · &lt;проект&gt; HEAD <code>&lt;hash&gt;</code> «&lt;номер&gt;» · &lt;дата&gt;.</p>
+  <p>Правило двух слоёв: этот HTML — слой анализа; actionable-кандидаты — в
+  <code>doc/next/&lt;slug&gt;_plan.md</code>. Серия: <code>doc/presentations/evolutionary_analyses/</code>.</p>
+</div>
+
+</div>

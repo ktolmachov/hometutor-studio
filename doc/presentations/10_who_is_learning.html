@@ -1,0 +1,535 @@
+<title>Разбор №10 — Кто учится? Авторизация в hometutor</title>
+<style>
+  :root {
+    --paper: #f4f3ee;
+    --paper-2: #fdfcf8;
+    --ink: #1a2028;
+    --muted: #5d6570;
+    --accent: #33658a;
+    --accent-deep: #1f4058;
+    --brass: #a2762c;
+    --line: rgba(26, 32, 40, 0.14);
+    --card: rgba(255, 255, 255, 0.74);
+    --code-bg: rgba(51, 101, 138, 0.08);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --shadow: 0 14px 40px rgba(20, 35, 50, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #151a20;
+      --paper-2: #1c232b;
+      --ink: #e8e6df;
+      --muted: #99a3ad;
+      --accent: #6fa3c9;
+      --accent-deep: #a3c6de;
+      --brass: #cfa354;
+      --line: rgba(232, 230, 223, 0.16);
+      --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(111, 163, 201, 0.12);
+      --verdict-keep: #6fc493;
+      --verdict-fix: #e0a35c;
+      --verdict-no: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f4f3ee;
+    --paper-2: #fdfcf8;
+    --ink: #1a2028;
+    --muted: #5d6570;
+    --accent: #33658a;
+    --accent-deep: #1f4058;
+    --brass: #a2762c;
+    --line: rgba(26, 32, 40, 0.14);
+    --card: rgba(255, 255, 255, 0.74);
+    --code-bg: rgba(51, 101, 138, 0.08);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --shadow: 0 14px 40px rgba(20, 35, 50, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #151a20;
+    --paper-2: #1c232b;
+    --ink: #e8e6df;
+    --muted: #99a3ad;
+    --accent: #6fa3c9;
+    --accent-deep: #a3c6de;
+    --brass: #cfa354;
+    --line: rgba(232, 230, 223, 0.16);
+    --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(111, 163, 201, 0.12);
+    --verdict-keep: #6fc493;
+    --verdict-fix: #e0a35c;
+    --verdict-no: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 10% -4%, rgba(162, 118, 44, 0.08), transparent 32%),
+      radial-gradient(circle at 94% 0%, rgba(51, 101, 138, 0.09), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--accent-deep); }
+  em { color: var(--muted); }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--accent);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 2.1rem; color: var(--accent);
+    opacity: 0.55; line-height: 1; font-style: italic;
+  }
+  .sec-name { text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.76rem; font-weight: 700; color: var(--muted); }
+
+  code, .ev {
+    font-family: Consolas, "Cascadia Mono", Menlo, monospace;
+    font-size: 0.86em; background: var(--code-bg);
+    padding: 0.1em 0.4em; border-radius: 6px;
+    overflow-wrap: anywhere;
+  }
+  .ev { display: inline-block; margin: 0.1rem 0; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    padding: 1.15rem 1.3rem; margin: 1.1rem 0; box-shadow: var(--shadow);
+  }
+  .card p:last-child, .card ul:last-child { margin-bottom: 0; }
+
+  .anchor-card { border-left: 4px solid var(--accent); }
+  .anchor-card .k { text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.72rem; font-weight: 700; color: var(--accent); }
+
+  .pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.9rem; margin: 1.2rem 0; }
+  .pillar { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 0.95rem 1.05rem; }
+  .pillar .t { font-weight: 700; margin-bottom: 0.3rem; }
+  .pillar .d { font-size: 0.92rem; color: var(--muted); }
+
+  table { border-collapse: collapse; width: 100%; font-size: 0.93rem; }
+  .table-scroll { overflow-x: auto; margin: 1.2rem 0; border: 1px solid var(--line); border-radius: 14px; background: var(--paper-2); }
+  th, td { text-align: left; padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { font-weight: 600; }
+
+  .v { font-weight: 700; white-space: nowrap; }
+  .v-keep { color: var(--verdict-keep); }
+  .v-fix { color: var(--verdict-fix); }
+  .v-no { color: var(--verdict-no); }
+
+  .tension { margin: 1.4rem 0; }
+  .tension .vs {
+    display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap;
+    font-family: Georgia, serif; font-size: 1.12rem; margin-bottom: 0.4rem;
+  }
+  .tension .vs .sep { color: var(--accent); font-style: italic; }
+  .tension .syn { border-left: 3px solid var(--brass); padding: 0.15rem 0 0.15rem 0.9rem; }
+  .tension .syn .k { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; color: var(--brass); display: block; margin-bottom: 0.15rem; }
+
+  /* Profile picker mockup */
+  .profiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.85rem; margin: 1.3rem 0 0.5rem; max-width: 640px; }
+  .profile { border-radius: 16px; border: 1px solid var(--line); background: var(--paper-2); box-shadow: var(--shadow); padding: 1.1rem 0.9rem; text-align: center; }
+  .profile .face {
+    width: 56px; height: 56px; border-radius: 50%; margin: 0 auto 0.6rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; color: #fff;
+  }
+  .profile .nm { font-weight: 700; font-size: 0.98rem; }
+  .profile .ds { font-size: 0.76rem; color: var(--muted); margin-top: 0.15rem; }
+  .mock-note { font-size: 0.85rem; color: var(--muted); max-width: 70ch; }
+
+  .ladder { list-style: none; padding: 0; margin: 1.2rem 0; counter-reset: step -1; }
+  .ladder li {
+    counter-increment: step; position: relative; padding: 0.55rem 0 0.55rem 3.1rem;
+    border-left: 2px solid var(--line); margin-left: 1.1rem;
+  }
+  .ladder li::before {
+    content: counter(step); position: absolute; left: -1.05rem; top: 0.55rem;
+    width: 2rem; height: 2rem; border-radius: 50%; background: var(--paper-2);
+    border: 2px solid var(--accent); color: var(--accent);
+    font-family: Georgia, serif; font-weight: 700; font-size: 0.95rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ladder .lt { font-weight: 700; }
+  .ladder .ld { font-size: 0.92rem; color: var(--muted); }
+
+  .plan { display: grid; gap: 0.9rem; margin: 1.2rem 0; }
+  .move { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 1rem 1.2rem; box-shadow: var(--shadow); }
+  .move .tag {
+    display: inline-block; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em;
+    text-transform: uppercase; border-radius: 999px; padding: 0.18rem 0.6rem; margin-bottom: 0.4rem;
+  }
+  .tag-p0 { background: var(--accent); color: #f4f9fd; }
+  .tag-p1 { background: var(--code-bg); color: var(--accent-deep); border: 1px solid var(--line); }
+  .tag-p2 { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+  .move .mt { font-weight: 700; font-size: 1.05rem; margin-bottom: 0.3rem; font-family: Georgia, serif; }
+  .move p, .move ul { font-size: 0.95rem; }
+
+  .figure { margin: 1.6rem 0; }
+  .figure svg { width: 100%; height: auto; display: block; }
+  .figcap { font-size: 0.83rem; color: var(--muted); margin-top: 0.5rem; text-align: center; }
+
+  .footer { margin-top: 4rem; border-top: 1px solid var(--line); padding-top: 1.3rem; font-size: 0.85rem; color: var(--muted); }
+  .num { font-variant-numeric: tabular-nums; }
+  a { color: var(--accent); }
+
+  @media (max-width: 640px) {
+    h1 { font-size: 1.85rem; }
+    .wrap { padding: 2rem 1rem 3rem; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div class="kicker">Эволюционный разбор · №10 в серии</div>
+    <h1>Кто учится?</h1>
+    <p class="lede">Авторизация пользователя в приложение. Сильный ход: дома авторизация — это <em>выбор ученика</em>, а не проверка личности. Бэкенд для этого уже построен целиком — и выключен, потому что три оборванных провода делают его включение наказанием.</p>
+    <div class="meta">
+      <span>hometutor · 2026-07-12</span>
+      <span>проверено на HEAD <code>afb9916</code> («186»)</span>
+      <span>формат: evolutionary_analysis_guide</span>
+    </div>
+  </header>
+
+  <!-- ============ 1 СУТЬ ============ -->
+  <section>
+    <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Суть — первые принципы</span></div>
+    <h2>Чего по-настоящему хочет семья от «входа» в домашнего репетитора?</h2>
+    <p>Не безопасности банковского уровня. Дом — доверенная среда: компьютер общий, угроза — не хакер, а перепутанные тетради. Из первых принципов человеку нужно три вещи:</p>
+    <div class="pillars">
+      <div class="pillar">
+        <div class="t">Личность петли памяти</div>
+        <div class="d">SM-2, mastery, очередь повторений (разбор №1) имеют смысл только на данных <em>одного</em> ученика. «Вход» — это способ сказать петле памяти: учись на моих ответах, а не на семейной смеси.</div>
+      </div>
+      <div class="pillar">
+        <div class="t">Вход без трения</div>
+        <div class="d">Ребёнку девять лет. Порог входа — «ткнул в свою карточку», как в Netflix или на Nintendo Switch. Email и пароль на 8+ символов — порог для SaaS-клиента, не для ребёнка за семейным компьютером.</div>
+      </div>
+      <div class="pillar">
+        <div class="t">Непрерывность</div>
+        <div class="d">Вход обязан переживать F5 и перезапуск, а главное — вся накопленная история обязана прийти со мной в мой профиль. Вход, который «обнуляет» прошлое, хуже отсутствия входа.</div>
+      </div>
+    </div>
+    <p><strong>Ключевое различение: идентификация ≠ аутентификация.</strong> Дома нужен ответ на вопрос «кто это?» (идентификация), а не «докажи, что это ты» (аутентификация). Доказательства нужны на <em>периметре</em> — там, где канал не доверен: удалённый API, интернет, чужая сеть. Внутри дома дверь уже заперта; комнаты подписывают по именам, а не запирают на ключи.</p>
+  </section>
+
+  <!-- ============ 2 РЕАЛЬНОСТЬ ============ -->
+  <section>
+    <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Реальность — инвентаризация с высоты</span></div>
+    <h2>Построено почти всё — и всё выключено</h2>
+
+    <h3>А. Бэкенд — полный и качественный</h3>
+    <ul>
+      <li><span class="ev">app/auth_service.py</span> — bcrypt (rounds конфигурируемы, дефолт 12), JWT HS256 с <code>jti</code>, регистрация/вход, запись каждой сессии.</li>
+      <li><span class="ev">app/auth_db.py</span> — отдельная глобальная БД (<code>data/auth.db</code>): пользователи, сессии с флагом <code>revoked</code>, журнал событий (<code>register</code>/<code>login_ok</code>/<code>login_fail</code>/<code>logout</code>).</li>
+      <li><span class="ev">app/routers/auth.py</span> — <code>/auth/register|login|me|logout</code>; logout делает <strong>серверный отзыв</strong> токена по <code>jti</code> (:62-71).</li>
+      <li><span class="ev">app/api_auth.py:23-63</span> — <code>auth_scope</code>: образцовая generator-зависимость — подпись, срок, существование пользователя, проверка отзыва (:52-54), contextvar на время запроса с гарантированным reset в <code>finally</code>.</li>
+      <li><span class="ev">app/config.py:701-703</span> — <code>guard_insecure_jwt_secret</code>: включил auth с dev-секретом — приложение честно не стартует. Fail-fast, как надо.</li>
+      <li>Два слоя защиты API разведены правильно (<span class="ev">api.py:277-294</span>): <code>require_api_key</code> — периметр, <code>auth_scope</code> — личность; оба — честные no-op при выключенных настройках.</li>
+    </ul>
+
+    <h3>Б. Изоляция — физическая, и она уже работает</h3>
+    <ul>
+      <li><span class="ev">user_state_db.py:286-300</span> — при активном auth-контексте путь к БД прогресса резолвится в <code>data/users/&lt;uid&gt;/user_state.db</code>: не префиксы в общей базе, а <strong>отдельные файлы</strong>. Загрязнение чужого прогресса исключено физически.</li>
+      <li>Критичная деталь: изоляция включается от <code>get_current_user_id()</code> — <em>contextvar</em>, а не от JWT. Кто угодно, кто ставит contextvar, получает изоляцию. <strong>JWT нужен каналу, а не изоляции.</strong></li>
+      <li>UI-гейт покрывает все 4 входа: <span class="ev">main.py:89</span> + все три страницы <code>app/ui/pages/</code> (проверено grep-ом).</li>
+    </ul>
+
+    <h3>В. Выключатель</h3>
+    <ul>
+      <li><span class="ev">config.env:223</span> — <code>AUTH_ENABLED=false</code>; <span class="ev">config.py:568</span> — тот же дефолт. Вся описанная машина по умолчанию темна: семья пишет в один глобальный <code>user_state.db</code> — mastery, карточки и история троих людей перемешаны в 20 таблицах одного файла.</li>
+    </ul>
+
+    <h3>Г. Оборванные провода — почему выключатель не поднимают</h3>
+    <ul>
+      <li><strong>Вход не переживает F5.</strong> Токен живёт только в <code>st.session_state</code> (<span class="ev">auth_gate.py:19-25</span>) — обновил страницу или перезапустил браузер → форма входа заново. Никакого cookie/восстановления (grep <code>query_params</code> по UI: только e2e и навигация). TTL токена — 7 дней (<span class="ev">config.py:575-581</span>), но реальная сессия — до первого F5.</li>
+      <li><strong>«Выйти» не выходит.</strong> Кнопка (<span class="ev">auth_gate.py:130-138</span>) чистит session_state — и всё. Серверный отзыв <code>/auth/logout</code> построен и проверяется в <code>auth_scope</code>, но из UI имеет <strong>ноль вызовов</strong> (grep <code>/auth/</code> по app/ui: только login и register). Токен остаётся валиден до 7 дней.</li>
+      <li><strong>Включение auth = приложение «забывает» всё.</strong> Per-user БД стартует пустой; из глобального прошлого мигрируют только <code>ui_level</code> и <code>ui_feature_overrides</code> (<span class="ev">ui_preferences.py:39-50</span>) — <strong>2 ключа из одной таблицы, при 20 таблицах прогресса</strong> (spaced_repetition, quiz_mastery, flashcards, tutor_learning_resume…).</li>
+      <li><strong>Регистрация требует email.</strong> Форма (<span class="ev">auth_gate.py:116-127</span>): email + пароль ≥8 символов. У детей нет email — identity-модель SaaS в семейном local-first продукте.</li>
+      <li><strong>Протухший токен = дождь ошибок.</strong> Обработки 401 в UI нет (<span class="ev">ui_client.py</span> упоминает 401 только в докстринге): на 8-й день каждый виджет сыплет «Ошибка сервера», никто не возвращает на форму входа.</li>
+      <li><strong>Telegram живёт мимо профилей.</strong> <code>/link</code> — заглушка (<span class="ev">telegram_handlers.py:289-295</span>: «один файл user_state.db на машине»); бот пишет с contextvar None → в глобальную БД, даже когда семья включила auth. Вопрос ребёнка из бота падает «в никому».</li>
+      <li><strong>Пароль нельзя ни сменить, ни сбросить.</strong> Ни в <code>/auth/*</code>, ни в admin-роутере (там кэш и реиндекс) — забыл пароль → доступ к своему прогрессу спасают руками в sqlite.</li>
+    </ul>
+
+    <div class="figure" role="img" aria-label="Диаграмма: построенный auth-механизм и четыре оборванных провода">
+      <svg viewBox="0 0 860 330" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, sans-serif">
+        <defs>
+          <marker id="arr2" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+            <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+          </marker>
+        </defs>
+        <!-- built machine -->
+        <rect x="20" y="30" width="250" height="270" rx="16" fill="var(--card)" stroke="var(--verdict-keep)" stroke-width="1.6"/>
+        <text x="145" y="58" text-anchor="middle" fill="var(--verdict-keep)" font-size="13" font-weight="700">ПОСТРОЕНО (образцово)</text>
+        <text x="145" y="86" text-anchor="middle" fill="var(--ink)" font-size="12.5">bcrypt + JWT + jti</text>
+        <text x="145" y="110" text-anchor="middle" fill="var(--ink)" font-size="12.5">/auth: register·login·me·logout</text>
+        <text x="145" y="134" text-anchor="middle" fill="var(--ink)" font-size="12.5">серверный отзыв сессий</text>
+        <text x="145" y="158" text-anchor="middle" fill="var(--ink)" font-size="12.5">auth_scope + contextvar</text>
+        <text x="145" y="182" text-anchor="middle" fill="var(--ink)" font-size="12.5">физическая изоляция</text>
+        <text x="145" y="200" text-anchor="middle" fill="var(--muted)" font-size="11">data/users/&lt;uid&gt;/user_state.db</text>
+        <text x="145" y="224" text-anchor="middle" fill="var(--ink)" font-size="12.5">fail-fast на dev-секрете</text>
+        <text x="145" y="248" text-anchor="middle" fill="var(--ink)" font-size="12.5">журнал auth-событий</text>
+        <text x="145" y="280" text-anchor="middle" fill="var(--muted)" font-size="11" font-style="italic">AUTH_ENABLED=false — всё темно</text>
+
+        <!-- broken wires -->
+        <g>
+          <rect x="360" y="30" width="480" height="58" rx="12" fill="var(--card)" stroke="var(--line)"/>
+          <text x="378" y="54" fill="var(--verdict-fix)" font-size="12.5" font-weight="700">Провод 1 · вход ↛ время</text>
+          <text x="378" y="74" fill="var(--muted)" font-size="12">токен только в st.session_state — F5 = форма входа заново</text>
+        </g>
+        <g>
+          <rect x="360" y="100" width="480" height="58" rx="12" fill="var(--card)" stroke="var(--line)"/>
+          <text x="378" y="124" fill="var(--verdict-fix)" font-size="12.5" font-weight="700">Провод 2 · «Выйти» ↛ отзыв</text>
+          <text x="378" y="144" fill="var(--muted)" font-size="12">/auth/logout с revoke построен — 0 вызовов из UI, токен жив 7 дней</text>
+        </g>
+        <g>
+          <rect x="360" y="170" width="480" height="58" rx="12" fill="var(--card)" stroke="var(--line)"/>
+          <text x="378" y="194" fill="var(--verdict-fix)" font-size="12.5" font-weight="700">Провод 3 · вход ↛ история</text>
+          <text x="378" y="214" fill="var(--muted)" font-size="12">мигрируют 2 ключа app_kv; 20 таблиц прогресса остаются в старом файле</text>
+        </g>
+        <g>
+          <rect x="360" y="240" width="480" height="58" rx="12" fill="var(--card)" stroke="var(--line)"/>
+          <text x="378" y="264" fill="var(--verdict-fix)" font-size="12.5" font-weight="700">Провод 4 · ребёнок ↛ порог</text>
+          <text x="378" y="284" fill="var(--muted)" font-size="12">email + пароль ≥8 символов — SaaS-порог в семейном продукте</text>
+        </g>
+
+        <line x1="270" y1="165" x2="358" y2="59" stroke="var(--muted)" stroke-width="1.3" stroke-dasharray="4 4" marker-end="url(#arr2)"/>
+        <line x1="270" y1="165" x2="358" y2="129" stroke="var(--muted)" stroke-width="1.3" stroke-dasharray="4 4" marker-end="url(#arr2)"/>
+        <line x1="270" y1="165" x2="358" y2="199" stroke="var(--muted)" stroke-width="1.3" stroke-dasharray="4 4" marker-end="url(#arr2)"/>
+        <line x1="270" y1="165" x2="358" y2="269" stroke="var(--muted)" stroke-width="1.3" stroke-dasharray="4 4" marker-end="url(#arr2)"/>
+      </svg>
+      <div class="figcap">Машина авторизации построена целиком и образцово. Выключена она не из осторожности — а потому что четыре оборванных провода делают её включение наказанием для семьи.</div>
+    </div>
+
+    <p>Это «невидимая половина» из метаразбора №8 в чистом виде — и родная сестра разбора №4: там был готовый агент без двери, здесь дверь есть, но сразу за ней обрыв.</p>
+  </section>
+
+  <!-- ============ 3 ПРОТИВОРЕЧИЯ ============ -->
+  <section>
+    <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Противоречия — синтез, не выбор стороны</span></div>
+    <h2>Три напряжения</h2>
+
+    <div class="tension">
+      <div class="vs"><span>Безопасность</span><span class="sep">против</span><span>доступности для ребёнка</span></div>
+      <p>Полная аутентификация (email, пароль, JWT) защищает — и отпугивает. Отсутствие входа удобно — и перемешивает прогресс троих людей.</p>
+      <div class="syn"><span class="k">Синтез</span>Развести по слоям, которые в коде <em>уже</em> разведены: <code>require_api_key</code> — периметр, <code>auth_scope</code> — личность. Безопасность остаётся на периметре (API-ключ, JWT для недоверенного канала). Внутри дома — <strong>идентификация без доказательств</strong>: экран «Кто учится?» с карточками профилей. Модель Netflix: дверь в дом заперта, комнаты — по именам.</div>
+    </div>
+
+    <div class="tension">
+      <div class="vs"><span>Один компьютер</span><span class="sep">против</span><span>многих учеников</span></div>
+      <p>Аккаунты с паролями изолируют — ценой трения на каждом переключении. Общий профиль не трёт — ценой каши в петле памяти.</p>
+      <div class="syn"><span class="k">Синтез</span>Профиль ≠ аккаунт. Физическая изоляция (<code>data/users/&lt;uid&gt;/</code>) уже включается от contextvar, а не от JWT (<span class="ev">user_state_db.py:297</span>) — значит, выбор профиля кликом даёт <em>ту же</em> изоляцию, что и полный логин. Машина изоляции готова; ей не хватает только дешёвого способа сказать «это Маша».</div>
+    </div>
+
+    <div class="tension">
+      <div class="vs"><span>Локальная простота</span><span class="sep">против</span><span>удалённости и переноса</span></div>
+      <p>Дома хочется нуля церемоний; из школы/с телефона — нужен настоящий токен; при переезде на новый компьютер — перенос всего.</p>
+      <div class="syn"><span class="k">Синтез</span>Три сценария — три уже существующих механизма, не один универсальный: дома — профили (contextvar), удалённо — полный JWT-стек (готов), перенос — sync-бандл (готов, тянет всю <code>app_kv</code> и таблицы). Не выбирать один режим на все случаи — назвать каждому сценарию его механизм.</div>
+    </div>
+  </section>
+
+  <!-- ============ 4 БОЛЬ-ЯКОРЬ ============ -->
+  <section>
+    <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Боль-якорь — точная причина в коде</span></div>
+    <h2>Включил авторизацию — приложение забыло всё</h2>
+    <div class="card anchor-card">
+      <p class="k">Факт из жизни</p>
+      <p>Семья месяцами копит прогресс: mastery по концептам, сотни карточек с SM-2-интервалами, историю занятий. Родитель читает про «у каждого своё» (это обещают разборы №1 и №9), ставит <code>AUTH_ENABLED=true</code>, регистрирует ребёнка — и приложение встречает его <strong>девственно пустым</strong>: ни карточек, ни прогресса, ни истории. Всё накопленное лежит в старом файле — навсегда невидимое из нового профиля. Флаг возвращают в <code>false</code>.</p>
+    </div>
+    <p><strong>Точная причина</strong> — цепочка из трёх проверяемых фактов:</p>
+    <ol>
+      <li>Per-user изоляция — <em>физическая</em>: новый профиль = новый файл <code>data/users/&lt;uid&gt;/user_state.db</code> (<span class="ev">user_state_db.py:286-300</span>), который создаётся пустым.</li>
+      <li>Единственная миграция из глобального прошлого — <code>_maybe_migrate_global_ui_prefs</code> (<span class="ev">ui_preferences.py:39-50</span>): копирует <strong>2 ключа</strong> (<code>ui_level</code>, <code>ui_feature_overrides</code>) из таблицы <code>app_kv</code>.</li>
+      <li>Остальные <strong>19 таблиц</strong> прогресса (<code>spaced_repetition</code>, <code>quiz_mastery</code>, <code>flashcards</code>, <code>flashcard_review_log</code>, <code>tutor_learning_resume</code>, <code>quiz_results</code>…) не переезжают никак и никогда — механизма нет.</li>
+    </ol>
+    <p>Горькая ирония: автор миграции ui-настроек — единственный, кто вообще подумал о переезде, — решил задачу для 2 ключей и остановился в шаге от решения для всего дома. Паттерн написан; его просто не применили к главному.</p>
+  </section>
+
+  <!-- ============ 5 ВЕРДИКТЫ ============ -->
+  <section>
+    <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Вердикты — позиция, не обзор</span></div>
+    <h2>По каждому элементу</h2>
+    <div class="table-scroll">
+      <table>
+        <tr><th>Элемент</th><th>Вердикт</th><th>Почему</th></tr>
+        <tr>
+          <td>Бэкенд auth (service, db, роутер, auth_scope, guard секрета)</td>
+          <td class="v v-keep">Оставить, не трогать</td>
+          <td>Образцовый слой: jti-отзыв, fail-fast, журнал, чистый contextvar-жизненный цикл. Проблемы разбора — не здесь.</td>
+        </tr>
+        <tr>
+          <td>Физическая изоляция <code>data/users/&lt;uid&gt;/</code></td>
+          <td class="v v-keep">Оставить — это фундамент</td>
+          <td>Изоляция от contextvar (не от JWT) — случайно готовая опора для профилей без паролей.</td>
+        </tr>
+        <tr>
+          <td>Email+пароль как единственная модель входа</td>
+          <td class="v v-fix">Дополнить семейным режимом</td>
+          <td>Для удалённого канала — оставить как есть. Дома — экран выбора профиля без доказательств. Не строить «детские пароли» и парольную педиатрию.</td>
+        </tr>
+        <tr>
+          <td>Отсутствие миграции истории в профиль</td>
+          <td class="v v-fix">Починить — главный блокер</td>
+          <td>«Усыновление» глобальной истории первым профилем: копия файла БД, не перенос таблиц. Паттерн миграции уже написан для ui-prefs.</td>
+        </tr>
+        <tr>
+          <td>Кнопка «Выйти» без серверного отзыва</td>
+          <td class="v v-fix">Починить — 3 строки</td>
+          <td>Вызвать уже существующий <code>/auth/logout</code> перед очисткой session_state. Endpoint построен, ждёт.</td>
+        </tr>
+        <tr>
+          <td>Нет обработки 401 в UI</td>
+          <td class="v v-fix">Починить</td>
+          <td>401 при включённом auth → <code>logout()</code> + форма входа, вместо дождя «Ошибка сервера» на каждом виджете.</td>
+        </tr>
+        <tr>
+          <td>Вход умирает на F5</td>
+          <td class="v v-fix">Решается семейным режимом</td>
+          <td>В профильном режиме секрета нет — последний выбранный профиль можно запомнить в глобальном <code>app_kv</code> и восстанавливать автоматически. Для удалённого режима хрупкость F5 — принять и задокументировать (не строить cookie-компонент в P0).</td>
+        </tr>
+        <tr>
+          <td>Telegram <code>/link</code>-заглушка</td>
+          <td class="v v-keep">Оставить честной заглушкой (v1)</td>
+          <td>Связка chat_id → профиль — P2. Сегодняшний текст честен про ограничение — это правильно.</td>
+        </tr>
+        <tr>
+          <td>Сброс/смена пароля</td>
+          <td class="v v-fix">Owner-скрипт, не UI (P2)</td>
+          <td>Дома «забыл пароль» решает родитель — скрипту в <code>scripts/</code> достаточно. UI-флоу сброса — не строить.</td>
+        </tr>
+        <tr>
+          <td><code>AUTH_ENABLED=false</code> по умолчанию</td>
+          <td class="v v-no">Не поднимать, пока не починены провода</td>
+          <td>Сегодня включение наказывает семью потерей истории и F5-разлогином. Сначала P0, потом выключатель.</td>
+        </tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 6 ЦЕННОСТЬ ============ -->
+  <section>
+    <div class="sec-label"><span class="sec-num">6</span><span class="sec-name">Ценность — и как её доказать</span></div>
+    <h2>Петля памяти узнаёт тебя в лицо</h2>
+    <p>Уникальность hometutor — замкнутая петля «вопрос → проверка → память → возврат в лекцию». Авторизация — не функция безопасности, а <strong>условие честности этой петли</strong>: SM-2-интервалы и mastery, посчитанные на смеси ответов троих людей, — математически корректный мусор. Профиль на ученика — то, что превращает семейный компьютер в трёх персональных репетиторов. И вместе с мирами из разбора №9 профиль получает лицо: цвет комнаты = мгновенный маркер «чей это вход».</p>
+    <h3>Измеримое доказательство</h3>
+    <ul>
+      <li><strong>Ноль потерянных байтов:</strong> включение семейного режима на машине с историей — вся история видна из усыновившего профиля (проверяемо: счётчики карточек/mastery до и после равны).</li>
+      <li><strong>Вход ребёнка ≤ 5 секунд:</strong> от открытия приложения до своего Mission Control — один клик по карточке, без клавиатуры.</li>
+      <li><strong>Чистота следа:</strong> доля учебных событий (разбор №1), записанных в персональный профиль, а не в глобальную БД — с ростом до ~100% после включения профилей.</li>
+    </ul>
+  </section>
+
+  <!-- ============ 7 ПУТЬ ============ -->
+  <section>
+    <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Путь — золотой маршрут и лестница</span></div>
+    <h2>Один клик до своей комнаты</h2>
+    <p><strong>Золотой путь:</strong> открыл приложение → экран «Кто учится?» → клик по своей карточке → твой прогресс, твоя очередь повторений, твой цветовой мир (№9). Ноль клавиатуры, ноль пароля, ноль возможностей ошибиться. Последний профиль запоминается — при следующем запуске приложение спрашивает только «Это всё ещё Маша?» одной кнопкой.</p>
+
+    <div class="profiles" role="img" aria-label="Мокап экрана выбора профиля: три карточки учеников">
+      <div class="profile">
+        <div class="face" style="background: linear-gradient(150deg, #16384a, #1273a6);">М</div>
+        <div class="nm">Маша</div>
+        <div class="ds">мир «Океан» · 214 карточек</div>
+      </div>
+      <div class="profile">
+        <div class="face" style="background: linear-gradient(150deg, #243b2c, #b95631);">С</div>
+        <div class="nm">Серёжа</div>
+        <div class="ds">мир «Лес» · 96 карточек</div>
+      </div>
+      <div class="profile">
+        <div class="face" style="background: linear-gradient(150deg, #2b2b52, #6a5acd);">П</div>
+        <div class="nm">Папа</div>
+        <div class="ds">мир «Космос» · владелец</div>
+      </div>
+    </div>
+    <p class="mock-note">Эскиз экрана «Кто учится?». Карточка = профиль; цвет — мир из разбора №9; счётчик карточек — честный признак «это моя комната». Владелец создаёт профили; пароль опционален и нужен только если семья сама хочет замок на комнату.</p>
+
+    <ol class="ladder">
+      <li><span class="lt">Сегодня</span><div class="ld">Один общий профиль; auth построен, но включение наказывает.</div></li>
+      <li><span class="lt">Семейный режим (P0)</span><div class="ld">Экран «Кто учится?», профили без паролей, изоляция от contextvar — уже готовой машиной.</div></li>
+      <li><span class="lt">Усыновление истории (P0)</span><div class="ld">Первый профиль забирает накопленную глобальную историю — ни байта не теряется.</div></li>
+      <li><span class="lt">Честные провода (P1)</span><div class="ld">«Выйти» отзывает токен, 401 возвращает на вход, авто-вход в последний профиль.</div></li>
+      <li><span class="lt">Удалённый режим (P2)</span><div class="ld">Полный JWT-стек — уже построен и ждёт: из школы, с телефона, по недоверенному каналу.</div></li>
+    </ol>
+  </section>
+
+  <!-- ============ 8 ПЛАН ============ -->
+  <section>
+    <div class="sec-label"><span class="sec-num">8</span><span class="sec-name">План — эффект / усилие</span></div>
+    <h2>P0 — ровно два хода</h2>
+    <div class="plan">
+      <div class="move">
+        <span class="tag tag-p0">P0 · Ход 1</span>
+        <div class="mt">Семейный режим: «Кто учится?»</div>
+        <p>Новый режим входа (например <code>AUTH_MODE=family</code>): вместо форм email/пароль — экран карточек профилей из <code>auth_db</code>. Клик ставит user_id в <code>st.session_state</code> и contextvar — <strong>ту же изоляцию, что и полный логин</strong>, потому что <code>_resolve_state_db_path</code> смотрит на contextvar, а не на JWT. Создание профиля — имя (+ опциональный пароль для тех, кто хочет замок). Полный режим (email+JWT) остаётся как был — для удалённого канала.</p>
+        <ul>
+          <li>Точка врезки одна: <code>render_auth_gate()</code> (<span class="ev">auth_gate.py:99</span>) — гейт уже изолирован в одном модуле.</li>
+          <li>Последний выбранный профиль — в глобальный <code>app_kv</code>: F5-боль исчезает в семейном режиме сама.</li>
+        </ul>
+      </div>
+      <div class="move">
+        <span class="tag tag-p0">P0 · Ход 2</span>
+        <div class="mt">Усыновление истории</div>
+        <p>При первом входе в профиль с пустой per-user БД и непустой глобальной — предложение забрать накопленное: «Перенести историю этого компьютера в профиль Маши?» Механика — копия файла <code>user_state.db</code> → <code>users/&lt;uid&gt;/</code> (плюс <code>.bak</code> глобального), не перенос таблиц. Один раз, с явным подтверждением, расширяя уже существующий миграционный паттерн (<span class="ev">ui_preferences.py:39-50</span>) с 2 ключей до целого дома.</p>
+      </div>
+      <div class="move">
+        <span class="tag tag-p1">P1</span>
+        <div class="mt">Честные провода</div>
+        <ul>
+          <li>«Выйти» вызывает <code>/auth/logout</code> (серверный отзыв уже построен) перед очисткой session_state — 3 строки в <span class="ev">auth_gate.py:130-138</span>.</li>
+          <li>401-интерцептор в <code>ui_client</code>: при включённом auth — <code>logout()</code> + rerun на форму входа вместо дождя ошибок.</li>
+          <li>Бейдж активного профиля в сайдбаре: имя + цвет мира (расширение готового <code>render_account_status_sidebar</code>).</li>
+        </ul>
+      </div>
+      <div class="move">
+        <span class="tag tag-p2">P2</span>
+        <div class="mt">Дальний периметр</div>
+        <ul>
+          <li>Telegram: связка chat_id → профиль (замена честной заглушки <code>/link</code>).</li>
+          <li>Owner-скрипт смены/сброса пароля в <code>scripts/</code> (не UI-флоу).</li>
+          <li>Документация «удалённый доступ»: полный JWT-режим, ротация секрета, ограничения F5.</li>
+        </ul>
+      </div>
+    </div>
+    <p><strong>North star:</strong> включение семейного режима не теряет ни байта истории; вход ребёнка — один клик и ≤5 секунд; каждый след учёбы пишется в правильную комнату.</p>
+  </section>
+
+  <div class="footer">
+    Эволюционный разбор №10 · серия «нескучных разборов» hometutor · 2026-07-12 ·
+    все файлы и строки проверены на HEAD <code>afb9916</code> («186») в этой сессии ·
+    формат: <code>evolutionary_analysis_guide.md</code>
+  </div>
+
+</div>

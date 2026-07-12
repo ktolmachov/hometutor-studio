@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<title>Разбор №10 — Кольцо замкнулось, но беззвучно</title>
+<style>
+  :root {
+    --paper: #f7f3ea;
+    --paper-2: #fffdf7;
+    --ink: #17211b;
+    --muted: #5c6a61;
+    --terra: #b95631;
+    --terra-deep: #7d351f;
+    --forest: #243b2c;
+    --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14);
+    --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --done: #1e6e46;
+    --silent: #b98a2d;
+    --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141a16;
+      --paper-2: #1b231e;
+      --ink: #ece5d4;
+      --muted: #9aa89d;
+      --terra: #d97a52;
+      --terra-deep: #e8a583;
+      --forest: #9dbfa8;
+      --gold: #d9a55e;
+      --line: rgba(236, 229, 212, 0.16);
+      --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(157, 191, 168, 0.10);
+      --verdict-keep: #6fc493;
+      --verdict-fix: #e0a35c;
+      --verdict-no: #e08691;
+      --done: #6fc493;
+      --silent: #d9b45e;
+      --hole: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+    --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+    --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+    --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+    --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+      radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--terra-deep); }
+  em { color: var(--muted); }
+
+  code {
+    font-family: Consolas, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--terra);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 0.95rem; color: var(--gold);
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .sec-name {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem;
+    font-weight: 700; color: var(--muted);
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.1rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+  }
+  .anchor-card { border-left: 4px solid var(--terra); }
+  .ev { font-size: 0.86rem; color: var(--muted); margin-top: 0.5rem; }
+  .ev code { font-size: 0.8rem; }
+
+  .figure { margin: 1.4rem 0 0.4rem; }
+  .figure svg { width: 100%; height: auto; display: block; }
+  .figcap { font-size: 0.84rem; color: var(--muted); margin-top: 0.5rem; max-width: 70ch; }
+
+  .table-scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  td:first-child { white-space: nowrap; }
+  td { font-variant-numeric: tabular-nums; }
+
+  .st { display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 99px; white-space: nowrap; }
+  .st-done { color: var(--done); border: 1px solid var(--done); }
+  .st-silent { color: var(--silent); border: 1px solid var(--silent); }
+  .st-hole { color: var(--hole); border: 1px solid var(--hole); }
+
+  .v { display: inline-block; font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+       letter-spacing: 0.08em; padding: 0.1rem 0.55rem; border-radius: 99px; margin-right: 0.5rem; }
+  .v-keep { color: var(--verdict-keep); border: 1.5px solid var(--verdict-keep); }
+  .v-fix { color: var(--verdict-fix); border: 1.5px solid var(--verdict-fix); }
+  .v-no { color: var(--verdict-no); border: 1.5px solid var(--verdict-no); }
+
+  .tension { border-left: 4px solid var(--gold); }
+  .tension .t { font-family: Georgia, serif; font-size: 1.05rem; margin-bottom: 0.35rem; }
+  .syn { color: var(--verdict-keep); font-weight: 600; }
+
+  .ladder { list-style: none; padding-left: 0; }
+  .ladder li { display: flex; gap: 0.8rem; align-items: baseline; margin-bottom: 0.55rem; }
+  .ladder .num {
+    flex: none; font-family: Georgia, serif; font-weight: 700; color: var(--gold);
+    width: 1.6rem; text-align: right;
+  }
+
+  .tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.08rem 0.5rem;
+         border-radius: 4px; color: var(--paper-2); }
+  .tag-p0 { background: var(--terra); }
+  .tag-p1 { background: var(--forest); }
+  .tag-p2 { background: var(--gold); }
+  :root[data-theme="dark"] .tag, :root[data-theme="dark"] .tag-p2 { color: #141a16; }
+  @media (prefers-color-scheme: dark) { .tag { color: #141a16; } }
+  :root[data-theme="light"] .tag { color: var(--paper-2); }
+
+  .footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
+            font-size: 0.85rem; color: var(--muted); }
+  .footer code { font-size: 0.8rem; }
+
+  a { color: var(--terra); }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">Эволюционный разбор · №10 · финал серии</div>
+  <h1>Кольцо замкнулось — но беззвучно</h1>
+  <p class="lede">Синтез десяти разборов. Серия искала, где рвётся петля обучения, —
+  и 12 июля петля впервые замкнулась в данных. Ни один пиксель интерфейса об этом
+  не узнал. Следующий качественный уровень — не строить, а показать.</p>
+  <div class="meta">
+    <span>hometutor · HEAD <code>c374892</code> «194» + рабочее дерево</span>
+    <span>2026-07-12</span>
+    <span>охват: разборы №0–№9 (10 шт.)</span>
+    <span>каждое утверждение проверено на коде этой сессией</span>
+  </div>
+</header>
+
+<section id="essence">
+  <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Суть</span></div>
+  <h2>Чего по-настоящему хочет студент</h2>
+  <p>Разбор №0 дал ответ, который выдержал девять проверок: студент хочет не «ответов»
+  и не «фич», а <strong>замкнутой петли</strong> — <em>вопрос → понимание → проверка →
+  память → возврат в точное место лекции</em>. Каждый следующий разбор был, по существу,
+  одним и тем же вопросом, заданным другому органу системы: <em>«где эта петля рвётся?»</em></p>
+  <ul>
+    <li><strong>№3, №6</strong> — вход петли: материал, карта, схемы.</li>
+    <li><strong>№2</strong> — вход в петлю для новичка: первые 10 минут.</li>
+    <li><strong>№1</strong> — сердце петли: след и память.</li>
+    <li><strong>№5</strong> — условие петли: честность под нагрузкой.</li>
+    <li><strong>№7</strong> — руль петли: план, который помнит, где вы сидите.</li>
+    <li><strong>№4</strong> — автопилот петли: агент как одна кнопка.</li>
+    <li><strong>№9</strong> — дом петли: своя комната.</li>
+    <li><strong>№8</strong> — диагноз всей серии: поверхности без проводов.</li>
+  </ul>
+  <p>Суть финала: пазл собирается не добавлением нового куска. Все куски уже на столе —
+  вопрос в том, что <strong>студент не видит собранной картины</strong>, хотя она уже собрана.</p>
+</section>
+
+<section id="reality">
+  <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Реальность</span></div>
+  <h2>Что произошло между диагнозом и финалом</h2>
+  <p>Метаразбор №8 (утро 12 июля, HEAD 185) поставил диагноз: закрываются только
+  «поверхности», «провода» — след, честность, дверь — не тронуты. Владелец ответил
+  в тот же день: <strong>коммиты 186–191 (13:45–17:32) проложили оба главных провода серии</strong>.
+  Это центральное событие, вокруг которого строится весь синтез.</p>
+
+  <div class="card">
+    <p style="margin-bottom:0.4rem"><strong>Коммит 186 = сильный ход №8, реализованный буквально.</strong>
+    След тьютора перестал быть пустым: <code>query_response_postprocessing.py:415-430</code>
+    отправляет полноценный <code>update_outcome</code> (mastery_gain, concept_gains,
+    источники) вместо <code>{}</code>. Провал карточки пишет в память ученика
+    (<code>flashcard_service.py</code>, +72 строки). Появился канонический резолвер
+    концептов (<code>fact_source_binding.py</code>) — ключи mastery теперь только graph-cid,
+    не свободный текст. Предохранитель подключён к реальному трафику:
+    <code>llm_resilience.py:168-171</code> проверяет <code>is_open()</code> перед каждым
+    вызовом, <code>:191/:209</code> пишут успех/сбой. Всё покрыто
+    <code>tests/test_memory_loop_closure.py</code> (7 тестов, 300 строк).</p>
+    <p class="ev">Registry (hometutor-studio): волна <code>wave-invisible-half-p0-closure</code>
+    оформлена как SSoT-конверт этого диффа — процессная честность соблюдена.</p>
+  </div>
+
+  <p>Коммиты 187–191 продолжили линию честности: быстрый честный отказ и health-check
+  провайдера (187, 190), человеческие подсказки при сбое, различающие облако и локальную
+  модель (<code>preflight.py:26-52</code>), честные провайдер-ошибки в
+  <code>query_service.py</code> (191, +97 строк с тестами). И параллельно выросла
+  <strong>новая линия вне серии</strong>: публичная витрина на Hugging Face Spaces
+  (<code>deploy/hf-spaces/</code>) — Docker, облачная LLM, демо-корпус, честный README
+  об эфемерности диска.</p>
+
+  <div class="figure">
+  <svg viewBox="0 0 720 590" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Кольцо петли обучения со статусами: провода проложены почти везде, поверхности молчат">
+    <defs>
+      <marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+      </marker>
+    </defs>
+    <!-- ring -->
+    <circle cx="360" cy="285" r="170" fill="none" stroke="var(--line)" stroke-width="22"/>
+    <circle cx="360" cy="285" r="170" fill="none" stroke="var(--silent)" stroke-width="3" stroke-dasharray="6 7" opacity="0.55"/>
+    <!-- stage nodes: done=filled green, silent=filled gold -->
+    <!-- материал (top) -->
+    <circle cx="360" cy="115" r="26" fill="var(--paper-2)" stroke="var(--silent)" stroke-width="3"/>
+    <text x="360" y="121" text-anchor="middle" font-size="17">📚</text>
+    <text x="360" y="72" text-anchor="middle" font-size="13.5" fill="var(--ink)" font-weight="600">материал</text>
+    <text x="360" y="88" text-anchor="middle" font-size="11" fill="var(--muted)">№3 · №6</text>
+    <!-- онбординг -->
+    <circle cx="493" cy="179" r="26" fill="var(--paper-2)" stroke="var(--silent)" stroke-width="3"/>
+    <text x="493" y="185" text-anchor="middle" font-size="17">🚪</text>
+    <text x="542" y="150" text-anchor="middle" font-size="13.5" fill="var(--ink)" font-weight="600">онбординг</text>
+    <text x="542" y="166" text-anchor="middle" font-size="11" fill="var(--muted)">№2</text>
+    <!-- вопрос -->
+    <circle cx="526" cy="323" r="26" fill="var(--paper-2)" stroke="var(--done)" stroke-width="3.5"/>
+    <text x="526" y="329" text-anchor="middle" font-size="17">❓</text>
+    <text x="590" y="318" text-anchor="middle" font-size="13.5" fill="var(--ink)" font-weight="600">вопрос</text>
+    <text x="590" y="334" text-anchor="middle" font-size="11" fill="var(--muted)">работает</text>
+    <!-- ответ + честность -->
+    <circle cx="434" cy="438" r="26" fill="var(--paper-2)" stroke="var(--silent)" stroke-width="3"/>
+    <text x="434" y="444" text-anchor="middle" font-size="17">💬</text>
+    <text x="452" y="492" text-anchor="middle" font-size="13.5" fill="var(--ink)" font-weight="600">ответ · честность</text>
+    <text x="452" y="508" text-anchor="middle" font-size="11" fill="var(--muted)">№5</text>
+    <!-- след -->
+    <circle cx="286" cy="438" r="26" fill="var(--paper-2)" stroke="var(--silent)" stroke-width="3"/>
+    <text x="286" y="444" text-anchor="middle" font-size="17">👣</text>
+    <text x="268" y="492" text-anchor="middle" font-size="13.5" fill="var(--ink)" font-weight="600">след</text>
+    <text x="268" y="508" text-anchor="middle" font-size="11" fill="var(--muted)">№1</text>
+    <!-- память -->
+    <circle cx="194" cy="323" r="26" fill="var(--paper-2)" stroke="var(--silent)" stroke-width="3"/>
+    <text x="194" y="329" text-anchor="middle" font-size="17">🧠</text>
+    <text x="130" y="318" text-anchor="middle" font-size="13.5" fill="var(--ink)" font-weight="600">память</text>
+    <text x="130" y="334" text-anchor="middle" font-size="11" fill="var(--muted)">№1</text>
+    <!-- возврат -->
+    <circle cx="227" cy="179" r="26" fill="var(--paper-2)" stroke="var(--done)" stroke-width="3.5"/>
+    <text x="227" y="185" text-anchor="middle" font-size="17">↩️</text>
+    <text x="178" y="150" text-anchor="middle" font-size="13.5" fill="var(--ink)" font-weight="600">возврат</text>
+    <text x="178" y="166" text-anchor="middle" font-size="11" fill="var(--muted)">уникальность</text>
+    <!-- center -->
+    <text x="360" y="268" text-anchor="middle" font-family="Georgia, serif" font-size="19" fill="var(--ink)" font-weight="700">петля замкнута</text>
+    <text x="360" y="292" text-anchor="middle" font-family="Georgia, serif" font-size="19" fill="var(--silent)" font-weight="700">в данных</text>
+    <text x="360" y="318" text-anchor="middle" font-size="12.5" fill="var(--muted)">и молчит на экране</text>
+    <!-- satellites -->
+    <g font-size="12.5">
+      <rect x="18" y="20" rx="9" width="150" height="34" fill="var(--card)" stroke="var(--done)" stroke-width="2"/>
+      <text x="93" y="42" text-anchor="middle" fill="var(--ink)">🧭 план №7 — закрыт</text>
+      <rect x="552" y="20" rx="9" width="150" height="34" fill="var(--card)" stroke="var(--hole)" stroke-width="2" stroke-dasharray="5 4"/>
+      <text x="627" y="42" text-anchor="middle" fill="var(--ink)">🤖 агент №4 — 0 дверей</text>
+      <rect x="18" y="536" rx="9" width="164" height="34" fill="var(--card)" stroke="var(--hole)" stroke-width="2" stroke-dasharray="5 4"/>
+      <text x="100" y="558" text-anchor="middle" fill="var(--ink)">🎨 комната №9 — не начата</text>
+      <rect x="536" y="536" rx="9" width="166" height="34" fill="var(--card)" stroke="var(--gold)" stroke-width="2"/>
+      <text x="619" y="558" text-anchor="middle" fill="var(--ink)">🪟 витрина HF — новая</text>
+    </g>
+    <!-- legend -->
+    <g font-size="11.5" fill="var(--muted)">
+      <circle cx="240" cy="576" r="6" fill="none" stroke="var(--done)" stroke-width="2.5"/>
+      <text x="252" y="580">работает и видно</text>
+      <circle cx="380" cy="576" r="6" fill="none" stroke="var(--silent)" stroke-width="2.5"/>
+      <text x="392" y="580">работает, но молчит</text>
+      <circle cx="540" cy="576" r="6" fill="none" stroke="var(--hole)" stroke-width="2.5" stroke-dasharray="3 3"/>
+      <text x="552" y="580">двери нет</text>
+    </g>
+  </svg>
+  <p class="figcap">Состояние кольца на HEAD 194. Красных разрывов в самом кольце больше нет —
+  впервые за серию. Но пять узлов из семи «золотые»: код работает, экран молчит.</p>
+  </div>
+
+  <h3>Инвентаризация: судьба десяти разборов на HEAD 194</h3>
+  <div class="table-scroll">
+  <table>
+    <tr><th>№</th><th>Разбор</th><th>Провода (данные/логика)</th><th>Поверхность (студент видит)</th></tr>
+    <tr><td>№0</td><td>Петля — суть; дыра scope</td>
+      <td><span class="st st-done">сделано</span> scope переживает перезапуск (<code>study_scope.py:78,227</code> — app_kv)</td>
+      <td><span class="st st-done">есть</span> SSR-баннер для «холодного» юзера (коммит 187)</td></tr>
+    <tr><td>№1</td><td>Судьба одного знания</td>
+      <td><span class="st st-done">сделано</span> след тьютора и карточек пишется, cid канонические (коммит 186)</td>
+      <td><span class="st st-silent">молчит</span> след невидим; два числа «повторить» живы (<code>tutor_chat_response_render.py:131-132</code>)</td></tr>
+    <tr><td>№2</td><td>Первые 10 минут</td>
+      <td><span class="st st-done">сделано</span> единый резолвер курса; честные hint'ы preflight (190)</td>
+      <td><span class="st st-silent">молчит</span> hero всё ещё обещает: «Первый обзор курса готовится…» (<code>mission_control_first_session.py:217</code>)</td></tr>
+    <tr><td>№3</td><td>Материал как продукт</td>
+      <td><span class="st st-done">гейт честен</span> + WIP прямо сейчас: кнопка «аудит → действие» в рабочем дереве</td>
+      <td><span class="st st-silent">молчит</span> свежесть карты на Mission Control не показана (grep «свежест» — 0)</td></tr>
+    <tr><td>№4</td><td>Агент как одна кнопка</td>
+      <td><span class="st st-done">харнесс готов</span>; комментарий <code>AGENT_ENABLED</code> сделан честным (186)</td>
+      <td><span class="st st-hole">0 дверей</span> <code>query_mode="agent"</code> не ставится нигде в UI; <code>routers/agent.py</code> нет</td></tr>
+    <tr><td>№5</td><td>Доверие под нагрузкой</td>
+      <td><span class="st st-done">сделано</span> CB на живом трафике + быстрый отказ (186–191)</td>
+      <td><span class="st st-silent">молчит</span> бейдж источника есть в «Быстром ответе», но не в tutor chat (только visibility badge, <code>:33</code>)</td></tr>
+    <tr><td>№6</td><td>Инфографика</td>
+      <td><span class="st st-done">сделано</span> download карты, схемы разделов, mermaid вендорен + WIP: новые типы диаграмм</td>
+      <td><span class="st st-silent">частично</span> one-pager лекции не построен (grep — 0)</td></tr>
+    <tr><td>№7</td><td>План обучения</td>
+      <td><span class="st st-done">закрыт 7/7</span> волна в registry закрыта</td>
+      <td><span class="st st-done">видно</span> эталон закрытия: провода и поверхность вместе</td></tr>
+    <tr><td>№8</td><td>Невидимая половина (мета)</td>
+      <td><span class="st st-done">P0 закрыт владельцем в тот же день</span> — метод серии подтверждён</td>
+      <td>метрики требуют обновления (см. §6)</td></tr>
+    <tr><td>№9</td><td>Своя комната</td>
+      <td><span class="st st-hole">не начато</span> нет <code>theme_presets.py</code>, нет <code>get_ui_theme()</code></td>
+      <td><span class="st st-hole">не начато</span> — по плану это и должен быть поздний слой</td></tr>
+    <tr><td>—</td><td>Витрина HF Spaces <em>(вне серии)</em></td>
+      <td><span class="st st-done">построена</span> Docker + демо-корпус + деплой (187–194)</td>
+      <td><span class="st st-done">честна</span> README прямо называет эфемерность диска и облачную LLM</td></tr>
+  </table>
+  </div>
+  <p>Классификация остатка даёт главный факт синтеза: <strong>среди открытых дыр не осталось
+  ни одного «провода»</strong>. Всё, что ещё болит, — одного типа: видимость и двери.
+  Серия перевернула собственный диагноз: №8 находил поверхности без проводов,
+  финал находит провода без поверхностей.</p>
+</section>
+
+<section id="tensions">
+  <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Противоречия</span></div>
+  <h2>Три напряжения — три синтеза</h2>
+
+  <div class="card tension">
+    <div class="t">Невидимые провода ↔ тихие поверхности</div>
+    <p>Дашборд прогресса — привычный, но ложный синтез: ещё один экран, на который надо
+    <em>пойти</em>. <span class="syn">Синтез: пульс.</span> Провод показывает себя сам,
+    в момент срабатывания, одной строкой в точке действия: «след записан: {концепт}».
+    Не новая поверхность — голос уже существующей.</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">Local-first дом ↔ публичная витрина</div>
+    <p>HF Spaces противоречит догме «всё локально»: облачная LLM, эфемерный диск.
+    <span class="syn">Синтез: один честный бейдж на два мира.</span> Та же строка
+    источника, что дома говорит «🔒 локальная модель», в витрине говорит «☁️ облачная
+    модель · демо». Честность №5 — не компромисс между мирами, а мост: витрина
+    становится публичным доказательством честности, а не её нарушением.</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">Мощь ↔ фокус <em>(сквозное напряжение всей серии)</em></div>
+    <p>Серия породила ~44 кандидата; агент, граф, миры, one-pager'ы. Съесть всё — расфокус;
+    выбросить — потеря мощи. <span class="syn">Синтез: лестница.</span> Механизм тиров
+    уже в коде (<code>feature_registry.py</code>) — мощь открывается по мере прохождения
+    петли, а P0 любого шага держится в пределах двух ходов. Мощь никуда не девается,
+    она перестаёт стоять в прихожей.</p>
+  </div>
+</section>
+
+<section id="pain">
+  <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Боль-якорь</span></div>
+  <h2>Самый важный коммит серии не изменил ни одного пикселя</h2>
+  <div class="card anchor-card">
+    <p><strong>Проверяемый факт:</strong> <code>git show afb99161b --stat</code> — коммит 186,
+    замкнувший петлю памяти, тронул 7 файлов. Среди них <strong>ни одного из
+    <code>app/ui/</code></strong>. Крупнейшее продуктовое событие серии по построению
+    невидимо студенту.</p>
+    <p><strong>Точная причина в коде</strong> — след умирает в одном шаге от экрана:</p>
+    <ul>
+      <li><code>query_response_postprocessing.py:415-424</code> собирает
+        <code>update_outcome</code> — концепт, прирост, число источников;</li>
+      <li><code>:425-430</code> отправляет его в модель ученика — и <strong>не кладёт
+        в <code>ctx.metadata</code></strong>;</li>
+      <li><code>tutor_chat_response_render.py:31-33</code> уже получает <code>meta</code>
+        и уже рендерит из него бейдж видимости — канал до экрана существует,
+        след по нему просто не передан.</li>
+    </ul>
+    <p class="ev">Житейская проверка: студент занимается вечер, закрывает ноутбук
+    и спрашивает: «что изменилось после этой сессии?» Система знает ответ
+    (mastery_vector вырос, канонические концепты записаны) — но ни одна поверхность
+    без debug-панели этого не скажет. Ценность реальна и недоказуема для собственного
+    пользователя.</p>
+  </div>
+</section>
+
+<section id="verdicts">
+  <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Вердикты</span></div>
+  <h2>Позиция по каждому куску пазла</h2>
+
+  <div class="card"><span class="v v-keep">снять с повестки</span><strong>№0 петля, №7 план,
+    провода №1 и №5.</strong> Сделаны и проверены тестами. №7 — эталон: единственный разбор,
+    закрытый и в данных, и на экране. Не трогать, не улучшать.</div>
+
+  <div class="card"><span class="v v-fix">поднять в P0</span><strong>Зеркало №1 + бейдж №5 —
+    слить в один ход.</strong> «Пульс петли» в tutor chat: источник ответа и записанный след
+    в одной строке. Оба провода готовы, канал <code>meta</code> готов, хелперы
+    <code>llm_source_badge_text</code> готовы (<code>ui/helpers.py</code>). Это не два
+    кандидата из двух планов — это одна строка интерфейса.</div>
+
+  <div class="card"><span class="v v-fix">поднять в P0</span><strong>Одно число «Повторить»
+    (№1 B2).</strong> <code>build_smart_study_recommendation</code> уже принимает оба счётчика
+    (<code>tutor_chat_response_render.py:157-158</code>) — меняется представление, не данные.
+    Дверь возврата в петлю должна быть одна.</div>
+
+  <div class="card"><span class="v v-fix">починить в P1</span><strong>Честный hero (№2 A2).</strong>
+    <code>mission_control_first_session.py:217</code> обещает то, что не готовится. Одна строка:
+    честный статус или CTA «Собрать обзор». <strong>Свежесть карты (№3 A1)</strong> — та же
+    волна: обе величины уже вычисляются, нужен один сегмент строки контекста.</div>
+
+  <div class="card"><span class="v v-fix">открыть в P1</span><strong>Дверь агента (№4 A1+A2)</strong> —
+    строго после P0: автопилот бессмыслен, пока сама петля не видна. FeatureSpec с
+    <code>requires=("agent_enabled",)</code> (механизм ждёт с №4) + read-роутер поверх готовых
+    <code>list_agent_runs/get_agent_run</code>.</div>
+
+  <div class="card"><span class="v v-keep">отложить осознанно</span><strong>№9 «Своя комната»
+    и one-pager №6 — P2.</strong> Комната — слой присвоения и празднования; красить дом
+    имеет смысл, когда в нём слышно жизнь. Порядок: сначала зеркало, потом краска.</div>
+
+  <div class="card"><span class="v v-keep">признать</span><strong>Витрина HF Spaces —
+    11-й элемент реальности.</strong> Серия её не заказывала, но она делает уникальность
+    доказуемой публично (TTFI демо можно замерить чужими руками). Требование одно: тот же
+    честный бейдж источника, что и дома.</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>Новые дашборды прогресса,
+    принудительный cloud-fallback, новые провода.</strong> Ни одна открытая боль не требует
+    новой подсистемы. Каждое движение P0–P1 — поверхность над уже проложенным проводом.
+    Появился соблазн нового пайплайна — это сигнал остановиться.</div>
+</section>
+
+<section id="value">
+  <div class="sec-label"><span class="sec-num">6</span><span class="sec-name">Ценность</span></div>
+  <h2>Уникальность — и как доказать её измеримо</h2>
+  <p>После 186 hometutor — единственная из окружающих альтернатив (ChatGPT, NotebookLM,
+  Anki, Obsidian) система, где одновременно: ответ <strong>возвращает в точное место</strong>
+  лекции (раздел · строка · таймкод); всё <strong>живёт локально</strong>; система
+  <strong>честна о сбоях</strong> (предохранитель на живом трафике, цена сбоя 45 с → ~3 с);
+  и <strong>каждое касание оставляет след</strong> в канонической памяти. Все четыре
+  утверждения теперь верны в данных. Ни одно не предъявлено студенту.</p>
+  <p><strong>Метрика финала — вопрос, а не число:</strong> «что изменилось после этой
+  сессии?» — студент должен отвечать на него с экрана, без debug-панели.</p>
+  <div class="table-scroll">
+  <table>
+    <tr><th>Измеримое доказательство</th><th>Сейчас (HEAD 194)</th><th>После P0</th></tr>
+    <tr><td>Коэффициент следа в данных (quiz/review/tutor)</td><td>3/3 ✓ сделано</td><td>3/3</td></tr>
+    <tr><td>Видимый коэффициент следа</td><td><strong>0/3</strong></td><td>3/3 — пульс в точке действия</td></tr>
+    <tr><td>Чисел «повторить» на поверхностях</td><td>2</td><td>1</td></tr>
+    <tr><td>Цена сбоя LM Studio</td><td>~3 с ✓ сделано — но молча</td><td>~3 с + честная строка источника</td></tr>
+    <tr><td>TTFI демо (витрина делает это публично проверяемым)</td><td>цель ≤3 мин (№2)</td><td>та же, замер чужими руками</td></tr>
+  </table>
+  </div>
+</section>
+
+<section id="path">
+  <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Путь</span></div>
+  <h2>Один золотой путь и лестница уровней</h2>
+  <p><strong>Золотой путь одной сессии:</strong> открыл (статус честный, hero не обещает
+  лишнего) → спросил → ответ с источником и пульсом «след записан: {концепт}» →
+  «Повторить сегодня: N» — одно число, одна кнопка → карточка → возврат в раздел·таймкод →
+  карта выросла на видимую дельту.</p>
+  <ol class="ladder">
+    <li><span class="num">0</span><span><strong>Первый ответ с источником.</strong> Работает;
+      витрина делает уровень достижимым без установки.</span></li>
+    <li><span class="num">1</span><span><strong>Первый видимый след.</strong> Пульс после
+      ответа — «система меня запомнила».</span></li>
+    <li><span class="num">2</span><span><strong>Первый возврат.</strong> Одно число
+      «Повторить» → карточка → точное место лекции.</span></li>
+    <li><span class="num">3</span><span><strong>Растущая карта.</strong> Дельта за сессию
+      на карте курса больше нуля — и видна.</span></li>
+    <li><span class="num">4</span><span><strong>Свой дом.</strong> Комната-мир (№9) и
+      автопилот-агент (№4) — награды верхних ступеней, не прихожая.</span></li>
+  </ol>
+  <p>Каждая ступень достигается за одну сессию и оставляет видимый след — лестница
+  и есть петля, прожитая впервые.</p>
+</section>
+
+<section id="plan">
+  <div class="sec-label"><span class="sec-num">8</span><span class="sec-name">План</span></div>
+  <h2>P0 — два хода, оба — поверхности над готовыми проводами</h2>
+  <div class="table-scroll">
+  <table>
+    <tr><th></th><th>Ход</th><th>Что делается</th><th>Усилие</th></tr>
+    <tr>
+      <td><span class="tag tag-p0">P0-1</span></td>
+      <td><strong>Пульс петли</strong> в tutor chat</td>
+      <td>(а) одна строка: положить сводку <code>update_outcome</code> в
+        <code>ctx.metadata</code> (<code>query_response_postprocessing.py:424</code>);
+        (б) отрендерить рядом с visibility badge (<code>tutor_chat_response_render.py:33</code>)
+        строку «источник · след записан: {концепт}» готовыми хелперами
+        <code>llm_source_badge_text</code>. Закрывает №5 B1 и зеркало №1 одним движением;
+        работает и дома, и в витрине.</td>
+      <td>часы</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-p0">P0-2</span></td>
+      <td><strong>Одно число «Повторить»</strong></td>
+      <td>Слить <code>count_due_flashcards</code> + <code>count_due_reviews</code> в один
+        surface-номер с одной кнопкой (№1 B2). Оба счётчика уже стекаются в одну функцию —
+        меняется представление, не данные и не расписание.</td>
+      <td>день</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-p1">P1</span></td>
+      <td>Честность видна везде</td>
+      <td>Честный hero вместо «готовится…» (№2 A2, <code>:217</code>); сегмент свежести карты
+        на Mission Control (№3 A1); дверь агента: FeatureSpec + read-роутер (№4 A1+A2).</td>
+      <td>2–3 дня</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-p2">P2</span></td>
+      <td>Дом и праздник</td>
+      <td>«Своя комната» — волна тем-миров (№9); one-pager лекции (№6 B1); section-anchor
+        карточек (№1 C2); витрина: закрепить демо-опыт (volume или замороженный демо-аккаунт).</td>
+      <td>по волнам</td>
+    </tr>
+  </table>
+  </div>
+  <p><strong>Kill switch:</strong> если P0-1 потребовал нового пайплайна, гейта или хранилища —
+  стоп: это одна строка meta и одна строка рендера. Если P0-2 потянул миграцию данных —
+  стоп: только представление. Любое расширение — сигнал, что ход выбран не тот.</p>
+  <p><strong>Почему это шедевр, а не ещё один список:</strong> впервые за серию план
+  не прокладывает ничего нового. Десять разборов уже положили каждый провод; финальный ход —
+  дать системе голос в двух местах, где студент и так стоит. Гениальность в простоте:
+  P0 целиком — примерно пятнадцать строк кода.</p>
+</section>
+
+<div class="footer">
+  <p>Разбор №10, финал серии · hometutor HEAD <code>c374892</code> «194» + рабочее дерево ·
+  2026-07-12. Метод серии подтверждён делом: диагноз №8 поставлен утром, оба его хода
+  закрыты владельцем коммитами 186–191 к 17:32 того же дня.</p>
+  <p>Правило двух слоёв: этот HTML — слой анализа; actionable-кандидаты — в
+  <code>doc/next/full_circle_visibility_plan.md</code> (hometutor-studio). Серия:
+  <code>doc/presentations/evolutionary_analyses/</code>, №0–№10.</p>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -8,7 +8,9 @@
 - Не переключайся в другие репозитории.
 - Не читай и не меняй внешние процессные документы.
 - Не запускай внешние процессные команды закрытия или синхронизации.
-- Если для выбора следующего шага не хватает контекста, не спрашивай пользователя: продолжай default-направление `Invisible Half P0 / Knowledge Fate` по runtime-коду и уже переданному аудиту в текущем чате.
+- Если для выбора следующего шага не хватает контекста, не спрашивай пользователя: продолжай default-направление `Full Circle / wave-full-circle-pulse` по runtime-коду и уже переданному аудиту в текущем чате.
+- Do not finish with a question such as "the prompt does not contain a concrete task", "which direction should I continue?", or "continue Knowledge Fate?".
+- A clean worktree, no explicit bug, or an already-open `tests/test_memory_loop_closure.py` means: continue the default target automatically.
 
 ## Шаг 0 — состояние runtime-репозитория
 
@@ -36,23 +38,26 @@
 - Не делай попутный рефакторинг.
 - Runtime-docs обновляй только если изменился публичный API, UI-поведение, архитектура, config или persistence.
 
-
 ## Default continuation target
 
 Если пользователь дал этот prompt без конкретного бага или выбора направления, продолжай автоматически, без уточняющих вопросов:
 
-1. Сначала доведи runtime-ветку `Invisible Half P0 / Knowledge Fate`:
-   - `tests/test_memory_loop_closure.py`
-   - `app/fact_source_binding.py`
-   - `app/flashcard_service.py`
-   - `app/learner_model_service.py`
+1. Реализуй `Full Circle / wave-full-circle-pulse`, сначала A1, затем A2.
+2. A1 — «Пульс петли» в tutor chat:
    - `app/query_response_postprocessing.py`
-2. Цель: tutor/flashcard learning trace, canonical concept id alignment, отдельные interaction-счётчики, сохранение quiz semantics.
-3. Затем проверь provider honesty:
-   - `app/llm_resilience.py`
-   - `config.env`
-4. Если всё уже реализовано и targeted-тесты зелёные, не останавливайся с вопросом. Выполни критический review текущей реализации на расхождения с инвариантами, исправь найденное, затем запусти targeted checks.
-5. Вопрос пользователю задавай только если без ответа невозможно выбрать между двумя несовместимыми runtime-изменениями с риском потери данных или изменения публичного поведения.
+   - `app/query_rag_assembly.py`
+   - `app/ui/tutor_chat_response_render.py`
+   - `app/ui/tutor_chat_render.py` или `app/ui/helpers.py`, только если нужен маленький formatter/renderer
+   - `tests/test_memory_loop_closure.py` и/или targeted tutor metadata/UI test
+3. A1 contract: learner trace должен пройти полный путь `update_outcome` → `ctx.metadata["learner_trace"]` → `assistant_meta["tutor"]["learner_trace"]` → `tutor_meta` в history message → видимая строка в tutor chat. Не считай запись в `ctx.metadata` достаточной, пока renderer её не видит.
+4. A1 UI: показать короткую строку без debug-панели, например `След записан: <concept> · источников: N`. LLM source показывай только если он уже доступен в `tutor_meta`; не добавляй новый provider pipeline ради строки.
+5. A2 — «Одно число Повторить сегодня»:
+   - `app/ui/mission_control.py`
+   - `app/ui/tutor_chat_response_render.py`
+   - `app/ui/resume_cards_due.py` / `app/ui/resume_cards_smart_study.py`, только если там реально живёт surface-число
+6. A2 contract: сначала унифицируй surface-число и подпись. Не обещай единую очередь, если реализация не вводит явный review-router. Если считаешь сумму `flashcard_due_n + sm2_due_n`, назови это суммой двух очередей; если делаешь union, явно определи ключ дедупликации.
+7. Если A1/A2 уже реализованы и targeted-тесты зелёные, не останавливайся с вопросом. Выполни критический review текущей реализации на расхождения с инвариантами, исправь найденное, затем запусти targeted checks.
+8. Вопрос пользователю задавай только если без ответа невозможно выбрать между двумя несовместимыми runtime-изменениями с риском потери данных или изменения публичного поведения.
 
 ## Python и проверки
 
@@ -81,7 +86,7 @@
 
 ## Карта направлений для ориентира
 
-Используй эту карту как ориентир. Если пользователь не выбрал направление, бери пункт 8, затем пункт 1 как default. Не ищи внешние планы.
+Используй эту карту как ориентир. Если пользователь не выбрал направление, бери пункт 10 как default. Не ищи внешние планы.
 
 1. Knowledge Fate / петля памяти: tutor/flashcard/quiz должны оставлять корректный учебный след.
 2. First Ten Minutes / onboarding: первый экран и первые действия должны быть честными и понятными.
@@ -90,7 +95,9 @@
 5. Trust Under Load / provider: сбои LLM должны давать быстрый честный отказ, а не долгие подвисания.
 6. Infographics / living map: карта должна отражать реальное состояние материала и прогресса.
 7. Learning Plan: «программа обучения» и «план на сегодня» не должны конфликтовать.
-8. Invisible Half: невидимые контуры — память, честность, recovery, state — важнее новых экранов.
+8. Invisible Half: невидимые контуры — память, честность, recovery, state; базовые провода уже закрыты, теперь нужна видимость.
+9. Color Worlds: визуальные миры и присвоение пространства.
+10. Full Circle: показать уже работающую петлю на экране; default — `wave-full-circle-pulse`.
 
 ## Задача сессии
 
