@@ -55,8 +55,21 @@ export async function gotoAndWaitForStreamlitReady(
   url: string,
   timeout = DEMO.navigationReadyMs,
 ): Promise<void> {
-  await gotoStreamlitPage(page, url);
-  await waitForStreamlitReady(page, timeout);
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    await gotoStreamlitPage(page, url);
+    try {
+      await waitForStreamlitReady(page, timeout);
+      return;
+    } catch (err) {
+      lastError = err;
+      if (attempt === 2) {
+        throw err;
+      }
+      await page.waitForTimeout(500 * attempt);
+    }
+  }
+  throw lastError;
 }
 
 export async function gotoStreamlitPage(
