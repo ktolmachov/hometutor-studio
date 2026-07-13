@@ -1,0 +1,625 @@
+<title>Разбор №14 — Паспорт качества написан. Продукт показывает галочку</title>
+<style>
+  /* ============================================================
+     HOMETUTOR NOTEBOOK STYLE v1.0 — LOCKED 2026-07-12
+     Извлечено из разборов №9-10 эволюционной серии. Это визитная
+     карточка формата «нескучный разбор». НЕ переизобретать палитру
+     заново в новой сессии — копировать этот файл и менять только
+     содержимое между <div class="wrap"> ... </div>.
+     Гайд: notebook_deck_guide.md (в этой же папке).
+     ============================================================ */
+  :root {
+    /* --- ЛОКОНО (locked core, 9 токенов) --- не менять значения --- */
+    --paper: #f7f3ea;
+    --paper-2: #fffdf7;
+    --ink: #17211b;
+    --muted: #5c6a61;
+    --terra: #b95631;
+    --terra-deep: #7d351f;
+    --forest: #243b2c;
+    --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14);
+    --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+    /* --- расширение: статус-токены (опционально, для сводных таблиц
+       «сделано/молчит/дыра» — см. §6 guide) --- */
+    --done: #1e6e46;
+    --silent: #b98a2d;
+    --hole: #8c2f39;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141a16;
+      --paper-2: #1b231e;
+      --ink: #ece5d4;
+      --muted: #9aa89d;
+      --terra: #d97a52;
+      --terra-deep: #e8a583;
+      --forest: #9dbfa8;
+      --gold: #d9a55e;
+      --line: rgba(236, 229, 212, 0.16);
+      --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(157, 191, 168, 0.10);
+      --verdict-keep: #6fc493;
+      --verdict-fix: #e0a35c;
+      --verdict-no: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+      --done: #6fc493;
+      --silent: #d9b45e;
+      --hole: #e08691;
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+    --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+    --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+    --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+    --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+      radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--terra-deep); }
+  em { color: var(--muted); }
+
+  code {
+    font-family: Consolas, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--terra);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 0.95rem; color: var(--gold);
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .sec-name {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem;
+    font-weight: 700; color: var(--muted);
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.1rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+  }
+  .anchor-card { border-left: 4px solid var(--terra); }
+  .ev { font-size: 0.86rem; color: var(--muted); margin-top: 0.5rem; }
+  .ev code { font-size: 0.8rem; }
+
+  .figure { margin: 1.4rem 0 0.4rem; }
+  .figure svg { width: 100%; height: auto; display: block; }
+  .figcap { font-size: 0.84rem; color: var(--muted); margin-top: 0.5rem; max-width: 70ch; }
+
+  .table-scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  td:first-child { white-space: nowrap; }
+  td { font-variant-numeric: tabular-nums; }
+
+  .st { display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 99px; white-space: nowrap; }
+  .st-done { color: var(--done); border: 1px solid var(--done); }
+  .st-silent { color: var(--silent); border: 1px solid var(--silent); }
+  .st-hole { color: var(--hole); border: 1px solid var(--hole); }
+
+  .v { display: inline-block; font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+       letter-spacing: 0.08em; padding: 0.1rem 0.55rem; border-radius: 99px; margin-right: 0.5rem; }
+  .v-keep { color: var(--verdict-keep); border: 1.5px solid var(--verdict-keep); }
+  .v-fix { color: var(--verdict-fix); border: 1.5px solid var(--verdict-fix); }
+  .v-no { color: var(--verdict-no); border: 1.5px solid var(--verdict-no); }
+
+  .tension { border-left: 4px solid var(--gold); }
+  .tension .t { font-family: Georgia, serif; font-size: 1.05rem; margin-bottom: 0.35rem; }
+  .syn { color: var(--verdict-keep); font-weight: 600; }
+
+  .ladder { list-style: none; padding-left: 0; }
+  .ladder li { display: flex; gap: 0.8rem; align-items: baseline; margin-bottom: 0.55rem; }
+  .ladder .num {
+    flex: none; font-family: Georgia, serif; font-weight: 700; color: var(--gold);
+    width: 1.6rem; text-align: right;
+  }
+
+  .tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.08rem 0.5rem;
+         border-radius: 4px; color: var(--paper-2); }
+  .tag-p0 { background: var(--terra); }
+  .tag-p1 { background: var(--forest); }
+  .tag-p2 { background: var(--gold); }
+  :root[data-theme="dark"] .tag, :root[data-theme="dark"] .tag-p2 { color: #141a16; }
+  @media (prefers-color-scheme: dark) { .tag { color: #141a16; } }
+  :root[data-theme="light"] .tag { color: var(--paper-2); }
+
+  .footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
+            font-size: 0.85rem; color: var(--muted); }
+  .footer code { font-size: 0.8rem; }
+
+  a { color: var(--terra); }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">Эволюционный разбор · №14 · качество конспектов</div>
+  <h1>Паспорт качества написан. Продукт показывает галочку</h1>
+  <p class="lede">Внутри каждого cloud-конспекта уже лежит рубрика из десяти критериев с оценками
+  1–5 и комментариями — почти дословно список качеств, который называет студент. Ни одна строка
+  продукта её не читает: студенту качество конспекта показывается одним сигналом
+  «✅ Все конспекты готовы». Этот разбор — о том, как отдать студенту уже измеренное
+  качество и добавить недостающую половину: качество, прожитое им самим.</p>
+  <div class="meta">
+    <span>hometutor · HEAD <code>9817633e1</code> «208»</span>
+    <span>2026-07-13</span>
+    <span>тема владельца: качество конспектов, включая Живые · 12+6 критериев студента</span>
+  </div>
+</header>
+
+<!-- 1. СУТЬ -->
+<section id="essence">
+  <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Суть</span></div>
+  <h2>Чего по-настоящему хочет студент, открывая конспект</h2>
+  <p>Студент платит вниманием дважды: лекции — девяносто минут, конспекту — десять.
+  Конспект — это <strong>договор о сжатии</strong>: «верни мне лекцию за десятую часть времени,
+  не потеряв главного». У любого договора студент проверяет три вещи, и все двенадцать его
+  критериев раскладываются ровно на них:</p>
+  <ul>
+    <li><strong>Можно ли тебе верить?</strong> — сохраняет смысл, отделяет главное от
+    второстепенного, содержит хорошие примеры, качественно изложен;</li>
+    <li><strong>Для меня ли ты написан?</strong> — уровень сложности, новизна знаний,
+    объясняет простыми словами;</li>
+    <li><strong>Что мне делать дальше?</strong> — передаёт главную мысль, показывает связи,
+    приводит к действию, удобен для повторения, имеет ясную структуру.</li>
+  </ul>
+  <p>Живой конспект добавляет четвёртый вопрос, который обычный конспект задать не может:
+  <strong>«а что об этом думаю я?»</strong> Его шесть качеств — обновляемость, открытые вопросы,
+  личные наблюдения, связи, разделение фактов и интерпретаций, изменение статуса знания — это
+  не свойства текста. Это свойства <em>отношений</em> между текстом и растущим пониманием.</p>
+  <p>Отсюда суть разбора: <strong>качество конспекта — произведение двух половин: качества
+  текста и качества отношений с ним.</strong> Первая половина в системе уже измерена — при
+  производстве, рубрикой, валидатором. Вторая едва начата: бинарное «прочитано» и одно
+  текстовое поле. И обе половины студенту не видны.</p>
+</section>
+
+<!-- 2. РЕАЛЬНОСТЬ -->
+<section id="reality">
+  <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Реальность</span></div>
+  <h2>Что уже есть в коде и данных</h2>
+
+  <div class="card">
+    <p><strong>Конспекты производят четыре фабрики — с тремя разными планками качества.</strong>
+    (A)&nbsp;In-app «Подготовить для Obsidian»: <code>obsidian_export.to_obsidian_markdown:392</code>
+    с промптом <code>OBSIDIAN_EXPORT_COMPOSE_PROMPT</code> (<code>prompts/_impl.py:1341</code>) —
+    структура из четырёх блоков: главная мысль, темы, термины, итоги. Ни вопросов, ни примеров-блоков,
+    ни плана повторения. (B)&nbsp;Офлайн <code>smart_konspekt.py</code> с «универсальным промптом» —
+    богатая структура: простое объяснение, примеры, ошибки и риски, контрольные вопросы,
+    flashcards, план повторения. (C)&nbsp;Cloud-конспект по промпту на 1216 строк с эталоном
+    «урок 2» — та же структура плюс <strong>обязательная рубрика качества</strong> и внешние
+    материалы. (D)&nbsp;Живой конспект: LLM-синтез <code>SYNTHESIS_PROMPT</code>
+    (<code>_impl.py:141-174</code>) + детерминированный хвост.</p>
+    <p class="ev">Код сам признаётся в двух сортах: «Локальный шаблон конспекта гарантирует только
+    main_idea/terms/summary; богатые роли … есть у конспектов из внешнего pipeline» —
+    комментарий в <code>section_index.py:317-321</code>.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Фабрика B бездомна.</strong> Её промпт по умолчанию ищется в
+    <code>doc/prompts/smart_lecture_konspekt_universal.md</code> (<code>config.py:151</code>,
+    резолв от корня репо в <code>_impl.py:1431-1436</code>) — файла в hometutor <em>нет</em>,
+    он живёт только в hometutor-studio; переопределения в <code>.env</code> нет, то есть в этом
+    чекауте <code>generate_smart_konspekt()</code> падает с FileNotFoundError. Вызывающих в
+    продукте — ноль; модуль официально числится кандидатом в мёртвые
+    (<code>check_dead_modules.py:19</code>, причина хранения: «manual smart-konspekt generation
+    utility», <code>:37</code>). Медиа-конвейер <code>Run-MediaKonspektPipeline.ps1:154-157</code>
+    принимает конспект как данность и падает, если его нет.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Закон качества конспекта существует — в другом репозитории.</strong>
+    <code>hometutor-studio/scripts/validate_smart_konspekt.py</code> проверяет каждый конспект:
+    обязательная <strong>«Рубрика качества конспекта»</strong> (<code>:124</code>), обязательные
+    Flashcards/Quiz/план повторения (<code>:130</code>), запрет самооценки в YAML — «оценки
+    должны быть только в рубрике качества» (<code>:100-101</code>), запрет непроверенных ссылок.
+    В живой базе рубрику несут 7 файлов двух курсов; у «урок_2» она заполнена всерьёз:
+    десять критериев, оценки 5/5 и честное «Проверка точности — 4/5» с комментарием.</p>
+    <p class="ev">Рубрика пересекается со списком студента почти один в один: понятность сложных
+    тем ↔ «объясняет простыми словами», качество примеров ↔ «содержит хорошие примеры»,
+    практическая применимость ↔ «приводит к действию», учебные артефакты ↔ «удобен для
+    повторения», проверка точности ↔ «сохраняет смысл исходного материала».</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Продукт же измеряет качество конспекта существованием файла.</strong>
+    Конспект = md-файл с <code>type: konspekt</code> во frontmatter
+    (<code>konspekt_discovery.py:57</code>); <code>coverage_summary()</code> считает
+    covered/total (<code>:95-98</code>); вкладка тем показывает «✅ Все конспекты готовы»
+    при 100% покрытия (<code>topics_tab.py:50-54</code>). Карточка Живого конспекта на
+    Mission Control — тоже счётчики: разделов, лекций, концептов
+    (<code>mission_control.py:858-863</code>). Ни одного сигнала «насколько хорош».</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Единственный читатель структуры конспекта — словарь ролей из семи записей.</strong>
+    <code>_ROLE_BY_NORMALIZED_HEADING</code> (<code>section_index.py:322-356</code>) знает
+    main_idea, summary, terms, pitfalls, check_questions, external_links, cheatsheet — их
+    потребляют deep-study-промпт, артефакт и читалка. Роли <em>нет</em> у рубрики качества,
+    практических выводов, проверки точности, плана повторения, связи со следующими темами —
+    эти разделы для продукта неотличимы от обычного текста: они индексируются в RAG как контент
+    и предлагаются в корзину как «содержательные разделы» (шумом считаются только оглавления:
+    <code>living_konspekt_add_panel.py:28</code>).</p>
+  </div>
+
+  <div class="figure">
+    <svg viewBox="0 0 760 470" xmlns="http://www.w3.org/2000/svg" role="img"
+         aria-label="Диаграмма: какие разделы конспекта доходят до студента через словарь ролей, а какие обрываются">
+      <text x="20" y="28" font-family="Georgia, serif" font-size="15" fill="var(--ink)" font-weight="bold">Внутри файла конспекта</text>
+      <text x="20" y="46" font-size="11" fill="var(--muted)">разделы, которые уже написаны</text>
+      <text x="540" y="28" font-family="Georgia, serif" font-size="15" fill="var(--ink)" font-weight="bold">Видит студент</text>
+
+      <!-- левые блоки: проходят -->
+      <g font-size="12.5" fill="var(--ink)">
+        <rect x="20" y="60"  width="230" height="26" rx="6" fill="none" stroke="var(--verdict-keep)"/><text x="32" y="78">🎯 Главная мысль</text>
+        <rect x="20" y="94"  width="230" height="26" rx="6" fill="none" stroke="var(--verdict-keep)"/><text x="32" y="112">🧠 Термины и концепции</text>
+        <rect x="20" y="128" width="230" height="26" rx="6" fill="none" stroke="var(--verdict-keep)"/><text x="32" y="146">❓ Контрольные вопросы</text>
+        <rect x="20" y="162" width="230" height="26" rx="6" fill="none" stroke="var(--verdict-keep)"/><text x="32" y="180">⚠️ Ошибки и антипаттерны</text>
+        <rect x="20" y="196" width="230" height="26" rx="6" fill="none" stroke="var(--verdict-keep)"/><text x="32" y="214">🏁 Итоги · 🧾 шпаргалка · 🌐 ссылки</text>
+      </g>
+      <!-- левые блоки: обрываются -->
+      <g font-size="12.5" fill="var(--ink)">
+        <rect x="20" y="248" width="230" height="26" rx="6" fill="none" stroke="var(--verdict-no)" stroke-dasharray="5 3"/><text x="32" y="266">✅ Рубрика качества (10×1–5)</text>
+        <rect x="20" y="282" width="230" height="26" rx="6" fill="none" stroke="var(--verdict-no)" stroke-dasharray="5 3"/><text x="32" y="300">🧯 Проверка точности</text>
+        <rect x="20" y="316" width="230" height="26" rx="6" fill="none" stroke="var(--verdict-no)" stroke-dasharray="5 3"/><text x="32" y="334">🛠 Практические выводы</text>
+        <rect x="20" y="350" width="230" height="26" rx="6" fill="none" stroke="var(--verdict-no)" stroke-dasharray="5 3"/><text x="32" y="368">📅 План повторения (SRS-таблица)</text>
+        <rect x="20" y="384" width="230" height="26" rx="6" fill="none" stroke="var(--verdict-no)" stroke-dasharray="5 3"/><text x="32" y="402">🔗 Связь со следующими темами</text>
+      </g>
+
+      <!-- центр: словарь ролей -->
+      <rect x="310" y="60" width="150" height="350" rx="10" fill="var(--code-bg)" stroke="var(--line)"/>
+      <text x="385" y="90" text-anchor="middle" font-family="Georgia, serif" font-size="13.5" fill="var(--ink)" font-weight="bold">Словарь ролей</text>
+      <text x="385" y="108" text-anchor="middle" font-size="10.5" fill="var(--muted)">section_index.py:322</text>
+      <text x="385" y="126" text-anchor="middle" font-size="10.5" fill="var(--muted)">7 ролей</text>
+      <text x="385" y="240" text-anchor="middle" font-size="26" fill="var(--verdict-no)">✖</text>
+      <text x="385" y="262" text-anchor="middle" font-size="10.5" fill="var(--verdict-no)">роли нет —</text>
+      <text x="385" y="276" text-anchor="middle" font-size="10.5" fill="var(--verdict-no)">просто текст</text>
+
+      <!-- линии слева к центру -->
+      <g stroke="var(--verdict-keep)" stroke-width="1.6">
+        <line x1="250" y1="73"  x2="310" y2="110"/>
+        <line x1="250" y1="107" x2="310" y2="120"/>
+        <line x1="250" y1="141" x2="310" y2="132"/>
+        <line x1="250" y1="175" x2="310" y2="145"/>
+        <line x1="250" y1="209" x2="310" y2="158"/>
+      </g>
+      <g stroke="var(--verdict-no)" stroke-width="1.6" stroke-dasharray="5 3">
+        <line x1="250" y1="261" x2="322" y2="236"/>
+        <line x1="250" y1="295" x2="330" y2="242"/>
+        <line x1="250" y1="329" x2="334" y2="248"/>
+        <line x1="250" y1="363" x2="330" y2="254"/>
+        <line x1="250" y1="397" x2="322" y2="260"/>
+      </g>
+
+      <!-- правая колонка -->
+      <g font-size="12.5" fill="var(--ink)">
+        <rect x="520" y="60"  width="220" height="26" rx="6" fill="none" stroke="var(--verdict-keep)"/><text x="532" y="78">«Главная мысль» в читалке</text>
+        <rect x="520" y="94"  width="220" height="26" rx="6" fill="none" stroke="var(--verdict-keep)"/><text x="532" y="112">«Проверь себя» в артефакте</text>
+        <rect x="520" y="128" width="220" height="26" rx="6" fill="none" stroke="var(--verdict-keep)"/><text x="532" y="146">Deep-study-промпт</text>
+        <rect x="520" y="162" width="220" height="26" rx="6" fill="none" stroke="var(--verdict-keep)"/><text x="532" y="180">Термины → карточки</text>
+      </g>
+      <g stroke="var(--verdict-keep)" stroke-width="1.6">
+        <line x1="460" y1="112" x2="520" y2="73"/>
+        <line x1="460" y1="124" x2="520" y2="107"/>
+        <line x1="460" y1="136" x2="520" y2="141"/>
+        <line x1="460" y1="148" x2="520" y2="175"/>
+      </g>
+
+      <!-- сигнал качества сегодня -->
+      <rect x="520" y="330" width="220" height="52" rx="10" fill="none" stroke="var(--gold)" stroke-width="1.6"/>
+      <text x="630" y="352" text-anchor="middle" font-size="12.5" fill="var(--ink)" font-weight="bold">«✅ Все конспекты готовы»</text>
+      <text x="630" y="370" text-anchor="middle" font-size="10.5" fill="var(--muted)">topics_tab.py:50 — весь сигнал качества</text>
+      <line x1="385" y1="410" x2="385" y2="440" stroke="var(--gold)" stroke-width="1.6"/>
+      <line x1="385" y1="440" x2="620" y2="440" stroke="var(--gold)" stroke-width="1.6"/>
+      <line x1="620" y1="440" x2="620" y2="386" stroke="var(--gold)" stroke-width="1.6"/>
+      <text x="30" y="444" font-size="10.5" fill="var(--muted)">coverage_summary: качество = существование файла</text>
+    </svg>
+    <p class="figcap">Пять «богатых» разделов конспекта — включая готовую рубрику качества —
+    обрываются на словаре ролей и доходят до студента только как неразмеченный текст. Сигнал
+    качества на поверхности один: галочка покрытия.</p>
+  </div>
+
+  <h3>12 критериев студента против кода (обычный конспект)</h3>
+  <div class="table-scroll">
+    <table>
+      <tr><th>Критерий</th><th>Статус</th><th>Где живёт / где обрывается</th></tr>
+      <tr><td>Передаёт главную мысль</td><td><span class="st st-done">сделано</span></td><td>роль main_idea; цитируется в читалке (<code>reader:73</code>) и шапке артефакта</td></tr>
+      <tr><td>Имеет ясную структуру</td><td><span class="st st-done">сделано</span></td><td>оглавление, якоря, разбор на разделы (<code>section_index</code>), TOC читалки</td></tr>
+      <tr><td>Удобен для повторения</td><td><span class="st st-done">сделано</span></td><td>вопросы round-robin по документам (<code>konspekt_artifact.py:400-437</code>), карточки терминов, панель «повторить»; но SRS-таблица из текста конспекта продуктом не читается</td></tr>
+      <tr><td>Объясняет простыми словами</td><td><span class="st st-silent">молчит</span></td><td>заказано промптами B/C (блок «Простое объяснение»); фабрика A не просит; никто не проверяет</td></tr>
+      <tr><td>Содержит хорошие примеры</td><td><span class="st st-silent">молчит</span></td><td>заказано промптами; оценка «Качество примеров 5/5» лежит в рубрике — не читается</td></tr>
+      <tr><td>Сохраняет смысл источника</td><td><span class="st st-silent">молчит</span></td><td>sha256 входов в frontmatter + раздел «Проверка точности» в файле; роли нет, на поверхности нет</td></tr>
+      <tr><td>Отделяет главное</td><td><span class="st st-silent">молчит</span></td><td>только промптовое требование; не измеряется</td></tr>
+      <tr><td>Показывает связи</td><td><span class="st st-silent">молчит</span></td><td>«Связь со следующими темами» пишется, но роли нет; graph lens есть только в Живом конспекте</td></tr>
+      <tr><td>Приводит к действию</td><td><span class="st st-silent">молчит</span></td><td>«Практические выводы» пишутся — роли нет; двери к действию есть у Живого (quiz, deep study)</td></tr>
+      <tr><td>Качество изложения (оценка)</td><td><span class="st st-hole">дыра</span></td><td>рубрика 10×1–5 в файле; в <code>app/</code> — 0 упоминаний «Рубрика качества»</td></tr>
+      <tr><td>Уровень сложности</td><td><span class="st st-hole">дыра</span></td><td>аудитория зафиксирована промптом («сильный junior/middle», universal:71); ui_level и mastery не влияют — 0 упоминаний в читалке</td></tr>
+      <tr><td>Новизна знаний</td><td><span class="st st-hole">дыра</span></td><td>ни одна строка не сравнивает конспект с тем, что студент уже знает (mastery живёт в графе отдельно)</td></tr>
+    </table>
+  </div>
+
+  <h3>6 качеств Живого конспекта против кода</h3>
+  <div class="table-scroll">
+    <table>
+      <tr><th>Качество</th><th>Статус</th><th>Где живёт / где обрывается</th></tr>
+      <tr><td>Обновляемость</td><td><span class="st st-done">сделано</span></td><td>лучшая часть: 4 честных статуса дрейфа (<code>workbench_panel.py:243-273</code>), «↩ Пересобрать» с реанкеровкой по section_id, sha256 конспекта от входов</td></tr>
+      <tr><td>Личные наблюдения</td><td><span class="st st-done">сделано</span></td><td>«Моя мысль» на раздел (<code>reader:124</code>) → «### 💬 Моими словами» в артефакте (<code>artifact:130-131</code>); корзина переживает перезапуск (app_kv)</td></tr>
+      <tr><td>Связи с другими знаниями</td><td><span class="st st-silent">молчит</span></td><td>graph lens и концепты — панелью рядом; в тело артефакта связи не попадают</td></tr>
+      <tr><td>Изменение статуса знания</td><td><span class="st st-silent">молчит</span></td><td>бинарное «Прочитано» с датой (<code>reader:132-138</code>); «понял / сомневаюсь / не понял» нет; quiz-mastery живёт отдельно</td></tr>
+      <tr><td>Открытые вопросы</td><td><span class="st st-hole">дыра</span></td><td>есть только чужие контрольные вопросы лекции; своего структурного «мой открытый вопрос» нет — некуда записать и нечего закрыть</td></tr>
+      <tr><td>Факты ↔ интерпретации</td><td><span class="st st-hole">дыра</span></td><td>зачаток: текст лекции и «Моими словами» разделены визуально; принципа и разметки нет</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 3. ПРОТИВОРЕЧИЯ -->
+<section id="tensions">
+  <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Противоречия</span></div>
+  <h2>Напряжения — и их синтез</h2>
+
+  <div class="card tension">
+    <div class="t">Один стандарт качества ↔ три разные фабрики</div>
+    <p>Свести всё к одному промпту нельзя: in-app фабрика должна быть быстрой и локальной,
+    операторская — глубокой, cloud — максимальной. Но три молчаливые планки — это обман
+    ожиданий: студент не знает, какого сорта конспект перед ним.
+    <span class="syn">Синтез: стандартом становится не промпт, а словарь ролей.</span>
+    Каждая фабрика честно объявляет грейд (какие роли она гарантирует), продукт показывает
+    грейд студенту. Разнообразие остаётся, обман исчезает.</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">Самооценка LLM ↔ доверие студента</div>
+    <p>Рубрика — самооценка той же модели, что писала конспект; валидатор это понимает
+    (self_eval в YAML запрещён, оценки только в рубрике — <code>validate:100</code>). Верить ей
+    на слово наивно, выбросить — расточительно.
+    <span class="syn">Синтез: паспорт из двух половин — заявленное × прожитое.</span>
+    Рубрика показывается как «заявлено при производстве», а рядом продукт копит подтверждения
+    из жизни: разделы прочитаны, вопросы заданы и закрыты, quiz по этим разделам пройден.
+    Доверие рождается из расхождения или совпадения двух половин, а не из одной цифры.</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">Живость конспекта ↔ стабильность якорей</div>
+    <p>Чем живее конспект (перегенерация, обогащение схемами, аудио-сайдкары), тем быстрее
+    стареют ссылки корзины на строки. Этот синтез уже написан в коде — снимок + реанкеровка
+    по section_id + честные статусы дрейфа.
+    <span class="syn">Синтез: новые слои живости (статус знания, открытые вопросы) кладутся
+    в ту же строку корзины, что note и read_at</span> — они наследуют готовую механику
+    выживания при пересборке, а не изобретают новое хранилище.</p>
+  </div>
+</section>
+
+<!-- 4. БОЛЬ-ЯКОРЬ -->
+<section id="pain">
+  <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Боль-якорь</span></div>
+  <h2>Оценка качества уже написана — и никем не прочитана</h2>
+  <div class="card anchor-card">
+    <p><strong>Проверяемый факт:</strong> студент спрашивает «насколько хорош мой конспект —
+    новизна, изложение, примеры, точность?» Продукт отвечает единственным сигналом:
+    «✅ Все конспекты готовы». При этом в живой базе (<code>D:\AI\app\data</code>) каждый
+    cloud-конспект несёт раздел «✅ Рубрика качества конспекта» — таблицу из десяти критериев
+    с оценками и комментариями. У «урок_2»: полнота 5/5, понятность 5/5, качество примеров 5/5,
+    <em>проверка точности 4/5</em> — честная самокритика, которую никто никогда не увидел.</p>
+    <p><strong>Точная причина в коде:</strong></p>
+    <ul>
+      <li><code>grep -r "Рубрика качества" app/</code> → <strong>0 совпадений</strong> — продукт
+      не парсит, не показывает и не использует рубрику нигде;</li>
+      <li><code>section_index.py:322-356</code> — в словаре ролей 7 записей, роли для рубрики
+      нет: для продукта это неотличимый от текста лекции контент (индексируется в RAG,
+      предлагается в корзину);</li>
+      <li><code>konspekt_discovery.py:57</code> + <code>topics_tab.py:50-54</code> — «качество»
+      на поверхности вычисляется как существование файла с <code>type: konspekt</code>;</li>
+      <li>сам закон «рубрика обязательна» живёт в другом репозитории
+      (<code>hometutor-studio/scripts/validate_smart_konspekt.py:124</code>) — продукт о нём
+      не знает, как стражи из разбора №12 не знали о CI.</li>
+    </ul>
+    <p class="ev">Житейская проверка: откройте «урок_2_как_агент_думает_и_действует.md» —
+    рубрика на месте, десять строк, оценки и комментарии. Затем откройте любой экран
+    hometutor — этих данных нет ни на одном.</p>
+  </div>
+</section>
+
+<!-- 5. ВЕРДИКТЫ -->
+<section id="verdicts">
+  <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Вердикты</span></div>
+  <h2>Решение по каждому элементу</h2>
+
+  <div class="card"><span class="v v-keep">оставить</span><strong>Детерминированный хвост Живого конспекта.</strong>
+  «Проверь себя» и «Источники» LLM-версии отрезаются и собираются кодом точнее
+  (<code>living_konspekt_view.py:184-192</code>, <code>_study_pack_tail</code>) — образцовый
+  принцип «не проси у LLM то, что знаешь кодом». Тот же принцип поведёт P0.</div>
+
+  <div class="card"><span class="v v-keep">оставить</span><strong>Механику живости: staleness + пересборка + sha256.</strong>
+  Четыре честных статуса дрейфа, реанкеровка по section_id, «Моими словами» в артефакте —
+  «обновляемость» из списка студента уже закрыта лучше, чем у большинства конкурентов.</div>
+
+  <div class="card"><span class="v v-keep">оставить</span><strong>Round-robin контрольных вопросов и главную мысль повсюду.</strong>
+  Мелкие точные решения (<code>konspekt_artifact.py:400-437</code>, <code>reader:73</code>),
+  прямо работающие на «удобен для повторения» и «передаёт главную мысль».</div>
+
+  <div class="card"><span class="v v-fix">починить</span><strong>Рубрика не читается → роль + парсер + паспорт.</strong>
+  Добавить роль quality_rubric в словарь, распарсить таблицу детерминированно (без LLM) и
+  показать: в читалке у источника, на вкладке тем вместо «✅ готовы». Данные готовы во всех
+  конспектах базы — это чтение, не производство.</div>
+
+  <div class="card"><span class="v v-fix">починить</span><strong>Бинарное «Прочитано» → статус знания + мой вопрос.</strong>
+  Три состояния (понял / сомневаюсь / не понял) и структурное поле «мой открытый вопрос»
+  в той же строке корзины, где уже живут note и read_at — рельсы
+  (<code>update_section_fields</code>, app_kv, выживание при пересборке) готовы.</div>
+
+  <div class="card"><span class="v v-fix">починить</span><strong>Служебные разделы в корзине и RAG.</strong>
+  Рубрика, flashcards, quiz-разделы конспекта сейчас «содержательные разделы» — расширить
+  шумовой фильтр ролями, чтобы студент не собирал конспект из служебных таблиц.</div>
+
+  <div class="card"><span class="v v-fix">починить</span><strong>Судьбу бездомной фабрики B — прописать.</strong>
+  Либо промпт переезжает в репо и появляется дверь (хотя бы CLI-инструкция), либо модуль
+  честно переезжает в studio. Сейчас продукт возит мёртвый вес с падающим дефолтом.</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>Адаптивную перегенерацию конспекта под уровень студента.</strong>
+  Вся инфраструктура живости — якоря строк, section_id, sha256, медиа-сайдкары с таймкодами —
+  построена на стабильном тексте. Перегенерация под каждого читателя рушит это разом.
+  Адресность делается слоями поверх стабильного текста (сворачивание блоков, бейджи новизны),
+  не заменой текста.</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>LLM-оценщика качества в рантайме.</strong>
+  Вторая самооценка той же модели не добавляет доверия — добавляет минуты, стоимость и
+  галлюцинации. Использовать уже написанную рубрику + прожитые сигналы студента.</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>Конвертер SRS-таблицы конспекта в планировщик SM-2.</strong>
+  «План повторения» в тексте — офлайн-дублёр для чтения без приложения; настоящий планировщик
+  уже есть. Синхронизировать две правды дороже, чем честно пометить дублёра.</div>
+</section>
+
+<!-- 6. ЦЕННОСТЬ -->
+<section id="value">
+  <div class="sec-label"><span class="sec-num">6</span><span class="sec-name">Ценность</span></div>
+  <h2>Конспект с паспортом и биографией</h2>
+  <p>У ChatGPT и NotebookLM конспект — одноразовый вывод: без заявленного качества, без связи
+  с источником, без памяти о читателе. Здесь качество уже измерено при производстве
+  (рубрика + sha256 + валидатор формы), а инфраструктура живости уже умеет переживать
+  перегенерацию. Уникальность hometutor: <strong>единственный конспект, который может показать
+  и заявленное качество текста, и прожитое качество отношений с ним</strong> — «что обещали»
+  рядом с «что я взял». Доказательство — измеримо:</p>
+  <div class="table-scroll">
+    <table>
+      <tr><th>Метрика</th><th>Сейчас</th><th>После</th></tr>
+      <tr><td>Видимых критериев качества конспекта</td><td>0 (галочка покрытия)</td><td>10 (готовая рубрика на поверхности)</td></tr>
+      <tr><td>Статусов знания на раздел</td><td>1 («прочитано»)</td><td>3 (понял / сомневаюсь / не понял)</td></tr>
+      <tr><td>Открытые вопросы студента</td><td>поля не существует</td><td>задано → закрыто, счётчик на карточке MC</td></tr>
+      <tr><td>«Живость» корзины (доля разделов с мыслью/статусом/вопросом)</td><td>не измеряется</td><td>видна на карточке Mission Control</td></tr>
+      <tr><td>Новизна раздела для студента</td><td>нигде</td><td>«нового для тебя ~N%» из концептов × mastery (P1)</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 7. ПУТЬ -->
+<section id="path">
+  <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Путь</span></div>
+  <h2>Золотой путь и лестница уровней</h2>
+  <p><strong>Золотой путь одной сессии:</strong> открыл Живой конспект → у каждого источника
+  виден паспорт (грейд фабрики · рубрика · свежесть) → читаю раздел → отмечаю «понял» или
+  «сомневаюсь» → сомнение превращается в мой открытый вопрос → вопрос уходит тьютору
+  готовой кнопкой → ответ закрывает вопрос → конспект перегенерирован — «Пересобрать»
+  обновляет текст, мои мысли и статусы выживают.</p>
+  <ol class="ladder">
+    <li><span class="num">0</span><span><strong>Вижу качество.</strong> Паспорт вместо галочки:
+    рубрика и свежесть у каждого конспекта — доверие с первого взгляда.</span></li>
+    <li><span class="num">1</span><span><strong>Конспект знает, что я понял.</strong> Статусы
+    знания на разделах; «сборка не закончена» превращается в «понято 7 из 12».</span></li>
+    <li><span class="num">2</span><span><strong>Мои вопросы живут.</strong> Открытые вопросы
+    копятся, закрываются ответами тьютора и видны как незакрытые долги понимания.</span></li>
+    <li><span class="num">3</span><span><strong>Конспект знает, что для меня ново.</strong>
+    Концепты раздела × mastery = бейдж новизны; повторение и новое разделены.</span></li>
+    <li><span class="num">4</span><span><strong>Все фабрики играют по одному словарю.</strong>
+    Грейд объявлен честно; in-app конспект знает, чего ему не хватает до богатого.</span></li>
+  </ol>
+</section>
+
+<!-- 8. ПЛАН -->
+<section id="plan">
+  <div class="sec-label"><span class="sec-num">8</span><span class="sec-name">План</span></div>
+  <h2>P0–P2 по соотношению эффект/усилие</h2>
+  <div class="table-scroll">
+    <table>
+      <tr><th></th><th>Ход</th><th>Что делается</th><th>Усилие</th></tr>
+      <tr><td><span class="tag tag-p0">P0-1</span></td><td><strong>Прочитать рубрику.</strong></td>
+      <td>Роль quality_rubric в словарь + детерминированный парсер таблицы (без LLM) +
+      паспорт конспекта в читалке и на вкладке тем вместо «✅ Все конспекты готовы».
+      Данные уже во всех конспектах живой базы.</td><td>часы</td></tr>
+      <tr><td><span class="tag tag-p0">P0-2</span></td><td><strong>Статус знания + мой вопрос.</strong></td>
+      <td>«Прочитано» → три статуса; поле «мой открытый вопрос» рядом с «Моя мысль»;
+      счётчики «понято/сомневаюсь/вопросов открыто» на карточке MC. Те же рельсы, что note/read_at.</td><td>~день</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td><td>Вопрос → тьютор.</td>
+      <td>Кнопка «Спросить тьютора» из открытого вопроса (префилл вопроса + контекст раздела);
+      ответ предлагает закрыть вопрос — петля с №1 замыкается.</td><td>дни</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td><td>Новизна раздела.</td>
+      <td>Концепты строк корзины × mastery графа → «нового для тебя ~N%» на разделе;
+      данные обеих сторон уже считаются.</td><td>дни</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td><td>Шум-фильтр корзины.</td>
+      <td>Рубрика/flashcards/quiz-разделы перестают предлагаться как «содержательные»;
+      роли расширяют _NOISE_HEADINGS.</td><td>часы</td></tr>
+      <tr><td><span class="tag tag-p2">P2</span></td><td>Грейды фабрик.</td>
+      <td>Каждая фабрика объявляет гарантируемые роли; бейдж «базовый/богатый конспект»;
+      COMPOSE-промпт при желании доращивается.</td><td>волна</td></tr>
+      <tr><td><span class="tag tag-p2">P2</span></td><td>Судьба фабрики B.</td>
+      <td>Промпт в репо + документированная дверь, либо переезд модуля в studio;
+      конец FileNotFoundError по умолчанию.</td><td>дни</td></tr>
+      <tr><td><span class="tag tag-p2">P2</span></td><td>Факты ↔ интерпретации.</td>
+      <td>Принцип разметки: текст лекции / проверка точности / мои слова визуально
+      различимы во всех рендерах артефакта.</td><td>волна</td></tr>
+    </table>
+  </div>
+  <p><strong>Kill switch:</strong> если P0 потребовал LLM-вызова, нового хранилища или изменения
+  формата самих конспектов — стоп, ход выбран не тот. Оба хода — чтение готового и поля в
+  готовой строке корзины.</p>
+  <p><strong>North star:</strong> студент отвечает на вопрос «насколько хорош мой конспект и
+  что я в нём ещё не понял?» с одного экрана, без debug-тира.</p>
+</section>
+
+<div class="footer">
+  <p>Разбор №14 · hometutor HEAD <code>9817633e1</code> «208» · 2026-07-13. Тема владельца:
+  качество конспектов (включая Живые) — 12 критериев конспекта + 6 качеств Живого конспекта.</p>
+  <p>Правило двух слоёв: этот HTML — слой анализа; actionable-кандидаты — в
+  <code>doc/next/konspekt_quality_plan.md</code>. Серия: <code>doc/presentations/evolutionary_analyses/</code>.
+  Смежные разборы: №3 «Материал как продукт» (coverage/staleness), №12 «Архитектура» (закон
+  вне ежедневного цикла стареет молча), №13 «Аудио-подкасты» (та же операторская линия).</p>
+</div>
+
+</div>

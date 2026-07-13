@@ -1,0 +1,571 @@
+<title>Разбор №15 — Карта, которая не знает цену своих узлов</title>
+<style>
+  /* ============================================================
+     HOMETUTOR NOTEBOOK STYLE v1.0 — LOCKED 2026-07-12
+     Извлечено из разборов №9-10 эволюционной серии. Это визитная
+     карточка формата «нескучный разбор». НЕ переизобретать палитру
+     заново в новой сессии — копировать этот файл и менять только
+     содержимое между <div class="wrap"> ... </div>.
+     Гайд: notebook_deck_guide.md (в этой же папке).
+     ============================================================ */
+  :root {
+    /* --- ЛОКОНО (locked core, 9 токенов) --- не менять значения --- */
+    --paper: #f7f3ea;
+    --paper-2: #fffdf7;
+    --ink: #17211b;
+    --muted: #5c6a61;
+    --terra: #b95631;
+    --terra-deep: #7d351f;
+    --forest: #243b2c;
+    --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14);
+    --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+    /* --- расширение: статус-токены (опционально, для сводных таблиц
+       «сделано/молчит/дыра» — см. §6 guide) --- */
+    --done: #1e6e46;
+    --silent: #b98a2d;
+    --hole: #8c2f39;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141a16;
+      --paper-2: #1b231e;
+      --ink: #ece5d4;
+      --muted: #9aa89d;
+      --terra: #d97a52;
+      --terra-deep: #e8a583;
+      --forest: #9dbfa8;
+      --gold: #d9a55e;
+      --line: rgba(236, 229, 212, 0.16);
+      --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(157, 191, 168, 0.10);
+      --verdict-keep: #6fc493;
+      --verdict-fix: #e0a35c;
+      --verdict-no: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+      --done: #6fc493;
+      --silent: #d9b45e;
+      --hole: #e08691;
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+    --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+    --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+    --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+    --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+      radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--terra-deep); }
+  em { color: var(--muted); }
+
+  code {
+    font-family: Consolas, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--terra);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 0.95rem; color: var(--gold);
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .sec-name {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem;
+    font-weight: 700; color: var(--muted);
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.1rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+  }
+  .anchor-card { border-left: 4px solid var(--terra); }
+  .ev { font-size: 0.86rem; color: var(--muted); margin-top: 0.5rem; }
+  .ev code { font-size: 0.8rem; }
+
+  .figure { margin: 1.4rem 0 0.4rem; }
+  .figure svg { width: 100%; height: auto; display: block; }
+  .figcap { font-size: 0.84rem; color: var(--muted); margin-top: 0.5rem; max-width: 70ch; }
+
+  .table-scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  td:first-child { white-space: nowrap; }
+  td { font-variant-numeric: tabular-nums; }
+
+  .st { display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 99px; white-space: nowrap; }
+  .st-done { color: var(--done); border: 1px solid var(--done); }
+  .st-silent { color: var(--silent); border: 1px solid var(--silent); }
+  .st-hole { color: var(--hole); border: 1px solid var(--hole); }
+
+  .v { display: inline-block; font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+       letter-spacing: 0.08em; padding: 0.1rem 0.55rem; border-radius: 99px; margin-right: 0.5rem; }
+  .v-keep { color: var(--verdict-keep); border: 1.5px solid var(--verdict-keep); }
+  .v-fix { color: var(--verdict-fix); border: 1.5px solid var(--verdict-fix); }
+  .v-no { color: var(--verdict-no); border: 1.5px solid var(--verdict-no); }
+
+  .tension { border-left: 4px solid var(--gold); }
+  .tension .t { font-family: Georgia, serif; font-size: 1.05rem; margin-bottom: 0.35rem; }
+  .syn { color: var(--verdict-keep); font-weight: 600; }
+
+  .ladder { list-style: none; padding-left: 0; }
+  .ladder li { display: flex; gap: 0.8rem; align-items: baseline; margin-bottom: 0.55rem; }
+  .ladder .num {
+    flex: none; font-family: Georgia, serif; font-weight: 700; color: var(--gold);
+    width: 1.6rem; text-align: right;
+  }
+
+  .tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.08rem 0.5rem;
+         border-radius: 4px; color: var(--paper-2); }
+  .tag-p0 { background: var(--terra); }
+  .tag-p1 { background: var(--forest); }
+  .tag-p2 { background: var(--gold); }
+  :root[data-theme="dark"] .tag, :root[data-theme="dark"] .tag-p2 { color: #141a16; }
+  @media (prefers-color-scheme: dark) { .tag { color: #141a16; } }
+  :root[data-theme="light"] .tag { color: var(--paper-2); }
+
+  .footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
+            font-size: 0.85rem; color: var(--muted); }
+  .footer code { font-size: 0.8rem; }
+
+  a { color: var(--terra); }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">Эволюционный разбор · №15 · 3D граф знаний</div>
+  <h1>Карта, которая не знает цену своих узлов</h1>
+  <p class="lede">Граф знаний hometutor — богатейший экран продукта: девять режимов, пять личных
+  слоёв данных, вендоренный D3, скачиваемая живая карта. Но выбрать на нём достойную остановку
+  студент не может: карточки «к повторению» собираются при каждом рендере и выбрасываются в той
+  же функции, новизна не вычисляется вовсе, а маршрут прокладывается по числу рёбер, а не по
+  смыслу. Этот разбор — о том, как дать каждому узлу цену, а маршруту — остановки, которые её
+  оправдывают. 3D здесь не украшение: это третья ось для сигнала, которому на 2D-карте уже
+  физически некуда сесть.</p>
+  <div class="meta">
+    <span>hometutor · HEAD <code>9817633e1</code> «208»</span>
+    <span>2026-07-13</span>
+    <span>тема владельца: 3D граф · обогащение узлов метриками новизны и ценности · идеальный маршрут с достойными остановками</span>
+  </div>
+</header>
+
+<!-- 1. СУТЬ -->
+<section id="essence">
+  <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Суть</span></div>
+  <h2>Чего по-настоящему хочет студент от карты знаний</h2>
+  <p>Не «посмотреть на граф». Карта нужна для трёх решений: <strong>где я</strong>,
+  <strong>что достойно моего часа сегодня</strong>, <strong>как туда добраться</strong>.
+  Ценность карты измеряется не количеством узлов, а качеством решений, которые она помогает
+  принять. «Идеальный маршрут» — это маршрут, где каждая остановка оправдывает потраченное
+  время, и узел сам называет причину: <em>тебя ждут карточки · ты это забываешь · это для тебя
+  новое · это открывает восемь дверей дальше</em>.</p>
+  <p>Отсюда суть: <strong>у узла должна появиться цена — вычисленная из уже собранных данных
+  и показанная как первоклассный сигнал.</strong> И только отсюда законное место 3D: на плоской
+  карте все выразительные каналы уже заняты (цвет — лекция, кольцо — mastery, размер — влияние,
+  пульс — доступность, серая вуаль — забывание). Новому главному сигналу — ценности остановки —
+  буквально некуда сесть. Третье измерение — это не вращение ради впечатления, а свободная ось
+  для смысла: высота узла = его цена для тебя сегодня, полёт камеры = маршрут по остановкам.
+  Впечатление станет побочным эффектом полезности — так и должно быть.</p>
+</section>
+
+<!-- 2. РЕАЛЬНОСТЬ -->
+<section id="reality">
+  <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Реальность</span></div>
+  <h2>Что уже есть в коде и данных</h2>
+
+  <div class="card">
+    <p><strong>Экран графа — самый оснащённый экран продукта.</strong> Один самодостаточный
+    iframe несёт девять режимов (докстринг <code>knowledge_graph_d3.py:1-19</code>): весь граф,
+    «Что учить», прогресс, пробелы, история mastery со скраббером (KG-07), маршрут с анимацией
+    (KG-05), оверлей забывания Эббингауза (KG-06), диагностика (KG-02), SVG-экспорт и permalink
+    (KG-04). D3 вендорен, живая карта скачивается одной кнопкой
+    (<code>dashboards_graph.py:1100-1107</code> — отгруженный P0 разбора №6).</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Узел уже знает о студенте больше, чем показывает причин.</strong> В payload на
+    каждом узле: mastery (кольцо), learned, frontier (пульсирующее гало), decay «забывание»
+    (серая вуаль), уровень-лекция (заливка), reach и centrality (размер узла — формула
+    <code>R()</code>, template:300), кластер (подписанные hull'ы), связанные документы с
+    разделами и пометкой <code>needs_konspekt</code>
+    (<code>build_kg_payload</code>, <code>knowledge_graph_d3.py:569-583</code>). Плюс
+    payload-слои: <code>decay_vector</code>, <code>mastery_history</code>, health,
+    cluster_labels. Пять личных слоёв — редкое богатство.</p>
+    <p class="ev">Счётчики после разборов №0/№6 образцово едины: один скелет
+    <code>_build_kg_skeleton</code> питает и экран графа, и карточку Mission Control
+    (комментарий B1, <code>knowledge_graph_d3.py:318-330</code>).</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Маршрут уже есть — но он слеп к ценности.</strong> KG-05: панель «🗺 Маршрут»,
+    выбор старта и цели, поиск пути и анимация остановок цветными гало. Поиск — невзвешенный
+    BFS по рёбрам unlocks/prereqs (<code>_bfsPath</code>, template:679-689): кратчайший по
+    числу хопов, а не самый полезный. «✦ Что учить» — фильтр <code>n.frontier</code>
+    (template:896): показывает доступное, но не ранжирует и не ведёт.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Готовая метрика ценности собирается и выбрасывается.</strong>
+    <code>render_d3_knowledge_graph</code> при каждом рендере запрашивает
+    <code>get_due_reviews(limit=20)</code> (<code>knowledge_graph_d3.py:649</code>) и передаёт
+    их в <code>build_kg_payload(..., due_reviews, ...)</code> (<code>:678</code>). Параметр
+    принят в сигнатуре (<code>:500</code>) — и не используется в теле ни разу: ни на узле,
+    ни в stats. «Тебя ждут N карточек» — самый честный повод для остановки — умирает на
+    границе функции.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Новизна вычислима бесплатно — и не вычисляется нигде.</strong> Концепт «не
+    тронут студентом», если его нет ни в <code>mastery_vector</code>, ни в
+    <code>decay_vector</code> (SR-записи), ни в <code>mastery_history</code> (quiz) — все три
+    словаря уже лежат в payload рядом с узлом. Ни один экран не отличает «новое для тебя» от
+    «выученного на 0%». 3D: <code>grep three|THREE|WebGL|3d-force</code> по app/ — 0 строк.</p>
+  </div>
+
+  <h3>Сигналы «этот узел стоит остановки» против кода</h3>
+  <div class="table-scroll">
+    <table>
+      <tr><th>Причина остановки</th><th>Статус</th><th>Где живёт / где обрывается</th></tr>
+      <tr><td>«Ты это забываешь»</td><td><span class="st st-done">сделано</span></td><td>decay-оверлей KG-06 + retention в тултипе</td></tr>
+      <tr><td>«Это тебе доступно»</td><td><span class="st st-done">сделано</span></td><td>frontier: пульс-гало + фильтр «Что учить»</td></tr>
+      <tr><td>«Это открывает N дверей»</td><td><span class="st st-silent">молчит</span></td><td>reach/centrality задают размер узла (template:300), но причиной не называются — «открывает N концептов» видно только в тултипе</td></tr>
+      <tr><td>«Тебя ждут N карточек»</td><td><span class="st st-hole">дыра</span></td><td>due_reviews собраны (:649), переданы (:678) и выброшены (тело build_kg_payload)</td></tr>
+      <tr><td>«Это для тебя новое»</td><td><span class="st st-hole">дыра</span></td><td>вычислимо из трёх готовых словарей payload; не вычисляется</td></tr>
+      <tr><td>«Это можно послушать» (№13)</td><td><span class="st st-hole">дыра</span></td><td>таймкоды и .m4a уже в проде; узел о них не знает</td></tr>
+      <tr><td>«Источник высокого качества» (№14)</td><td><span class="st st-hole">дыра</span></td><td>рубрика конспекта в файлах; узел о ней не знает</td></tr>
+      <tr><td>Маршрут по ценности остановок</td><td><span class="st st-hole">дыра</span></td><td>KG-05 — невзвешенный BFS; «идеального маршрута» не существует</td></tr>
+    </table>
+  </div>
+
+  <div class="figure">
+    <svg viewBox="0 0 760 380" xmlns="http://www.w3.org/2000/svg" role="img"
+         aria-label="Слева узел графа с пятью занятыми визуальными каналами, справа третья ось ценности с маршрутом по этажам">
+      <!-- левая половина: узел с выносками -->
+      <text x="30" y="30" font-family="Georgia, serif" font-size="15" fill="var(--ink)" font-weight="bold">Узел сегодня: все каналы заняты</text>
+      <circle cx="190" cy="200" r="46" fill="var(--gold)" fill-opacity="0.85"/>
+      <circle cx="190" cy="200" r="55" fill="none" stroke="var(--verdict-keep)" stroke-width="5" stroke-dasharray="172 172"/>
+      <circle cx="190" cy="200" r="66" fill="none" stroke="var(--terra)" stroke-width="2" stroke-dasharray="4 5"/>
+      <circle cx="190" cy="200" r="30" fill="var(--muted)" fill-opacity="0.35"/>
+      <g font-size="11.5" fill="var(--muted)">
+        <line x1="190" y1="134" x2="190" y2="98" stroke="var(--line)"/>
+        <text x="190" y="88" text-anchor="middle">пульс-гало = доступно (frontier)</text>
+        <line x1="243" y1="172" x2="316" y2="140" stroke="var(--line)"/>
+        <text x="322" y="138">кольцо = mastery %</text>
+        <line x1="236" y1="216" x2="316" y2="238" stroke="var(--line)"/>
+        <text x="322" y="242">заливка = лекция (level)</text>
+        <line x1="190" y1="266" x2="190" y2="296" stroke="var(--line)"/>
+        <text x="190" y="312" text-anchor="middle">размер = reach + centrality</text>
+        <line x1="160" y1="182" x2="80" y2="150" stroke="var(--line)"/>
+        <text x="78" y="140" text-anchor="end">серая вуаль = забывание</text>
+      </g>
+      <text x="190" y="352" text-anchor="middle" font-size="12.5" fill="var(--hole)" font-weight="bold">Ценности остановки сесть некуда</text>
+
+      <!-- разделитель -->
+      <line x1="400" y1="50" x2="400" y2="340" stroke="var(--line)"/>
+
+      <!-- правая половина: третья ось -->
+      <text x="430" y="30" font-family="Georgia, serif" font-size="15" fill="var(--ink)" font-weight="bold">Третья ось: высота = цена узла</text>
+      <g>
+        <ellipse cx="580" cy="300" rx="140" ry="30" fill="none" stroke="var(--line)"/>
+        <ellipse cx="580" cy="220" rx="140" ry="30" fill="none" stroke="var(--line)"/>
+        <ellipse cx="580" cy="140" rx="140" ry="30" fill="none" stroke="var(--line)"/>
+        <text x="732" y="304" font-size="10.5" fill="var(--muted)">урок 1</text>
+        <text x="732" y="224" font-size="10.5" fill="var(--muted)">урок 2</text>
+        <text x="732" y="144" font-size="10.5" fill="var(--muted)">урок 5</text>
+      </g>
+      <!-- обычные узлы -->
+      <g fill="var(--muted)" fill-opacity="0.55">
+        <circle cx="500" cy="305" r="6"/><circle cx="640" cy="295" r="6"/>
+        <circle cx="530" cy="228" r="6"/><circle cx="660" cy="215" r="6"/>
+        <circle cx="545" cy="145" r="6"/><circle cx="632" cy="132" r="6"/>
+      </g>
+      <!-- остановки маршрута: подняты над этажом -->
+      <g>
+        <line x1="565" y1="296" x2="565" y2="262" stroke="var(--gold)" stroke-width="1.4" stroke-dasharray="3 3"/>
+        <circle cx="565" cy="256" r="10" fill="var(--terra)"/>
+        <line x1="600" y1="216" x2="600" y2="178" stroke="var(--gold)" stroke-width="1.4" stroke-dasharray="3 3"/>
+        <circle cx="600" cy="172" r="12" fill="var(--terra)"/>
+        <line x1="585" y1="136" x2="585" y2="92" stroke="var(--gold)" stroke-width="1.4" stroke-dasharray="3 3"/>
+        <circle cx="585" cy="86" r="14" fill="var(--terra)"/>
+      </g>
+      <path d="M 565 256 C 580 230, 585 205, 600 172 C 610 140, 595 115, 585 86"
+            fill="none" stroke="var(--terra)" stroke-width="2.2" stroke-dasharray="6 4"/>
+      <g font-size="10.5" fill="var(--ink)">
+        <text x="452" y="252">ждут 5 карточек</text>
+        <text x="622" y="176">забываешь, 41%</text>
+        <text x="608" y="82">новое · открывает 8</text>
+      </g>
+      <text x="580" y="352" text-anchor="middle" font-size="12.5" fill="var(--verdict-keep)" font-weight="bold">Маршрут = полёт по достойным остановкам</text>
+    </svg>
+    <p class="figcap">Слева — реальный узел D3-карты: пять визуальных каналов заняты пятью
+    сигналами (все уже работают). Справа — законная роль 3D: этажи-уроки, высота узла —
+    вычисленная цена остановки, маршрут — полёт камеры по остановкам с названной причиной.</p>
+  </div>
+</section>
+
+<!-- 3. ПРОТИВОРЕЧИЯ -->
+<section id="tensions">
+  <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Противоречия</span></div>
+  <h2>Напряжения — и их синтез</h2>
+
+  <div class="card tension">
+    <div class="t">Впечатляющая карта ↔ полезное решение</div>
+    <p>Граф впечатляет («вау» гостя витрины), но решение «куда потратить час» остаётся на
+    студенте: «Что учить» — фильтр, не совет. Делать карту скучнее нельзя, оставлять
+    декорацией — тоже. <span class="syn">Синтез: цена узла считается кодом из уже собранных
+    данных, и карта показывает 3–5 светящихся остановок с причинами.</span> Впечатление
+    остаётся — теперь оно про «карта знает меня», а не «карта красиво висит».</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">Новые сигналы ↔ читаемость 2D</div>
+    <p>Каждый новый бейдж на плоском узле — минус к читаемости: цвет, кольцо, размер, пульс и
+    вуаль уже заняты. <span class="syn">Синтез: 2D остаётся рабочей картой с одним новым
+    скромным сигналом (свечение остановки), а полное измерение ценности получает собственную
+    ось — высоту в 3D-зале.</span> Не «перерисовать карту», а дать сигналу своё пространство.</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">3D-стек ↔ local-first лёгкость</div>
+    <p>three.js — сотни килобайт; CDN запрещён духом продукта (болезнь №6: mermaid с CDN молча
+    исчезал офлайн; вылечено вендорингом). Тащить 3D в каждый рендер продукта — дорого и
+    рискованно. <span class="syn">Синтез: 3D-зал рождается как самодостаточный экспорт-артефакт
+    — по уже отгруженному паттерну «Скачать живую карту» (№6 A1), с вендоренным three по
+    образцу d3/mermaid.</span> В iframe продукта 3D переезжает только если экспорт приживётся —
+    решение по телеметрии, не по вере.</p>
+  </div>
+</section>
+
+<!-- 4. БОЛЬ-ЯКОРЬ -->
+<section id="pain">
+  <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Боль-якорь</span></div>
+  <h2>Узел молчит о своей цене — а данные уже собраны</h2>
+  <div class="card anchor-card">
+    <p><strong>Проверяемый факт:</strong> на скриншоте владельца (этот же экран, 2026-07-13)
+    карта показывает 78 сессий, 89,2% скорости, 0% среднего mastery — пять личных чисел в
+    шапке, и ни одно не помогает выбрать узел. Хуже: шапка зала говорит «89 концептов»,
+    подпись под тем же графом — «76 концептов». Студент собрался прокладывать маршрут по
+    карте, которая расходится сама с собой в пределах одного экрана.</p>
+    <p><strong>Точная причина в коде:</strong></p>
+    <ul>
+      <li><code>knowledge_graph_d3.py:649</code> — при каждом рендере собираются
+      <code>get_due_reviews(limit=20)</code>; <code>:678</code> — передаются в
+      <code>build_kg_payload</code>; параметр принят (<code>:500</code>) и в теле функции
+      <strong>не используется ни разу</strong> — готовая цена остановки «тебя ждут карточки»
+      выбрасывается на границе функции;</li>
+      <li>«новое для тебя» не вычисляется нигде, хотя это отсутствие ключа в трёх словарях,
+      уже лежащих в payload (<code>mastery_vector</code> / <code>decay_vector</code> /
+      <code>mastery_history</code>);</li>
+      <li>расхождение 89↔76: шаблон подписывает <code>STATS.total</code> (все узлы, включая
+      13 уроков) словом «концептов» (<code>knowledge_graph_d3_template.html:305</code>), а
+      Streamlit-подпись уже починена на <code>total_concepts</code>
+      (<code>dashboards_graph.py:1093-1096</code>, комментарий B1 признаёт правило) — фикс
+      №0 дошёл до подписи и карточки MC, но не до шапки самого зала;</li>
+      <li>маршрут не может предпочесть достойный узел: <code>_bfsPath</code>
+      (template:679-689) — невзвешенный BFS, у рёбер и узлов нет цены.</li>
+    </ul>
+    <p class="ev">Житейская проверка: откройте граф, включите «Что учить» — вы получите
+    жёлтые узлы без единой причины предпочесть один другому; откройте «Маршрут» — путь
+    поведёт по кратчайшим рёбрам мимо узла, где вас неделю ждут пять карточек.</p>
+  </div>
+</section>
+
+<!-- 5. ВЕРДИКТЫ -->
+<section id="verdicts">
+  <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Вердикты</span></div>
+  <h2>Решение по каждому элементу</h2>
+
+  <div class="card"><span class="v v-keep">оставить</span><strong>Единый скелет и счётчики B1.</strong>
+  Один <code>_build_kg_skeleton</code> питает все поверхности — новые метрики ценности обязаны
+  входить через него же, а не рядом (иначе вернётся болезнь «двух правд»).</div>
+
+  <div class="card"><span class="v v-keep">оставить</span><strong>2D-карту как рабочую, все девять режимов.</strong>
+  KG-02…KG-07 — накопленное богатство; 3D его не заменяет, а надстраивает.</div>
+
+  <div class="card"><span class="v v-keep">оставить</span><strong>Паттерн «самодостаточный экспорт + download».</strong>
+  <code>build_kg_html</code> + кнопка (№6 A1) — готовая дорога, по которой поедет и 3D-зал.</div>
+
+  <div class="card"><span class="v v-fix">починить</span><strong>Выброшенные due_reviews → на узел.</strong>
+  Маппинг concept→карточки внутри <code>build_kg_payload</code>, поле <code>due</code> на узле,
+  бейдж в тултипе и в «Что учить». Данные уже в руках функции.</div>
+
+  <div class="card"><span class="v v-fix">починить</span><strong>Новизна как поле узла.</strong>
+  <code>novel = cid не встречается в mastery_vector ∪ decay_vector ∪ mastery_history</code> —
+  три словаря уже в payload; «новое для тебя» перестаёт путаться с «выучено на 0%».</div>
+
+  <div class="card"><span class="v v-fix">починить</span><strong>Шапку зала: 89 → 76.</strong>
+  template:305 переводится на <code>STATS.total_concepts</code> + отдельная плитка «уроков: N» —
+  тот же фикс B1, что уже сделан в подписи и на карточке MC, доведённый до последней поверхности.</div>
+
+  <div class="card"><span class="v v-fix">починить</span><strong>Маршрут: BFS → маршрут по ценности.</strong>
+  Цена узла W — чистая функция от уже собранных сигналов (due, decay, frontier, novelty,
+  reach); «Маршрут дня» = связный тур по топ-остановкам в prereq-порядке, каждая остановка
+  подписана причиной.</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>3D вместо 2D или 3D раньше цены узлов.</strong>
+  Вращающийся граф без метрик — тот же «мёртвый SVG» из №6: впечатляет секунду, не помогает
+  никогда. Сначала узлы получают цену (P0), потом цена получает ось (P1).</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>LLM-скоринг ценности узла.</strong>
+  Все слагаемые W — арифметика из готовых словарей; LLM здесь добавит только минуты, стоимость
+  и невоспроизводимость.</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>three.js с CDN.</strong>
+  Только вендоринг по образцу d3/mermaid — или не делать 3D вовсе. Офлайн-тишина вместо зала —
+  повторение уже вылеченной болезни.</div>
+</section>
+
+<!-- 6. ЦЕННОСТЬ -->
+<section id="value">
+  <div class="sec-label"><span class="sec-num">6</span><span class="sec-name">Ценность</span></div>
+  <h2>Карта, которая знает биографию читателя</h2>
+  <p>У конкурентов карта знаний — иллюстрация к контенту: одинаковая для всех, мёртвая к
+  прогрессу. Здесь узел уже несёт пять личных слоёв (mastery, decay, история, frontier,
+  сессии) — осталось превратить биографию в цену остановки. И граф становится витриной всех
+  предыдущих ходов серии: узел, который можно <em>послушать</em> (№13), у которого есть
+  <em>паспорт качества источника</em> (№14), который <em>помнит след</em> (№1). Формула цены —
+  прозрачная арифметика, а не магия: <code>W = взвешенная сумма(due, decay, frontier, novelty,
+  reach)</code> — каждый вес объясним одной строкой в тултипе.</p>
+  <div class="table-scroll">
+    <table>
+      <tr><th>Метрика</th><th>Сейчас</th><th>После</th></tr>
+      <tr><td>Узлов с названной причиной остановки</td><td>0</td><td>каждая остановка маршрута — причина одной строкой</td></tr>
+      <tr><td>Судьба собранных due_reviews</td><td>выбрасываются в build_kg_payload</td><td>поле узла + слагаемое W</td></tr>
+      <tr><td>«Новое для тебя» на карте</td><td>неотличимо от «0% mastery»</td><td>поле novel + слагаемое W</td></tr>
+      <tr><td>Чисел «концептов» на одном экране</td><td>два (89 и 76)</td><td>одно (76 + «уроков: 13»)</td></tr>
+      <tr><td>Маршрут</td><td>кратчайший по хопам</td><td>максимум ценности при том же бюджете остановок</td></tr>
+      <tr><td>3D</td><td>0 строк</td><td>самодостаточный зал с полётом по маршруту (экспорт)</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 7. ПУТЬ -->
+<section id="path">
+  <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Путь</span></div>
+  <h2>Золотой путь и лестница уровней</h2>
+  <p><strong>Золотой путь одной сессии:</strong> открыл карту → 3–5 узлов светятся как
+  остановки, у каждой причина («ждут 5 карточек», «забываешь: 41%», «новое · открывает 8») →
+  «Проложить маршрут дня» → тур ведёт по остановкам в правильном порядке → на каждой — готовые
+  действия (повторить / учить / послушать) → прошёл → карта пересчитала цены, завтра маршрут
+  другой.</p>
+  <ol class="ladder">
+    <li><span class="num">0</span><span><strong>Честный зал.</strong> Одно число концептов на
+    экране; счётчикам можно верить.</span></li>
+    <li><span class="num">1</span><span><strong>Узел знает цену.</strong> due + novelty на узле,
+    причины в тултипе и в «Что учить».</span></li>
+    <li><span class="num">2</span><span><strong>Маршрут по ценности.</strong> «Маршрут дня» в 2D:
+    связный тур по достойным остановкам.</span></li>
+    <li><span class="num">3</span><span><strong>3D-зал.</strong> Экспортируемый трёхмерный зал:
+    этажи-уроки, высота-цена, полёт камеры по маршруту.</span></li>
+    <li><span class="num">4</span><span><strong>Маршрут оставляет след.</strong> Пройденная
+    остановка пишет exposure-след (№1) — карта и память замыкаются.</span></li>
+  </ol>
+</section>
+
+<!-- 8. ПЛАН -->
+<section id="plan">
+  <div class="sec-label"><span class="sec-num">8</span><span class="sec-name">План</span></div>
+  <h2>P0–P2 по соотношению эффект/усилие</h2>
+  <div class="table-scroll">
+    <table>
+      <tr><th></th><th>Ход</th><th>Что делается</th><th>Усилие</th></tr>
+      <tr><td><span class="tag tag-p0">P0-1</span></td><td><strong>Цена на узле.</strong></td>
+      <td>due_reviews перестают выбрасываться (маппинг concept→N на узел), поле novel из трёх
+      готовых словарей, бейджи-причины в тултипе и «Что учить»; заодно шапка зала переходит на
+      total_concepts (последняя поверхность фикса B1).</td><td>~день</td></tr>
+      <tr><td><span class="tag tag-p0">P0-2</span></td><td><strong>Маршрут дня по ценности.</strong></td>
+      <td>W(узел) — чистая тестируемая функция в knowledge_graph_d3_analysis; в панели маршрута
+      появляется «Авто: маршрут дня» — топ-K достойных остановок, связанных prereq-порядком,
+      с причиной у каждой. Без 3D.</td><td>~день-два</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td><td>3D-зал экспортом.</td>
+      <td>Вендоренный three.js (+3d-force-graph) по образцу d3/mermaid; этажи-уроки по Z,
+      высота/свечение = W, полёт камеры по остановкам «Маршрута дня»; кнопка «⬇ Скачать 3D-зал»
+      рядом с живой картой — паттерн №6 A1.</td><td>волна</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td><td>Сигналы №13/№14 в W.</td>
+      <td>«Можно послушать» (таймкоды/.m4a на документах узла) и грейд качества источника
+      (рубрика №14 A1) — новые слагаемые цены, данные уже в проде.</td><td>дни</td></tr>
+      <tr><td><span class="tag tag-p2">P2</span></td><td>3D в iframe продукта.</td>
+      <td>Только если экспорт-зал приживётся (телеметрия скачиваний/возвратов); иначе зал
+      остаётся артефактом.</td><td>волна</td></tr>
+      <tr><td><span class="tag tag-p2">P2</span></td><td>След маршрута.</td>
+      <td>«Остановка пройдена» пишет exposure-след слоем №1; возраст молодых метрик
+      (взаимодействия — с 2026-07-12) подписывается в шапке.</td><td>дни</td></tr>
+    </table>
+  </div>
+  <p><strong>Kill switch:</strong> P0 потребовал LLM, новое хранилище или изменение схемы
+  бандла графа — стоп. 3D начали раньше, чем узлы получили цену, — стоп: это декорация раньше
+  смысла.</p>
+  <p><strong>North star:</strong> время от открытия карты до старта достойной остановки —
+  минуты → секунды; каждая остановка маршрута отвечает «почему я здесь» одной строкой.</p>
+</section>
+
+<div class="footer">
+  <p>Разбор №15 · hometutor HEAD <code>9817633e1</code> «208» · 2026-07-13. Тема владельца:
+  3D граф знаний, обогащение узлов метриками новизны и ценности, идеальный маршрут с
+  достойными остановками.</p>
+  <p>Правило двух слоёв: этот HTML — слой анализа; actionable-кандидаты — в
+  <code>doc/next/knowledge_graph_3d_plan.md</code>. Серия:
+  <code>doc/presentations/evolutionary_analyses/</code>. Смежные разборы: №6 (download живой
+  карты, вендоринг), №13 (узел, который звучит), №14 (паспорт качества источника),
+  №1 (след остановки).</p>
+</div>
+
+</div>

@@ -1,0 +1,575 @@
+<title>Разбор №13 — Наушники нарисованы, звук не подключён</title>
+<style>
+  /* ============================================================
+     HOMETUTOR NOTEBOOK STYLE v1.0 — LOCKED 2026-07-12
+     Извлечено из разборов №9-10 эволюционной серии. Это визитная
+     карточка формата «нескучный разбор». НЕ переизобретать палитру
+     заново в новой сессии — копировать этот файл и менять только
+     содержимое между <div class="wrap"> ... </div>.
+     Гайд: notebook_deck_guide.md (в этой же папке).
+     ============================================================ */
+  :root {
+    /* --- ЛОКОНО (locked core, 9 токенов) --- не менять значения --- */
+    --paper: #f7f3ea;
+    --paper-2: #fffdf7;
+    --ink: #17211b;
+    --muted: #5c6a61;
+    --terra: #b95631;
+    --terra-deep: #7d351f;
+    --forest: #243b2c;
+    --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14);
+    --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+    /* --- расширение: статус-токены (опционально, для сводных таблиц
+       «сделано/молчит/дыра» — см. §6 guide) --- */
+    --done: #1e6e46;
+    --silent: #b98a2d;
+    --hole: #8c2f39;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141a16;
+      --paper-2: #1b231e;
+      --ink: #ece5d4;
+      --muted: #9aa89d;
+      --terra: #d97a52;
+      --terra-deep: #e8a583;
+      --forest: #9dbfa8;
+      --gold: #d9a55e;
+      --line: rgba(236, 229, 212, 0.16);
+      --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(157, 191, 168, 0.10);
+      --verdict-keep: #6fc493;
+      --verdict-fix: #e0a35c;
+      --verdict-no: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+      --done: #6fc493;
+      --silent: #d9b45e;
+      --hole: #e08691;
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+    --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+    --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+    --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+    --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+      radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--terra-deep); }
+  em { color: var(--muted); }
+
+  code {
+    font-family: Consolas, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--terra);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 0.95rem; color: var(--gold);
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .sec-name {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem;
+    font-weight: 700; color: var(--muted);
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.1rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+  }
+  .anchor-card { border-left: 4px solid var(--terra); }
+  .ev { font-size: 0.86rem; color: var(--muted); margin-top: 0.5rem; }
+  .ev code { font-size: 0.8rem; }
+
+  .figure { margin: 1.4rem 0 0.4rem; }
+  .figure svg { width: 100%; height: auto; display: block; }
+  .figcap { font-size: 0.84rem; color: var(--muted); margin-top: 0.5rem; max-width: 70ch; }
+
+  .table-scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  td:first-child { white-space: nowrap; }
+  td { font-variant-numeric: tabular-nums; }
+
+  .st { display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 99px; white-space: nowrap; }
+  .st-done { color: var(--done); border: 1px solid var(--done); }
+  .st-silent { color: var(--silent); border: 1px solid var(--silent); }
+  .st-hole { color: var(--hole); border: 1px solid var(--hole); }
+
+  .v { display: inline-block; font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+       letter-spacing: 0.08em; padding: 0.1rem 0.55rem; border-radius: 99px; margin-right: 0.5rem; }
+  .v-keep { color: var(--verdict-keep); border: 1.5px solid var(--verdict-keep); }
+  .v-fix { color: var(--verdict-fix); border: 1.5px solid var(--verdict-fix); }
+  .v-no { color: var(--verdict-no); border: 1.5px solid var(--verdict-no); }
+
+  .tension { border-left: 4px solid var(--gold); }
+  .tension .t { font-family: Georgia, serif; font-size: 1.05rem; margin-bottom: 0.35rem; }
+  .syn { color: var(--verdict-keep); font-weight: 600; }
+
+  .ladder { list-style: none; padding-left: 0; }
+  .ladder li { display: flex; gap: 0.8rem; align-items: baseline; margin-bottom: 0.55rem; }
+  .ladder .num {
+    flex: none; font-family: Georgia, serif; font-weight: 700; color: var(--gold);
+    width: 1.6rem; text-align: right;
+  }
+
+  .tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.08rem 0.5rem;
+         border-radius: 4px; color: var(--paper-2); }
+  .tag-p0 { background: var(--terra); }
+  .tag-p1 { background: var(--forest); }
+  .tag-p2 { background: var(--gold); }
+  :root[data-theme="dark"] .tag, :root[data-theme="dark"] .tag-p2 { color: #141a16; }
+  @media (prefers-color-scheme: dark) { .tag { color: #141a16; } }
+  :root[data-theme="light"] .tag { color: var(--paper-2); }
+
+  .footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
+            font-size: 0.85rem; color: var(--muted); }
+  .footer code { font-size: 0.8rem; }
+
+  a { color: var(--terra); }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">Эволюционный разбор · №13 · Аудио-подкасты</div>
+  <h1>Наушники нарисованы, звук не подключён</h1>
+  <p class="lede">hometutor годами учился слушать лекции — локальный ASR, конспекты,
+  таймкоды с точностью до раздела. В интерфейсе даже висит плейлист с наушниками
+  в заголовке. Но ни одной секунды звука продукт не отдаёт обратно: звук входит
+  в систему и никогда не выходит. Этот разбор — о том, как включить обратный
+  канал, не выдумав ни одного нового механизма.</p>
+  <div class="meta">
+    <span>hometutor · HEAD <code>d832916</code> «207» + рабочее дерево</span>
+    <span>2026-07-13</span>
+    <span>роль: студент, которому некогда читать · образец: <code>Архитектура_локальных_LLM.mp4</code> (6:26)</span>
+  </div>
+</header>
+
+<!-- 1. СУТЬ -->
+<section id="essence">
+  <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Суть</span></div>
+  <h2>Чего по-настоящему хочет студент, когда просит подкаст</h2>
+  <p>Не аудиофайла. Он хочет <strong>учиться в минуты, когда глаза и руки заняты</strong> —
+  дорога, спортзал, очередь. Сегодня эти минуты для петли обучения потеряны: всё,
+  что умеет продукт, требует экрана. Ответ продукта на «нет времени читать» пока
+  один — режим чтения поудобнее (<code>reading_mode</code> в сайдбаре). Это ответ
+  на другой вопрос.</p>
+  <p>Три первых принципа, из которых всё следует:</p>
+  <ul>
+    <li><strong>Уши — второй канал в ту же петлю, не новый продукт.</strong> Слушание —
+    это чтение для занятых глаз. Если прослушанное не оставляет следа в learner state,
+    мы повторяем грех разбора №1: «чтение бесследно».</li>
+    <li><strong>Минута звука ценна, когда у неё есть обратный адрес.</strong> Аудио —
+    линейная лента без ctrl+F. Услышал важное — должен уметь вернуться в раздел
+    конспекта и в секунду лекции. Возврат в точное место — и есть уникальность
+    hometutor (разбор №0); подкаст без него — регресс к болтовне.</li>
+    <li><strong>Лучший голос для лекции — голос лектора, и он уже записан.</strong>
+    Для «частей лекций» ничего синтезировать не нужно: звук лежит в тех же mp4,
+    по которым уже расставлены таймкоды. Синтез нужен только тому, что никогда
+    не звучало — тексту конспекта.</li>
+  </ul>
+</section>
+
+<!-- 2. РЕАЛЬНОСТЬ -->
+<section id="reality">
+  <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Реальность</span></div>
+  <h2>Звук в системе: входит дважды, не выходит ни разу</h2>
+
+  <div class="card">
+    <p><strong>Слух построен дважды — и по-разному честно.</strong> Операторская линия —
+    шедевр и не трогается: <code>scripts/transcribe_media.py</code> (faster-whisper
+    large-v3, локально, optional extra <code>[asr]</code> по ADR-0002) →
+    <code>.txt</code> + <code>.segments.json</code> → <code>app/smart_konspekt.py</code> →
+    конспект → <code>app/media_alignment.py</code> (anchor-lis-v3.4) → сайдкар
+    <code>.media.json</code>. Студентская линия — <code>app/voice_service.py</code>:
+    SpeechRecognition + <code>recognize_google(..., language="ru-RU")</code> —
+    <em>облако Google в local-first продукте</em>, при том что докстринг класса
+    обещает «(локально)». Telegram-голос отклоняется с извинением
+    (<code>telegram_handlers.py:298-303</code>).</p>
+    <p class="ev">Две независимые ASR-линии — та же болезнь «две копии истины»,
+    что серия находила в №1/№2/№5. Лекции слушает локальный whisper, студента —
+    чужое облако.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Данные для подкаста уже лежат готовые.</strong> Курс «ИИ Агенты» в
+    <code>DATA_DIR</code>: 5 уроков × (<code>.mp4</code> + <code>.txt</code> +
+    <code>.segments.json</code> + <code>.md</code> + <code>.media.json</code>).
+    В сайдкаре урока_2 — <strong>120 разделов, все с <code>t_start</code>/<code>t_end</code></strong>
+    (ни одного <code>low_confidence</code>), плюс 14 смысловых блоков видео.
+    По пяти урокам доверенными интервалами покрыто 8:50 из 10:21 (пересчёт v3.4,
+    2026-07-07).</p>
+    <p class="ev">Проверено по живому файлу <code>урок_2…media.json</code>:
+    120 × <code>section_id</code>, 134 × <code>t_start</code> (120 разделов + 14 блоков),
+    0 × <code>low_confidence</code>.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Эмбрион подкаста уже в коде — «🎧 Мои N минут».</strong>
+    <code>living_konspekt_media.py:123-138</code>: плейлист доверенных фрагментов
+    корзины Живого конспекта, в порядке воркбенча, с посчитанной длительностью.
+    Наушники в заголовке — обещание буквальное. Но <code>_playlist_video_url</code>
+    для локального видео возвращает <code>None</code> (<code>:141-143</code>) —
+    пункт рендерится строкой-подписью (<code>:137-138</code>); для YouTube —
+    <code>st.link_button</code> наружу, на видео. Плейлист, который нельзя послушать.</p>
+    <p class="ev">Это зеркало находки №6 (живой экспорт выбрасывается, мёртвый
+    предлагается): посчитанный эпизод подкаста рендерится как список подписей.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Голос наружу — одна кнопка-тупик.</strong> <code>pyttsx3==2.99</code>
+    лежит в базовых requirements; <code>VoiceService.speak()</code> играет звук
+    из динамиков <em>хоста сервера</em> (<code>runAndWait</code>,
+    <code>voice_service.py:106-118</code>) и файла не производит. Единственный
+    UI-вызов — «Озвучить последний текст» (<code>sidebar.py:536-537</code>) —
+    озвучивает <code>voice_transcript</code>, то есть <em>транскрипт твоего же
+    вопроса</em>. Ответ тьютора, раздел конспекта, конспект целиком — не озвучиваемы.
+    Панель заперта на тир 4 внутри двух свёрток (<code>feature_registry.py:62</code>).</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Плееров звука в продукте: ноль.</strong> <code>st.audio</code> не
+    вызывается нигде (единственный аудио-виджет — <code>st.audio_input</code> для
+    записи вопроса, <code>sidebar.py:526</code>). Из 15+ <code>st.download_button</code>
+    по UI все отдают текст/HTML/JSON — ни одного аудиофайла. При этом установленный
+    Streamlit уже умеет <code>st.audio(path, start_time=, end_time=)</code> —
+    «слушать раздел» достижимо двумя параметрами, без нарезки файлов.</p>
+    <p class="ev">Рядом — предупреждение о цене видео: <code>st.video</code> читает
+    весь файл в память при каждом вызове (комментарий
+    <code>living_konspekt_media.py:276-279</code>: 812 МБ × ~48 чтений за rerun).
+    Аудиодорожка тех же лекций в разы легче.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>В планах звука тоже нет.</strong>
+    <code>docs/multimodal_konspekt_plan.md</code> US-M0…M4 — всё про видео и текст;
+    слов «аудио», «озвучка», «подкаст» в user stories нет. Ближайший родственник —
+    US-M4.1 «видео-сегмент дня». ADR-0002 держит ffmpeg системной зависимостью
+    <em>только для remux</em> — мандат, который P0 попросит расширить на одну строку.</p>
+  </div>
+
+  <div class="figure">
+    <svg viewBox="0 0 700 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Схема: звук лекции проходит через ASR, конспект и таймкоды к экрану, но обратного аудио-канала к ушам студента нет — связь оборвана">
+      <!-- flow boxes -->
+      <g font-family="Segoe UI, Arial, sans-serif" font-size="12.5">
+        <rect x="12" y="30" width="112" height="46" rx="9" fill="none" stroke="var(--forest)" stroke-width="1.6"/>
+        <text x="68" y="49" text-anchor="middle" fill="var(--ink)">🎙 Лекция</text>
+        <text x="68" y="66" text-anchor="middle" fill="var(--muted)" font-size="10.5">звук уже записан</text>
+
+        <rect x="158" y="30" width="118" height="46" rx="9" fill="none" stroke="var(--line)" stroke-width="1.4"/>
+        <text x="217" y="49" text-anchor="middle" fill="var(--ink)">ASR · whisper</text>
+        <text x="217" y="66" text-anchor="middle" fill="var(--muted)" font-size="10.5">.txt + .segments.json</text>
+
+        <rect x="310" y="30" width="112" height="46" rx="9" fill="none" stroke="var(--line)" stroke-width="1.4"/>
+        <text x="366" y="49" text-anchor="middle" fill="var(--ink)">Конспект .md</text>
+        <text x="366" y="66" text-anchor="middle" fill="var(--muted)" font-size="10.5">smart_konspekt</text>
+
+        <rect x="456" y="30" width="118" height="46" rx="9" fill="none" stroke="var(--line)" stroke-width="1.4"/>
+        <text x="515" y="49" text-anchor="middle" fill="var(--ink)">Таймкоды v3.4</text>
+        <text x="515" y="66" text-anchor="middle" fill="var(--muted)" font-size="10.5">120/120 разделов</text>
+
+        <rect x="608" y="30" width="80" height="46" rx="9" fill="none" stroke="var(--gold)" stroke-width="1.6"/>
+        <text x="648" y="49" text-anchor="middle" fill="var(--ink)">Экран</text>
+        <text x="648" y="66" text-anchor="middle" fill="var(--muted)" font-size="10.5">текст · видео</text>
+
+        <!-- arrows forward -->
+        <g stroke="var(--muted)" stroke-width="1.4" fill="var(--muted)">
+          <line x1="124" y1="53" x2="152" y2="53"/><path d="M152 53 l-7 -3.5 v7 z"/>
+          <line x1="276" y1="53" x2="304" y2="53"/><path d="M304 53 l-7 -3.5 v7 z"/>
+          <line x1="422" y1="53" x2="450" y2="53"/><path d="M450 53 l-7 -3.5 v7 z"/>
+          <line x1="574" y1="53" x2="602" y2="53"/><path d="M602 53 l-7 -3.5 v7 z"/>
+        </g>
+
+        <!-- broken return path -->
+        <rect x="12" y="150" width="112" height="46" rx="9" fill="none" stroke="var(--hole)" stroke-width="1.6"/>
+        <text x="68" y="169" text-anchor="middle" fill="var(--ink)">🎧 Уши</text>
+        <text x="68" y="186" text-anchor="middle" fill="var(--muted)" font-size="10.5">дорога · спортзал</text>
+
+        <path d="M648 76 v97 h-490" fill="none" stroke="var(--hole)" stroke-width="1.6" stroke-dasharray="7 6"/>
+        <path d="M158 173 l9 -4.5 v9 z" fill="var(--hole)"/>
+        <!-- break mark -->
+        <g stroke="var(--hole)" stroke-width="2.2">
+          <line x1="380" y1="160" x2="404" y2="186"/>
+          <line x1="404" y1="160" x2="380" y2="186"/>
+        </g>
+        <text x="392" y="212" text-anchor="middle" fill="var(--hole)" font-size="11.5" font-weight="700">обратного канала нет: 0 × st.audio, 0 производителей аудиофайла</text>
+      </g>
+    </svg>
+    <p class="figcap">Путь звука в hometutor — одностороннее движение: лекция честно
+    превращается в текст, конспект и таймкоды, но к ушам студента не возвращается
+    ничего. Цифры — из инвентаризации HEAD 207.</p>
+  </div>
+
+  <div class="table-scroll">
+    <table>
+      <tr><th>Элемент</th><th>Статус</th><th>Комментарий</th></tr>
+      <tr><td>ASR лекций (faster-whisper, локально)</td><td><span class="st st-done">сделано</span></td><td>5 уроков: txt + segments.json + сайдкар, extra <code>[asr]</code></td></tr>
+      <tr><td>Таймкоды разделов (anchor-lis-v3.4)</td><td><span class="st st-done">сделано</span></td><td>урок_2: 120/120 разделов доверенные, 14 смысловых блоков</td></tr>
+      <tr><td>Плейлист «🎧 Мои N минут»</td><td><span class="st st-silent">молчит</span></td><td>эпизод посчитан; локальное видео → подпись, YouTube → ссылка наружу</td></tr>
+      <tr><td>Аудио-плеер (<code>st.audio</code>)</td><td><span class="st st-hole">дыра</span></td><td>0 вызовов; Streamlit умеет <code>start_time</code>/<code>end_time</code></td></tr>
+      <tr><td>Аудиофайл как артефакт</td><td><span class="st st-hole">дыра</span></td><td>производителей 0; все 15+ download-кнопок — текст/HTML/JSON</td></tr>
+      <tr><td>TTS</td><td><span class="st st-silent">молчит</span></td><td><code>speak()</code> — в динамики сервера, файла нет; озвучивает твой же вопрос</td></tr>
+      <tr><td>Голосовой ввод студента</td><td><span class="st st-silent">молчит</span></td><td>работает, но через облако Google — против local-first</td></tr>
+      <tr><td>Доставка звука на телефон</td><td><span class="st st-hole">дыра</span></td><td>Telegram-бот отказывает даже входящему голосу</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 3. ПРОТИВОРЕЧИЯ -->
+<section id="tensions">
+  <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Противоречия</span></div>
+  <h2>Напряжения — и их синтез</h2>
+
+  <div class="card tension">
+    <div class="t">голос лектора ↔ синтезированный голос</div>
+    <p>Синтез масштабируется на любой текст, но врёт интонацией и может врать словами;
+    голос лектора подлинный, но покрывает только то, что было сказано вслух.
+    <span class="syn">Синтез: лестница подлинности.</span> Сначала отдать то, что уже
+    звучит — нарезку оригинала по готовым таймкодам (ноль галлюцинаций, ноль новых
+    зависимостей). Синтезировать только то, что никогда не звучало: текст конспекта,
+    связки. TTS — второй этаж, не фундамент.</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">слушать линейно ↔ возвращаться точно</div>
+    <p>Аудио — лента без ctrl+F: услышал важное на 12-й минуте — не найдёшь. Именно
+    здесь умирают Audio Overviews NotebookLM: минута звука безадресна.
+    <span class="syn">Синтез: подкаст с обратным адресом.</span> Каждый пункт
+    плейлиста уже знает свой раздел и <code>t_start</code>
+    (<code>playlist_items_from_rows</code>) — звук наследует весь грounding продукта
+    бесплатно. А «прослушано» пишет след в learner state — тот же провод, что
+    закрыл якорь №1.</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">local-first ↔ качество голоса</div>
+    <p>Облачные TTS поют человеческим голосом, но уши студента — приватные данные,
+    и продукт уже один раз оступился (<code>recognize_google</code> в «локальном»
+    модуле). <span class="syn">Синтез: паттерн ADR-0002.</span> Голос — optional
+    extra <code>[tts]</code> с локальной моделью (piper/silero), ровно как ASR стал
+    extra <code>[asr]</code>. Дефолт остаётся лёгким, приватность — абсолютной.
+    И P0 не требует TTS вообще.</p>
+  </div>
+</section>
+
+<!-- 4. БОЛЬ-ЯКОРЬ -->
+<section id="pain">
+  <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Боль-якорь</span></div>
+  <h2>«Нет времени читать документ — могу послушать»</h2>
+  <div class="card anchor-card">
+    <p><strong>Проверяемый факт:</strong> в Downloads лежит
+    <code>Архитектура_локальных_LLM.mp4</code> — часть лекции, 6:26, 29 МБ, 720p,
+    моно-звук. Студент хочет её (и конспекты по курсу) в уши по дороге. Продукт
+    сегодня: конспект по видео соберёт, 120 таймкодов расставит, плейлист с
+    наушниками покажет — а послушать не даст ни секунды.</p>
+    <p><strong>Точная причина в коде:</strong></p>
+    <ul>
+      <li><code>living_konspekt_media.py:141-143</code> — <code>_playlist_video_url</code>
+      для <code>LocalVideoSource</code> возвращает <code>None</code>, и пункт
+      «🎧 Мои N минут» рендерится подписью без действия (<code>:137-138</code>);</li>
+      <li>во всём <code>app/</code> — ни одного <code>st.audio</code>: плеера звука
+      в продукте не существует;</li>
+      <li>единственная озвучка — «Озвучить последний текст»
+      (<code>sidebar.py:536-537</code>) — читает вслух <em>твой же вопрос</em>
+      голосом pyttsx3 из динамиков сервера, за тиром 4 и двумя свёртками.</li>
+    </ul>
+    <p class="ev">Житейская проверка (выполнена на этом самом файле, 2026-07-13):
+    <code>ffmpeg -vn -c:a copy</code> отделил аудиодорожку за <strong>0,29 секунды</strong>
+    без перекодирования — 4,5 МБ против 29 МБ. Готовый «подкаст части лекции»
+    голосом лектора лежит в одном вызове того самого ffmpeg, который уже требуется
+    конвейеру для <code>--remux</code>. Продукт не отдаёт его студенту.</p>
+  </div>
+</section>
+
+<!-- 5. ВЕРДИКТЫ -->
+<section id="verdicts">
+  <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Вердикты</span></div>
+  <h2>Решение по каждому элементу</h2>
+
+  <div class="card"><span class="v v-keep">оставить</span><strong>Конвейер ASR → конспект → сайдкар v3.4.</strong>
+  Не трогать ни строкой: это готовый поставщик «минут с адресом», самая ценная
+  часть аудио-истории уже построена и оттестирована (106 media-тестов).</div>
+
+  <div class="card"><span class="v v-keep">оставить</span><strong><code>playlist_items_from_rows</code>.</strong>
+  Логика «только доверенные таймкоды, в порядке корзины, stale отфильтрован» —
+  это и есть генератор эпизода подкаста. Менять только рендер, не отбор.</div>
+
+  <div class="card"><span class="v v-fix">починить</span><strong>«🎧 Мои N минут».</strong>
+  Выполнить обещание наушников звуком: извлечённая аудиодорожка +
+  <code>st.audio(start_time, end_time)</code>. Дёшево, потому что весь отбор и
+  порядок уже посчитаны.</div>
+
+  <div class="card"><span class="v v-fix">объединить</span><strong>Две ASR-линии.</strong>
+  <code>voice_service</code> переводится на faster-whisper из уже существующего
+  extra <code>[asr]</code>; <code>recognize_google</code> покидает local-first
+  продукт. Заодно докстринг «(локально)» перестаёт быть неправдой.</div>
+
+  <div class="card"><span class="v v-fix">заменить</span><strong><code>speak()</code> в динамики сервера.</strong>
+  Единственная жизнеспособная форма голоса — «текст → файл → плеер/скачивание»
+  (у pyttsx3 есть <code>save_to_file</code>; у piper это единственный режим).
+  Звук из динамиков хоста — не канал доставки, а курьёз архитектуры.</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>Двухголосый сгенерированный подкаст-диалог как первый ход.</strong>
+  Путь NotebookLM: галлюцинации в уши, без возврата в источник, дорого по
+  токенам/минуте. Допустим только как opt-in вершина лестницы (P2), когда
+  фундамент — подлинный звук с адресом — уже стоит.</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>Стриминговую озвучку каждого ответа тьютора и облачный TTS по умолчанию.</strong>
+  Первое — латентность и сложность без запроса от боли; второе — против
+  local-first, уже проверено на ошибке <code>recognize_google</code>.</div>
+</section>
+
+<!-- 6. ЦЕННОСТЬ -->
+<section id="value">
+  <div class="sec-label"><span class="sec-num">6</span><span class="sec-name">Ценность</span></div>
+  <h2>Подкаст с обратным адресом</h2>
+  <p>У NotebookLM минута аудио-обзора безадресна: услышал — не вернёшься и не
+  проверишь. У hometutor каждая минута звука будет знать свой раздел конспекта,
+  свою строку и свою секунду исходной лекции — потому что она и есть исходная
+  лекция, нарезанная по уже доверенным таймкодам. Услышал → вернулся в точное
+  место → след записан в ту же петлю памяти. И всё это офлайн, на своей машине,
+  голосом своего лектора.</p>
+  <div class="table-scroll">
+    <table>
+      <tr><th>Метрика</th><th>Сейчас</th><th>После</th></tr>
+      <tr><td>Минуты курса, доступные ушам</td><td>0 из 10:21 (плейлист не звучит)</td><td>8:50 доверенных минут курса «ИИ Агенты»</td></tr>
+      <tr><td>Время «собрал корзину → слушаю»</td><td>∞ (невозможно)</td><td>≤ 10 секунд</td></tr>
+      <tr><td>Вес артефакта «в дорогу»</td><td>— (29 МБ видео, вручную)</td><td>~4,5 МБ аудио на 6,5 мин (замер)</td></tr>
+      <tr><td>След от прослушивания</td><td>нет понятия «прослушано»</td><td>exposure-запись в learner state (провод №1)</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 7. ПУТЬ -->
+<section id="path">
+  <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Путь</span></div>
+  <h2>Золотой путь и лестница уровней</h2>
+  <p><strong>Золотой путь одной сессии:</strong> собрал корзину фрагментов в Живом
+  конспекте (уже есть) → «🎧 Мои N минут» звучит подряд прямо на странице →
+  нажал «Скачать выпуск» → в дороге слушал с телефона → вернулся: разделы
+  помечены «прослушано», SSR знает, что повторять. «Учиться 10 минут» из
+  Mission Control и «Мои 10 минут» из конспекта становятся одним и тем же
+  обещанием — выполненным буквально.</p>
+  <ol class="ladder">
+    <li><span class="num">0</span><span><strong>Слушать раздел.</strong> Кнопка ▶ рядом с
+    «🎬 Видео раздела»: тот же фрагмент лекции, но в уши — <code>st.audio</code> с
+    <code>start_time</code>/<code>end_time</code> по готовым таймкодам. Достижимо за часы,
+    приятно с первого клика.</span></li>
+    <li><span class="num">1</span><span><strong>Плейлист звучит подряд.</strong> «Мои N минут»
+    из списка подписей превращается в последовательность плееров — эпизод подкаста
+    из собственной корзины.</span></li>
+    <li><span class="num">2</span><span><strong>Выпуск в дорогу.</strong> Один m4a со
+    склейкой отрезков + текстовое оглавление таймкодов — скачал и вышел из дома.</span></li>
+    <li><span class="num">3</span><span><strong>Озвучка конспекта.</strong> Разделы без
+    видео получают голос через локальный TTS (extra <code>[tts]</code>) — «живой конспект»
+    начинает звучать целиком.</span></li>
+    <li><span class="num">4</span><span><strong>Диалоговый разбор.</strong> Два голоса
+    обсуждают тему по сценарию из проверенных фрагментов — opt-in вершина, строго
+    после того, как заработали уровни 0–3.</span></li>
+  </ol>
+</section>
+
+<!-- 8. ПЛАН -->
+<section id="plan">
+  <div class="sec-label"><span class="sec-num">8</span><span class="sec-name">План</span></div>
+  <h2>P0–P2 по соотношению эффект/усилие</h2>
+  <div class="table-scroll">
+    <table>
+      <tr><th></th><th>Ход</th><th>Что делается</th><th>Усилие</th></tr>
+      <tr><td><span class="tag tag-p0">P0-1</span></td><td><strong>Подать звук.</strong></td>
+      <td>Офлайн-шаг в существующем конвейере извлекает <code>&lt;урок&gt;.m4a</code>
+      (<code>ffmpeg -vn -c:a copy</code>, путь по конвенции рядом с mp4 — схема сайдкара v1
+      не меняется). <code>_render_media_panel</code> и «Мои N минут» получают
+      <code>st.audio(audio, start_time, end_time)</code> за кликом — паттерн «плеер по клику»
+      уже есть у видео.</td><td>часы</td></tr>
+      <tr><td><span class="tag tag-p0">P0-2</span></td><td><strong>Выпуск в дорогу.</strong></td>
+      <td><code>st.download_button</code> (паттерн ×15 в UI) собирает один m4a из отрезков
+      корзины (ffmpeg concat, без перекодирования) + текстовое оглавление таймкодов.
+      Нет ffmpeg в PATH — честная подсказка, как уже делает <code>remux_to_mp4</code>.
+      Требует поправку ADR-0002: мандат ffmpeg «remux only» → «remux + аудио-операции».</td><td>~день</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td><td>Голос и след.</td>
+      <td>Extra <code>[tts]</code> (piper/silero, по образцу <code>[asr]</code>) → «озвучить
+      раздел» для разделов без медиа, файл в кэш, тот же плеер. <code>voice_service</code> →
+      faster-whisper (Google-облако удаляется). Событие «прослушано» → exposure-след
+      в learner state (тот же слой, что закрыл якорь №1).</td><td>дни</td></tr>
+      <tr><td><span class="tag tag-p2">P2</span></td><td>Дальний радиус.</td>
+      <td>Telegram-доставка выпуска (телефон — родной плеер дороги; сейчас бот отказывает
+      даже голосу). Диалоговый подкаст новой промпт-ролью по образцу
+      <code>section_diagram</code> — строго opt-in. «Сегмент дня в ушах» (родня US-M4.1).</td><td>волна</td></tr>
+    </table>
+  </div>
+  <p><strong>Kill switch:</strong> если P0 потребовал менять схему <code>.media.json</code>,
+  заводить новое хранилище или делать LLM-вызов — выбран не тот ход, стоп. P0 — это
+  «отдать студенту звук, который уже есть», и ничего больше.</p>
+  <p><strong>North star:</strong> минуты курса в ушах за неделю — число, которого
+  сегодня не существует, потому что равно нулю структурно.</p>
+</section>
+
+<div class="footer">
+  <p>Разбор №13 · hometutor HEAD <code>d832916</code> «207» · 2026-07-13.</p>
+  <p>Правило двух слоёв: этот HTML — слой анализа; actionable-кандидаты — в
+  <code>doc/next/audio_podcasts_plan.md</code>. Серия:
+  <code>doc/presentations/evolutionary_analyses/</code>.</p>
+</div>
+
+</div>
