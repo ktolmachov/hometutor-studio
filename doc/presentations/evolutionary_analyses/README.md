@@ -153,13 +153,13 @@ guide §9) — начиная с №9 все разборы используют
 **🟢 P1/P2 — вторичные пробелы**
 
 - #1 B1 карточка из ответа тьютора; B2 единая очередь; C1 derived `mastery_vector`
-- #5 A2 короткий timeout для known-unhealthy ветки; B1 бейдж источника LLM в tutor chat
+- #5 A2 короткий timeout для known-unhealthy ветки ✅ (в llm_resilience при _circuit_open используем min(soft, 1.5s) для complete/chat); B1 бейдж источника LLM в tutor chat
 - #6 B1 one-pager лекции
 - #7 A3 unify coach/weekly к `get_today_primary_learning_item()` (`dashboard.py:43`, `pages/3_Мой_прогресс.py:171`)
-- #8 circuit срабатывает только на `_is_connection_error`, не на таймауты/5xx (`llm_resilience.py:208-209`)
+- #8 circuit срабатывает только на `_is_connection_error`, не на таймауты/5xx (`llm_resilience.py:208-209`) ✅ (расширено _is_connection_error на timeouts + 5xx, обновлён docstring)
 - #9 C2 шрифты с Google CDN (`ui_theme.css:1-2`) — разрыв local-first ✅ (убраны импорты Manrope/IBM Plex, только Material Symbols для иконок + системные стеки + переменные)
 - #13 C1–C3 telegram-доставка / диалоговый подкаст / сегмент дня
-- #14 C2 мёртвая фабрика B (`smart_konspekt`, `FileNotFoundError` в чистом чекауте); C3 факты ↔ интерпретации
+- #14 C2 мёртвая фабрика B (`smart_konspekt`, `FileNotFoundError` в чистом чекауте) ✅ (fallback default prompt в get_smart_lecture_konspekt_universal_prompt); C3 факты ↔ интерпретации
 
 **⚪ Устаревшие HTML-pain-якори (#5, #6, частично #8).** Разборы №1–8 — исторические
 снимки (см. выше §9). Их боль-якорья («grep circuit → пусто», «mermaid с CDN»,
@@ -173,7 +173,7 @@ guide §9) — начиная с №9 все разборы используют
 - **Завышено ✅, P0 не сделан**: (обновлено)
 - **Занижено ⬜, на самом деле сделано**: #14 (+ частично #11)
 - **Точно ⬜, работа впереди**: #11 runtime-sync (частично закрыт)
-- Дополнительно закрыто в этой сессии: #3A1/#3A2 полностью (set-based freshness + heuristic source_paths/hashes), #12A1 (CI visibility), #9 C2 (fonts), док-гигиена.
+- Дополнительно закрыто в этой сессии: #3A1/#3A2 полностью (set-based freshness + heuristic source_paths/hashes), #12A1 (CI visibility), #9 C2 (fonts), #8 (transient errors), #5 A2 (short timeout unhealthy), #14 C2 (prompt fallback), док-гигиена.
 
 > **Resolve (2026-07-13, позднее).** Два рекомендованных хода закрыты — аудит выше
 > был снимком ≤HEAD 208; рантайм к моменту исполнения ушёл на HEAD 216:
@@ -192,5 +192,6 @@ guide §9) — начиная с №9 все разборы используют
 > knowledge_graph_bundle, set-based freshness gap, нормализация). 
 > **#12A1** улучшен (явный шаг в ci.yml + обновлена документация).
 > **#9 C2** (шрифты) почищен (local-first для текста).
+> **#8**, **#5 A2**, **#14 C2** тоже закрыты в этой сессии.
 > Строки трекера и гигиена обновлены. Дополнительно закрыт **#1 B1**. Флаг
 > `enable_first_session_precompute` задокументирован. user_guide и conventions очищены от внутренних меток.
