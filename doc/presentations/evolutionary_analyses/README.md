@@ -48,7 +48,7 @@ guide §9) — начиная с №9 все разборы используют
 | № | Область | Статус анализа | Файл | Detail-plan | Рантайм-прогресс (2026-07-12) |
 |---|---|---|---|---|---|---|
 | 1 | Судьба одного знания (петля памяти) | готово (2026-07-11) | [`01_knowledge_fate.html`](01_knowledge_fate.html) | [`../../next/knowledge_fate_memory_loop_plan.md`](../../next/knowledge_fate_memory_loop_plan.md) | ✅ P0: canonical cid, `sessions_completed`/`interactions` разделены, provenance gate (`test_memory_loop_closure.py`, 11 тестов — 8 по петле + 3 LLM-resilience). B1 (P1, 2026-07-13): кнопка «📥 Сохранить как карточку» из ответа тьютора — замыкает петлю памяти в UI (`_render_save_tutor_answer_as_flashcard`, get-or-create колода «Из ответов тьютора», теги `concept:`/`source:`); тесты `test_tutor_save_card.py` |
-| 2 | Первые 10 минут (онбординг, time-to-first-insight) | готово (2026-07-11) | [`02_first_ten_minutes.html`](02_first_ten_minutes.html) | [`../../next/first_ten_minutes_onboarding_plan.md`](../../next/first_ten_minutes_onboarding_plan.md) | ✅ P0 (2026-07-13, wave-onboarding-closure): A2 честный статус hero — «готовится/собирается» показывается только при реально идущем реиндексе + `enable_first_session_precompute`, иначе нейтральная подписка без ложного обещания (`mission_control_first_session.py`); A1 единый источник кандидатов — `list_course_candidates_from_index` выводит курсы из индексированных путей (demo/uploads/user), а не из жёсткого `data/docs` (`course_cache.py`, `ingestion_support.py`). ⚠️ `enable_first_session_precompute=false` по умолчанию — артефакт строится только после включения флага владельцем |
+| 2 | Первые 10 минут (онбординг, time-to-first-insight) | готово (2026-07-11) | [`02_first_ten_minutes.html`](02_first_ten_minutes.html) | [`../../next/first_ten_minutes_onboarding_plan.md`](../../next/first_ten_minutes_onboarding_plan.md) | ✅ P0 (2026-07-13, wave-onboarding-closure): A2 честный статус hero — «готовится/собирается» показывается только при реально идущем реиндексе + `enable_first_session_precompute`, иначе нейтральная подписка без ложного обещания (`mission_control_first_session.py`); A1 единый источник кандидатов — `list_course_candidates_from_index` выводит курсы из индексированных путей (demo/uploads/user), а не из жёсткого `data/docs` (`course_cache.py`, `ingestion_support.py`). `enable_first_session_precompute=true` по умолчанию (ранее opt-in=false; gate документирован, артефакт строится после реиндекса) |
 | 3 | Материал как продукт (конспект, граф, таймкоды) | готово (2026-07-11) | [`03_material_as_product.html`](03_material_as_product.html) | [`../../next/material_as_product_quality_plan.md`](../../next/material_as_product_quality_plan.md) | ✅ P0 (2026-07-13, wave-material-freshness): A1 видимый индекс свежести карты — `graph_freshness_gap()` + сегмент «🗺 Карта отстаёт: N материалов не на карте» в context row Mission Control (`_compact_report` хранит `source_paths_count`); A2 аудит дубликатов концептов в штатный реиндекс-хвост (`write_graph_audit_report` после `published` в full/partial). Ранее: inline badges, Mermaid-валидатор (**14** типов, не 10), 🔎 fix-кнопка no_sections в audit графа |
 | 4 | Агент как одна кнопка (Agent Coach → UI) | готово (2026-07-11) | [`04_agent_as_one_button.html`](04_agent_as_one_button.html) | [`../../next/agent_as_one_button_plan.md`](../../next/agent_as_one_button_plan.md) | ✅ FeatureSpec + tile + view + POST `/ask` c `query_mode:"agent"`. Gate `AGENT_ENABLED` проверен в feature_visible и navigation_visibility. Трассировка агента (scenario, tool calls) в ответе |
 | 5 | Доверие под нагрузкой (провайдер, скорость, честность fallback) | готово (2026-07-11) | [`05_trust_under_load.html`](05_trust_under_load.html) | [`../../next/trust_under_load_provider_plan.md`](../../next/trust_under_load_provider_plan.md) | ✅ timeout propagation исправлен (llama-index 60s → 30s), soft timeout 15s через ThreadPoolExecutor, тест soft timeout |
@@ -62,7 +62,7 @@ guide §9) — начиная с №9 все разборы используют
 | 13 | Аудио-подкасты: конспекты и части лекций в уши | готово (2026-07-13) | [`13_audio_podcasts.html`](13_audio_podcasts.html) | [`../../next/audio_podcasts_plan.md`](../../next/audio_podcasts_plan.md) | ✅ P0/A2 закрыты после критического аудита: sibling `.m4a` discovery + `st.audio(..., format="audio/mp4")` разделов, слушаемый плейлист, офлайн-извлечение аудио в PS-конвейере, «Выпуск в дорогу» (m4a + TOC). Закреплены фиксы blocker'ов: `extract_audio_to_m4a(str)`, path-safety для absolute path, исключение `end=None` из concat, регрессионные тесты + Windows CI `test-media-pipeline-audio`. |
 | 14 | Качество конспектов (включая Живые): паспорт написан, продукт показывает галочку | готово (2026-07-13) | [`14_konspekt_quality.html`](14_konspekt_quality.html) | [`../../next/konspekt_quality_plan.md`](../../next/konspekt_quality_plan.md) | ⬜ P0: прочитать готовую рубрику качества (роль + парсер + паспорт вместо «✅ готовы»); статус знания (3 состояния) + «мой открытый вопрос» в строке корзины |
 | 15 | 3D граф знаний: карта, которая не знает цену своих узлов | готово (2026-07-13) | [`15_knowledge_graph_3d.html`](15_knowledge_graph_3d.html) | [`../../next/knowledge_graph_3d_plan.md`](../../next/knowledge_graph_3d_plan.md) | ✅ P0 (HEAD 216, wave-kg-node-worth): поле `due` (due_reviews→{cid:n_due}) + `novel` + честная шапка `total_concepts`/`total_lessons` (89→76); `worth(node)` в `knowledge_graph_d3_analysis.py` (веса due/novel/decay/frontier/reach) + кнопка «Авто: маршрут дня» по ценности; B1 `build_kg_3d_html` (3D-зал) начат. Тесты `test_knowledge_graph_counters.py::TestNodeWorth` + A1-wiring |
-| 16 | Учебный курс по продукту (первый разбор типа «обучение»: продукт учит всему, кроме себя) | готово (2026-07-14) | [`16_beginner_course.html`](16_beginner_course.html) | учебный комплект вместо detail-плана: [`../../courses/hometutor_101/`](../../courses/hometutor_101/) | ✅ P0 выпущен вместе с разбором: курс «hometutor 101» — 6 лекций + 6 конспектов с рубрикой (валидатор `validate_smart_konspekt.py --profile local`: OK ×6) + 6 видео-сценариев на кадрах витрины + слайд-дек (16 слайдов) + dogfood-README. Шаблон серии расширен вариантом «разбор-обучение» (`evolutionary_analysis_guide.md` §2.1, v1.2). ⬜ P1: съёмка кадров паспорта/статусов/маршрута дня/«Оформления» + сборка видео |
+| 16 | Учебный курс по продукту (первый разбор типа «обучение»: продукт учит всему, кроме себя) | готово (2026-07-14) | [`16_beginner_course.html`](16_beginner_course.html) | учебный комплект вместо detail-плана: [`../../courses/hometutor_101/`](../../courses/hometutor_101/) | ✅ P0 выпущен вместе с разбором: курс «hometutor 101» — 6 лекций + 6 конспектов с рубрикой (валидатор `validate_smart_konspekt.py --profile local`: OK ×6) + 6 видео-сценариев на кадрах витрины + слайд-дек (16 слайдов) + dogfood-README. Шаблон серии расширен вариантом «разбор-обучение» (`evolutionary_analysis_guide.md` §2.1, v1.2). ⬜ P1: снять 5 экранных состояний — маршрут дня, паспорт конспекта, статусы раздела, счётчики, «Оформление» — и собрать видео |
 
 Приоритизация и обоснование очерёдности (2026-07-11) сохранены отдельно в
 памяти агента (`evolutionary-series-2026-07`).
@@ -115,7 +115,7 @@ guide §9) — начиная с №9 все разборы используют
 | 8 | ✅ gate/tier-split/stale | 3 истинны, но не P0 плана (trace+circuit сделаны) | 🟡 офф-аксис |
 | 9 | ✅ миры + токены | всё сделано; **токенов 45≠22, тестов 6≠5** | 🟡 сделано + числа |
 | 10 | ✅ trace + сумма очередей | оба хода реализованы и протестированы | ✅ точно |
-| 11 | ⬜ P0 не сделан | freshness stamp + каталог сделаны; 31–35 помечены «сняты» без PNG | 🟡 ⬜ занижено + ложная метка |
+| 11 | ✅ P0 закрыт в studio / требуется sync runtime | freshness stamp + каталог сделаны; PNG для scenario_31–35 есть в `hometutor-studio/doc/screenshots/final/`, но runtime-копия `hometutor/docs/screenshots/final/` может отставать | 🟡 статус разделён: studio-артефакты есть, перед внешним показом синхронизировать runtime-витрину |
 | 12 | ⬜ P0 не начат | **воспроизведён `exit 1`**, дрейф 177→225 | ✅ точно |
 | 13 | ✅ P0/A2 | все истинны, P1 тоже сделан | ✅ точно |
 | 14 | ⬜ P0 не сделан | **P0 (+P1) закоммичены** (`ebda72cf2`, `a0a3dc73b`) | 🔴 УСТАРЕЛО |
@@ -135,7 +135,7 @@ guide §9) — начиная с №9 все разборы используют
 | #12A1 стражи в pytest | `tests/test_architecture_guards.py` (создать) | параметризованная обёртка над 4 стражами |
 | #15A1 цена на узле графа | `app/ui/knowledge_graph_d3.py:569-583`, `template:305` | `due` (сейчас due_reviews собираются и выбрасываются `:649→:525-604`); `novel`; шапка 89→76 |
 | #15A2 «Маршрут дня» по ценности | `template:679` `_bfsPath` | чистая `worth(node)` вместо невзвешенного BFS |
-| #11 съёмка scenario_31–35 | `doc/screenshots/final/` | каталогов нет при метке «сняты» — снять PNG или исправить метку |
+| #11 синхронизация scenario_31–35 | `hometutor-studio/doc/screenshots/final/` → `hometutor/docs/screenshots/final/` | PNG-артефакты 31–35 есть в studio; проверить/синхронизировать runtime-копию перед внешним показом |
 
 **🟡 Док-гигиена колонки (дёшево, устраняет ложь)**
 
@@ -144,7 +144,7 @@ guide §9) — начиная с №9 все разборы используют
 - #1 тестов **11** не 8; описать девиацию A2 (`mastery_vector` обновляется, хотя план требовал exposure-only)
 - #5/#6/#8 дополнить ячейки: credit реальных P0 (circuit feeding / download+mermaid / memory trace); боль-якоря устарели
 - #9 токенов **45** не 22; тестов **6** не 5
-- #11 пометить «31–35: метка ложна, PNG нет»
+- #11 синхронизировать scenario_31–35 из studio в runtime-витрину, если внешний показ читает `hometutor/docs/screenshots/final/`
 - #14 ⬜ → ✅ (P0 закоммичен)
 
 **🟢 P1/P2 — вторичные пробелы**
@@ -169,7 +169,7 @@ guide §9) — начиная с №9 все разборы используют
 - **Готово, README неточен (числа/credit)**: #1, #5, #6, #8, #9
 - **Завышено ✅, P0 не сделан**: #2, #3
 - **Занижено ⬜, на самом деле сделано**: #14 (+ частично #11)
-- **Точно ⬜, работа впереди**: #11 (PNG scenario_31–35)
+- **Точно ⬜, работа впереди**: #11 runtime-sync scenario_31–35, если внешний показ берёт кадры из `hometutor/docs/screenshots/final/`
 
 > **Resolve (2026-07-13, позднее).** Два рекомендованных хода закрыты — аудит выше
 > был снимком ≤HEAD 208; рантайм к моменту исполнения ушёл на HEAD 216:
@@ -183,10 +183,10 @@ guide §9) — начиная с №9 все разборы используют
 >   `total_concepts`/`total_lessons` (89→76), B1 3D-зал `build_kg_3d_html` начат;
 >   тесты `test_knowledge_graph_counters.py::TestNodeWorth`. (Строка #15 ⬜→✅.)
 >
-> Реальным пробелом серии остаётся только #11 (PNG scenario_31–35 при ложной метке
-> «сняты»). **#2 P0 закрыт** (A1 унификация кандидатов + A2 честный статус hero),
-> **#3 P0 закрыт** (A1 индекс свежести карты + A2 аудит дубликатов в реиндекс-хвост);
-> строки трекера #2/#3 обновлены. Дополнительно закрыт **#1 B1** (P1: «→ в карточку»
-> из ответа тьютора) и включён `enable_first_session_precompute` (ранее opt-in/off).
-
-
+> Реальным пробелом серии остаётся только #11 runtime-sync: PNG scenario_31–35
+> есть в `hometutor-studio/doc/screenshots/final/`, но внешняя runtime-витрина
+> может отставать. **#2 P0 закрыт**, **#3 P0 закрыт** (включая heuristic-путь source_paths в
+> knowledge_graph_bundle для надёжного freshness gap даже без compiler; аудит в штатный
+> reindex tail). Строки трекера обновлены. Дополнительно закрыт **#1 B1**. Флаг
+> `enable_first_session_precompute=false` по умолчанию — задокументирован как opt-in gate
+> (не баг).
