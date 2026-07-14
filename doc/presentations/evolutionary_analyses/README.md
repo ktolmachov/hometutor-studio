@@ -125,17 +125,19 @@ guide §9) — начиная с №9 все разборы используют
 
 **🔴 P0 — несделанная работа в коде (главное)**
 
+> Обновлено по результатам работы: многие пункты закрыты (см. Resolve ниже и пометки).
+
 | Ход | Где | Что сделать |
 |---|---|---|
-| #2A1 единый кандидат первого обзора | `app/ingestion_index_full.py:357`, `ingestion_index_partial.py:273` | demo/uploads → first-session артефакт |
-| #2A2 честный статус | `app/ui/mission_control_first_session.py:217` | убрать безусловный `st.info("…готовится…")` — это боль-якорь №2 |
-| #3A1 индекс свежести карты | `app/ui/mission_control.py:928` | сегмент «Карта отстаёт»/freshness-gap |
-| #3A2 аудит дубликатов в реиндекс | `app/knowledge_graph_audit.py:202` | подключить `write_graph_audit_report` к штатному реиндексу |
-| #12A2 сверить константы бюджета | `scripts/check_size_budget.py:15-18` | `34/155/1928/361` + waiver (иначе вечный красный CI) |
-| #12A1 стражи в pytest | `tests/test_architecture_guards.py` (создать) | параметризованная обёртка над 4 стражами |
-| #15A1 цена на узле графа | `app/ui/knowledge_graph_d3.py:569-583`, `template:305` | `due` (сейчас due_reviews собираются и выбрасываются `:649→:525-604`); `novel`; шапка 89→76 |
-| #15A2 «Маршрут дня» по ценности | `template:679` `_bfsPath` | чистая `worth(node)` вместо невзвешенного BFS |
-| #11 синхронизация scenario_31–35 | `hometutor-studio/doc/screenshots/final/` → `hometutor/docs/screenshots/final/` | PNG-артефакты 31–35 есть в studio; проверить/синхронизировать runtime-копию перед внешним показом |
+| #2A1 единый кандидат первого обзора | `app/ingestion_index_full.py:357`, `ingestion_index_partial.py:273` | demo/uploads → first-session артефакт ✅ (закрыто ранее) |
+| #2A2 честный статус | `app/ui/mission_control_first_session.py:217` | убрать безусловный `st.info("…готовится…")` — это боль-якорь №2 ✅ (закрыто ранее) |
+| #3A1 индекс свежести карты | `app/ui/mission_control.py:928` | сегмент «Карта отстаёт»/freshness-gap ✅ (set-based + source_paths + source_content_hashes в heuristic, нормализация) |
+| #3A2 аудит дубликатов в реиндекс | `app/knowledge_graph_audit.py:202` | подключить `write_graph_audit_report` к штатному реиндексу ✅ (уже было подключено, улучшено покрытие тестов + proof в orchestrator) |
+| #12A2 сверить константы бюджета | `scripts/check_size_budget.py:15-18` | `34/155/1928/361` + waiver (иначе вечный красный CI) ✅ |
+| #12A1 стражи в pytest | `tests/test_architecture_guards.py` (создать) | параметризованная обёртка над 4 стражами ✅ + явный шаг в .github/workflows/ci.yml |
+| #15A1 цена на узле графа | `app/ui/knowledge_graph_d3.py:569-583`, `template:305` | `due` (сейчас due_reviews собираются и выбрасываются `:649→:525-604`); `novel`; шапка 89→76 ✅ (закрыто ранее) |
+| #15A2 «Маршрут дня» по ценности | `template:679` `_bfsPath` | чистая `worth(node)` вместо невзвешенного BFS ✅ (закрыто ранее) |
+| #11 синхронизация scenario_31–35 | `hometutor-studio/doc/screenshots/final/` → `hometutor/docs/screenshots/final/` | PNG-артефакты 31–35 есть в studio; проверить/синхронизировать runtime-копию перед внешним показом ✅ (скриншоты присутствуют в runtime; очищены «Capture pending» и описания в user_scenarios.md) |
 
 **🟡 Док-гигиена колонки (дёшево, устраняет ложь)**
 
@@ -144,8 +146,9 @@ guide §9) — начиная с №9 все разборы используют
 - #1 тестов **11** не 8; описать девиацию A2 (`mastery_vector` обновляется, хотя план требовал exposure-only)
 - #5/#6/#8 дополнить ячейки: credit реальных P0 (circuit feeding / download+mermaid / memory trace); боль-якоря устарели
 - #9 токенов **45** не 22; тестов **6** не 5
-- #11 синхронизировать scenario_31–35 из studio в runtime-витрину, если внешний показ читает `hometutor/docs/screenshots/final/`
+- #11 синхронизировать scenario_31–35 из studio в runtime-витрину, если внешний показ читает `hometutor/docs/screenshots/final/` ✅ (скриншоты есть + очищены pending в user_scenarios.md)
 - #14 ⬜ → ✅ (P0 закоммичен)
+- Дополнительно: обновлены user_guide.md (убраны внутренние #2A/#3A), conventions_architecture.md (убрано «ежедневно», добавлен явный CI шаг, добавлен раздел про шрифты), explicit guards step в ci.yml.
 
 **🟢 P1/P2 — вторичные пробелы**
 
@@ -154,7 +157,7 @@ guide §9) — начиная с №9 все разборы используют
 - #6 B1 one-pager лекции
 - #7 A3 unify coach/weekly к `get_today_primary_learning_item()` (`dashboard.py:43`, `pages/3_Мой_прогресс.py:171`)
 - #8 circuit срабатывает только на `_is_connection_error`, не на таймауты/5xx (`llm_resilience.py:208-209`)
-- #9 C2 шрифты с Google CDN (`ui_theme.css:1-2`) — разрыв local-first
+- #9 C2 шрифты с Google CDN (`ui_theme.css:1-2`) — разрыв local-first ✅ (убраны импорты Manrope/IBM Plex, только Material Symbols для иконок + системные стеки + переменные)
 - #13 C1–C3 telegram-доставка / диалоговый подкаст / сегмент дня
 - #14 C2 мёртвая фабрика B (`smart_konspekt`, `FileNotFoundError` в чистом чекауте); C3 факты ↔ интерпретации
 
@@ -167,9 +170,10 @@ guide §9) — начиная с №9 все разборы используют
 
 - **Готово и точно**: #4, #7, #10, #13
 - **Готово, README неточен (числа/credit)**: #1, #5, #6, #8, #9
-- **Завышено ✅, P0 не сделан**: #2, #3
+- **Завышено ✅, P0 не сделан**: (обновлено)
 - **Занижено ⬜, на самом деле сделано**: #14 (+ частично #11)
-- **Точно ⬜, работа впереди**: #11 runtime-sync scenario_31–35, если внешний показ берёт кадры из `hometutor/docs/screenshots/final/`
+- **Точно ⬜, работа впереди**: #11 runtime-sync (частично закрыт)
+- Дополнительно закрыто в этой сессии: #3A1/#3A2 полностью (set-based freshness + heuristic source_paths/hashes), #12A1 (CI visibility), #9 C2 (fonts), док-гигиена.
 
 > **Resolve (2026-07-13, позднее).** Два рекомендованных хода закрыты — аудит выше
 > был снимком ≤HEAD 208; рантайм к моменту исполнения ушёл на HEAD 216:
@@ -183,10 +187,10 @@ guide §9) — начиная с №9 все разборы используют
 >   `total_concepts`/`total_lessons` (89→76), B1 3D-зал `build_kg_3d_html` начат;
 >   тесты `test_knowledge_graph_counters.py::TestNodeWorth`. (Строка #15 ⬜→✅.)
 >
-> Реальным пробелом серии остаётся только #11 runtime-sync: PNG scenario_31–35
-> есть в `hometutor-studio/doc/screenshots/final/`, но внешняя runtime-витрина
-> может отставать. **#2 P0 закрыт**, **#3 P0 закрыт** (включая heuristic-путь source_paths в
-> knowledge_graph_bundle для надёжного freshness gap даже без compiler; аудит в штатный
-> reindex tail). Строки трекера обновлены. Дополнительно закрыт **#1 B1**. Флаг
-> `enable_first_session_precompute=false` по умолчанию — задокументирован как opt-in gate
-> (не баг).
+> Реальным пробелом серии остаётся только #11 runtime-sync (частично закрыт: скриншоты присутствуют в hometutor/docs, очищены pending-статусы в user_scenarios.md).
+> **#2 P0 закрыт**, **#3 P0 закрыт** (включая heuristic-путь source_paths + source_content_hashes в
+> knowledge_graph_bundle, set-based freshness gap, нормализация). 
+> **#12A1** улучшен (явный шаг в ci.yml + обновлена документация).
+> **#9 C2** (шрифты) почищен (local-first для текста).
+> Строки трекера и гигиена обновлены. Дополнительно закрыт **#1 B1**. Флаг
+> `enable_first_session_precompute` задокументирован. user_guide и conventions очищены от внутренних меток.
