@@ -75,12 +75,40 @@ hometutor_101/
    Copy-Item "$src\konspekts" $dst -Recurse -Force
    ```
 
-   Не копируй в индекс `video_scripts/`, `video_scripts/_build/`, `videos/` и
-   `slides/`: это production/media-артефакты, а не основной учебный корпус.
-   Готовые MP4 можно хранить рядом как медиа-выдачу курса, например в
-   `D:\AI\app\data\uploads\hometutor_101_media\videos\`.
+   Не копируй в текстовый корпус `video_scripts/`, `video_scripts/_build/` и
+   `slides/`: это production-артефакты, а не основной учебный материал.
+
+   Для **текстового dogfood** этого достаточно. Для **мультимедийного Living
+   Konspekt** дополнительно скопируй `videos/` внутрь той же data-папки курса:
+
+   ```powershell
+   Copy-Item "$src\videos" $dst -Recurse -Force
+   ```
+
+   Локальные видео для `media_sidecar` должны лежать внутри `DATA_DIR`
+   (`D:\AI\app\data\...` или `D:\Projects\hometutor\data\...`): приложение
+   отклоняет абсолютные пути и файлы вне data-папки. При этом `.mp4` не попадают
+   в текстовый индекс — ingestion берёт `.pdf`, `.txt`, `.md`, `.docx`, `.html`,
+   но не видеофайлы.
 2. Запусти переиндексацию в приложении.
-3. Проверь петлю на самом курсе:
+3. Если нужен мультимедийный режим, прикрепи ролики к data-копиям конспектов как
+   «видео урока целиком» (Tier A, без фейковых таймкодов):
+
+   ```powershell
+   cd D:\Projects\hometutor
+   .\.venv\Scripts\python.exe scripts\attach_whole_lesson_video.py "uploads/hometutor_101/konspekts/urok_1_pervyi_otvet.konspekt.md" --video "uploads/hometutor_101/videos/video_1_pervyi_otvet.mp4" --title "Урок 1 · Первый ответ" --force
+   .\.venv\Scripts\python.exe scripts\attach_whole_lesson_video.py "uploads/hometutor_101/konspekts/urok_2_petlya_pamyati.konspekt.md" --video "uploads/hometutor_101/videos/video_2_petlya_pamyati.mp4" --title "Урок 2 · Петля памяти" --force
+   .\.venv\Scripts\python.exe scripts\attach_whole_lesson_video.py "uploads/hometutor_101/konspekts/urok_3_odin_sleduyushchiy_shag.konspekt.md" --video "uploads/hometutor_101/videos/video_3_odin_shag.mp4" --title "Урок 3 · Один следующий шаг" --force
+   .\.venv\Scripts\python.exe scripts\attach_whole_lesson_video.py "uploads/hometutor_101/konspekts/urok_4_karta_znaniy.konspekt.md" --video "uploads/hometutor_101/videos/video_4_karta_znaniy.mp4" --title "Урок 4 · Карта знаний" --force
+   .\.venv\Scripts\python.exe scripts\attach_whole_lesson_video.py "uploads/hometutor_101/konspekts/urok_5_konspekt_s_pasportom.konspekt.md" --video "uploads/hometutor_101/videos/video_5_konspekt_s_pasportom.mp4" --title "Урок 5 · Конспект с паспортом" --force
+   .\.venv\Scripts\python.exe scripts\attach_whole_lesson_video.py "uploads/hometutor_101/konspekts/urok_6_khozyain_sistemy.konspekt.md" --video "uploads/hometutor_101/videos/video_6_khozyain_sistemy.mp4" --title "Урок 6 · Хозяин системы" --force
+   ```
+
+   Эти ролики — короткие silent/promotional MP4, поэтому ASR-конвейер
+   `Run-MediaKonspektBatch.ps1` для них не запускать: он нужен для настоящих
+   озвученных лекций и потаймкодового выравнивания разделов. Текущий честный
+   режим курса — панель `🎞 Все видео урока` в Living Konspekt.
+4. Проверь петлю на самом курсе:
    - спроси в «Быстром ответе»: *«что делает кнопка „Авто: маршрут дня“?»* —
      и раскрой источники (должен найтись урок 4);
    - нажми «Учить эту тему 5 минут» → квиз → карточки: первая карточка
