@@ -47,9 +47,9 @@ guide §9) — начиная с №9 все разборы используют
 
 | № | Область | Статус анализа | Файл | Detail-plan | Рантайм-прогресс (2026-07-12) |
 |---|---|---|---|---|---|---|
-| 1 | Судьба одного знания (петля памяти) | готово (2026-07-11) | [`01_knowledge_fate.html`](01_knowledge_fate.html) | [`../../next/knowledge_fate_memory_loop_plan.md`](../../next/knowledge_fate_memory_loop_plan.md) | ✅ canonical cid, `sessions_completed`/`interactions` разделены, provenance gate, `test_memory_loop_closure.py` 8 тестов |
+| 1 | Судьба одного знания (петля памяти) | готово (2026-07-11) | [`01_knowledge_fate.html`](01_knowledge_fate.html) | [`../../next/knowledge_fate_memory_loop_plan.md`](../../next/knowledge_fate_memory_loop_plan.md) | ✅ P0: canonical cid, `sessions_completed`/`interactions` разделены, provenance gate (`test_memory_loop_closure.py`, 11 тестов — 8 по петле + 3 LLM-resilience). B1 (P1, 2026-07-13): кнопка «📥 Сохранить как карточку» из ответа тьютора — замыкает петлю памяти в UI (`_render_save_tutor_answer_as_flashcard`, get-or-create колода «Из ответов тьютора», теги `concept:`/`source:`); тесты `test_tutor_save_card.py` |
 | 2 | Первые 10 минут (онбординг, time-to-first-insight) | готово (2026-07-11) | [`02_first_ten_minutes.html`](02_first_ten_minutes.html) | [`../../next/first_ten_minutes_onboarding_plan.md`](../../next/first_ten_minutes_onboarding_plan.md) | ✅ P0 (2026-07-13, wave-onboarding-closure): A2 честный статус hero — «готовится/собирается» показывается только при реально идущем реиндексе + `enable_first_session_precompute`, иначе нейтральная подписка без ложного обещания (`mission_control_first_session.py`); A1 единый источник кандидатов — `list_course_candidates_from_index` выводит курсы из индексированных путей (demo/uploads/user), а не из жёсткого `data/docs` (`course_cache.py`, `ingestion_support.py`). ⚠️ `enable_first_session_precompute=false` по умолчанию — артефакт строится только после включения флага владельцем |
-| 3 | Материал как продукт (конспект, граф, таймкоды) | готово (2026-07-11) | [`03_material_as_product.html`](03_material_as_product.html) | [`../../next/material_as_product_quality_plan.md`](../../next/material_as_product_quality_plan.md) | ✅ inline badges (✅ read, 📝 note), Mermaid-валидатор (10 типов), 🔎 fix-кнопка no_sections в audit графа |
+| 3 | Материал как продукт (конспект, граф, таймкоды) | готово (2026-07-11) | [`03_material_as_product.html`](03_material_as_product.html) | [`../../next/material_as_product_quality_plan.md`](../../next/material_as_product_quality_plan.md) | ✅ P0 (2026-07-13, wave-material-freshness): A1 видимый индекс свежести карты — `graph_freshness_gap()` + сегмент «🗺 Карта отстаёт: N материалов не на карте» в context row Mission Control (`_compact_report` хранит `source_paths_count`); A2 аудит дубликатов концептов в штатный реиндекс-хвост (`write_graph_audit_report` после `published` в full/partial). Ранее: inline badges, Mermaid-валидатор (**14** типов, не 10), 🔎 fix-кнопка no_sections в audit графа |
 | 4 | Агент как одна кнопка (Agent Coach → UI) | готово (2026-07-11) | [`04_agent_as_one_button.html`](04_agent_as_one_button.html) | [`../../next/agent_as_one_button_plan.md`](../../next/agent_as_one_button_plan.md) | ✅ FeatureSpec + tile + view + POST `/ask` c `query_mode:"agent"`. Gate `AGENT_ENABLED` проверен в feature_visible и navigation_visibility. Трассировка агента (scenario, tool calls) в ответе |
 | 5 | Доверие под нагрузкой (провайдер, скорость, честность fallback) | готово (2026-07-11) | [`05_trust_under_load.html`](05_trust_under_load.html) | [`../../next/trust_under_load_provider_plan.md`](../../next/trust_under_load_provider_plan.md) | ✅ timeout propagation исправлен (llama-index 60s → 30s), soft timeout 15s через ThreadPoolExecutor, тест soft timeout |
 | 6 | Инфографика: живая карта материала (спецвыпуск, вне очереди) | готово (2026-07-11) | [`06_infographics.html`](06_infographics.html) | [`../../next/infographics_living_map_plan.md`](../../next/infographics_living_map_plan.md) | ✅ velocity/sessions/interactions в stats-бар графа, единый `_enrich_stats_with_learner_velocity()` для `build_kg_payload` и `compute_kg_counters` |
@@ -183,8 +183,9 @@ guide §9) — начиная с №9 все разборы используют
 >   тесты `test_knowledge_graph_counters.py::TestNodeWorth`. (Строка #15 ⬜→✅.)
 >
 > Реальным пробелом серии остаётся только #11 (PNG scenario_31–35 при ложной метке
-> «сняты») и недокрытая P0-боль #3 (свежесть карты + аудит дубликатов в реиндекс,
-> см. план остатка выше). **#2 P0 теперь закрыт** (A1 унификация кандидатов +
-> A2 честный статус hero; строка трекера #2 обновлена).
+> «сняты»). **#2 P0 закрыт** (A1 унификация кандидатов + A2 честный статус hero),
+> **#3 P0 закрыт** (A1 индекс свежести карты + A2 аудит дубликатов в реиндекс-хвост);
+> строки трекера #2/#3 обновлены. Дополнительно закрыт **#1 B1** (P1: «→ в карточку»
+> из ответа тьютора) и включён `enable_first_session_precompute` (ранее opt-in/off).
 
 
