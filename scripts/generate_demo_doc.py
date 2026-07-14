@@ -96,6 +96,9 @@ DEFAULT_SCENARIO_ORDER = [
     "scenario_33",
     "scenario_34",
     "scenario_35",
+    "scenario_36",
+    "scenario_37",
+    "scenario_38",
 ]
 _SCENARIO_ORDER_INDEX = {scenario_id: i for i, scenario_id in enumerate(DEFAULT_SCENARIO_ORDER)}
 

@@ -1,0 +1,7 @@
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_5_konspekt_s_pasportom\01.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_5_konspekt_s_pasportom\02.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_5_konspekt_s_pasportom\03.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_5_konspekt_s_pasportom\04.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_5_konspekt_s_pasportom\05.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_5_konspekt_s_pasportom\06.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_5_konspekt_s_pasportom\07.mp4'

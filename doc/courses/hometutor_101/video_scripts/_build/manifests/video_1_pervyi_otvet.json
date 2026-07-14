@@ -1,0 +1,105 @@
+{
+  "source": "D:\\Projects\\hometutor-studio\\doc\\courses\\hometutor_101\\video_scripts\\video_1_pervyi_otvet.md",
+  "videoName": "video_1_pervyi_otvet",
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "items": [
+    {
+      "index": 1,
+      "startSec": 0,
+      "endSec": 6,
+      "durationSec": 6.0,
+      "kind": "title",
+      "frameCell": "Титул на подложке курса",
+      "visible": "«Урок 1. Первый ответ»",
+      "narration": "У тебя есть папка с лекциями. Сделаем из неё репетитора — за пять минут.",
+      "relativeFrame": "",
+      "fullPath": ""
+    },
+    {
+      "index": 2,
+      "startSec": 6,
+      "endSec": 14,
+      "durationSec": 8.0,
+      "kind": "image",
+      "frameCell": "`scenario_01/01_home_mode_selector.png`",
+      "visible": "главный экран, карточки режимов; зум к «Быстрый ответ»",
+      "narration": "hometutor встречает не пустым чатом, а картой режимов. Начнём с Быстрого ответа.",
+      "relativeFrame": "scenario_01/01_home_mode_selector.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_01\\01_home_mode_selector.png"
+    },
+    {
+      "index": 3,
+      "startSec": 14,
+      "endSec": 22,
+      "durationSec": 8.0,
+      "kind": "image",
+      "frameCell": "`scenario_01/02_quick_answer_empty.png`",
+      "visible": "поле вопроса; курсор печатает",
+      "narration": "Спрашивай своими словами — как спросил бы преподавателя. Без специальных команд.",
+      "relativeFrame": "scenario_01/02_quick_answer_empty.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_01\\02_quick_answer_empty.png"
+    },
+    {
+      "index": 4,
+      "startSec": 22,
+      "endSec": 34,
+      "durationSec": 12.0,
+      "kind": "image",
+      "frameCell": "`scenario_01/03_quick_answer_with_sources.png`",
+      "visible": "ответ с confidence; подсветка блока источников",
+      "narration": "Ответ собран из твоих файлов. Рядом — уверенность системы и источники.",
+      "relativeFrame": "scenario_01/03_quick_answer_with_sources.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_01\\03_quick_answer_with_sources.png"
+    },
+    {
+      "index": 5,
+      "startSec": 34,
+      "endSec": 46,
+      "durationSec": 12.0,
+      "kind": "image",
+      "frameCell": "`scenario_08/03_source_preview_expanded.png`",
+      "visible": "раскрытый фрагмент источника",
+      "narration": "Клик — и виден точный фрагмент лекции, на котором основан ответ. Никаких выдумок: всё проверяется.",
+      "relativeFrame": "scenario_08/03_source_preview_expanded.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_08\\03_source_preview_expanded.png"
+    },
+    {
+      "index": 6,
+      "startSec": 46,
+      "endSec": 56,
+      "durationSec": 10.0,
+      "kind": "image",
+      "frameCell": "`scenario_35/02_offline_answer_with_source.png`",
+      "visible": "ответ при офлайн-статусе",
+      "narration": "И всё это — на твоём компьютере. Конспекты никуда не уходят.",
+      "relativeFrame": "scenario_35/02_offline_answer_with_source.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_35\\02_offline_answer_with_source.png"
+    },
+    {
+      "index": 7,
+      "startSec": 56,
+      "endSec": 64,
+      "durationSec": 8.0,
+      "kind": "image",
+      "frameCell": "`scenario_01/05_learn_this_topic_cta.png`",
+      "visible": "зум на кнопку «Учить эту тему 5 минут»",
+      "narration": "А эта кнопка превращает ответ в настоящий урок. О ней — в следующем видео.",
+      "relativeFrame": "scenario_01/05_learn_this_topic_cta.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_01\\05_learn_this_topic_cta.png"
+    },
+    {
+      "index": 8,
+      "startSec": 64,
+      "endSec": 70,
+      "durationSec": 6.0,
+      "kind": "title",
+      "frameCell": "Финальный титр",
+      "visible": "«Урок 1 из 6 · hometutor 101»",
+      "narration": "Положи папку — задай первый вопрос.",
+      "relativeFrame": "",
+      "fullPath": ""
+    }
+  ]
+}

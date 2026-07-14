@@ -1,0 +1,8 @@
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_1_pervyi_otvet\01.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_1_pervyi_otvet\02.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_1_pervyi_otvet\03.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_1_pervyi_otvet\04.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_1_pervyi_otvet\05.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_1_pervyi_otvet\06.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_1_pervyi_otvet\07.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_1_pervyi_otvet\08.mp4'

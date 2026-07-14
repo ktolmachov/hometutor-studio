@@ -1,0 +1,105 @@
+{
+  "source": "D:\\Projects\\hometutor-studio\\doc\\courses\\hometutor_101\\video_scripts\\video_2_petlya_pamyati.md",
+  "videoName": "video_2_petlya_pamyati",
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "items": [
+    {
+      "index": 1,
+      "startSec": 0,
+      "endSec": 6,
+      "durationSec": 6.0,
+      "kind": "title",
+      "frameCell": "Титул",
+      "visible": "«Урок 2. Петля памяти»",
+      "narration": "Понять — мало. Знание закрепляется, когда ты вспомнил сам — и вовремя повторил.",
+      "relativeFrame": "",
+      "fullPath": ""
+    },
+    {
+      "index": 2,
+      "startSec": 6,
+      "endSec": 14,
+      "durationSec": 8.0,
+      "kind": "image",
+      "frameCell": "`scenario_03/01_answer_with_learn_cta.png`",
+      "visible": "ответ; зум к кнопке «Учить эту тему 5 минут»",
+      "narration": "После ответа — один клик, и начинается урок.",
+      "relativeFrame": "scenario_03/01_answer_with_learn_cta.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_03\\01_answer_with_learn_cta.png"
+    },
+    {
+      "index": 3,
+      "startSec": 14,
+      "endSec": 24,
+      "durationSec": 10.0,
+      "kind": "image",
+      "frameCell": "`scenario_03/04_tutor_simple_explanation.png`",
+      "visible": "тьютор объясняет",
+      "narration": "Тьютор уже знает твой вопрос: объясняет, приводит пример, спрашивает в ответ.",
+      "relativeFrame": "scenario_03/04_tutor_simple_explanation.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_03\\04_tutor_simple_explanation.png"
+    },
+    {
+      "index": 4,
+      "startSec": 24,
+      "endSec": 34,
+      "durationSec": 10.0,
+      "kind": "image",
+      "frameCell": "`scenario_04/03_quiz_feedback_correct_or_hint.png`",
+      "visible": "квиз, подсказка после ошибки",
+      "narration": "Дальше — мини-квиз. Ошибся? Не страшно: подсказка и следующий ход, а не „неверно“.",
+      "relativeFrame": "scenario_04/03_quiz_feedback_correct_or_hint.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_04\\03_quiz_feedback_correct_or_hint.png"
+    },
+    {
+      "index": 5,
+      "startSec": 34,
+      "endSec": 46,
+      "durationSec": 12.0,
+      "kind": "image",
+      "frameCell": "`scenario_05/03_preview_generated.png`",
+      "visible": "предпросмотр карточек",
+      "narration": "Ошибки и термины становятся карточками. Предпросмотр редактируемый: плохую карточку правишь или удаляешь до сохранения.",
+      "relativeFrame": "scenario_05/03_preview_generated.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_05\\03_preview_generated.png"
+    },
+    {
+      "index": 6,
+      "startSec": 46,
+      "endSec": 58,
+      "durationSec": 12.0,
+      "kind": "image",
+      "frameCell": "`scenario_06/01_home_due_badge.png`",
+      "visible": "главный экран, бейдж «К повторению»; зум",
+      "narration": "А через день-три система сама позовёт: „К повторению“. Это алгоритм интервального повторения — будильник для памяти.",
+      "relativeFrame": "scenario_06/01_home_due_badge.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_06\\01_home_due_badge.png"
+    },
+    {
+      "index": 7,
+      "startSec": 58,
+      "endSec": 68,
+      "durationSec": 10.0,
+      "kind": "image",
+      "frameCell": "`scenario_06/04_grade_selected_state_update.png`",
+      "visible": "повторение, оценка ответа",
+      "narration": "Отвечай честно — легко, трудно, забыл — и интервалы подстроятся под тебя.",
+      "relativeFrame": "scenario_06/04_grade_selected_state_update.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_06\\04_grade_selected_state_update.png"
+    },
+    {
+      "index": 8,
+      "startSec": 68,
+      "endSec": 76,
+      "durationSec": 8.0,
+      "kind": "title",
+      "frameCell": "Финальный титр",
+      "visible": "«Урок 2 из 6»",
+      "narration": "Ответ → тьютор → квиз → карточки → повторение. Пройди петлю один раз — дальше она понесёт сама.",
+      "relativeFrame": "",
+      "fullPath": ""
+    }
+  ]
+}

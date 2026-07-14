@@ -1,0 +1,8 @@
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_6_khozyain_sistemy\01.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_6_khozyain_sistemy\02.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_6_khozyain_sistemy\03.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_6_khozyain_sistemy\04.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_6_khozyain_sistemy\05.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_6_khozyain_sistemy\06.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_6_khozyain_sistemy\07.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_6_khozyain_sistemy\08.mp4'

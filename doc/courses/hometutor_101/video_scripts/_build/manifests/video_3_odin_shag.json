@@ -1,0 +1,93 @@
+{
+  "source": "D:\\Projects\\hometutor-studio\\doc\\courses\\hometutor_101\\video_scripts\\video_3_odin_shag.md",
+  "videoName": "video_3_odin_shag",
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "items": [
+    {
+      "index": 1,
+      "startSec": 0,
+      "endSec": 6,
+      "durationSec": 6.0,
+      "kind": "title",
+      "frameCell": "Титул",
+      "visible": "«Урок 3. Один следующий шаг»",
+      "narration": "Инструментов стало много. С чего начать сегодня?",
+      "relativeFrame": "",
+      "fullPath": ""
+    },
+    {
+      "index": 2,
+      "startSec": 6,
+      "endSec": 16,
+      "durationSec": 10.0,
+      "kind": "image",
+      "frameCell": "`scenario_21/01_smart_study_router_card.png`",
+      "visible": "блок «Сейчас важнее…»; зум",
+      "narration": "Умный Маршрутизатор отвечает одним предложением: сейчас важнее — вот это. Один шаг вместо меню из десяти кнопок.",
+      "relativeFrame": "scenario_21/01_smart_study_router_card.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_21\\01_smart_study_router_card.png"
+    },
+    {
+      "index": 3,
+      "startSec": 16,
+      "endSec": 26,
+      "durationSec": 10.0,
+      "kind": "image",
+      "frameCell": "`scenario_21/02_router_reason_and_alternatives.png`",
+      "visible": "причина и альтернативы",
+      "narration": "Это не магия: у рекомендации есть „почему“ — какие сигналы сработали. И альтернативы, если хочешь иначе.",
+      "relativeFrame": "scenario_21/02_router_reason_and_alternatives.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_21\\02_router_reason_and_alternatives.png"
+    },
+    {
+      "index": 4,
+      "startSec": 26,
+      "endSec": 36,
+      "durationSec": 10.0,
+      "kind": "image",
+      "frameCell": "`scenario_30/02_after_action_receipt.png`",
+      "visible": "квитанция после шага",
+      "narration": "Сделал шаг — получи квитанцию: „К повторению: было 12 — стало 8“. Прогресс измерен на твоей машине.",
+      "relativeFrame": "scenario_30/02_after_action_receipt.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_30\\02_after_action_receipt.png"
+    },
+    {
+      "index": 5,
+      "startSec": 36,
+      "endSec": 48,
+      "durationSec": 12.0,
+      "kind": "image",
+      "frameCell": "`scenario_09/04_plan_today_action.png`",
+      "visible": "план: действие на сегодня",
+      "narration": "На неделю — персональный план: конкретные шаги с оценкой времени, из твоих слабых мест и темпа.",
+      "relativeFrame": "scenario_09/04_plan_today_action.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_09\\04_plan_today_action.png"
+    },
+    {
+      "index": 6,
+      "startSec": 48,
+      "endSec": 60,
+      "durationSec": 12.0,
+      "kind": "image",
+      "frameCell": "`scenario_17/04_added_removed_lists.png`",
+      "visible": "«появились» / «исчезли»",
+      "narration": "План меняется — и честно отчитывается: что появилось, что исчезло. Обычно исчезает то, что ты освоил.",
+      "relativeFrame": "scenario_17/04_added_removed_lists.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_17\\04_added_removed_lists.png"
+    },
+    {
+      "index": 7,
+      "startSec": 60,
+      "endSec": 68,
+      "durationSec": 8.0,
+      "kind": "title",
+      "frameCell": "Финальный титр",
+      "visible": "«Урок 3 из 6»",
+      "narration": "Начинай день с одного лучшего шага — остальное продукт возьмёт на себя.",
+      "relativeFrame": "",
+      "fullPath": ""
+    }
+  ]
+}

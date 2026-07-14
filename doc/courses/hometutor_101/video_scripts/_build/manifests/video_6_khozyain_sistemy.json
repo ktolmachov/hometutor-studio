@@ -1,0 +1,105 @@
+{
+  "source": "D:\\Projects\\hometutor-studio\\doc\\courses\\hometutor_101\\video_scripts\\video_6_khozyain_sistemy.md",
+  "videoName": "video_6_khozyain_sistemy",
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "items": [
+    {
+      "index": 1,
+      "startSec": 0,
+      "endSec": 7,
+      "durationSec": 7.0,
+      "kind": "title",
+      "frameCell": "Титул",
+      "visible": "«Урок 6. Хозяин системы»",
+      "narration": "Финальный урок — про доверие. Его проверяют не в хороший день, а в плохой.",
+      "relativeFrame": "",
+      "fullPath": ""
+    },
+    {
+      "index": 2,
+      "startSec": 7,
+      "endSec": 19,
+      "durationSec": 12.0,
+      "kind": "image",
+      "frameCell": "`scenario_31/01_llm_local_banner_reachable_false.png`",
+      "visible": "баннер сбоя LLM; зум",
+      "narration": "Языковая модель недоступна? Продукт не виснет и не притворяется: за пару секунд — честный баннер с причиной.",
+      "relativeFrame": "scenario_31/01_llm_local_banner_reachable_false.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_31\\01_llm_local_banner_reachable_false.png"
+    },
+    {
+      "index": 3,
+      "startSec": 19,
+      "endSec": 29,
+      "durationSec": 10.0,
+      "kind": "image",
+      "frameCell": "`scenario_31/02_banner_action_hint.png`",
+      "visible": "подсказка действия",
+      "narration": "И с подсказкой, что сделать. Сбой одного компонента — не сбой обучения.",
+      "relativeFrame": "scenario_31/02_banner_action_hint.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_31\\02_banner_action_hint.png"
+    },
+    {
+      "index": 4,
+      "startSec": 29,
+      "endSec": 41,
+      "durationSec": 12.0,
+      "kind": "image",
+      "frameCell": "`scenario_35/03_offline_srs_review.png`",
+      "visible": "повторение карточек офлайн",
+      "narration": "Карточки, повторение, конспекты, карта — работают без модели. Вечер в поезде спасён.",
+      "relativeFrame": "scenario_35/03_offline_srs_review.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_35\\03_offline_srs_review.png"
+    },
+    {
+      "index": 5,
+      "startSec": 41,
+      "endSec": 51,
+      "durationSec": 10.0,
+      "kind": "image",
+      "frameCell": "`scenario_35/04_network_tab_clean.png`",
+      "visible": "пустая сетевая вкладка",
+      "narration": "Приватность здесь можно проверить: выключи Wi-Fi — и работай. Данные не покидают твой компьютер.",
+      "relativeFrame": "scenario_35/04_network_tab_clean.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_35\\04_network_tab_clean.png"
+    },
+    {
+      "index": 6,
+      "startSec": 51,
+      "endSec": 63,
+      "durationSec": 12.0,
+      "kind": "image",
+      "frameCell": "`scenario_14/02_export_bundle.png`",
+      "visible": "полный экспорт",
+      "narration": "Ты хозяин данных: полный экспорт — прогресс, карточки, профиль — и всё восстановится на другой машине. Колоды при желании уедут в Anki.",
+      "relativeFrame": "scenario_14/02_export_bundle.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_14\\02_export_bundle.png"
+    },
+    {
+      "index": 7,
+      "startSec": 63,
+      "endSec": 73,
+      "durationSec": 10.0,
+      "kind": "image",
+      "frameCell": "`scenario_38/01_appearance_worlds.png`",
+      "visible": "пять миров тем",
+      "narration": "И напоследок — выбери свой мир: Лес, Океан, Закат, Космос или Ягода. Это твоя комната.",
+      "relativeFrame": "scenario_38/01_appearance_worlds.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_38\\01_appearance_worlds.png"
+    },
+    {
+      "index": 8,
+      "startSec": 73,
+      "endSec": 82,
+      "durationSec": 9.0,
+      "kind": "title",
+      "frameCell": "Финальный титр курса",
+      "visible": "«hometutor 101 · курс пройден»",
+      "narration": "Теперь — положи в hometutor свои материалы и дай петле поработать месяц. Удачи!",
+      "relativeFrame": "",
+      "fullPath": ""
+    }
+  ]
+}

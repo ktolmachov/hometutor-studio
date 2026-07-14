@@ -1,0 +1,105 @@
+{
+  "source": "D:\\Projects\\hometutor-studio\\doc\\courses\\hometutor_101\\video_scripts\\video_4_karta_znaniy.md",
+  "videoName": "video_4_karta_znaniy",
+  "width": 1920,
+  "height": 1080,
+  "fps": 30,
+  "items": [
+    {
+      "index": 1,
+      "startSec": 0,
+      "endSec": 6,
+      "durationSec": 6.0,
+      "kind": "title",
+      "frameCell": "Титул",
+      "visible": "«Урок 4. Карта знаний»",
+      "narration": "„Изучено 12 из 40“ — это не прогресс. Прогресс — это карта.",
+      "relativeFrame": "",
+      "fullPath": ""
+    },
+    {
+      "index": 2,
+      "startSec": 6,
+      "endSec": 18,
+      "durationSec": 12.0,
+      "kind": "image",
+      "frameCell": "`scenario_26/02_kg_view_open.png`",
+      "visible": "граф знаний целиком; медленная панорама",
+      "narration": "Твои материалы — как местность: концепты, связи и твой уровень освоения на каждом узле. Где занимался — тропинки протоптаны.",
+      "relativeFrame": "scenario_26/02_kg_view_open.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_26\\02_kg_view_open.png"
+    },
+    {
+      "index": 3,
+      "startSec": 18,
+      "endSec": 28,
+      "durationSec": 10.0,
+      "kind": "image",
+      "frameCell": "`scenario_26/03_subgraph_mastery.png`",
+      "visible": "подграф с mastery",
+      "narration": "Слабые узлы видно сразу. Это след твоих квизов и повторений — карта живая.",
+      "relativeFrame": "scenario_26/03_subgraph_mastery.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_26\\03_subgraph_mastery.png"
+    },
+    {
+      "index": 4,
+      "startSec": 28,
+      "endSec": 38,
+      "durationSec": 10.0,
+      "kind": "image",
+      "frameCell": "`scenario_26/04_weak_node_cta.png`",
+      "visible": "клик по слабому узлу → CTA к тьютору",
+      "narration": "Клик по слабому узлу — и ты уже разбираешь его с тьютором. Карта — навигация, не украшение.",
+      "relativeFrame": "scenario_26/04_weak_node_cta.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_26\\04_weak_node_cta.png"
+    },
+    {
+      "index": 5,
+      "startSec": 38,
+      "endSec": 50,
+      "durationSec": 12.0,
+      "kind": "image",
+      "frameCell": "`scenario_36/01_route_day_auto.png`",
+      "visible": "кнопка «Авто: маршрут дня» и список остановок с причинами",
+      "narration": "Новые остановки выбирает кнопка „Авто: маршрут дня“ — по цене узла, с причиной у каждой.",
+      "relativeFrame": "scenario_36/01_route_day_auto.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_36\\01_route_day_auto.png"
+    },
+    {
+      "index": 6,
+      "startSec": 50,
+      "endSec": 62,
+      "durationSec": 12.0,
+      "kind": "image",
+      "frameCell": "`scenario_33/01_kg_panel_download_button.png`",
+      "visible": "кнопка «Скачать живую карту (HTML)»",
+      "narration": "И карту можно забрать: один клик — интерактивный HTML-файл, который работает в браузере даже офлайн.",
+      "relativeFrame": "scenario_33/01_kg_panel_download_button.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_33\\01_kg_panel_download_button.png"
+    },
+    {
+      "index": 7,
+      "startSec": 62,
+      "endSec": 70,
+      "durationSec": 8.0,
+      "kind": "image",
+      "frameCell": "`scenario_33/02_downloaded_html_opened_standalone.png`",
+      "visible": "скачанная карта в браузере",
+      "narration": "Скачай снимок сегодня — и сравни через месяц, где выросли тропинки.",
+      "relativeFrame": "scenario_33/02_downloaded_html_opened_standalone.png",
+      "fullPath": "D:\\Projects\\hometutor-studio\\doc\\screenshots\\final\\scenario_33\\02_downloaded_html_opened_standalone.png"
+    },
+    {
+      "index": 8,
+      "startSec": 70,
+      "endSec": 78,
+      "durationSec": 8.0,
+      "kind": "title",
+      "frameCell": "Финальный титр",
+      "visible": "«Урок 4 из 6»",
+      "narration": "Открой карту — и пройди свой первый маршрут дня.",
+      "relativeFrame": "",
+      "fullPath": ""
+    }
+  ]
+}

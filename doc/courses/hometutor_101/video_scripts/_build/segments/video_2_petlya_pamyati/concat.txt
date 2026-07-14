@@ -1,0 +1,8 @@
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_2_petlya_pamyati\01.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_2_petlya_pamyati\02.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_2_petlya_pamyati\03.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_2_petlya_pamyati\04.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_2_petlya_pamyati\05.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_2_petlya_pamyati\06.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_2_petlya_pamyati\07.mp4'
+file 'D:\Projects\hometutor-studio\doc\courses\hometutor_101\video_scripts\_build\segments\video_2_petlya_pamyati\08.mp4'

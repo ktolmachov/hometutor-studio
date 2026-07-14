@@ -7,12 +7,12 @@
 ([`evolutionary_analysis_guide.md` §2.1](../../presentations/evolutionary_analysis_guide.md)).
 
 **Планка курса:** каждый экран, кнопка и число в материалах существуют в
-продукте. На момент выпуска `2026-07-14` курс был сверен с витриной сценариев
-runtime-репозитория `hometutor/docs/quickstart_demo.md` (35 сценариев,
-freshness gap 0 в опубликованном документе) и кодом hometutor HEAD
-`c780ae94f` «224». Production-кадры для видео хранятся в studio-репозитории:
-`hometutor-studio/doc/screenshots/final/`. При пересборке витрины HEAD/stamp
-нужно обновлять явно, а не считать текущим автоматически.
+продукте. На момент P1-финала `2026-07-14` курс был сверен с витриной
+сценариев runtime-репозитория `hometutor/docs/quickstart_demo.md` (38
+сценариев; `scenario_36–38` закрывают недостающие кадры курса) и рабочим
+состоянием hometutor на HEAD `6a3dddbae`. Production-кадры для видео хранятся
+в studio-репозитории: `hometutor-studio/doc/screenshots/final/`. При пересборке
+витрины HEAD/stamp нужно обновлять явно, а не считать текущим автоматически.
 
 ## Программа
 
@@ -37,6 +37,8 @@ hometutor_101/
 ├── video_scripts/           ← 6 сценариев коротких видео (60–90 сек)
 │                              (раскадровки на реальных кадрах
 │                               hometutor-studio/doc/screenshots/final/)
+├── videos/                  ← 6 собранных MP4-роликов курса
+│                              (`*.silent.mp4` — варианты без озвучки)
 └── slides/
     └── hometutor_101_deck.html  ← слайды курса, 16 слайдов 16:9
                                     (самодостаточный HTML; F = печать в PDF)
@@ -48,9 +50,35 @@ hometutor_101/
 это папка markdown-файлов. Поэтому:
 
 1. Из studio-репозитория `D:\Projects\hometutor-studio\doc\courses\hometutor_101\`
-   скопируй `lectures/` и `konspekts/` в runtime-репозиторий hometutor,
-   например в `D:\Projects\hometutor\data\uploads\hometutor_101\`
-   (или добавь папку курса как свою область).
+   скопируй в data-папку приложения только учебные markdown-материалы:
+   `README.md`, `lectures/` и `konspekts/`.
+
+   Для runtime-репозитория hometutor:
+
+   ```powershell
+   $src = "D:\Projects\hometutor-studio\doc\courses\hometutor_101"
+   $dst = "D:\Projects\hometutor\data\uploads\hometutor_101"
+   New-Item -ItemType Directory -Force $dst | Out-Null
+   Copy-Item "$src\README.md" $dst -Force
+   Copy-Item "$src\lectures"  $dst -Recurse -Force
+   Copy-Item "$src\konspekts" $dst -Recurse -Force
+   ```
+
+   Для рабочей data-папки `D:\AI\app\data\`:
+
+   ```powershell
+   $src = "D:\Projects\hometutor-studio\doc\courses\hometutor_101"
+   $dst = "D:\AI\app\data\uploads\hometutor_101"
+   New-Item -ItemType Directory -Force $dst | Out-Null
+   Copy-Item "$src\README.md" $dst -Force
+   Copy-Item "$src\lectures"  $dst -Recurse -Force
+   Copy-Item "$src\konspekts" $dst -Recurse -Force
+   ```
+
+   Не копируй в индекс `video_scripts/`, `video_scripts/_build/`, `videos/` и
+   `slides/`: это production/media-артефакты, а не основной учебный корпус.
+   Готовые MP4 можно хранить рядом как медиа-выдачу курса, например в
+   `D:\AI\app\data\uploads\hometutor_101_media\videos\`.
 2. Запусти переиндексацию в приложении.
 3. Проверь петлю на самом курсе:
    - спроси в «Быстром ответе»: *«что делает кнопка „Авто: маршрут дня“?»* —
@@ -75,12 +103,15 @@ hometutor_101/
   из `D:\Projects\hometutor-studio` командой
   `.\.venv\Scripts\python.exe scripts\validate_smart_konspekt.py doc\courses\hometutor_101\konspekts\<файл> --profile local`
   (все шесть выпускались со статусом OK).
-- **Видео / P1**: перед финальной сборкой снять реальными Playwright-кадрами
-  5 экранных состояний: «Авто: маршрут дня» (сценарий 4), паспорт качества
-  конспекта, статусы раздела, счётчики «понято / сомневаюсь / вопросов открыто»
-  (сценарий 5; можно объединить статусы и счётчики в один кадр, если оба
-  состояния видны), вкладку «Оформление» с мирами (сценарий 6). Временные
-  живые скринкасты и мокапы в финальном курсе запрещены.
+- **Видео / P1 закрыт**: недостающие экранные состояния сняты реальными
+  Playwright-кадрами и опубликованы в витрине:
+  `scenario_36/01_route_day_auto.png` («Авто: маршрут дня»),
+  `scenario_37/01_konspekt_quality_passport.png`,
+  `scenario_37/02_konspekt_status_controls.png`,
+  `scenario_37/03_konspekt_status_counters.png` и
+  `scenario_38/01_appearance_worlds.png`. Шесть MP4-роликов собраны в
+  `doc/courses/hometutor_101/videos/`. Финальная проверка:
+  `07_final_gate.ps1 -RequireVideos` → `Final gate passed`.
 - **Слайды** — по [`html_deck_guide.md`](../../presentations/html_deck_guide.md);
   палитру дека не смешивать с notebook-стилем разборов.
 
