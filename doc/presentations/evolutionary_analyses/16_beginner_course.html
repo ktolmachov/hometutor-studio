@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<title>Разбор №16 — Продукт, который умеет учить всему, кроме самого себя</title>
+<style>
+  :root {
+    --paper: #f7f3ea;
+    --paper-2: #fffdf7;
+    --ink: #17211b;
+    --muted: #5c6a61;
+    --terra: #b95631;
+    --terra-deep: #7d351f;
+    --forest: #243b2c;
+    --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14);
+    --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+    --done: #1e6e46;
+    --silent: #b98a2d;
+    --hole: #8c2f39;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+      --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+      --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(157, 191, 168, 0.10);
+      --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+      --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+    --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+    --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+    --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+    --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+      radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--terra-deep); }
+  em { color: var(--muted); }
+
+  code {
+    font-family: Consolas, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--terra);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 0.95rem; color: var(--gold);
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .sec-name {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem;
+    font-weight: 700; color: var(--muted);
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.1rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+  }
+  .anchor-card { border-left: 4px solid var(--terra); }
+  .ev { font-size: 0.86rem; color: var(--muted); margin-top: 0.5rem; }
+  .ev code { font-size: 0.8rem; }
+
+  .figure { margin: 1.4rem 0 0.4rem; }
+  .figure svg { width: 100%; height: auto; display: block; }
+  .figcap { font-size: 0.84rem; color: var(--muted); margin-top: 0.5rem; max-width: 70ch; }
+
+  .table-scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  td { font-variant-numeric: tabular-nums; }
+
+  .st { display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 99px; white-space: nowrap; }
+  .st-done { color: var(--done); border: 1px solid var(--done); }
+  .st-silent { color: var(--silent); border: 1px solid var(--silent); }
+  .st-hole { color: var(--hole); border: 1px solid var(--hole); }
+
+  .v { display: inline-block; font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+       letter-spacing: 0.08em; padding: 0.1rem 0.55rem; border-radius: 99px; margin-right: 0.5rem; }
+  .v-keep { color: var(--verdict-keep); border: 1.5px solid var(--verdict-keep); }
+  .v-fix { color: var(--verdict-fix); border: 1.5px solid var(--verdict-fix); }
+  .v-no { color: var(--verdict-no); border: 1.5px solid var(--verdict-no); }
+
+  .tension { border-left: 4px solid var(--gold); }
+  .tension .t { font-family: Georgia, serif; font-size: 1.05rem; margin-bottom: 0.35rem; }
+  .syn { color: var(--verdict-keep); font-weight: 600; }
+
+  .ladder { list-style: none; padding-left: 0; }
+  .ladder li { display: flex; gap: 0.8rem; align-items: baseline; margin-bottom: 0.55rem; }
+  .ladder .num {
+    flex: none; font-family: Georgia, serif; font-weight: 700; color: var(--gold);
+    width: 1.6rem; text-align: right;
+  }
+
+  .tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.08rem 0.5rem;
+         border-radius: 4px; color: var(--paper-2); }
+  .tag-p0 { background: var(--terra); }
+  .tag-p1 { background: var(--forest); }
+  .tag-p2 { background: var(--gold); }
+  :root[data-theme="dark"] .tag, :root[data-theme="dark"] .tag-p2 { color: #141a16; }
+  @media (prefers-color-scheme: dark) { .tag { color: #141a16; } }
+  :root[data-theme="light"] .tag { color: var(--paper-2); }
+
+  .footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
+            font-size: 0.85rem; color: var(--muted); }
+  .footer code { font-size: 0.8rem; }
+
+  a { color: var(--terra); }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">Эволюционный разбор · №16 · обучение продукту</div>
+  <h1>Продукт, который умеет учить всему — кроме самого себя</h1>
+  <p class="lede">hometutor — машина обучения: дай ей папку markdown-файлов, и она построит
+  индекс, тьютора, квизы, карточки и карту знаний по чему угодно. За пятнадцать разборов
+  серия наполнила продукт скрытым потенциалом — но новичку об этом потенциале не
+  рассказывает ни один материал ни в одной папке. Этот разбор — первый по типу
+  «обучение»: его выход не план правок, а готовый учебный курс, который сам является
+  кормом для продукта.</p>
+  <div class="meta">
+    <span>hometutor · HEAD <code>c780ae94f</code> «224»</span>
+    <span>2026-07-14</span>
+    <span>тип: разбор-обучение (шаблон §2.1 гайда) · выход: курс «hometutor 101»</span>
+  </div>
+</header>
+
+<!-- 1. СУТЬ -->
+<section id="essence">
+  <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Суть</span></div>
+  <h2>Чего по-настоящему хочет новичок, когда учится продукту</h2>
+  <p>Новичок не хочет «изучить функции». Он хочет двух вещей, в строгом порядке:
+  <strong>как можно раньше получить первый момент личной пользы</strong> («это работает на моих
+  файлах — вот источник») и затем <strong>растущее чувство „я справлюсь сам“</strong> — лестницу
+  маленьких побед, где каждая следующая дверь открывается тогда, когда предыдущая уже
+  прожита руками.</p>
+  <p>Значит, обучение продукту — это не справочник и не каталог фич. Это <strong>маршрут по
+  ага-моментам</strong>: один урок — одна большая идея — одно новое «могу сам». Всё, что не
+  ведёт к очередному «могу сам», из курса выбрасывается или уходит в «продвинутый уровень».
+  Особая честность hometutor — его педагогическое преимущество: продукт, который честно
+  говорит о сбоях и показывает источники, можно и учить честно — включая урок о том,
+  чего он <em>не</em> сделает.</p>
+</section>
+
+<!-- 2. РЕАЛЬНОСТЬ -->
+<section id="reality">
+  <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Реальность</span></div>
+  <h2>Учебный арсенал, который уже накоплен</h2>
+
+  <div class="card">
+    <p><strong>Витрина сценариев — готовый иллюстративный ряд курса.</strong> 35 сценариев
+    <code>docs/quickstart_demo.md</code>, все со статусом «✅ полностью снят», freshness gap 0
+    (пересняты на актуальном HEAD после разбора №11). Каждый сценарий — «Зачем», wow-момент,
+    takeaway и реальные PNG-кадры из Playwright-прогонов. Это не просто демо: это
+    <em>проверенный факт-банк</em> — если кадр снят, экран существует.</p>
+    <p class="ev">Пять уровней сценариев (🟢 Первые шаги → 🔴 Orchestration/Mastery) — почти
+    готовая структура курса; после quality-pass сценариев 31–35 покрыты и честный сбой,
+    и приватность, и экспорт карты, и таймкоды.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Интерактивный тур — скелет первого часа, уже встроенный в продукт.</strong>
+    5 глав с overlay-подсказками и сохранением прогресса между сессиями
+    (<code>tutorial_guide.py</code>: лента «Тур: глава N из 5»). Тур ведёт по экранам, но не
+    объясняет «почему» и не оставляет материала, к которому можно вернуться.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Скрытый потенциал серии — фичи есть, рассказчика нет.</strong> Разборы №1–15
+    отгрузили в продукт: след памяти и единый бейдж «К повторению» (№1, №10), честный
+    отказ с предохранителем (№5, №8), паспорт конспекта из рубрики + статусы знания (№14),
+    цену узла и «Авто: маршрут дня» (№15), аудио разделов и «выпуск в дорогу» (№13),
+    скачиваемую живую карту и 3D-зал (№6, №15), пять миров оформления (№9), кнопку агента
+    «Собрать учебную сессию» (№4). Ни одна из этих способностей не «продаёт себя» новичку
+    сама — большинство он не найдёт и за месяц.</p>
+    <p class="ev">Проверено по коду HEAD 224: <code>konspekt_discovery.py</code> +
+    <code>living_konspekt_reader.py</code> (рубрика, статусы), <code>knowledge_graph_d3_analysis.py</code>
+    (worth, «маршрут дня»), <code>dashboards_graph.py:1114,1124</code> (кнопки скачивания карт),
+    <code>theme_presets.py</code> (5 миров), <code>feature_registry.py:94-97</code> (дверь агента),
+    <code>living_konspekt_media.py</code>/<code>sidebar.py</code> (st.audio).</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Справка живёт вне продукта, демо-корпус — не о продукте.</strong>
+    <code>docs/user_guide.md</code> и <code>docs/quickstart.md</code> — справочники в репозитории;
+    внутри продукта новичка учит только тур. Папка <code>demo_data/</code> — шесть файлов про
+    RAG, Chroma, hybrid search, SM-2, guardrails и Python basics — учебный корпус
+    <em>о технологиях, из которых продукт сделан</em>, а не о том, как им пользоваться.</p>
+  </div>
+
+  <h3>Карта арсенала: что видит новичок сам, а что — только с курсом</h3>
+  <div class="table-scroll">
+  <table>
+    <tr><th>Способность продукта</th><th>Новичок найдёт сам?</th><th>Куда идёт в курсе</th></tr>
+    <tr><td>Ответ с источниками и confidence</td><td><span class="st st-done">да — первый экран</span></td><td>Урок 1 (ядро)</td></tr>
+    <tr><td>Петля: тьютор → квиз → карточки → SRS</td><td><span class="st st-silent">частично — если нажмёт CTA</span></td><td>Урок 2 (ядро)</td></tr>
+    <tr><td>«Сейчас важнее…», план и его дельта, квитанции</td><td><span class="st st-silent">увидит, но не поймёт логики</span></td><td>Урок 3 (ядро)</td></tr>
+    <tr><td>Карта знаний, цена узла, «Авто: маршрут дня», экспорт HTML/3D</td><td><span class="st st-hole">нет — глубокая вкладка</span></td><td>Урок 4 (ядро)</td></tr>
+    <tr><td>Паспорт конспекта, статусы знания, мой вопрос, аудио, таймкоды</td><td><span class="st st-hole">нет — свежие фичи №13–14</span></td><td>Урок 5 (ядро)</td></tr>
+    <tr><td>Честный сбой, офлайн-ядро, экспорт/Anki, миры, агент</td><td><span class="st st-hole">нет — узнаёт в плохой день</span></td><td>Урок 6 (ядро + бонус)</td></tr>
+    <tr><td>SSR AI Vision (5 уровней), 3D в iframe, Telegram</td><td><span class="st st-hole">нет</span></td><td>не учим (vision / не для новичка)</td></tr>
+  </table>
+  </div>
+</section>
+
+<!-- 3. ПРОТИВОРЕЧИЯ -->
+<section id="tensions">
+  <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Противоречия</span></div>
+  <h2>Напряжения обучения — и их синтез</h2>
+
+  <div class="card tension">
+    <div class="t">Показать всё ↔ не утопить</div>
+    <p>В продукте десятки способностей, и все «жалко» не показать; но новичок, которому
+    показали всё, не запомнил ничего. <span class="syn">Синтез: один ага-момент на урок.</span>
+    Шесть уроков — шесть больших идей; всё остальное — строка «что дальше» и продвинутые
+    бонусы. Тир-система продукта уже работает так же: интерфейс раскрывается по мере роста —
+    курс просто идёт той же лестницей.</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">Рассказать ↔ дать прожить</div>
+    <p>Лекция без практики забывается; практика без объяснения не переносится на новые
+    случаи. <span class="syn">Синтез: каждый урок кончается блоком «Попробуй сам» на реальных
+    кнопках, а весь курс кладётся в сам продукт.</span> Курс — это папка markdown: положи её
+    в материалы, и петля памяти продукта (квизы, карточки, SM-2) начнёт закреплять знания
+    о самом продукте. Обучение продукту происходит средствами продукта.</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">Простые слова ↔ точность и честность</div>
+    <p>«Просто» легко скатывается в маркетинг, «точно» — в справочник.
+    <span class="syn">Синтез: аналогия + точное имя кнопки + честная грань.</span> SM-2 — это
+    «будильник для памяти», но кнопка называется ровно «К повторению: N»; и каждый урок
+    честно называет границы: аудио не появится у лекции без записи, карта не построится из
+    одного файла, LM Studio нужно запускать. Честность продукта — учебный материал, а не
+    маркетинговый риск (сценарий 31 «Честный сбой» — козырь урока 6).</p>
+  </div>
+</section>
+
+<!-- 4. БОЛЬ-ЯКОРЬ -->
+<section id="pain">
+  <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Боль-якорь</span></div>
+  <h2>Первый час новичка: продукт учит его чему угодно, только не себе</h2>
+  <div class="card anchor-card">
+    <p><strong>Проверяемый факт:</strong> дверь первого запуска «Установить демо-материалы»
+    (<code>app/ui/first_run.py:78-81</code>) даёт новичку корпус <code>demo_data/</code>:
+    «Введение в RAG», «Chroma — векторная база данных», «Spaced Repetition и SM-2»,
+    «guardrails», «Python basics» (<code>demo_data/README.md</code>: корпус собран для
+    HF Spaces, eval-датасета и прединдекса). Студент, пришедший учить <em>свои</em> лекции,
+    в первый час получает урок о векторных базах — темы инженера продукта, не пользователя.</p>
+    <p><strong>Точная причина в реальности:</strong></p>
+    <ul>
+      <li>ни в <code>demo_data/</code>, ни в <code>data/</code>-корнях нет ни одного материала
+      <em>о самом продукте</em> — учебного корпуса «как пользоваться hometutor» не существует
+      как класса артефакта;</li>
+      <li>вся справка (<code>docs/user_guide.md</code>, <code>docs/quickstart.md</code>) живёт вне
+      продукта — RAG-индекс её не видит, тьютор по ней не отвечает, карточки по ней не создать;</li>
+      <li>тур (<code>tutorial_guide.py</code>) ведёт по экранам, но не оставляет материала:
+      после тура нечего переспросить, нечего повторить, не с чем построить карту.</li>
+    </ul>
+    <p class="ev">Житейская проверка: спроси у свежеустановленного hometutor «как сделать
+    карточки из квиза?» — вопрос о продукте, на который машина обучения по markdown-папкам
+    ответить не может, потому что папки с этим знанием у неё нет. Хотя сделать такую папку —
+    ровно то, что она умеет лучше всего.</p>
+  </div>
+</section>
+
+<!-- 5. ВЕРДИКТЫ -->
+<section id="verdicts">
+  <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Вердикты</span></div>
+  <h2>Учебное решение по каждому элементу арсенала</h2>
+
+  <div class="card"><span class="v v-keep">оставить — опора курса</span><strong>Витрина сценариев.</strong>
+  Кадры витрины становятся иллюстрациями лекций и раскадровками видео: правило «не выдумывать
+  экраны» выполняется автоматически — если кадра нет, в видео честная пометка «снять по
+  конвейеру», не мокап.</div>
+
+  <div class="card"><span class="v v-keep">оставить — не дублировать</span><strong>Интерактивный тур.</strong>
+  Тур — руки, курс — голова: урок 1 прямо отправляет в главу 1 тура вместо пересказа его
+  шагов. Дублирование шагов тура текстом устареет при первом же изменении UI.</div>
+
+  <div class="card"><span class="v v-keep">оставить — по назначению</span><strong>demo_data.</strong>
+  Для публичной витрины HF Spaces и eval-датасета корпус хорош (аудитория там — инженеры).
+  Онбордингом студента он быть не обязан — эту роль берёт курс. Трогать конвейер демо не нужно.</div>
+
+  <div class="card"><span class="v v-keep">оставить — справочником</span><strong>user_guide / quickstart.</strong>
+  Курс не справочник и не заменяет их: он даёт маршрут и «могу сам», справочники — полноту.
+  Перекрёстные ссылки, не слияние.</div>
+
+  <div class="card"><span class="v v-fix">создать — сделано этим разбором</span><strong>Учебный корпус о продукте.</strong>
+  Курс «hometutor 101»: 6 лекций + 6 конспектов с обязательной рубрикой качества (все проходят
+  <code>validate_smart_konspekt.py --profile local</code>) + 6 видео-сценариев на кадрах витрины +
+  слайд-дек 16:9. Лекции — обычный markdown: продукт может их индексировать, спрашивать по ним,
+  делать карточки и строить карту курса о самом себе.</div>
+
+  <div class="card"><span class="v v-fix">учить поздно, а не рано</span><strong>Агент и 3D-зал.</strong>
+  В ядро курса не идут: «Собрать учебную сессию» — бонус урока 6 с честной пометкой «когда ритм
+  устоялся», 3D — бонус урока 4 после обычной карты. Автоматика раньше понимания рождает
+  пользователей-заложников, а не хозяев.</div>
+
+  <div class="card"><span class="v v-no">не учить</span><strong>SSR AI Vision (5 уровней), внутренности провайдера, тиры-механика.</strong>
+  Vision — не реальность для рук новичка; внутренности — не его язык. Из внутренностей курс
+  оставляет ровно одно: предохранитель, — потому что тот объясняет видимое поведение в плохой день.</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>Курс-скринкаст «по вкладкам» и курс-справочник «по фичам».</strong>
+  Первый устаревает с каждым релизом UI, второй никого ничему не учит. Структура курса — по
+  ага-моментам (идея → путь → практика → чекпоинт), скриншоты — только ссылками на витрину,
+  которая пересъёмкой обновляется сама.</div>
+</section>
+
+<!-- 6. ЦЕННОСТЬ -->
+<section id="value">
+  <div class="sec-label"><span class="sec-num">6</span><span class="sec-name">Ценность</span></div>
+  <h2>Единственный курс, который можно пройти внутри его предмета</h2>
+  <p>У любого продукта есть туториалы. Но hometutor — машина обучения по папкам материалов,
+  поэтому только у него курс о продукте может быть <strong>прожит средствами самого продукта</strong>:
+  квизы по уроку 2 — в квиз-движке из урока 2, карточки о SM-2 — в самом SM-2, карта знаний
+  курса — на экране карты, о котором курс рассказывает. Dogfood здесь не метафора, а
+  замыкание петли: курс тестирует продукт, продукт закрепляет курс.</p>
+  <div class="table-scroll">
+  <table>
+    <tr><th>Метрика</th><th>Без курса</th><th>С курсом</th></tr>
+    <tr><td>Материалов о продукте, которые продукт может индексировать</td><td>0</td><td>12 файлов (6 лекций + 6 конспектов)</td></tr>
+    <tr><td>Время до первого «могу сам» с объяснением «почему»</td><td>тур: шаги без «почему»</td><td>урок 1: ~15 минут (лекция + практика)</td></tr>
+    <tr><td>Способностей продукта, о которых новичок узнаёт за курс</td><td>~5–7 (первый экран + тур)</td><td>все ядерные способности серии №1–15 — 6 уроками</td></tr>
+    <tr><td>Конспектов с читаемой продуктом рубрикой качества</td><td>только у офлайн-курсов владельца</td><td>+6 (валидатор: OK ×6)</td></tr>
+    <tr><td>Первая карточка о самом продукте в SM-2</td><td>невозможна</td><td>после урока 2 — штатно</td></tr>
+  </table>
+  </div>
+</section>
+
+<!-- 7. ПУТЬ -->
+<section id="path">
+  <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Путь</span></div>
+  <h2>Золотой путь и программа курса</h2>
+  <p><strong>Золотой путь одного вечера:</strong> открыл урок 1 → положил свою папку → получил
+  первый ответ с источником → кликнул во фрагмент своей лекции → «могу сам». Всё остальное —
+  лестница по вечерам, каждый следующий урок опирается на прожитый предыдущий.</p>
+  <ol class="ladder">
+    <li><span class="num">1</span><span><strong>Первый ответ.</strong> Папка становится репетитором;
+    могу проверить ответ источником одним кликом.</span></li>
+    <li><span class="num">2</span><span><strong>Петля памяти.</strong> Прошёл ответ → тьютор → квиз →
+    карточки; завтра бейдж «К повторению» вернёт меня сам.</span></li>
+    <li><span class="num">3</span><span><strong>Один следующий шаг.</strong> Начинаю день с «Сейчас
+    важнее…», читаю «почему» и квитанцию «было → стало».</span></li>
+    <li><span class="num">4</span><span><strong>Карта знаний.</strong> Нахожу слабый узел, прохожу
+    «маршрут дня», скачиваю живую карту одним файлом.</span></li>
+    <li><span class="num">5</span><span><strong>Конспект с паспортом.</strong> Читаю рубрику как
+    этикетку, отмечаю статусы, мои вопросы закрываются у тьютора.</span></li>
+    <li><span class="num">6</span><span><strong>Хозяин системы.</strong> Пережил честный сбой без
+    паники, знаю офлайн-ядро, владею экспортом и своей комнатой.</span></li>
+  </ol>
+</section>
+
+<!-- 8. ПЛАН -->
+<section id="plan">
+  <div class="sec-label"><span class="sec-num">8</span><span class="sec-name">План</span></div>
+  <h2>Комплект и производство: P0 — два хода</h2>
+  <p>Комплект каждого урока: <strong>лекция</strong> (markdown, пригодный для индексации) +
+  <strong>конспект</strong> (формат smart-конспекта с рубрикой, проходит валидатор) +
+  <strong>видео-сценарий</strong> (раскадровка на реальных кадрах витрины, 60–90 сек) +
+  <strong>глава в слайд-деке</strong> (16:9, самодостаточный HTML).</p>
+  <div class="table-scroll">
+  <table>
+    <tr><th></th><th>Ход</th><th>Что делается</th><th>Статус</th></tr>
+    <tr>
+      <td><span class="tag tag-p0">P0-1</span></td>
+      <td><strong>Выпустить комплект курса</strong></td>
+      <td>6×(лекция + конспект + видео-сценарий) + слайд-дек + README в
+      <code>doc/courses/hometutor_101/</code>; конспекты — через
+      <code>validate_smart_konspekt.py</code>.</td>
+      <td>✅ выпущен вместе с этим разбором (валидатор: OK ×6; дек: 16 слайдов, без переполнений)</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-p0">P0-2</span></td>
+      <td><strong>Dogfood-инструкция</strong></td>
+      <td>README курса: как положить lectures/ + konspekts/ в материалы hometutor
+      (например, <code>data/uploads/hometutor_101/</code>), переиндексировать и задать продукту
+      вопрос о нём самом с проверкой источников.</td>
+      <td>✅ в README курса</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-p1">P1</span></td>
+      <td>Кадры и озвучка</td>
+      <td>Снять по конвейеру витрины недостающие кадры (паспорт конспекта, статусы знания,
+      «Авто: маршрут дня», вкладка «Оформление» — помечены в видео-сценариях), собрать видео
+      по раскадровкам. Мокапы запрещены правилом витрины.</td>
+      <td>⬜</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-p2">P2</span></td>
+      <td>Курс как дверь продукта</td>
+      <td>Кандидат для владельца: вторая дверь первого запуска «Учиться продукту» рядом с
+      демо-материалами (курс уже папка — механика двери та же, что у
+      <code>install_demo_materials()</code>); курс в публичную HF-витрину. Это изменение кода —
+      решение владельца, разбор его только предлагает.</td>
+      <td>⬜</td>
+    </tr>
+  </table>
+  </div>
+  <p><strong>Kill switch:</strong> если урок требует описать несуществующий экран или кнопку —
+  стоп, переписать по витрине; если конспект перестал проходить валидатор — стоп, чинить
+  конспект, а не валидатор; если комплект потребовал менять код продукта — стоп: P0 этого
+  разбора — только материалы.</p>
+  <p><strong>North star:</strong> новичок, прошедший курс, отвечает делом: «покажи, чем продукт
+  лучше ChatGPT для учёбы» — и показывает источник, квитанцию, карту и честный сбой за
+  десять минут, на своих материалах.</p>
+</section>
+
+<div class="footer">
+  <p>Разбор №16 · hometutor HEAD <code>c780ae94f</code> «224» · 2026-07-14. Тип «обучение» —
+  первый разбор по варианту шаблона §2.1 (<code>evolutionary_analysis_guide.md</code> v1.2).</p>
+  <p>Правило слоёв (вариант для типа «обучение»): этот HTML — слой анализа; учебный комплект —
+  <code>doc/courses/hometutor_101/</code> (лекции, конспекты, видео-сценарии, слайды, README).
+  Факт-банк: <code>docs/quickstart_demo.md</code> (35 сценариев, freshness gap 0). Серия:
+  <code>doc/presentations/evolutionary_analyses/</code>.</p>
+</div>
+
+</div>
+
+</body>
+</html>
