@@ -49,7 +49,7 @@ guide §9) — начиная с №9 все разборы используют
 |---|---|---|---|---|---|---|
 | 1 | Судьба одного знания (петля памяти) | готово (2026-07-11) | [`01_knowledge_fate.html`](01_knowledge_fate.html) | [`../../next/knowledge_fate_memory_loop_plan.md`](../../next/knowledge_fate_memory_loop_plan.md) | ✅ P0: canonical cid, `sessions_completed`/`interactions` разделены, provenance gate (`test_memory_loop_closure.py`, 11 тестов — 8 по петле + 3 LLM-resilience). B1 (P1, 2026-07-13): кнопка «📥 Сохранить как карточку» из ответа тьютора — замыкает петлю памяти в UI (`_render_save_tutor_answer_as_flashcard`, get-or-create колода «Из ответов тьютора», теги `concept:`/`source:`); тесты `test_tutor_save_card.py` |
 | 2 | Первые 10 минут (онбординг, time-to-first-insight) | готово (2026-07-11) | [`02_first_ten_minutes.html`](02_first_ten_minutes.html) | [`../../next/first_ten_minutes_onboarding_plan.md`](../../next/first_ten_minutes_onboarding_plan.md) | ✅ P0 (2026-07-13, wave-onboarding-closure): A2 честный статус hero — «готовится/собирается» показывается только при реально идущем реиндексе + `enable_first_session_precompute`, иначе нейтральная подписка без ложного обещания (`mission_control_first_session.py`); A1 единый источник кандидатов — `list_course_candidates_from_index` выводит курсы из индексированных путей (demo/uploads/user), а не из жёсткого `data/docs` (`course_cache.py`, `ingestion_support.py`). `enable_first_session_precompute=true` по умолчанию (ранее opt-in=false; gate документирован, артефакт строится после реиндекса) |
-| 3 | Материал как продукт (конспект, граф, таймкоды) | готово (2026-07-11) | [`03_material_as_product.html`](03_material_as_product.html) | [`../../next/material_as_product_quality_plan.md`](../../next/material_as_product_quality_plan.md) | ✅ P0 (wave-material-freshness): set-based `graph_freshness_gap` + «🗺 Карта отстаёт» + audit-tail после activation; heuristic sidecar хранит `source_paths`/`source_content_hashes`. ✅ P1 B1/B2 (2026-07-15): `course_quality_passport` (карта/конспекты/медиа/readiness/аудит) + лестница `min_documents` в prepare/KG UI. Ранее: badges, Mermaid **14** типов, fix-кнопка no_sections |
+| 3 | Материал как продукт (конспект, граф, таймкоды) | готово (2026-07-11) | [`03_material_as_product.html`](03_material_as_product.html) | [`../../next/material_as_product_quality_plan.md`](../../next/material_as_product_quality_plan.md) | ✅ P0 freshness+audit-tail; ✅ P1 B1/B2 passport+лестница; ✅ P2 C2 learner-language (+MC badge); ✅ P2 C1 «🕰 устарел» по `source_sha256`. Ранее: badges, Mermaid **14** типов |
 | 4 | Агент как одна кнопка (Agent Coach → UI) | готово (2026-07-11) | [`04_agent_as_one_button.html`](04_agent_as_one_button.html) | [`../../next/agent_as_one_button_plan.md`](../../next/agent_as_one_button_plan.md) | ✅ FeatureSpec + tile + view + POST `/ask` c `query_mode:"agent"`. Gate `AGENT_ENABLED` проверен в feature_visible и navigation_visibility. Трассировка агента (scenario, tool calls) в ответе |
 | 5 | Доверие под нагрузкой (провайдер, скорость, честность fallback) | готово (2026-07-11) | [`05_trust_under_load.html`](05_trust_under_load.html) | [`../../next/trust_under_load_provider_plan.md`](../../next/trust_under_load_provider_plan.md) | ✅ timeout propagation исправлен (llama-index 60s → 30s), soft timeout 15s через ThreadPoolExecutor, тест soft timeout |
 | 6 | Инфографика: живая карта материала (спецвыпуск, вне очереди) | готово (2026-07-11) | [`06_infographics.html`](06_infographics.html) | [`../../next/infographics_living_map_plan.md`](../../next/infographics_living_map_plan.md) | ✅ velocity/sessions/interactions в stats-бар графа, единый `_enrich_stats_with_learner_velocity()` для `build_kg_payload` и `compute_kg_counters` |
@@ -154,11 +154,12 @@ guide §9) — начиная с №9 все разборы используют
 
 | Приоритет | Ход | Что осталось |
 |---|---|---|
-| **P1 (сделано 2026-07-15)** | **#3 B1/B2** | ✅ `app/course_quality_passport.py` — паспорт материала (карта/конспекты/медиа/readiness/аудит) + лестница `min_documents` в prepare/KG UI; тесты `test_course_quality_passport.py` |
+| **P1 (сделано 2026-07-15)** | **#3 B1/B2** | ✅ `app/course_quality_passport.py` — паспорт материала + лестница `min_documents`; M1–M3 audit closed |
+| **P2 (сделано 2026-07-15)** | **#3 C2** | ✅ learner-language publish status + MC badge (`badge_label`) + evidence-ledger fallback; audit P1–P4 closed |
 | P1 | #11 пересъёмка 06/30 | кадры от 2026-07-12; stamp честно показывает gap — переснять после заметных UI-изменений Full Circle |
 | P1 | #16 beginner course | 5 экранных состояний (маршрут дня, паспорт, статусы, счётчики, «Оформление») + сборка видео |
-| P1 | #15 B1 3D-зал | `build_kg_3d_html` начат — довести polish/DoD плана |
-| P2 | #3 C1/C2 | бейдж устаревшего конспекта; learner-language pass вкладки графа |
+| P1 | #15 B1 3D-зал | `build_kg_3d_html` + download button есть — polish/DoD при необходимости |
+| **P2 (сделано 2026-07-15)** | **#3 C1** | ✅ `konspekt_source_staleness` + бейдж «🕰 устарел» (hash variants + mtime; без false-positive multi-input) |
 | P2 | #11 daily-use stories / video | второй жанр уже в `daily_use_stories/`; video-нарезка из YAML narration |
 
 #### ⚪ Закрытый P1/P2 (краткий credit)
@@ -171,10 +172,10 @@ guide §9) — начиная с №9 все разборы используют
 |---|---|
 | **P0 готово, трекер точен** | #1–#10, #12–#15 |
 | **P0 готово, P1 контент впереди** | #11 (пересъёмка 06/30), #16 (5 экранов + видео) |
-| **P1 кода закрыт в этой сессии** | #3 B1/B2 passport + ladder |
-| **Следующий кодовый P1** | #15 B1 polish 3D-зала (или #3 C* durability) |
+| **Код закрыт 2026-07-15** | #3 B1/B2/C2/C1 (passport, ladder, learner-language, stale badge) |
+| **Следующий кодовый** | #15 B1 polish 3D (если DoD не закрыт) |
 | **Исторические HTML-снимки** | #1–#8 pain-якоря могут врать относительно HEAD — не чинить код «под HTML» |
 
 **Рекомендуемый порядок дальше:** (1) #16 P1 контент, если нужен учебный комплект;
 (2) #15 B1 polish 3D; (3) #11 пересъёмка 06/30 перед внешним показом витрины;
-(4) #3 C1/C2 durability.
+(4) #3 C1 konspekt staleness (discovery).

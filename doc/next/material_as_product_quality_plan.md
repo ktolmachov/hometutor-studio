@@ -267,7 +267,10 @@ targeted tests.
 
 ### Кандидат C1 — Бейдж устаревшего конспекта
 
-**Статус:** `proposed`, требует discovery по стоимости пересчёта
+**Статус:** `done` (2026-07-15) — `konspekt_source_staleness` /
+`konspekt_stale_badge_label` в `konspekt_discovery.py` (cheap hash variants +
+mtime guard for multi-input smart hash); UI: topics right-column badge +
+Obsidian vault chip; tests `test_konspekt_source_staleness.py`.
 
 **Приоритет:** P2 · **Усилие:** среднее
 
@@ -295,7 +298,10 @@ targeted tests.
 
 ### Кандидат C2 — Learner-language pass по вкладке графа
 
-**Статус:** `proposed`
+**Статус:** `done` (2026-07-15) — `build_learner_publish_status_view` в
+`graph_publish_status.py`; UI: `dashboards_graph` + `course_prepare_view` +
+Mission Control `_kg_bundle_state_badge` (единый learner-copy); audit P1–P4
+closed; тесты jargon-ban + badge в `test_graph_publish_status.py`.
 
 **Приоритет:** P2 · **Усилие:** малое–среднее
 
