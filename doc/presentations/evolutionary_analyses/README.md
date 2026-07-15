@@ -49,7 +49,7 @@ guide §9) — начиная с №9 все разборы используют
 |---|---|---|---|---|---|---|
 | 1 | Судьба одного знания (петля памяти) | готово (2026-07-11) | [`01_knowledge_fate.html`](01_knowledge_fate.html) | [`../../next/knowledge_fate_memory_loop_plan.md`](../../next/knowledge_fate_memory_loop_plan.md) | ✅ P0: canonical cid, `sessions_completed`/`interactions` разделены, provenance gate (`test_memory_loop_closure.py`, 11 тестов — 8 по петле + 3 LLM-resilience). B1 (P1, 2026-07-13): кнопка «📥 Сохранить как карточку» из ответа тьютора — замыкает петлю памяти в UI (`_render_save_tutor_answer_as_flashcard`, get-or-create колода «Из ответов тьютора», теги `concept:`/`source:`); тесты `test_tutor_save_card.py` |
 | 2 | Первые 10 минут (онбординг, time-to-first-insight) | готово (2026-07-11) | [`02_first_ten_minutes.html`](02_first_ten_minutes.html) | [`../../next/first_ten_minutes_onboarding_plan.md`](../../next/first_ten_minutes_onboarding_plan.md) | ✅ P0 (2026-07-13, wave-onboarding-closure): A2 честный статус hero — «готовится/собирается» показывается только при реально идущем реиндексе + `enable_first_session_precompute`, иначе нейтральная подписка без ложного обещания (`mission_control_first_session.py`); A1 единый источник кандидатов — `list_course_candidates_from_index` выводит курсы из индексированных путей (demo/uploads/user), а не из жёсткого `data/docs` (`course_cache.py`, `ingestion_support.py`). `enable_first_session_precompute=true` по умолчанию (ранее opt-in=false; gate документирован, артефакт строится после реиндекса) |
-| 3 | Материал как продукт (конспект, граф, таймкоды) | готово (2026-07-11) | [`03_material_as_product.html`](03_material_as_product.html) | [`../../next/material_as_product_quality_plan.md`](../../next/material_as_product_quality_plan.md) | ✅ P0 (2026-07-13, wave-material-freshness): A1 видимый индекс свежести карты — `graph_freshness_gap()` + сегмент «🗺 Карта отстаёт: N материалов не на карте» в context row Mission Control (`_compact_report` хранит `source_paths_count`); A2 аудит дубликатов концептов в штатный реиндекс-хвост (`write_graph_audit_report` после `published` в full/partial). Ранее: inline badges, Mermaid-валидатор (**14** типов, не 10), 🔎 fix-кнопка no_sections в audit графа |
+| 3 | Материал как продукт (конспект, граф, таймкоды) | готово (2026-07-11) | [`03_material_as_product.html`](03_material_as_product.html) | [`../../next/material_as_product_quality_plan.md`](../../next/material_as_product_quality_plan.md) | ✅ P0 (wave-material-freshness): set-based `graph_freshness_gap` + «🗺 Карта отстаёт» + audit-tail после activation; heuristic sidecar хранит `source_paths`/`source_content_hashes`. ✅ P1 B1/B2 (2026-07-15): `course_quality_passport` (карта/конспекты/медиа/readiness/аудит) + лестница `min_documents` в prepare/KG UI. Ранее: badges, Mermaid **14** типов, fix-кнопка no_sections |
 | 4 | Агент как одна кнопка (Agent Coach → UI) | готово (2026-07-11) | [`04_agent_as_one_button.html`](04_agent_as_one_button.html) | [`../../next/agent_as_one_button_plan.md`](../../next/agent_as_one_button_plan.md) | ✅ FeatureSpec + tile + view + POST `/ask` c `query_mode:"agent"`. Gate `AGENT_ENABLED` проверен в feature_visible и navigation_visibility. Трассировка агента (scenario, tool calls) в ответе |
 | 5 | Доверие под нагрузкой (провайдер, скорость, честность fallback) | готово (2026-07-11) | [`05_trust_under_load.html`](05_trust_under_load.html) | [`../../next/trust_under_load_provider_plan.md`](../../next/trust_under_load_provider_plan.md) | ✅ timeout propagation исправлен (llama-index 60s → 30s), soft timeout 15s через ThreadPoolExecutor, тест soft timeout |
 | 6 | Инфографика: живая карта материала (спецвыпуск, вне очереди) | готово (2026-07-11) | [`06_infographics.html`](06_infographics.html) | [`../../next/infographics_living_map_plan.md`](../../next/infographics_living_map_plan.md) | ✅ velocity/sessions/interactions в stats-бар графа, единый `_enrich_stats_with_learner_velocity()` для `build_kg_payload` и `compute_kg_counters` |
@@ -57,10 +57,10 @@ guide §9) — начиная с №9 все разборы используют
 | 8 | Невидимая половина (метаразбор серии: сильный ход к шедевру) | готово (2026-07-12) | [`08_invisible_half.html`](08_invisible_half.html) | [`../../next/invisible_half_closure_plan.md`](../../next/invisible_half_closure_plan.md) | ✅ P0: AGENT_ENABLED gate, tier/requirement split в навигации, stale view не пробивает requirement |
 | 9 | Своя комната (цветовые схемы «миры» + фоны мирового уровня) | готово (2026-07-12) | [`09_color_worlds.html`](09_color_worlds.html) | [`../../next/color_worlds_theming_plan.md`](../../next/color_worlds_theming_plan.md) | ✅ A1: `:root` расширен (9→22 токена), литералы `.stApp`/`.hero`/`.chip`/`.home-dash-head-*`/`.flashcard-*` → `var(--)`. A2: `theme_presets.py` (5 миров, полные gradient-строки head). B1: `get_ui_theme()`/`set_ui_theme()`. B2: `inject_theme_overrides()` после auth. B3: вкладка «Оформление». C3: токены темы в flashcard iframe. ✅ `tests/test_theme_presets.py` (5), `test_ui_preferences.py` (+4 теста темы). |
 | 10 | Кольцо замкнулось, но беззвучно (финал: синтез разборов №1–№9) | готово (2026-07-12) | [`10_full_circle.html`](10_full_circle.html) | [`../../next/full_circle_visibility_plan.md`](../../next/full_circle_visibility_plan.md) | ✅ A1: learner trace в tutor chat (`ctx.metadata` → `assistant_meta` → `tutor_meta` → visible string). A2: due badge `flashcard_due_n + sm2_due_n` в SSR banner «К повторению: N (сумма двух очередей)». |
-| 11 | Витрина обещаний: сценарии против реальности | готово (2026-07-12) | [`11_usage_scenarios.html`](11_usage_scenarios.html) | [`../../next/usage_scenarios_refresh_plan.md`](../../next/usage_scenarios_refresh_plan.md) | ⬜ P0: freshness stamp + 5 YAML-манифестов слепых зон; пересъёмка 06/30 после Full Circle P0 |
-| 12 | Архитектура и дизайн (первый инженерный: стены без сигнализации) | готово (2026-07-12) | [`12_architecture_design.html`](12_architecture_design.html) | [`../../next/architecture_guards_plan.md`](../../next/architecture_guards_plan.md) | ✅ P0 (2026-07-13): константы `check_size_budget` сверены с HEAD (33/155/1929/361) + waiver `app/prompts/_impl.py`; новый `tests/test_architecture_guards.py` — провод 4 стражей в pytest/CI (`arch_regression_guards.py` → exit 0) |
+| 11 | Витрина обещаний: сценарии против реальности | готово (2026-07-12) | [`11_usage_scenarios.html`](11_usage_scenarios.html) | [`../../next/usage_scenarios_refresh_plan.md`](../../next/usage_scenarios_refresh_plan.md) | ✅ P0 A1/A2: freshness stamp в `generate_demo_doc.py` + quickstart_demo; YAML `scenario_31`–`35` + PNG в studio/runtime `screenshots/final/`. ⬜ P1: пересъёмка 06/30 после Full Circle (кадры 12.07; gap stamp честный) |
+| 12 | Архитектура и дизайн (первый инженерный: стены без сигнализации) | готово (2026-07-12) | [`12_architecture_design.html`](12_architecture_design.html) | [`../../next/architecture_guards_plan.md`](../../next/architecture_guards_plan.md) | ✅ P0: бюджет no-growth **33/155/1942/361** + waiver `app/prompts/_impl.py`; `tests/test_architecture_guards.py` + явный CI-шаг «Architecture regression guards»; `arch_regression_guards.py` → exit 0 |
 | 13 | Аудио-подкасты: конспекты и части лекций в уши | готово (2026-07-13) | [`13_audio_podcasts.html`](13_audio_podcasts.html) | [`../../next/audio_podcasts_plan.md`](../../next/audio_podcasts_plan.md) | ✅ P0/A2 закрыты после критического аудита: sibling `.m4a` discovery + `st.audio(..., format="audio/mp4")` разделов, слушаемый плейлист, офлайн-извлечение аудио в PS-конвейере, «Выпуск в дорогу» (m4a + TOC). Закреплены фиксы blocker'ов: `extract_audio_to_m4a(str)`, path-safety для absolute path, исключение `end=None` из concat, регрессионные тесты + Windows CI `test-media-pipeline-audio`. |
-| 14 | Качество конспектов (включая Живые): паспорт написан, продукт показывает галочку | готово (2026-07-13) | [`14_konspekt_quality.html`](14_konspekt_quality.html) | [`../../next/konspekt_quality_plan.md`](../../next/konspekt_quality_plan.md) | ⬜ P0: прочитать готовую рубрику качества (роль + парсер + паспорт вместо «✅ готовы»); статус знания (3 состояния) + «мой открытый вопрос» в строке корзины |
+| 14 | Качество конспектов (включая Живые): паспорт написан, продукт показывает галочку | готово (2026-07-13) | [`14_konspekt_quality.html`](14_konspekt_quality.html) | [`../../next/konspekt_quality_plan.md`](../../next/konspekt_quality_plan.md) | ✅ P0 A1/A2: `quality_rubric` + парсер таблицы + паспорт на topics/reader; `knowledge_status` + `open_question` в корзине/MC. ✅ P1 B1–B3 (тьютор CTA, novelty, noise-filter) + P2 C1–C3 (grades, smart_konspekt fate, факты↔интерпретации) |
 | 15 | 3D граф знаний: карта, которая не знает цену своих узлов | готово (2026-07-13) | [`15_knowledge_graph_3d.html`](15_knowledge_graph_3d.html) | [`../../next/knowledge_graph_3d_plan.md`](../../next/knowledge_graph_3d_plan.md) | ✅ P0 (HEAD 216, wave-kg-node-worth): поле `due` (due_reviews→{cid:n_due}) + `novel` + честная шапка `total_concepts`/`total_lessons` (89→76); `worth(node)` в `knowledge_graph_d3_analysis.py` (веса due/novel/decay/frontier/reach) + кнопка «Авто: маршрут дня» по ценности; B1 `build_kg_3d_html` (3D-зал) начат. Тесты `test_knowledge_graph_counters.py::TestNodeWorth` + A1-wiring |
 | 16 | Учебный курс по продукту (первый разбор типа «обучение»: продукт учит всему, кроме себя) | готово (2026-07-14) | [`16_beginner_course.html`](16_beginner_course.html) | учебный комплект вместо detail-плана: [`../../courses/hometutor_101/`](../../courses/hometutor_101/) | ✅ P0 выпущен вместе с разбором: курс «hometutor 101» — 6 лекций + 6 конспектов с рубрикой (валидатор `validate_smart_konspekt.py --profile local`: OK ×6) + 6 видео-сценариев на кадрах витрины + слайд-дек (16 слайдов) + dogfood-README. Шаблон серии расширен вариантом «разбор-обучение» (`evolutionary_analysis_guide.md` §2.1, v1.2). ⬜ P1: снять 5 экранных состояний — маршрут дня, паспорт конспекта, статусы раздела, счётчики, «Оформление» — и собрать видео |
 
@@ -123,76 +123,58 @@ guide §9) — начиная с №9 все разборы используют
 
 ### 3. План остатка (приоритизированный)
 
-**🔴 P0 — несделанная работа в коде (главное)**
+> **Срез 2026-07-15 (после wave-material-passport + audit-хвост #3/#9/#12).**  
+> Все 🔴 P0 из аудита 2026-07-13 **закрыты в коде**. Ниже — только реальный остаток
+> и честный backlog P1/P2. Исторические «Resolve»-заметки свёрнуты: трекер-таблица
+> выше — SSoT статуса.
 
-> Обновлено по результатам работы: многие пункты закрыты (см. Resolve ниже и пометки).
+#### 🔴 P0 — кодовый долг аудита
 
-| Ход | Где | Что сделать |
+| Ход | Статус | Примечание |
 |---|---|---|
-| #2A1 единый кандидат первого обзора | `app/ingestion_index_full.py:357`, `ingestion_index_partial.py:273` | demo/uploads → first-session артефакт ✅ (закрыто ранее) |
-| #2A2 честный статус | `app/ui/mission_control_first_session.py:217` | убрать безусловный `st.info("…готовится…")` — это боль-якорь №2 ✅ (закрыто ранее) |
-| #3A1 индекс свежести карты | `app/ui/mission_control.py:928` | сегмент «Карта отстаёт»/freshness-gap ✅ (set-based + source_paths + source_content_hashes в heuristic, нормализация) |
-| #3A2 аудит дубликатов в реиндекс | `app/knowledge_graph_audit.py:202` | подключить `write_graph_audit_report` к штатному реиндексу ✅ (уже было подключено, улучшено покрытие тестов + proof в orchestrator) |
-| #12A2 сверить константы бюджета | `scripts/check_size_budget.py:15-18` | `34/155/1928/361` + waiver (иначе вечный красный CI) ✅ |
-| #12A1 стражи в pytest | `tests/test_architecture_guards.py` (создать) | параметризованная обёртка над 4 стражами ✅ + явный шаг в .github/workflows/ci.yml |
-| #15A1 цена на узле графа | `app/ui/knowledge_graph_d3.py:569-583`, `template:305` | `due` (сейчас due_reviews собираются и выбрасываются `:649→:525-604`); `novel`; шапка 89→76 ✅ (закрыто ранее) |
-| #15A2 «Маршрут дня» по ценности | `template:679` `_bfsPath` | чистая `worth(node)` вместо невзвешенного BFS ✅ (закрыто ранее) |
-| #11 синхронизация scenario_31–35 | `hometutor-studio/doc/screenshots/final/` → `hometutor/docs/screenshots/final/` | PNG-артефакты 31–35 есть в studio; проверить/синхронизировать runtime-копию перед внешним показом ✅ (скриншоты присутствуют в runtime; очищены «Capture pending» и описания в user_scenarios.md) |
+| #2 A1/A2 онбординг | ✅ | единые кандидаты + честный hero-статус |
+| #3 A1/A2 freshness + audit-tail | ✅ | set-based gap; audit после activation; heuristic paths/hashes |
+| #11 A1 freshness stamp + A2 YAML 31–35 | ✅ | stamp в `generate_demo_doc` / quickstart_demo; PNG в studio+runtime |
+| #12 A1/A2 guards + budget | ✅ | **33/155/1942/361**; pytest + CI step |
+| #14 A1/A2 паспорт рубрики + статус знания | ✅ | парсер, surfaces, `knowledge_status`/`open_question` |
+| #15 A1/A2 worth + маршрут дня | ✅ | due/novel/worth; 3D-зал начат (B1) |
 
-**🟡 Док-гигиена колонки (дёшево, устраняет ложь)**
+#### 🟡 Док-гигиена (колонка трекера + conventions)
 
-- #2 `✅` → частично/⬜ (P0 не сделан)
-- #3 «10 типов» → **14**; отметить, что P0 не сделан
-- #1 тестов **11** не 8; описать девиацию A2 (`mastery_vector` обновляется, хотя план требовал exposure-only)
-- #5/#6/#8 дополнить ячейки: credit реальных P0 (circuit feeding / download+mermaid / memory trace); боль-якоря устарели
-- #9 токенов **45** не 22; тестов **6** не 5
-- #11 синхронизировать scenario_31–35 из studio в runtime-витрину, если внешний показ читает `hometutor/docs/screenshots/final/` ✅ (скриншоты есть + очищены pending в user_scenarios.md)
-- #14 ⬜ → ✅ (P0 закоммичен)
-- Дополнительно: обновлены user_guide.md (убраны внутренние #2A/#3A), conventions_architecture.md (убрано «ежедневно», добавлен явный CI шаг, добавлен раздел про шрифты), explicit guards step в ci.yml.
+| Что | Статус |
+|---|---|
+| #3 / #11 / #12 / #14 строки трекера | ✅ обновлены 2026-07-15 |
+| size budget в `conventions_architecture.md` → 1942 | ✅ |
+| «Темы и шрифты»: system-ui / ui-monospace, без Manrope/Plex | ✅ |
+| flashcard iframe: mono без IBM Plex (N1) | ✅ |
+| compiler/heuristic sidecar paths нормализованы (N4/N5) | ✅ |
+| HTML pain-якоря #5/#6/#8 как исторический снимок | ⚪ допустимо; при rev. — «диагноз устарел» |
 
-**🟢 P1/P2 — вторичные пробелы**
+#### 🟢 P1/P2 — следующий backlog (по ценности)
 
-- #1 B1 карточка из ответа тьютора ✅; B2 единая очередь (комбинировано в daily reminder "К повторению"); C1 derived `mastery_vector` (в learner_model_service из quiz_mastery)
-- #5 A2 короткий timeout для known-unhealthy ветки ✅ (в llm_resilience при _circuit_open используем min(soft, 1.5s) для complete/chat); B1 бейдж источника LLM в tutor chat
-- #6 B1 one-pager лекции ✅ (deterministic builder в konspekt_artifact.build_lecture_onepager: sections + filtered concepts)
-- #7 A3 unify coach/weekly к `get_today_primary_learning_item()` (`dashboard.py:43`, `pages/3_Мой_прогресс.py:171`) ✅ (generate_ai_coach_message теперь использует get_today_primary_learning_item() как единый источник)
-- #8 circuit срабатывает только на `_is_connection_error`, не на таймауты/5xx (`llm_resilience.py:208-209`) ✅ (расширено _is_connection_error на timeouts + 5xx, обновлён docstring)
-- #9 C2 шрифты с Google CDN (`ui_theme.css:1-2`) — разрыв local-first ✅ (убраны импорты Manrope/IBM Plex, только Material Symbols для иконок + системные стеки + переменные)
-- #13 C1–C3 telegram-доставка / диалоговый подкаст / сегмент дня ✅ (daily reminder в telegram_notifications использует get_today_primary + due; подкасты в media_audio; сегмент в _daily_topic_line)
-- #14 C2 мёртвая фабрика B (`smart_konspekt`, `FileNotFoundError` в чистом чекауте) ✅ (fallback default prompt); C3 факты ↔ интерпретации ✅ (default prompt now instructs to separate Факты / Интерпретации)
+| Приоритет | Ход | Что осталось |
+|---|---|---|
+| **P1 (сделано 2026-07-15)** | **#3 B1/B2** | ✅ `app/course_quality_passport.py` — паспорт материала (карта/конспекты/медиа/readiness/аудит) + лестница `min_documents` в prepare/KG UI; тесты `test_course_quality_passport.py` |
+| P1 | #11 пересъёмка 06/30 | кадры от 2026-07-12; stamp честно показывает gap — переснять после заметных UI-изменений Full Circle |
+| P1 | #16 beginner course | 5 экранных состояний (маршрут дня, паспорт, статусы, счётчики, «Оформление») + сборка видео |
+| P1 | #15 B1 3D-зал | `build_kg_3d_html` начат — довести polish/DoD плана |
+| P2 | #3 C1/C2 | бейдж устаревшего конспекта; learner-language pass вкладки графа |
+| P2 | #11 daily-use stories / video | второй жанр уже в `daily_use_stories/`; video-нарезка из YAML narration |
 
-**⚪ Устаревшие HTML-pain-якори (#5, #6, частично #8).** Разборы №1–8 — исторические
-снимки (см. выше §9). Их боль-якорья («grep circuit → пусто», «mermaid с CDN»,
-«download не предлагается») уже разрешены кодом, но в HTML читаются как текущие.
-Допустимо как снимок; при следующей ревизии — пометить «диагноз устарел — см. коммит».
+#### ⚪ Закрытый P1/P2 (краткий credit)
 
-### Сводка по приоритетам
+#1 B1/B2/C1 · #5 A2 · #6 B1 one-pager · #7 A3 coach→`get_today_primary` · #8 transient→circuit · #9 C2 local-first fonts · #13 C1–C3 telegram/segment · #14 B1–B3 + C1–C3.
 
-- **Готово и точно**: #4, #7, #10, #13
-- **Готово, README неточен (числа/credit)**: #1, #5, #6, #8, #9
-- **Завышено ✅, P0 не сделан**: (обновлено)
-- **Занижено ⬜, на самом деле сделано**: #14 (+ частично #11)
-- **Точно ⬜, работа впереди**: #11 runtime-sync (частично закрыт: builder one-pager, скриншоты, очистка описаний)
-- Остальные P1/P2 из списка в основном закрыты в этой и предыдущих сессиях.
-- Дополнительно закрыто в этой сессии: #3A1/#3A2 полностью (set-based freshness + heuristic source_paths/hashes), #12A1 (CI visibility), #9 C2 (fonts), #8 (transient errors), #5 A2 (short timeout unhealthy), #14 C2/C3 (prompt fallback + facts vs interpretations), #7 A3 (unify coach to get_today...), #6 B1 (one-pager builder), #13 (telegram delivery/segment), #1 B2/C1 (unified queue + derived mastery), док-гигиена.
+### Сводка по приоритетам (2026-07-15)
 
-> **Resolve (2026-07-13, позднее).** Два рекомендованных хода закрыты — аудит выше
-> был снимком ≤HEAD 208; рантайм к моменту исполнения ушёл на HEAD 216:
-> - **#12A сделан**: константы `check_size_budget` сверены с HEAD
->   (33/155/1929/361) + waiver `app/prompts/_impl.py`; новый
->   `tests/test_architecture_guards.py` проводит 4 стража в pytest/CI;
->   `arch_regression_guards.py` → exit 0. (Строка трекера #12 обновлена ⬜→✅.)
-> - **#15A уже в HEAD 216**: поля `due`/`novel` на узле (`due_reviews`→{cid:n_due}),
->   `worth(node)` в `knowledge_graph_d3_analysis.py` (веса due/novel/decay/frontier/reach),
->   кнопка «Авто: маршрут дня» по ценности вместо BFS, честная шапка
->   `total_concepts`/`total_lessons` (89→76), B1 3D-зал `build_kg_3d_html` начат;
->   тесты `test_knowledge_graph_counters.py::TestNodeWorth`. (Строка #15 ⬜→✅.)
->
-> Реальным пробелом серии остаётся только #11 runtime-sync (частично закрыт: скриншоты присутствуют в hometutor/docs, очищены pending-статусы, one-pager builder).
-> **#2 P0 закрыт**, **#3 P0 закрыт** (включая heuristic-путь source_paths + source_content_hashes в
-> knowledge_graph_bundle, set-based freshness gap, нормализация). 
-> **#12A1** улучшен (явный шаг в ci.yml + обновлена документация).
-> **#9 C2** (шрифты) почищен (local-first для текста).
-> **#8**, **#5 A2**, **#14 C2/C3**, **#7 A3**, **#6 B1**, **#13**, **#1 B2/C1** тоже закрыты в этой сессии.
-> Строки трекера и гигиена обновлены. Дополнительно закрыт **#1 B1**. Флаг
-> `enable_first_session_precompute` задокументирован. user_guide и conventions очищены от внутренних меток.
+| Категория | Разборы |
+|---|---|
+| **P0 готово, трекер точен** | #1–#10, #12–#15 |
+| **P0 готово, P1 контент впереди** | #11 (пересъёмка 06/30), #16 (5 экранов + видео) |
+| **P1 кода закрыт в этой сессии** | #3 B1/B2 passport + ladder |
+| **Следующий кодовый P1** | #15 B1 polish 3D-зала (или #3 C* durability) |
+| **Исторические HTML-снимки** | #1–#8 pain-якоря могут врать относительно HEAD — не чинить код «под HTML» |
+
+**Рекомендуемый порядок дальше:** (1) #16 P1 контент, если нужен учебный комплект;
+(2) #15 B1 polish 3D; (3) #11 пересъёмка 06/30 перед внешним показом витрины;
+(4) #3 C1/C2 durability.

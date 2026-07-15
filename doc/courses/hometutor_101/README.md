@@ -37,8 +37,8 @@ hometutor_101/
 ├── video_scripts/           ← 6 сценариев коротких видео (60–90 сек)
 │                              (раскадровки на реальных кадрах
 │                               hometutor-studio/doc/screenshots/final/)
-├── videos/                  ← 6 собранных MP4-роликов курса
-│                              (`*.silent.mp4` — варианты без озвучки)
+├── videos/                  ← 6 собранных MP4-роликов курса (без звука;
+│                              см. «Видео / P1 закрыт» ниже — почему)
 └── slides/
     └── hometutor_101_deck.html  ← слайды курса, 16 слайдов 16:9
                                     (самодостаточный HTML; F = печать в PDF)
@@ -75,8 +75,19 @@ hometutor_101/
    Copy-Item "$src\konspekts" $dst -Recurse -Force
    ```
 
+   **Демо-режим** (`scripts/build_demo_chroma.py`) индексирует не `data\`, а
+   `demo_data\` (`HOME_RAG_DATA_DIR=demo_data`). Если курс поднимается как демо,
+   целевая data-папка —
+   `D:\Projects\hometutor\demo_data\uploads\hometutor_101` (туда же `videos/`,
+   там же запускается `attach_whole_lesson_video.py`). Пути в sidecar —
+   data-relative (`uploads/hometutor_101/...`), поэтому копия портируется между
+   любыми DATA_DIR без правок, лишь бы сохранялась структура `uploads/hometutor_101/`.
+
    Не копируй в текстовый корпус `video_scripts/`, `video_scripts/_build/` и
-   `slides/`: это production-артефакты, а не основной учебный материал.
+   `slides/`: это production-артефакты, а не основной учебный материал. Особенно
+   `slides/`: ingestion встраивает `.html` как документ (`app/ingestion.py`,
+   `HTMLTextReader`), так что дек внутри `uploads/hometutor_101/` попал бы в RAG
+   мусорным дублёром лекций.
 
    Для **текстового dogfood** этого достаточно. Для **мультимедийного Living
    Konspekt** дополнительно скопируй `videos/` внутрь той же data-папки курса:
@@ -138,10 +149,17 @@ hometutor_101/
   `scenario_37/02_konspekt_status_controls.png`,
   `scenario_37/03_konspekt_status_counters.png` и
   `scenario_38/01_appearance_worlds.png`. Шесть MP4-роликов собраны в
-  `doc/courses/hometutor_101/videos/`. Финальная проверка:
-  `07_final_gate.ps1 -RequireVideos` → `Final gate passed`.
+  `doc/courses/hometutor_101/videos/` (звука нет — см. видео-сценарии,
+  `*.silent.mp4`-дубликаты удалены как мёртвый вес). Проверка воспроизводима
+  двумя штатными инструментами: `validate_smart_konspekt.py --profile local`
+  на всех шести конспектах (OK×6) и `load_media_sidecar_for_konspekt()` на
+  data-копиях после `attach_whole_lesson_video.py` (видео резолвится,
+  `sidecar_stale_reasons()` пусто).
 - **Слайды** — по [`html_deck_guide.md`](../../presentations/html_deck_guide.md);
-  палитру дека не смешивать с notebook-стилем разборов.
+  палитру дека не смешивать с notebook-стилем разборов. Runtime-копия дека лежит
+  **вне** индексируемого data-дира:
+  `hometutor/docs/courses/hometutor_101/slides/hometutor_101_deck.html`
+  (не в `demo_data/uploads/...`, иначе дек уйдёт в RAG — см. dogfood выше).
 
 ---
 
