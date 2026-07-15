@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Разбор №17 — Зал без пола: когда третье измерение отнимает смысл</title>
+<style>
+  :root {
+    --paper: #f7f3ea;
+    --paper-2: #fffdf7;
+    --ink: #17211b;
+    --muted: #5c6a61;
+    --terra: #b95631;
+    --terra-deep: #7d351f;
+    --forest: #243b2c;
+    --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14);
+    --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+    --done: #1e6e46;
+    --silent: #b98a2d;
+    --hole: #8c2f39;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+      --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+      --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(157, 191, 168, 0.10);
+      --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+      --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+    --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+    --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+    --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+    --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+      radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--terra-deep); }
+  em { color: var(--muted); }
+
+  code {
+    font-family: Consolas, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--terra);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 0.95rem; color: var(--gold);
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .sec-name {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem;
+    font-weight: 700; color: var(--muted);
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.1rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+  }
+  .anchor-card { border-left: 4px solid var(--terra); }
+  .ev { font-size: 0.86rem; color: var(--muted); margin-top: 0.5rem; }
+  .ev code { font-size: 0.8rem; }
+
+  .figure { margin: 1.4rem 0 0.4rem; }
+  .figure svg { width: 100%; height: auto; display: block; }
+  .figcap { font-size: 0.84rem; color: var(--muted); margin-top: 0.5rem; max-width: 70ch; }
+  .diagram-label { font: 700 15px "Segoe UI", Arial, sans-serif; fill: var(--ink); }
+  .diagram-small { font: 12px "Segoe UI", Arial, sans-serif; fill: var(--muted); }
+  .diagram-line { stroke: var(--line); stroke-width: 1.4; }
+
+  .table-scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  td { font-variant-numeric: tabular-nums; }
+
+  .st { display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 99px; white-space: nowrap; }
+  .st-done { color: var(--done); border: 1px solid var(--done); }
+  .st-silent { color: var(--silent); border: 1px solid var(--silent); }
+  .st-hole { color: var(--hole); border: 1px solid var(--hole); }
+
+  .v { display: inline-block; font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+       letter-spacing: 0.08em; padding: 0.1rem 0.55rem; border-radius: 99px; margin-right: 0.5rem; }
+  .v-keep { color: var(--verdict-keep); border: 1.5px solid var(--verdict-keep); }
+  .v-fix { color: var(--verdict-fix); border: 1.5px solid var(--verdict-fix); }
+  .v-no { color: var(--verdict-no); border: 1.5px solid var(--verdict-no); }
+
+  .tension { border-left: 4px solid var(--gold); }
+  .tension .t { font-family: Georgia, serif; font-size: 1.05rem; margin-bottom: 0.35rem; }
+  .syn { color: var(--verdict-keep); font-weight: 600; }
+
+  .ladder { list-style: none; padding-left: 0; }
+  .ladder li { display: flex; gap: 0.8rem; align-items: baseline; margin-bottom: 0.55rem; }
+  .ladder .num {
+    flex: none; font-family: Georgia, serif; font-weight: 700; color: var(--gold);
+    width: 1.6rem; text-align: right;
+  }
+
+  .tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.08rem 0.5rem;
+         border-radius: 4px; color: var(--paper-2); }
+  .tag-p0 { background: var(--terra); }
+  .tag-p1 { background: var(--forest); }
+  .tag-p2 { background: var(--gold); }
+  :root[data-theme="dark"] .tag, :root[data-theme="dark"] .tag-p2 { color: #141a16; }
+  @media (prefers-color-scheme: dark) { .tag { color: #141a16; } }
+  :root[data-theme="light"] .tag { color: var(--paper-2); }
+
+  .footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
+            font-size: 0.85rem; color: var(--muted); }
+  .footer code { font-size: 0.8rem; }
+  a { color: var(--terra); }
+
+  @media (max-width: 620px) {
+    .wrap { padding: 2.2rem 1rem 3.5rem; }
+    h1 { font-size: 2rem; }
+    .card { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">Эволюционный разбор · №17 · пространственная карта</div>
+  <h1>Зал без пола: когда третье измерение отнимает смысл</h1>
+  <p class="lede">3D-экспорт hometutor технически честен: открывается офлайн, получает тот же
+  payload и проводит по серверному маршруту дня. Но пользователь попадает не в зал, а в
+  облако узлов без земли, горизонта и направления. Этот разбор возвращает пространству
+  назначение: не впечатлять объёмом графа, а за пять секунд отвечать «где я, куда дальше и
+  почему».</p>
+  <div class="meta">
+    <span>hometutor · аудит живого экспорта <code>knowledge_graph_3d (2).html</code></span>
+    <span>2026-07-15</span>
+    <span>продолжение разбора №15 · кандидат на пересборку B1</span>
+  </div>
+</header>
+
+<!-- 1. СУТЬ -->
+<section id="essence">
+  <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Суть</span></div>
+  <h2>Чего человек хочет от карты знаний</h2>
+  <p>Человек открывает карту не ради графа и не ради 3D. Он хочет быстро вернуть себе
+  <strong>чувство положения и следующий осмысленный шаг</strong>: где он находится в курсе,
+  что уже позади, что доступно сейчас и почему система советует именно эту остановку.</p>
+  <p>Поэтому суть пространственной карты — не «показать больше связей». Её работа —
+  <strong>превратить сложность курса в место, которое можно запомнить</strong>. У хорошего места
+  есть земля, направление, устойчивые ориентиры и короткий путь. Если поворот камеры меняет
+  смысл сцены, это не место, а картинка.</p>
+  <div class="card anchor-card">
+    <p><strong>Сильный ход:</strong> перестать показывать весь граф как свободное 3D-облако.
+    Начальный экран становится <strong>маршрутной пространственной картой</strong>: шесть
+    остановок дня в фиксированной изометрии, одна направляющая линия, активная остановка и
+    явное «вперёд». Полный граф остаётся вторым уровнем — «Вся карта».</p>
+  </div>
+</section>
+
+<!-- 2. РЕАЛЬНОСТЬ -->
+<section id="reality">
+  <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Реальность</span></div>
+  <h2>Что уже построено — и почему части не складываются в зал</h2>
+
+  <div class="card">
+    <p><strong>Провод данных сделан хорошо.</strong> A1 добавил узлам <code>due</code>,
+    <code>novel</code>, <code>worth</code> и человеческую причину; A2 строит серверный
+    <code>day_route</code>. 2D и 3D получают один маршрут. Экспорт не требует CDN, безопасно
+    экранирует JSON и открывается одним HTML-файлом.</p>
+    <p class="ev">Это надо сохранить: local-first, один payload, одна функция выбора маршрута,
+    никакой отдельной «3D-схемы данных».</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Рендер называется 3D, но камеры в нём нет.</strong> Это 2D canvas с ручной
+    перспективной проекцией. <code>cz</code> объявлена как глубина цели камеры, но в
+    <code>project()</code> не используется. Фокус сдвигает картинку экранными
+    <code>cx/cy</code>, а «полёт» раз в 620 мс перескакивает к следующей точке через
+    <code>setInterval</code>.</p>
+    <p class="ev"><code>app/ui/assets/kg_3d_template.html:56-76, 216-228, 298-330</code>.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Этаж и ценность занимают одну координату.</strong> Урок получает
+    <code>y = FLOOR_BASE + floor × 55</code>, а концепт — тот же этаж плюс
+    <code>40 + worth × 18</code>. На живом payload все 138 концептов подняты на 148–166
+    единиц при шаге этажа 55: каждый визуально оказывается почти на три этажа выше своего
+    урока. Связь «концепт принадлежит уроку» геометрия сама уничтожает.</p>
+    <p class="ev"><code>kg_3d_template.html:90-109</code>; измерение выполнено по приложенному
+    экспорту: worth концептов 6.019–7.0, медиана 6.352.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Стабильность подменила учебный порядок.</strong> Этажи сортируются лексически по
+    lesson id. Но компилятор уже строит последовательность документов и связи
+    <code>precedes</code>. В живом файле 26 lesson-узлов, включая как минимум шесть пар
+    <code>.md/.txt</code> одного материала: стабильны не уроки, а файловые варианты.</p>
+    <p class="ev"><code>app/course_graph_compiler.py:120-126, 196-214</code> против
+    <code>kg_3d_template.html:82-90</code>.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Визуальная иерархия схлопнулась.</strong> В экспорте 164 узла и 367 связей.
+    Все 138 концептов имеют worth выше 4, поэтому все получают свечение и подпись; lesson-узлы
+    подписываются безусловно. Результат — одновременно 164 текста поверх 367 линий. Пол
+    представлен двумя тонкими линиями без названия и границы.</p>
+    <p class="ev"><code>kg_3d_template.html:122-143, 176-187</code>.</p>
+  </div>
+
+  <h3>Факт-карта реализации</h3>
+  <div class="table-scroll">
+  <table>
+    <tr><th>Слой</th><th>Что работает</th><th>Что ломает ценность</th></tr>
+    <tr><td>Payload</td><td><span class="st st-done">готов</span> один контракт, due/novel/worth</td><td>novel + frontier почти всем дают одинаково высокий worth</td></tr>
+    <tr><td>Маршрут</td><td><span class="st st-done">готов</span> 6 серверных остановок с причиной</td><td>в сцене нет трассы и активного шага</td></tr>
+    <tr><td>Этажи</td><td><span class="st st-silent">формально есть</span> стабильные y-уровни</td><td>файлы вместо уроков; высота worth пересекает этажи</td></tr>
+    <tr><td>Камера</td><td><span class="st st-silent">имитация</span> yaw, pitch, zoom</td><td>нет позиции в мире, авто-fit, горизонта и плавного пути</td></tr>
+    <tr><td>Действие</td><td><span class="st st-hole">нет</span></td><td>клик только центрирует узел; учиться из экспорта нельзя</td></tr>
+    <tr><td>Тесты</td><td><span class="st st-done">37 passed</span> offline, сериализация, безопасность</td><td>нет проверки кадра, ориентации, коллизий и взаимодействия</td></tr>
+  </table>
+  </div>
+
+  <div class="figure" aria-labelledby="scene-caption">
+    <svg viewBox="0 0 860 360" role="img" aria-label="Сравнение текущей башни шума и маршрутной сцены">
+      <rect x="1" y="1" width="858" height="358" rx="12" fill="var(--card)" stroke="var(--line)"/>
+      <line x1="430" y1="28" x2="430" y2="332" class="diagram-line"/>
+
+      <text x="34" y="45" class="diagram-label">Сейчас: башня шума</text>
+      <text x="464" y="45" class="diagram-label">Сильный ход: маршрутная сцена</text>
+
+      <g opacity="0.75">
+        <line x1="60" y1="290" x2="365" y2="255" stroke="var(--muted)" stroke-width="1"/>
+        <line x1="80" y1="250" x2="375" y2="210" stroke="var(--muted)" stroke-width="1"/>
+        <line x1="105" y1="205" x2="385" y2="165" stroke="var(--muted)" stroke-width="1"/>
+        <line x1="130" y1="160" x2="395" y2="120" stroke="var(--muted)" stroke-width="1"/>
+      </g>
+      <g fill="var(--terra)" opacity="0.88">
+        <circle cx="112" cy="270" r="14"/><circle cx="150" cy="235" r="11"/>
+        <circle cx="198" cy="228" r="16"/><circle cx="245" cy="190" r="12"/>
+        <circle cx="287" cy="172" r="17"/><circle cx="335" cy="132" r="13"/>
+        <circle cx="181" cy="178" r="10"/><circle cx="260" cy="120" r="11"/>
+      </g>
+      <g stroke="var(--line)" stroke-width="1.5">
+        <line x1="112" y1="270" x2="287" y2="172"/><line x1="150" y1="235" x2="335" y2="132"/>
+        <line x1="198" y1="228" x2="260" y2="120"/><line x1="181" y1="178" x2="335" y2="132"/>
+        <line x1="112" y1="270" x2="260" y2="120"/><line x1="245" y1="190" x2="335" y2="132"/>
+      </g>
+      <text x="42" y="322" class="diagram-small">26 уровней · 164 подписи · нет «вперёд»</text>
+
+      <polygon points="480,275 760,275 812,230 532,230" fill="rgba(36,59,44,0.08)" stroke="var(--forest)" stroke-width="1.4"/>
+      <polyline points="520,245 572,224 625,245 680,210 735,230 784,202" fill="none" stroke="var(--gold)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      <g fill="var(--paper-2)" stroke="var(--terra)" stroke-width="4">
+        <circle cx="520" cy="245" r="13"/><circle cx="572" cy="224" r="13"/>
+        <circle cx="625" cy="245" r="13"/><circle cx="680" cy="210" r="13"/>
+        <circle cx="735" cy="230" r="13"/><circle cx="784" cy="202" r="13"/>
+      </g>
+      <g class="diagram-small" text-anchor="middle">
+        <text x="520" y="250">1</text><text x="572" y="229">2</text><text x="625" y="250">3</text>
+        <text x="680" y="215">4</text><text x="735" y="235">5</text><text x="784" y="207">6</text>
+      </g>
+      <line x1="505" y1="290" x2="770" y2="290" stroke="var(--forest)" stroke-width="2"/>
+      <polygon points="770,290 758,284 758,296" fill="var(--forest)"/>
+      <text x="620" y="316" class="diagram-small" text-anchor="middle">курс: раньше → сейчас → дальше</text>
+      <text x="474" y="84" class="diagram-small">фиксированная камера · земля · 6 остановок</text>
+      <text x="474" y="104" class="diagram-small">одна трасса · один активный шаг · одна причина</text>
+    </svg>
+    <p class="figcap" id="scene-caption">Не уменьшить граф, а изменить порядок раскрытия:
+    сначала маршрут и ориентиры, затем локальное окружение, только потом вся карта.</p>
+  </div>
+</section>
+
+<!-- 3. ПРОТИВОРЕЧИЯ -->
+<section id="tensions">
+  <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Противоречия</span></div>
+  <h2>Напряжения пространства — и их синтез</h2>
+
+  <div class="card tension">
+    <div class="t">Простота ↔ глубина</div>
+    <p>Свободная 3D-сцена обещает глубину, но заставляет сначала учиться камере.
+    <span class="syn">Синтез: фиксированная изометрия как язык по умолчанию, свободное
+    вращение — режим исследования.</span> Глубина остаётся, но пользователь не теряет верх,
+    низ и направление после первого жеста.</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">Мощь ↔ фокус</div>
+    <p>Граф хранит 164 узла и 367 связей; ежедневное решение требует шести остановок.
+    <span class="syn">Синтез: данные полные, кадр выборочный.</span> Начальная сцена показывает
+    маршрут, связанные уроки и только непосредственные prerequisites; «Вся карта» возвращает
+    исследовательскую мощь по запросу.</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">Стабильность ↔ учебный смысл</div>
+    <p>Лексическая сортировка ID не прыгает между экспортами, но сортирует файлы, а не путь
+    ученика. <span class="syn">Синтез: устойчивый порядок берётся из уже существующих связей
+    <code>precedes</code>, а ID остаётся идентичностью, не координатой.</span></p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">Offline ↔ действие</div>
+    <p>Самодостаточный HTML надёжен как артефакт, но не может честно обещать старт квиза или
+    повторения без работающего приложения. <span class="syn">Синтез: экспорт отвечает за
+    ориентацию и объяснение маршрута; продукт — за выполнение шага.</span> North star экспорта
+    меняется с «начать учиться» на «понять следующий шаг».</p>
+  </div>
+</section>
+
+<!-- 4. БОЛЬ-ЯКОРЬ -->
+<section id="pain">
+  <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Боль-якорь</span></div>
+  <h2>Пользователь видит объём, но не может назвать направление</h2>
+  <div class="card anchor-card">
+    <p><strong>Проверяемый факт из живого экспорта:</strong> при открытии видна узкая башня
+    пересекающихся кругов и подписей, нижняя часть сцены обрезана, большая часть кадра пуста,
+    линии этажей и графа визуально неразличимы. После вращения невозможно ответить, где начало
+    курса, где следующий урок и что означает глубина.</p>
+    <p><strong>Точная причина — не «плохие цвета»:</strong></p>
+    <ul>
+      <li>геометрия смешивает принадлежность уроку и worth в одной вертикальной оси;</li>
+      <li>масштаб не вычисляется из реальных границ 26 этажей;</li>
+      <li>глубина камеры объявлена, но не реализована;</li>
+      <li>каждый новый концепт получает одновременно novelty и frontier, поэтому почти все
+      узлы считаются высокоценными и получают одинаковый визуальный приоритет;</li>
+      <li>рендер не решает коллизии текста и рисует все связи до выбора контекста.</li>
+    </ul>
+    <p class="ev">Бытовой тест: показать экспорт человеку на пять секунд, закрыть его и
+    спросить «где ты был и куда двигался?». Текущий кадр не оставляет воспроизводимой
+    пространственной модели.</p>
+  </div>
+</section>
+
+<!-- 5. ВЕРДИКТЫ -->
+<section id="verdicts">
+  <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Вердикты</span></div>
+  <h2>Решение по каждому элементу плана и реализации</h2>
+
+  <div class="card"><span class="v v-keep">оставить — фундамент</span><strong>A1: цена и причина.</strong>
+  Это настоящий продуктовый провод: система умеет объяснить, почему узел достоин остановки.
+  Причина остаётся текстом и бейджем, но перестаёт управлять координатой.</div>
+
+  <div class="card"><span class="v v-keep">оставить — единый маршрут</span><strong>A2: серверный day_route.</strong>
+  Один алгоритм для 2D и экспорта сохраняется. В сцене worth превращается в порядок
+  <code>1…6</code>, а не в высоту и размер.</div>
+
+  <div class="card"><span class="v v-fix">разделить</span><strong>Worth как один scalar.</strong>
+  Novelty и frontier коррелируют у нового пользователя и двойным счётом поднимают почти весь
+  граф. Для выбора маршрута нужны классы «повторить / продолжить / исследовать» и структурный
+  tie-break; для визуализации — одна главная причина.</div>
+
+  <div class="card"><span class="v v-no">убрать</span><strong>Высота = worth.</strong>
+  Пространственная координата должна отвечать на устойчивый вопрос: порядок курса,
+  принадлежность уроку или prerequisite-глубина. Срочность меняется ежедневно и не должна
+  перестраивать здание.</div>
+
+  <div class="card"><span class="v v-fix">переопределить</span><strong>Этажи.</strong>
+  Порядок — из <code>precedes</code>; файловые варианты одного урока — материалы платформы,
+  а не отдельные этажи. Каждый уровень получает имя и видимую границу.</div>
+
+  <div class="card"><span class="v v-fix">спрятать глубже</span><strong>Полный граф и все рёбра.</strong>
+  Начальный кадр — маршрут. При выборе узла показываются только его непосредственные связи.
+  Вся сеть доступна отдельным режимом и не конкурирует с ежедневным решением.</div>
+
+  <div class="card"><span class="v v-fix">заменить</span><strong>Полёт.</strong>
+  Серия скачков превращается в управляемый тур: предыдущая, следующая, пауза, активная
+  остановка, непрерывный переход 1.2–1.8 секунды и постоянный ориентир направления.</div>
+
+  <div class="card"><span class="v v-no">не добавлять в worth</span><strong>B2: audio/rubric.</strong>
+  «Можно послушать» — формат действия, не причина изучать узел. Качество источника — сигнал
+  доверия, а не автоматическая учебная срочность. Оба остаются бейджами/действиями.</div>
+
+  <div class="card"><span class="v v-no">не продвигать</span><strong>C1: 3D в iframe.</strong>
+  Встраивание увеличит видимость непонятной поверхности. Сначала экспорт должен пройти тест
+  ориентации; только потом решать, нужен ли он внутри продукта.</div>
+
+  <div class="card"><span class="v v-fix">вернуть в работу</span><strong>Статус B1 = done.</strong>
+  Offline-контракт закрыт, UX-контракт отсутствует. Честный статус: <code>technical DoD done ·
+  product DoD failed</code>.</div>
+</section>
+
+<!-- 6. ЦЕННОСТЬ -->
+<section id="value">
+  <div class="sec-label"><span class="sec-num">6</span><span class="sec-name">Ценность</span></div>
+  <h2>Карта, которая объясняет персональный путь через курс</h2>
+  <p>Уникальность не в 3D и не в количестве узлов. HomeTutor уже знает личное состояние:
+  due, novelty, decay, frontier, reach и историю mastery. Значит, он может показать не
+  абстрактную сеть знаний, а <strong>персональный маршрут в устойчивом пространстве курса</strong>:
+  это место курса, вот твоя остановка, вот причина, вот направление дальше.</p>
+
+  <div class="table-scroll">
+  <table>
+    <tr><th>Метрика</th><th>Сейчас</th><th>Доказательство нового решения</th></tr>
+    <tr><td>Время до ответа «куда дальше?»</td><td>не измеряется</td><td>менее 5 секунд без вращения и зума</td></tr>
+    <tr><td>Подписей в первом кадре</td><td>164</td><td>не более 10: маршрут + ориентиры</td></tr>
+    <tr><td>Связей в первом кадре</td><td>367</td><td>трасса маршрута + локальные prerequisites</td></tr>
+    <tr><td>Остановок, помещающихся во viewport</td><td>не гарантировано</td><td>6 из 6 на 1366×768 и 1920×1080</td></tr>
+    <tr><td>Коллизий подписей маршрута</td><td>не проверяются</td><td>0 в визуальном regression-тесте</td></tr>
+    <tr><td>Ориентация после поворота</td><td>теряется</td><td>фиксированный «вперёд», Home и именованные платформы</td></tr>
+    <tr><td>Причина каждой остановки</td><td>есть в боковом списке</td><td>видна рядом с активной точкой и в списке</td></tr>
+  </table>
+  </div>
+</section>
+
+<!-- 7. ПУТЬ -->
+<section id="path">
+  <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Путь</span></div>
+  <h2>Один золотой путь и лестница раскрытия</h2>
+  <p><strong>Золотой путь:</strong> открыл экспорт → увидел «Сегодня: 6 остановок» и весь путь
+  в одном кадре → первая точка уже выделена → прочитал одну причину → нажал «Следующая» →
+  камера мягко перенесла к новой остановке, не потеряв землю и направление → при желании
+  раскрыл контекст узла или всю карту.</p>
+
+  <ol class="ladder">
+    <li><span class="num">1</span><span><strong>Маршрут дня.</strong> Только шесть остановок,
+    их порядок и одна причина на активном шаге.</span></li>
+    <li><span class="num">2</span><span><strong>Локальный контекст.</strong> Связанный урок,
+    непосредственные prerequisites и unlocks выбранной остановки.</span></li>
+    <li><span class="num">3</span><span><strong>Курс.</strong> Именованные уроки/модули в
+    порядке <code>precedes</code>, текущая позиция и пройденная часть.</span></li>
+    <li><span class="num">4</span><span><strong>Вся карта.</strong> Полный граф, фильтры и
+    свободное исследование для пользователя, который сам запросил сложность.</span></li>
+  </ol>
+</section>
+
+<!-- 8. ПЛАН -->
+<section id="plan">
+  <div class="sec-label"><span class="sec-num">8</span><span class="sec-name">План</span></div>
+  <h2>Пересборка B1: P0 — ровно два хода</h2>
+
+  <div class="table-scroll">
+  <table>
+    <tr><th></th><th>Ход</th><th>Что делается</th><th>DoD</th></tr>
+    <tr>
+      <td><span class="tag tag-p0">P0-1</span></td>
+      <td><strong>Маршрутная сцена вместо глобального облака</strong></td>
+      <td>Начальный режим рендерит <code>day_route</code>, связанные lesson-узлы и локальные
+      prerequisites; фиксированная изометрия, земля, направляющая трасса, активный шаг,
+      предыдущая/следующая/пауза. Worth показывается причиной и рангом, не координатой.</td>
+      <td>Пользователь без инструкции за 5 секунд называет текущую и следующую остановку;
+      6/6 точек в кадре, не более 10 подписей, 0 коллизий маршрута.</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-p0">P0-2</span></td>
+      <td><strong>Честная геометрия и визуальный контракт</strong></td>
+      <td>Порядок уроков выводится из <code>precedes</code>; файловые варианты группируются;
+      оси получают один смысл каждая; авто-fit по фактическим bounds; Home/вид сверху;
+      canvas-проверки и скриншоты на 1366×768 и 1920×1080.</td>
+      <td>Все платформы подписаны, верх/низ/вперёд не меняются после навигации, route-stop
+      остаётся видимым; тесты ловят обрезку, пустой canvas и пересечения UI.</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-p1">P1</span></td>
+      <td>Локальное исследование</td>
+      <td>Выбор узла раскрывает его окружение; рёбра фильтруются; подписи появляются у
+      маршрута, выбранного узла и платформ, остальные — по hover. Плавная камера с реальной
+      world-position или честная 2.5D без заявления «полёт в 3D».</td>
+      <td>Выбор перекрывающихся узлов учитывает глубину; тур можно остановить и продолжить;
+      глобальная сеть не возвращается в начальный кадр.</td>
+    </tr>
+    <tr>
+      <td><span class="tag tag-p2">P2</span></td>
+      <td>Дополнительные поверхности</td>
+      <td>«Вся карта», свободное вращение, аудио и rubric как метаданные/действия. C1 iframe
+      рассматривается только после прохождения теста ориентации на экспортной версии.</td>
+      <td>Новая поверхность не меняет payload и не ухудшает маршрутный режим.</td>
+    </tr>
+  </table>
+  </div>
+
+  <p><strong>Kill switch:</strong> если для понимания сцены нужна легенда «как ориентироваться»
+  длиннее одной строки — пространство всё ещё не работает; если в первом кадре снова больше
+  десяти подписей — стоп; если worth снова меняет географию курса — стоп; если решение требует
+  новой схемы payload вместо существующих <code>nodes/edges/day_route</code> — стоп.</p>
+
+  <p><strong>North star:</strong> человек открывает карту и без вращения отвечает тремя
+  короткими фразами: «я здесь», «дальше сюда», «потому что…».</p>
+
+  <p><strong>Поправка к плану №15:</strong> B1 возвращается из <code>done</code> в
+  <code>needs product redesign</code>. Технический DoD «offline HTML / этажи / остановки /
+  полёт / тот же payload» остаётся доказанным; к нему добавляется продуктовый DoD
+  «ориентиры / семантический порядок / читаемый первый кадр / управляемый маршрут».</p>
+</section>
+
+<div class="footer">
+  <p>Разбор №17 · 2026-07-15 · продолжение №15 после аудита живого 3D-экспорта.</p>
+  <p>Слой анализа: <code>doc/presentations/evolutionary_analyses/</code>. План-кандидат:
+  <code>doc/next/knowledge_graph_3d_plan.md</code>. Runtime evidence:
+  <code>app/ui/assets/kg_3d_template.html</code>, <code>app/ui/knowledge_graph_d3.py</code>,
+  <code>app/ui/knowledge_graph_d3_analysis.py</code>, <code>app/course_graph_compiler.py</code>,
+  <code>tests/test_knowledge_graph_counters.py</code>.</p>
+</div>
+
+</div>
+
+</body>
+</html>

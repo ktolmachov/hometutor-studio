@@ -92,6 +92,12 @@ Kill switch для P0: понадобился LLM, новое хранилище
 
 ### B1 «3D-зал» — самодостаточный экспорт с полётом по маршруту
 
+**Статус:** `done` (2026-07-15 polish + audit) — `build_kg_3d_html` +
+`kg_3d_template.html` (canvas offline, no CDN); floors by **sorted** lesson id +
+dynamic floor grid; `_json_for_script` for safe offline export; 2D template uses
+server `DAY_ROUTE` (same `select_day_route`); stop list via DOM text nodes;
+download in `dashboards_graph`; tests `Test3DCoverageAndContracts` (+ script escape).
+
 - **Problem.** 3D в продукте — 0 строк (grep three/THREE/WebGL/3d-force по app/);
   на 2D-узле все визуальные каналы заняты (заливка=level, кольцо=mastery,
   размер=reach+centrality template:300, пульс=frontier, вуаль=decay) — оси для цены нет.

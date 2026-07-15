@@ -2,17 +2,21 @@
 
 Курс «от папки с лекциями до карты знаний»: 6 уроков, каждый — одна большая
 идея и одно новое «могу сам». Произведён эволюционным разбором №16
-([`../../presentations/evolutionary_analyses/16_beginner_course.html`](../../presentations/evolutionary_analyses/16_beginner_course.html))
+(репозиторий `hometutor-studio`, файл
+`doc/presentations/evolutionary_analyses/16_beginner_course.html`)
 по варианту шаблона «разбор-обучение»
-([`evolutionary_analysis_guide.md` §2.1](../../presentations/evolutionary_analysis_guide.md)).
+(`hometutor-studio/doc/presentations/evolutionary_analysis_guide.md` §2.1).
 
 **Планка курса:** каждый экран, кнопка и число в материалах существуют в
 продукте. На момент P1-финала `2026-07-14` курс был сверен с витриной
 сценариев runtime-репозитория `hometutor/docs/quickstart_demo.md` (38
 сценариев; `scenario_36–38` закрывают недостающие кадры курса) и рабочим
-состоянием hometutor на HEAD `6a3dddbae`. Production-кадры для видео хранятся
-в studio-репозитории: `hometutor-studio/doc/screenshots/final/`. При пересборке
-витрины HEAD/stamp нужно обновлять явно, а не считать текущим автоматически.
+состоянием hometutor на HEAD `6a3dddbae`. Production-кадры для видео —
+`hometutor-studio/doc/screenshots/final/`. Runtime-pack для индексации
+(лекции/конспекты/видео) — `hometutor/demo_data/uploads/hometutor_101/`
+или `data/uploads/hometutor_101/` после dogfood-копии; слайд-дек вне индекса —
+`hometutor/docs/courses/hometutor_101/slides/`. При пересборке витрины
+HEAD/stamp обновлять явно через `python scripts/generate_demo_doc.py`.
 
 ## Программа
 
@@ -163,6 +167,7 @@ hometutor_101/
 
 ---
 
-<sub>hometutor 101 · v1.0 · 2026-07-14 · выпущен разбором №16 (первый разбор
-типа «обучение»). Вопросы качества конспектов — см. разбор №14, факт-банк —
-разбор №11 и `docs/quickstart_demo.md`.</sub>
+<sub>hometutor 101 · v1.1 · 2026-07-15 · P0+P1 закрыты (5 экранов 36–38 + 6 silent
+MP4). Трекер серии: `presentations/evolutionary_analyses/README.md` §3.
+Вопросы качества конспектов — разбор №14; факт-банк — №11 и
+`docs/quickstart_demo.md`. P2 «дверь продукта» — только по решению владельца.</sub>

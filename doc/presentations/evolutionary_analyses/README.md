@@ -61,8 +61,8 @@ guide §9) — начиная с №9 все разборы используют
 | 12 | Архитектура и дизайн (первый инженерный: стены без сигнализации) | готово (2026-07-12) | [`12_architecture_design.html`](12_architecture_design.html) | [`../../next/architecture_guards_plan.md`](../../next/architecture_guards_plan.md) | ✅ P0: бюджет no-growth **33/155/1942/361** + waiver `app/prompts/_impl.py`; `tests/test_architecture_guards.py` + явный CI-шаг «Architecture regression guards»; `arch_regression_guards.py` → exit 0 |
 | 13 | Аудио-подкасты: конспекты и части лекций в уши | готово (2026-07-13) | [`13_audio_podcasts.html`](13_audio_podcasts.html) | [`../../next/audio_podcasts_plan.md`](../../next/audio_podcasts_plan.md) | ✅ P0/A2 закрыты после критического аудита: sibling `.m4a` discovery + `st.audio(..., format="audio/mp4")` разделов, слушаемый плейлист, офлайн-извлечение аудио в PS-конвейере, «Выпуск в дорогу» (m4a + TOC). Закреплены фиксы blocker'ов: `extract_audio_to_m4a(str)`, path-safety для absolute path, исключение `end=None` из concat, регрессионные тесты + Windows CI `test-media-pipeline-audio`. |
 | 14 | Качество конспектов (включая Живые): паспорт написан, продукт показывает галочку | готово (2026-07-13) | [`14_konspekt_quality.html`](14_konspekt_quality.html) | [`../../next/konspekt_quality_plan.md`](../../next/konspekt_quality_plan.md) | ✅ P0 A1/A2: `quality_rubric` + парсер таблицы + паспорт на topics/reader; `knowledge_status` + `open_question` в корзине/MC. ✅ P1 B1–B3 (тьютор CTA, novelty, noise-filter) + P2 C1–C3 (grades, smart_konspekt fate, факты↔интерпретации) |
-| 15 | 3D граф знаний: карта, которая не знает цену своих узлов | готово (2026-07-13) | [`15_knowledge_graph_3d.html`](15_knowledge_graph_3d.html) | [`../../next/knowledge_graph_3d_plan.md`](../../next/knowledge_graph_3d_plan.md) | ✅ P0 (HEAD 216, wave-kg-node-worth): поле `due` (due_reviews→{cid:n_due}) + `novel` + честная шапка `total_concepts`/`total_lessons` (89→76); `worth(node)` в `knowledge_graph_d3_analysis.py` (веса due/novel/decay/frontier/reach) + кнопка «Авто: маршрут дня» по ценности; B1 `build_kg_3d_html` (3D-зал) начат. Тесты `test_knowledge_graph_counters.py::TestNodeWorth` + A1-wiring |
-| 16 | Учебный курс по продукту (первый разбор типа «обучение»: продукт учит всему, кроме себя) | готово (2026-07-14) | [`16_beginner_course.html`](16_beginner_course.html) | учебный комплект вместо detail-плана: [`../../courses/hometutor_101/`](../../courses/hometutor_101/) | ✅ P0 выпущен вместе с разбором: курс «hometutor 101» — 6 лекций + 6 конспектов с рубрикой (валидатор `validate_smart_konspekt.py --profile local`: OK ×6) + 6 видео-сценариев на кадрах витрины + слайд-дек (16 слайдов) + dogfood-README. Шаблон серии расширен вариантом «разбор-обучение» (`evolutionary_analysis_guide.md` §2.1, v1.2). ⬜ P1: снять 5 экранных состояний — маршрут дня, паспорт конспекта, статусы раздела, счётчики, «Оформление» — и собрать видео |
+| 15 | 3D граф знаний: карта, которая не знает цену своих узлов | готово (2026-07-13) | [`15_knowledge_graph_3d.html`](15_knowledge_graph_3d.html) | [`../../next/knowledge_graph_3d_plan.md`](../../next/knowledge_graph_3d_plan.md) | ✅ P0 A1/A2 worth+маршрут. ✅ P1 B1 offline 3D-зал + audit fixes: script-safe JSON, floors by sorted lesson id + dynamic grid, 2D/3D share server `day_route`, DOM text for stop list |
+| 16 | Учебный курс по продукту (первый разбор типа «обучение»: продукт учит всему, кроме себя) | готово (2026-07-14) | [`16_beginner_course.html`](16_beginner_course.html) | учебный комплект: [`../../courses/hometutor_101/`](../../courses/hometutor_101/) | ✅ P0: 6 лекций + 6 конспектов (рубрика OK×6) + 6 видео-сценариев + слайд-дек + dogfood-README. ✅ P1: 5 экранов в витрине (`scenario_36` маршрут дня · `37` паспорт/статусы/счётчики · `38` Оформление) + 6 MP4 в `videos/` (silent Ken Burns). ⬜ P2 (решение владельца): дверь «Учиться продукту» / HF |
 
 Приоритизация и обоснование очерёдности (2026-07-11) сохранены отдельно в
 памяти агента (`evolutionary-series-2026-07`).
@@ -137,7 +137,7 @@ guide §9) — начиная с №9 все разборы используют
 | #11 A1 freshness stamp + A2 YAML 31–35 | ✅ | stamp в `generate_demo_doc` / quickstart_demo; PNG в studio+runtime |
 | #12 A1/A2 guards + budget | ✅ | **33/155/1942/361**; pytest + CI step |
 | #14 A1/A2 паспорт рубрики + статус знания | ✅ | парсер, surfaces, `knowledge_status`/`open_question` |
-| #15 A1/A2 worth + маршрут дня | ✅ | due/novel/worth; 3D-зал начат (B1) |
+| #15 A1/A2 + B1 3D-зал | ✅ | due/novel/worth + offline 3D export (floors, day_route flight) |
 
 #### 🟡 Док-гигиена (колонка трекера + conventions)
 
@@ -150,32 +150,35 @@ guide §9) — начиная с №9 все разборы используют
 | compiler/heuristic sidecar paths нормализованы (N4/N5) | ✅ |
 | HTML pain-якоря #5/#6/#8 как исторический снимок | ⚪ допустимо; при rev. — «диагноз устарел» |
 
-#### 🟢 P1/P2 — следующий backlog (по ценности)
+#### 🟢 P1/P2 — backlog
 
-| Приоритет | Ход | Что осталось |
+| Приоритет | Ход | Статус |
 |---|---|---|
-| **P1 (сделано 2026-07-15)** | **#3 B1/B2** | ✅ `app/course_quality_passport.py` — паспорт материала + лестница `min_documents`; M1–M3 audit closed |
-| **P2 (сделано 2026-07-15)** | **#3 C2** | ✅ learner-language publish status + MC badge (`badge_label`) + evidence-ledger fallback; audit P1–P4 closed |
-| P1 | #11 пересъёмка 06/30 | кадры от 2026-07-12; stamp честно показывает gap — переснять после заметных UI-изменений Full Circle |
-| P1 | #16 beginner course | 5 экранных состояний (маршрут дня, паспорт, статусы, счётчики, «Оформление») + сборка видео |
-| P1 | #15 B1 3D-зал | `build_kg_3d_html` + download button есть — polish/DoD при необходимости |
-| **P2 (сделано 2026-07-15)** | **#3 C1** | ✅ `konspekt_source_staleness` + бейдж «🕰 устарел» (hash variants + mtime; без false-positive multi-input) |
-| P2 | #11 daily-use stories / video | второй жанр уже в `daily_use_stories/`; video-нарезка из YAML narration |
+| **P1 (сделано)** | **#3 B1/B2** | ✅ passport + лестница `min_documents` (M1–M3 closed) |
+| **P1 (сделано 2026-07-15)** | **#15 B1** | ✅ offline 3D-зал + audit P1–P3: script-safe export, sorted floors, dynamic grid, shared day_route 2D/3D |
+| **P2 (сделано)** | **#3 C1/C2** | ✅ stale badge + learner-language status (+MC) |
+| **P1 (сделано)** | **#16** beginner course | ✅ 5 экранов (36–38) + 6 MP4; dogfood README |
+| **P1 (контент)** | **#11** пересъёмка 06/30 | ⬜ кадры 2026-07-12; stamp честный — переснять перед внешним показом |
+| **P2 (контент)** | **#11** video / daily-use | ⬜ нарезка из YAML narration (жанр daily-use уже есть) |
+| **P2 (решение владельца)** | **#16** дверь продукта | ⬜ «Учиться продукту» / HF-витрина — только по явному go |
+| **P1 (код, опц.)** | **#15 B2** | ⬜ worth += audio/rubric signals (план) |
 
 #### ⚪ Закрытый P1/P2 (краткий credit)
 
-#1 B1/B2/C1 · #5 A2 · #6 B1 one-pager · #7 A3 coach→`get_today_primary` · #8 transient→circuit · #9 C2 local-first fonts · #13 C1–C3 telegram/segment · #14 B1–B3 + C1–C3.
+#1 B1/B2/C1 · #5 A2 · #6 B1 one-pager · #7 A3 coach→`get_today_primary` · #8 transient→circuit · #9 C2 local-first fonts · #13 C1–C3 telegram/segment · #14 B1–B3 + C1–C3 · #3 A–C · #15 A1/A2/B1.
 
-### Сводка по приоритетам (2026-07-15)
+### Сводка по приоритетам (2026-07-15, после #15 B1)
 
 | Категория | Разборы |
 |---|---|
-| **P0 готово, трекер точен** | #1–#10, #12–#15 |
-| **P0 готово, P1 контент впереди** | #11 (пересъёмка 06/30), #16 (5 экранов + видео) |
-| **Код закрыт 2026-07-15** | #3 B1/B2/C2/C1 (passport, ladder, learner-language, stale badge) |
-| **Следующий кодовый** | #15 B1 polish 3D (если DoD не закрыт) |
-| **Исторические HTML-снимки** | #1–#8 pain-якоря могут врать относительно HEAD — не чинить код «под HTML» |
+| **P0+кодовый P1 готово** | #1–#10, #12–#16 (вкл. 3D-зал + курс 101 P1) |
+| **Код закрыт в волне material+3D** | #3 full; #15 B1 3D |
+| **Контент #16 P1 закрыт** | 5 экранов + 6 silent MP4; dogfood в README курса |
+| **Остался контент** | #11 пересъёмка 06/30 (перед внешним показом) |
+| **Опционально** | #15 B2 worth×audio/rubric; #16 P2 дверь «Учиться продукту» |
+| **Исторические HTML-снимки** | #1–#8 pain-якоря — не чинить код «под HTML» |
 
-**Рекомендуемый порядок дальше:** (1) #16 P1 контент, если нужен учебный комплект;
-(2) #15 B1 polish 3D; (3) #11 пересъёмка 06/30 перед внешним показом витрины;
-(4) #3 C1 konspekt staleness (discovery).
+**Рекомендуемый порядок дальше:** (1) #11 пересъёмка 06/30 перед внешним показом;
+(2) #16 P2 — только по решению владельца (кнопка/HF); (3) #15 B2 — если нужны
+сигналы audio/rubric в цене узла; (4) озвучка silent-видео курса — отдельный
+продакшн, не блокер P1.

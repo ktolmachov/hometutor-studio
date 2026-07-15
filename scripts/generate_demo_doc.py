@@ -521,21 +521,49 @@ def _freshness_footer(scenario_id: str) -> str:
 
 
 def render_document(
-    scenarios: list[ScenarioSpec], screenshots_dir: Path, link_prefix: str, freshness: dict[str, Any] | None = None,
+    scenarios: list[ScenarioSpec],
+    screenshots_dir: Path,
+    link_prefix: str,
+    freshness: dict[str, Any] | None = None,
+    *,
+    docs_tree: str = "doc",
 ) -> str:
+    """Build quickstart_demo markdown.
+
+    ``docs_tree`` is the repo-relative docs root label used in captions:
+    studio uses ``doc/``, runtime hometutor uses ``docs/``.
+    """
     sprefix = link_prefix
+    tree = (docs_tree or "doc").strip().strip("/") or "doc"
     lines: list[str] = []
     lines.append("# Smart Demo — автоматически снятые кадры сценариев\n")
 
     if freshness:
         lines.append(_freshness_badge(freshness))
 
+    if tree == "docs":
+        scenarios_hint = (
+            "YAML-манифесты — source-of-truth в `hometutor-studio/doc/scenarios/*.yaml`; "
+            f"кадры в runtime — `{tree}/{sprefix}/<scenario_id>/`"
+        )
+        rebuild_hint = (
+            f"перед публикацией генератор синхронизирует `final/`; "
+            f"**активные ссылки на картинки** — относительные `{sprefix}/…`. "
+            "Не правь вручную — `python scripts/generate_demo_doc.py` из studio."
+        )
+    else:
+        scenarios_hint = (
+            f"YAML-манифесты `{tree}/scenarios/*.yaml` и скриншоты "
+            f"из `{tree}/{sprefix}/<scenario_id>/` после `npm run test:e2e:demo`"
+        )
+        rebuild_hint = (
+            f"(съём в `{tree}/screenshots/<RUN>/`; перед этим генератор пересобирает "
+            f"`{tree}/screenshots/final/`, **ссылки ведут в `final/`**). "
+            "Не правь вручную — манифесты и `python scripts/generate_demo_doc.py`."
+        )
+
     lines.append(
-        "> Документ собран из YAML-манифестов `doc/scenarios/*.yaml` и скриншотов "
-        f"из `doc/{sprefix}/<scenario_id>/` после `npm run test:e2e:demo` "
-        "(съём в `doc/screenshots/<RUN>/`; перед этим генератор пересобирает "
-        "`doc/screenshots/final/`, **ссылки ведут в `final/`**). "
-        "Не правь вручную — манифесты и `python scripts/generate_demo_doc.py`.\n"
+        f"> Документ собран из {scenarios_hint}. {rebuild_hint}\n"
     )
     lines.append("## О чём этот документ\n")
     lines.append(
@@ -581,9 +609,14 @@ def render_document(
         "`✅ полностью снят`: все slug-и из YAML имеют PNG в `final/`, а прогон "
         "оставил `meta.json`. Перед внешним показом запускай:\n"
     )
+    validate_dir = (
+        "doc/screenshots/final"
+        if tree == "doc"
+        else "docs/screenshots/final  # runtime; studio validate uses doc/screenshots/final"
+    )
     lines.append(
         "```bash\n"
-        "npm run demo:validate -- --screenshots-dir doc/screenshots/final "
+        f"npm run demo:validate -- --screenshots-dir {validate_dir} "
         "--require-screenshots --strict-captures --require-unique-shots\n"
         "```\n"
     )
@@ -632,7 +665,11 @@ def render_document(
     )
 
     for scn in scenarios:
-        lines.extend(_render_scenario(scn, screenshots_dir, sprefix, freshness))
+        lines.extend(
+            _render_scenario(
+                scn, screenshots_dir, sprefix, freshness, docs_tree=tree,
+            )
+        )
 
     lines.append(
         "_Документ сгенерирован `scripts/generate_demo_doc.py`. "
@@ -645,7 +682,10 @@ def render_document(
 def _render_scenario(
     scn: ScenarioSpec, screenshots_dir: Path, screenshots_link_prefix: str,
     freshness: dict[str, Any] | None = None,
+    *,
+    docs_tree: str = "doc",
 ) -> list[str]:
+    tree = (docs_tree or "doc").strip().strip("/") or "doc"
     out: list[str] = []
     anchor_title = f"{scn.id} — {scn.title}"
     out.append(f"\n## {anchor_title}\n")
@@ -669,9 +709,9 @@ def _render_scenario(
     if not scn.captured:
         scn_dir = screenshots_dir / scn.id
         missing_reason = (
-            f"Папка `doc/{screenshots_link_prefix}/{scn.id}/` есть, но PNG-кадров нет."
+            f"Папка `{tree}/{screenshots_link_prefix}/{scn.id}/` есть, но PNG-кадров нет."
             if scn_dir.exists()
-            else f"Папка `doc/{screenshots_link_prefix}/{scn.id}/` отсутствует."
+            else f"Папка `{tree}/{screenshots_link_prefix}/{scn.id}/` отсутствует."
         )
         out.append(
             "> ⚠️ Кадры ещё не снимались. Запусти `npm run test:e2e:demo` "
@@ -688,7 +728,7 @@ def _render_scenario(
             )
             size_kb = gif_path.stat().st_size // 1024
             out.append(
-                f"<sub>файл: `doc/{screenshots_link_prefix}/{scn.id}/demo.gif` · "
+                f"<sub>файл: `{tree}/{screenshots_link_prefix}/{scn.id}/demo.gif` · "
                 f"{size_kb} KB · собран через `python scripts/make_demo_gifs.py`</sub>\n"
             )
 
@@ -711,7 +751,7 @@ def _render_scenario(
                         out.append(f"_{shot.narration}_\n")
                     dur = f" · ⏱ {shot.duration_sec}s" if shot.duration_sec else ""
                     out.append(
-                        f"<sub>файл: `doc/{screenshots_link_prefix}/{scn.id}/{real.file}`"
+                        f"<sub>файл: `{tree}/{screenshots_link_prefix}/{scn.id}/{real.file}`"
                         f"{dur}</sub>\n"
                     )
                 else:
@@ -900,7 +940,10 @@ def main() -> int:
             break
     freshness = _compute_freshness(runtime_repo, first_meta)
 
-    document = render_document(scenarios, content_dir, link_prefix, freshness)
+    # Studio tree uses doc/; runtime hometutor docs-root is docs/.
+    document = render_document(
+        scenarios, content_dir, link_prefix, freshness, docs_tree="doc",
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(document, encoding="utf-8")
 
@@ -908,11 +951,20 @@ def main() -> int:
     done = total - len(missing)
     print(f"[demo-doc] scenarios: {done}/{total} captured")
     print(f"[demo-doc] output: {args.output}")
+    if freshness.get("current_sha") != "unknown":
+        print(
+            f"[demo-doc] freshness: capture={freshness.get('capture_sha')} "
+            f"current={freshness.get('current_sha')} gap={freshness.get('gap')}"
+        )
 
     product_docs = Path(__file__).resolve().parents[1].parent / "hometutor" / "docs"
     if product_docs.is_dir():
-        shutil.copy2(args.output, product_docs / args.output.name)
-        print(f"[demo-doc] synced → {product_docs / args.output.name}")
+        product_doc = render_document(
+            scenarios, content_dir, link_prefix, freshness, docs_tree="docs",
+        )
+        out_path = product_docs / args.output.name
+        out_path.write_text(product_doc, encoding="utf-8")
+        print(f"[demo-doc] synced → {out_path} (docs_tree=docs)")
 
     if missing:
         print("[demo-doc] missing screenshots for: " + ", ".join(missing))
