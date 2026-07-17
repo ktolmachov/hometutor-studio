@@ -68,7 +68,7 @@ workbench» — исключительно embedded.
 standalone-HTML `window.parent === window`, и `postMessage` уйдёт самому себе — если
 страница слушает свой тип, возможно ложное самосрабатывание):
 - в `export` кнопки действий **не рендерятся** либо `disabled`/подсказка-only;
-- обработчик `hometutor:kg-action` **gated `mode === 'embedded'`** — в export не навешан;
+- обработчик `hometutor:kg-action` **gated `host_mode === 'embedded'`** — в export не навешан;
 - тест проверяет **отсутствие side-effect** (состояние не меняется), а не поведение
   `postMessage`.
 Offline-контракт №17 (нет внешних `<script src>`) при этом сохраняется.
@@ -137,15 +137,28 @@ Streamlit не меняются. Никаких сетевых шрифтов/CD
 
 ### Режимы сцены
 
+**⚠️ Миграция имён (reference → production, решено).** Runtime `kg_3d_template.html`
+уже везёт `viewMode: route|local|all` (shipped #17, покрыт тестами). Reference-ярлыки
+**не вводят новый nav-режим** и не переименовывают shipped enum:
+- reference **`route`** = production `route` (тот же);
+- reference **«Созвездие» / `world`** = **презентационный ярлык** над `local` (ближайший
+  контекст) / `all` (полный граф) — production `scene_mode` остаётся `route|local|all`,
+  «Созвездие» это его косметика, а не четвёртое значение;
+- reference **«След памяти» / `memory`** = **overlay `memory_overlay`** (G2), ортогональный
+  `scene_mode` — может быть включён поверх `route`, а не отдельная навигация.
+
+Ниже режимы описаны в reference-терминах для дизайна; production-контракт — три строки
+выше.
+
 1. **`route` — первый кадр и основной продуктовый путь.** Видны `route.length`
    остановок, вход/сегодня/дальше, active + next и минимум фонового контекста. Этот
    режим открывается всегда; последний выбранный режим не персистим, чтобы не потерять
    ориентацию.
-2. **`world` — созвездие.** Добавляет только ближайший контекст и рёбра к нему;
-   route остаётся поверх и не теряет ранги. Фоновые узлы кодируются цветом/размером,
-   но не получают постоянных подписей.
-3. **`memory` — след снимка.** Показывает current route и смещённую траекторию
-   предыдущего snapshot. В export рядом с режимом видна дата снимка; слова
+2. **«Созвездие» (= `local`/`all`) — контекст.** Добавляет ближайший контекст и рёбра к
+   нему (`local`) вплоть до полного графа (`all`); route остаётся поверх и не теряет ранги.
+   Фоновые узлы кодируются цветом/размером, но не получают постоянных подписей.
+3. **«След памяти» (= `memory_overlay`) — снимок.** Поверх текущего `scene_mode` рисует
+   смещённую траекторию предыдущего snapshot. В export рядом виден `snapshot_date`; слова
    «сегодня/вчера» запрещены. В embedded допустимы live-метки при наличии реальной даты.
 
 ### UI state-machine и взаимодействия
@@ -153,12 +166,18 @@ Streamlit не меняются. Никаких сетевых шрифтов/CD
 Минимальное состояние компонента:
 
 ```text
-mode: route | world | memory
+host_mode:    export | embedded          # канал/gating, НЕ навигация (см. G0)
+scene_mode:   route | local | all        # канонический enum рантайма (shipped #17)
+memory_overlay: on | off                 # G2-след снимка, поверх любого scene_mode
 selected_concept_id: string
 done_concept_ids: Set<string>       # только quiz-сигнал G2
-collected_concept_ids: Set<string>  # embedded view-model G3
+collected_concept_ids: Set<string>  # embedded view-model G3 (только host_mode=embedded)
 pending_action_id: string | null
 ```
+
+`host_mode` и `scene_mode` — **независимые оси**: первое определяет доставку/gating
+действий (export inert, embedded с мостом), второе — навигацию по сцене. Смешивать
+(как было `mode==='embedded'` ↔ `mode: route|world|memory`) нельзя.
 
 - Клик по узлу или строке маршрута меняет только `selected_concept_id` и камеру.
 - `←/→` и клавиши стрелок проходят по `day_route`; границы не зацикливаются.
@@ -188,8 +207,10 @@ pending_action_id: string | null
   показывают соответствующий режим и остаются интерактивными.
 - В route-кадре путь считывается за 5 секунд: вход → active → next; active/next не
   зависят только от цвета и называются без вращения.
-- `Начать` меняет состояние прототипа, `В конспект` меняет маркер и счётчик; в
-  production эти состояния подтверждаются Python ack.
+- `Начать` показывает **pending → демо-ack** и НЕ трогает mastery/`done` (это только
+  намерение навигации; в production `done`/mastery приходят из реального quiz-события,
+  не из клика). `В конспект` меняет маркер и счётчик как optimistic-состояние; в
+  production оба подтверждаются Python ack.
 - 1366×768, 1920×1080, 1024×768 и 390×844: нет overlap, горизонтального overflow,
   обрезанных кнопок/заголовков; canvas не пустой.
 - Contrast текста/команд ≥ WCAG AA; native focus-ring не отключается; canvas имеет
@@ -228,29 +249,37 @@ Python, «дверь» не открывается. Поэтому P0 = **сна
   **навигацию/фокус внутри сцены** (`focus`, локальный контекст). Действие наружу
   посылают **только кнопки** «▶ Начать» / «➕ В конспект» в карточке остановки — не сам
   клик по остановке. Смешивать нельзя (ложные срабатывания).
+- **Проблема канала (решить ДО реализации, один выбор — не «на выбор»).** Component
+  value (`setComponentValue`) под `@st.fragment` partial-rerun **может проглатываться** —
+  именно поэтому 2D держит query-param `_kgc` как форс-rerun. Но `_kgc` несёт только
+  `concept` (`syncConceptSelection`), для действия этого мало. Значит «полагаться только
+  на component value» и «тест текущего поведения» — **не механизм доставки**, а
+  `sessionStorage` сам по себе Python ничего не отдаёт. **Решение зафиксировано:
+  единственный канал истины — query-param `_kg3d`**, по образцу проверенного `_kgc`, но
+  action-safe. `setComponentValue` допустим лишь как optimistic-подсказка UI, источником
+  истины НЕ является.
 - **Proposed.**
-  1. Мост несёт версионированный envelope
-     `{version:1, source:'kg3d', event_id, concept_id, action}`. **Основной канал —
-     `setComponentValue(envelope)`** (возвращает весь объект в Python). ⚠️ **`_kgc`
-     из 2D переиспользовать как fallback нельзя как есть:** он несёт только concept id
-     (`syncConceptSelection`), а нужен именно потому, что component value иногда
-     «проглатывается» fragment-rerun'ом — то есть в худшем случае rerun произойдёт, а
-     `action` потеряется. Решение (выбрать одно): **(а)** 3D полагается только на
-     component value, а тест доказывает, что fragment-rerun не теряет envelope
-     (рекомендуется); **(б)** action-safe fallback — отдельный параметр `_kg3d`
-     (или session storage), несущий `event_id + concept_id + action`, не трогая 2D-шный
-     `_kgc`. `event_id` генерируется один раз на нажатие и делает любую повторную
-     доставку идемпотентной (Python дедуплицирует).
-  2. В 3D-шаблоне (только в `embedded`-режиме) **кнопки** карточки остановки шлют
-     `postMessage({type:'hometutor:kg-action', version:1, event_id, concept_id, action})`.
-     `action ∈
-     {'start','collect'}`. **Ничего не пишем в домен** — только доставляем намерение.
-  3. Python валидирует `version/source/action`, игнорирует уже обработанный `event_id`,
-     кладёт новый результат в `st.session_state["kg_3d_action"]` (UI-state, не per-user
-     persistence) и показывает toast «принято: <action> · <concept>».
+  1. Envelope: `{version:1, source:'kg3d', event_id, concept_id, action}`,
+     `action ∈ {'start','collect'}`. `event_id` — уникальный на нажатие (uuid/ULID,
+     фикс. длина), даёт идемпотентность.
+  2. В 3D-шаблоне (только `host_mode==='embedded'`) **кнопки** карточки остановки шлют
+     обёртке `postMessage({type:'hometutor:kg-action', version:1, source:'kg3d',
+     event_id, concept_id, action})` — **с `source`** (без него собственная валидация
+     ниже отклонит событие). Обёртка компонента кодирует envelope в **`_kg3d`**
+     query-param и форсит full-rerun (переживает fragment-rerun, читается детерминированно
+     через `st.query_params`). Клик по узлу/остановке действие НЕ шлёт (только
+     `selected_concept_id`).
+  3. Python-контракт `_kg3d` (security + idempotency, всё обязательно):
+     - валидировать `version===1`, `source==='kg3d'`, `action ∈ {'start','collect'}`,
+       **`concept_id ∈ node_ids`**, формат/длину `event_id`;
+     - дедуп по **ограниченному** набору уже обработанных `event_id` (bounded set);
+     - **после обработки удалить `_kg3d` из URL** (`st.query_params`), иначе старый URL
+       после новой сессии повторит `collect`;
+     - результат в `st.session_state["kg_3d_action"]` (UI-state, не per-user persistence),
+       toast «принято: <action> · <concept>».
 - **Files.** новый `app/ui/assets/kg_3d_component/index.html` (вариант а) либо
   `kg_d3_component/index.html` (вариант б), `app/ui/assets/kg_3d_template.html`
-  (кнопки + `postMessage` подключены только при `mode==='embedded'`),
+  (кнопки + `postMessage` подключены только при `host_mode==='embedded'`),
   `app/ui/knowledge_graph_d3.py` (`build_kg_3d_html` — embedded-флаг + чтение возврата),
   `app/ui/dashboards_graph.py` (встроить зал рядом с 2D);
   тесты: клик по **кнопке** в embedded-зале меняет `kg_3d_action`; в `export`-режиме

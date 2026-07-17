@@ -834,18 +834,20 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
 
   ui.start.addEventListener('click', () => {
     const node = route[selected];
-    if (node.done) return;
-    node.done = true;
-    node.mastery = Math.min(100, node.mastery + 8);
-    node.memory = 'Сегодня: след записан';
-    ui.status.textContent = 'Мир обновлён по результату сессии';
-    showToast(`След записан · ${node.name}`);
-    updateUI();
+    if (node.done || ui.start.dataset.pending === '1') return;
+    // Демо моста действий: «Начать» = только намерение навигации в продукт.
+    // Production фиксирует done/mastery из реального quiz-события, НЕ из этого клика,
+    // поэтому макет НЕ трогает mastery и не «рисует успех» — показывает pending → ack.
+    ui.start.dataset.pending = '1';
+    ui.start.disabled = true;
+    ui.start.textContent = 'Отправлено…';
+    ui.status.textContent = 'Намерение отправлено в продукт (демо ack)';
+    showToast(`Открыт режим · ${node.name}`);
     window.clearTimeout(actionTimer);
     actionTimer = window.setTimeout(() => {
-      const nextOpen = route.findIndex((item, index) => index > selected && !item.done);
-      if (nextOpen >= 0) selectStop(nextOpen);
-    }, 650);
+      ui.start.dataset.pending = '';
+      updateUI();
+    }, 900);
   });
 
   ui.collect.addEventListener('click', () => {
