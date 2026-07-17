@@ -505,7 +505,7 @@ UI-волнах, живой прогон running-артефакта. Если с
 | **W4c** District doors MVP (4) | local/all door chips + routing table | P2 | ✅ WT 2026-07-18 | `door_*` actions; not in route frame |
 | **W4d** Return after flashcards / collect | SR/◆ channels | P2 | ✅ WT 2026-07-18 | FC review CTA; collect ◆ toast in-hall |
 | **W4d** Return after flashcards / collect | SR/◆ channels | P2 | W2a/W2b as needed |
-| **W5a** Keeper C1 tutor handoff | interior «Спросить» → tutor chat | P2 | — |
+| **W5a** Keeper C1 tutor handoff | interior «Спросить» → tutor chat | P2 | ✅ WT 2026-07-18 | action `ask` + build_tutor_prompt_for_concept |
 | **W5b** design spike scene-DSL | schema/validator only | P2 | owner go; may stop |
 | **W5c** Keeper C2 inline ask | only if C1 demand proven | P3 | W5a |
 | **W6a** Призрак | antagonist #2 | P3 | W2a proven |
