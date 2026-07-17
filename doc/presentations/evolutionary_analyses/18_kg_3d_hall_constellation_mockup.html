@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>3D-зал · Созвездие</title>
 <style>
-  /* ============================================================
+/* ============================================================
      HOMETUTOR NOTEBOOK STYLE v1.0 — LOCKED 2026-07-12
      Извлечено из разборов №9-10 эволюционной серии. Это визитная
      карточка формата «нескучный разбор». НЕ переизобретать палитру
@@ -221,7 +221,8 @@
     content:""; position:absolute; z-index:8; left:0; right:0; top:0; height:3px;
     background:linear-gradient(90deg,var(--kgx-cyan),var(--kgx-lime) 24%,var(--kgx-gold) 49%,var(--kgx-coral) 73%,var(--kgx-violet));
   }
-  .kgx-shell[data-scene-mode="world"] { --kgx-accent:var(--kgx-coral); }
+  .kgx-shell[data-scene-mode="local"],
+  .kgx-shell[data-scene-mode="all"] { --kgx-accent:var(--kgx-coral); }
   .kgx-shell[data-memory="on"] { --kgx-accent:var(--kgx-gold); }
   .kgx-shell button { font: inherit; }
   .kgx-topbar {
@@ -278,9 +279,16 @@
   .kgx-stage canvas:active { cursor:grabbing; }
   .kgx-stage-status {
     position:absolute; left:1rem; top:1rem; display:flex; align-items:center; gap:0.55rem;
-    color:var(--kgx-muted); font-size:0.72rem; pointer-events:none;
+    color:var(--kgx-muted); font-size:0.72rem;
   }
   .kgx-live-dot { width:7px; height:7px; border-radius:50%; background:var(--kgx-accent); box-shadow:0 0 16px var(--kgx-accent); }
+  .kgx-depth-btn {
+    min-height:28px; padding:0 0.65rem; margin-left:0.2rem; border:1px solid rgba(255,107,138,0.42);
+    border-radius:4px; color:var(--kgx-coral); background:rgba(255,107,138,0.08); cursor:pointer;
+    font-size:0.68rem; font-weight:700;
+  }
+  .kgx-depth-btn:hover { border-color:var(--kgx-coral); background:rgba(255,107,138,0.15); }
+  .kgx-depth-btn[hidden] { display:none; }
   .kgx-compass {
     position:absolute; left:1rem; bottom:1rem; width:88px; height:88px; border-radius:50%;
     border:1px solid var(--kgx-line); color:var(--kgx-muted); pointer-events:none;
@@ -379,12 +387,13 @@
 
   a { color: var(--terra); }
 
-html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-height:1.4}.kgx-intro{width:100%;margin:0;transform:none}.kgx-intro>h2,.kgx-intro>.figcap{display:none}.kgx-shell{width:100%;min-height:100vh;border:0;border-radius:0}.kgx-body{min-height:calc(100vh - 64px)}.kgx-stage{min-height:calc(100vh - 64px)}@media(max-width:860px){.kgx-shell{min-height:0}}</style>
+html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-height:1.4}.kgx-intro{width:100%;margin:0;transform:none}.kgx-intro>h2,.kgx-intro>.figcap{display:none}.kgx-shell{width:100%;min-height:100vh;border:0;border-radius:0}.kgx-body{min-height:calc(100vh - 64px)}.kgx-stage{min-height:calc(100vh - 64px)}@media(max-width:860px){.kgx-shell{min-height:0}}
+</style>
 </head>
 <body>
 <section class="kgx-intro" id="hall-prototype" aria-labelledby="hall-prototype-title">
   <h2 id="hall-prototype-title">Зал памяти: рабочий прототип сильного хода</h2>
-  <div class="kgx-shell" id="kgx-demo" data-initial-mode="world" data-scene-mode="world" data-memory="off">
+  <div class="kgx-shell" id="kgx-demo" data-initial-mode="local" data-scene-mode="local" data-memory="off" data-demo-ack="success">
     <div class="kgx-topbar">
       <div class="kgx-brand">
         <span class="kgx-brand-mark" aria-hidden="true"></span>
@@ -392,7 +401,7 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
       </div>
       <div class="kgx-modes" aria-label="Режим сцены и оверлей памяти">
         <button class="kgx-mode" type="button" data-mode="route" aria-pressed="false">Маршрут</button>
-        <button class="kgx-mode" type="button" data-mode="world" aria-pressed="true" title="Созвездие = production local; полный граф — отдельное действие">Созвездие</button>
+        <button class="kgx-mode" type="button" data-mode="local" aria-pressed="true" title="Ближайший контекст выбранной остановки">Созвездие</button>
         <button class="kgx-mode" type="button" data-overlay="memory" aria-pressed="false" title="Оверлей следа снимка поверх текущего режима, не отдельный режим">След памяти</button>
       </div>
       <div class="kgx-progress">
@@ -403,7 +412,7 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
     <div class="kgx-body">
       <div class="kgx-stage">
         <canvas aria-label="Интерактивный маршрут из шести концептов в пространственном зале знаний"></canvas>
-        <div class="kgx-stage-status"><span class="kgx-live-dot"></span><span data-stage-status>Сцена синхронизирована</span></div>
+        <div class="kgx-stage-status"><span class="kgx-live-dot"></span><span data-stage-status role="status" aria-live="polite">Сцена синхронизирована</span><button class="kgx-depth-btn" type="button" data-depth hidden>Вся карта</button></div>
         <div class="kgx-compass" aria-hidden="true"><span class="n">КУРС</span><span class="e">→</span><span class="s">ВХОД</span><span class="w">·</span><i></i></div>
         <div class="kgx-route-actions" aria-label="Навигация по остановкам">
           <button class="kgx-icon-btn" type="button" data-prev aria-label="Предыдущая остановка">←</button>
@@ -432,6 +441,7 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
     <div class="kgx-toast" role="status" aria-live="polite"></div>
   </div>
   <p class="figcap">Не «граф в космосе», а зал с направлением, памятью и последствиями: выберите остановку, начните изучение или заберите концепт в Живой конспект — сцена изменится сразу.</p>
+  <p class="figcap">Отдельные полноэкранные макеты: <a href="18_kg_3d_hall_route_mockup.html">Маршрут</a> · <a href="18_kg_3d_hall_constellation_mockup.html">Созвездие</a> · <a href="18_kg_3d_hall_memory_mockup.html">След памяти</a>.</p>
 </section>
 <script>
 (() => {
@@ -469,6 +479,7 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
     start: root.querySelector('[data-start]'),
     collect: root.querySelector('[data-collect]'),
     status: root.querySelector('[data-stage-status]'),
+    depth: root.querySelector('[data-depth]'),
     toast: root.querySelector('.kgx-toast')
   };
 
@@ -476,8 +487,9 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
   // Оси независимы (план G0/G2): «След памяти» — overlay поверх сцены, не третий
   // взаимоисключающий режим; production scene_mode = route|local|all.
   const initialMode = root.dataset.initialMode;
-  let sceneMode = initialMode === 'world' ? 'world' : 'route';
-  let memoryOverlay = initialMode === 'memory';
+  const allowedSceneModes = new Set(['route', 'local', 'all']);
+  let sceneMode = allowedSceneModes.has(initialMode) ? initialMode : 'route';
+  let memoryOverlay = root.dataset.memory === 'on';
   let width = 0;
   let height = 0;
   let dpr = 1;
@@ -485,10 +497,9 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
   let pointerY = 0;
   let hitNodes = [];
   let toastTimer = 0;
-  let actionTimer = 0;
-  let collectTimer = 0;
-  let pendingStartIndex = null;
-  let pendingCollectIndex = null;
+  let actionAckTimer = 0;
+  let actionTimeoutTimer = 0;
+  let pendingAction = null;
 
   function fitCanvas() {
     const rect = canvas.getBoundingClientRect();
@@ -537,7 +548,7 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
     ctx.fillRect(0, 0, width, height);
 
     const wash = ctx.createLinearGradient(0, 0, 0, height);
-    wash.addColorStop(0, memoryOverlay ? 'rgba(255,200,87,0.12)' : sceneMode === 'world' ? 'rgba(255,107,138,0.11)' : 'rgba(66,232,224,0.10)');
+    wash.addColorStop(0, memoryOverlay ? 'rgba(255,200,87,0.12)' : sceneMode !== 'route' ? 'rgba(255,107,138,0.11)' : 'rgba(66,232,224,0.10)');
     wash.addColorStop(0.48, 'rgba(8,8,18,0)');
     wash.addColorStop(1, 'rgba(54,30,92,0.30)');
     ctx.fillStyle = wash;
@@ -628,9 +639,10 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
   }
 
   function drawWorld() {
-    if (sceneMode !== 'world') return;
+    if (sceneMode === 'route') return;
     const palette = ['#42e8e0','#ff6b8a','#4ca4ff','#b9f75b','#ffc857','#9a6cff'];
-    worldNodes.forEach((node, index) => {
+    const visibleNodes = sceneMode === 'all' ? worldNodes : worldNodes.slice(0, 6);
+    visibleNodes.forEach((node, index) => {
       const p = project(node);
       const radius = node.r * p.scale;
       const color = palette[index % palette.length];
@@ -807,6 +819,9 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
 
   function updateUI() {
     const node = route[selected];
+    const hasPendingAction = pendingAction !== null;
+    const startPendingHere = pendingAction?.action === 'start' && pendingAction.index === selected;
+    const collectPendingHere = pendingAction?.action === 'collect' && pendingAction.index === selected;
     ui.eyebrow.textContent = `Остановка ${selected + 1} · ${node.short}`;
     ui.name.textContent = node.name;
     ui.reason.textContent = node.reason;
@@ -814,12 +829,14 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
     ui.mastery.textContent = `${node.mastery}%`;
     ui.mastery.setAttribute('aria-label', `Освоено на ${node.mastery} процентов`);
     ui.worth.textContent = `W ${node.worth.toFixed(1)}`;
-    ui.start.textContent = pendingStartIndex === selected ? 'Отправлено…'
+    ui.start.textContent = startPendingHere ? 'Отправлено…'
       : node.done ? 'Изучено сегодня' : 'Начать · 12 мин';
-    ui.start.disabled = node.done || pendingStartIndex !== null;
-    ui.collect.textContent = pendingCollectIndex === selected ? 'Отправляем…'
+    ui.start.disabled = node.done || hasPendingAction;
+    ui.collect.textContent = collectPendingHere ? 'Отправляем…'
       : node.collected ? 'В конспекте' : 'В конспект';
-    ui.collect.disabled = pendingCollectIndex !== null;
+    ui.collect.disabled = node.collected || hasPendingAction;
+    ui.start.setAttribute('aria-busy', String(startPendingHere));
+    ui.collect.setAttribute('aria-busy', String(collectPendingHere));
     ui.collect.classList.toggle('is-on', node.collected);
     const doneCount = route.filter(item => item.done).length;
     const collectedCount = route.filter(item => item.collected).length;
@@ -832,7 +849,8 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
 
   function selectStop(index) {
     selected = Math.max(0, Math.min(route.length - 1, index));
-    ui.status.textContent = `В фокусе: ${route[selected].name}`;
+    if (pendingAction) setPendingStatus();
+    else ui.status.textContent = `В фокусе: ${route[selected].name}`;
     updateUI();
   }
 
@@ -843,52 +861,83 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
     toastTimer = window.setTimeout(() => ui.toast.classList.remove('is-visible'), 1800);
   }
 
-  ui.start.addEventListener('click', () => {
-    const node = route[selected];
-    if (node.done || pendingStartIndex !== null) return;
-    // Демо action-моста: «Начать» = намерение навигации, pending → ack.
-    // done/mastery в production приходят из реального quiz-события, не из клика,
-    // поэтому сцена ничего не мутирует и не рисует успех до ack.
-    pendingStartIndex = selected;
-    ui.status.textContent = 'Намерение отправлено — ждём ack продукта';
-    updateUI();
-    window.clearTimeout(actionTimer);
-    actionTimer = window.setTimeout(() => {
-      const acked = route[pendingStartIndex];
-      pendingStartIndex = null;
-      ui.status.textContent = 'Ack получен: продукт открыл режим изучения';
-      showToast(`Ack: режим открыт · ${acked.name}`);
-      updateUI();
-    }, 900);
-  });
+  function setPendingStatus() {
+    if (!pendingAction) return;
+    const pendingNode = route[pendingAction.index];
+    const actionName = pendingAction.action === 'start' ? 'Открываем режим' : 'Добавляем в конспект';
+    ui.status.textContent = `${actionName}: ${pendingNode.name} · ждём ack`;
+  }
 
-  ui.collect.addEventListener('click', () => {
-    if (pendingCollectIndex !== null) return;
-    // Демо записи: optimistic pending; состояние меняется только на demo-ack —
-    // в production источник истины для ◆/счётчика — component args после Python ack.
-    pendingCollectIndex = selected;
-    ui.status.textContent = 'Отправляем в Живой конспект — ждём ack';
+  function clearActionTimers() {
+    window.clearTimeout(actionAckTimer);
+    window.clearTimeout(actionTimeoutTimer);
+  }
+
+  function acknowledgePendingAction() {
+    if (!pendingAction) return;
+    const { action, index } = pendingAction;
+    const acked = route[index];
+    clearActionTimers();
+    if (action === 'collect') acked.collected = true;
+    pendingAction = null;
+    ui.status.textContent = action === 'start'
+      ? `Ack: режим изучения открыт · ${acked.name}`
+      : `Ack: добавлено в Живой конспект · ${acked.name}`;
+    showToast(ui.status.textContent);
     updateUI();
-    window.clearTimeout(collectTimer);
-    collectTimer = window.setTimeout(() => {
-      const acked = route[pendingCollectIndex];
-      acked.collected = !acked.collected;
-      pendingCollectIndex = null;
-      showToast(acked.collected ? `Ack: добавлено в Живой конспект · ${acked.name}` : `Ack: убрано из конспекта · ${acked.name}`);
-      updateUI();
-    }, 700);
-  });
+  }
+
+  function failPendingAction() {
+    if (!pendingAction) return;
+    const failed = route[pendingAction.index];
+    clearActionTimers();
+    pendingAction = null;
+    ui.status.textContent = `Нет ответа: ${failed.name} · повторите действие`;
+    showToast(`Ошибка доставки · ${failed.name}`);
+    updateUI();
+  }
+
+  function beginAction(action) {
+    const node = route[selected];
+    if (pendingAction || (action === 'start' && node.done) || (action === 'collect' && node.collected)) return;
+    // Демо воспроизводит транспортный цикл pending → ack. Доменный прогресс
+    // не меняется от start, а collect становится видимым только после ack.
+    pendingAction = { action, index: selected };
+    setPendingStatus();
+    updateUI();
+    clearActionTimers();
+    if (root.dataset.demoAck !== 'timeout') {
+      actionAckTimer = window.setTimeout(acknowledgePendingAction, action === 'start' ? 900 : 700);
+    }
+    actionTimeoutTimer = window.setTimeout(failPendingAction, 3000);
+  }
+
+  ui.start.addEventListener('click', () => beginAction('start'));
+  ui.collect.addEventListener('click', () => beginAction('collect'));
 
   root.querySelector('[data-prev]').addEventListener('click', () => selectStop(selected - 1));
   root.querySelector('[data-next]').addEventListener('click', () => selectStop(selected + 1));
   function syncSceneControls() {
     root.dataset.sceneMode = sceneMode;
     root.dataset.memory = memoryOverlay ? 'on' : 'off';
-    root.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === sceneMode)));
+    root.querySelectorAll('[data-mode]').forEach(button => {
+      const pressed = button.dataset.mode === 'local'
+        ? sceneMode === 'local' || sceneMode === 'all'
+        : button.dataset.mode === sceneMode;
+      button.setAttribute('aria-pressed', String(pressed));
+    });
     const overlayBtn = root.querySelector('[data-overlay]');
     if (overlayBtn) overlayBtn.setAttribute('aria-pressed', String(memoryOverlay));
-    const base = sceneMode === 'route' ? 'Маршрут дня' : 'Открыто созвездие курса';
-    ui.status.textContent = memoryOverlay ? `${base} · след снимка поверх` : base;
+    ui.depth.hidden = sceneMode === 'route';
+    ui.depth.textContent = sceneMode === 'all' ? 'Ближний контекст' : 'Вся карта';
+    ui.depth.setAttribute('aria-pressed', String(sceneMode === 'all'));
+    const sceneLabels = {
+      route: 'Маршрут дня',
+      local: 'Ближний контекст остановки',
+      all: 'Вся карта курса'
+    };
+    const base = sceneLabels[sceneMode];
+    if (!pendingAction) ui.status.textContent = memoryOverlay ? `${base} · след снимка поверх` : base;
   }
   root.querySelectorAll('[data-mode]').forEach(button => {
     button.addEventListener('click', () => {
@@ -899,6 +948,11 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
   });
   root.querySelector('[data-overlay]').addEventListener('click', () => {
     memoryOverlay = !memoryOverlay;
+    syncSceneControls();
+    draw(performance.now());
+  });
+  ui.depth.addEventListener('click', () => {
+    sceneMode = sceneMode === 'all' ? 'local' : 'all';
     syncSceneControls();
     draw(performance.now());
   });
