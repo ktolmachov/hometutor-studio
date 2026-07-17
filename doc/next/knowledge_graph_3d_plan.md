@@ -8,6 +8,14 @@ hometutor HEAD `9817633e1` «208».
 Перед промоутом сверять Evidence с актуальным HEAD (детальные планы — каталог кандидатов,
 не SSoT).
 
+**Update 2026-07-16/17:** кодовые пункты A1/A2/B1 закрыты в runtime. B1 после живого
+UX-аудита был пересобран из «3D-зала полного графа» в **offline route hall**:
+первый кадр = маршрут дня `1 → N` (стандартный A2 route = 6 остановок), тот же
+payload/`DAY_ROUTE`, без CDN, route/local/all режимы, hover reasons, click-to-local,
+управляемый тур, Home/reset/resize к чистому маршруту. Детальный отчёт:
+`doc/next/knowledge_graph_3d_done_report_2026-07-16.md`. Поправка и продуктовый
+DoD — в `doc/next/knowledge_graph_3d_reorientation_plan.md`.
+
 **Рамка:** P0 = «узел получает цену из уже собранных данных, маршрут — достойные остановки».
 Kill switch для P0: понадобился LLM, новое хранилище или изменение схемы бандла графа — стоп.
 Отдельный kill switch порядка: 3D начали раньше, чем узлы получили цену, — стоп
@@ -92,11 +100,13 @@ Kill switch для P0: понадобился LLM, новое хранилище
 
 ### B1 «3D-зал» — самодостаточный экспорт с полётом по маршруту
 
-**Статус:** `done` (2026-07-15 polish + audit) — `build_kg_3d_html` +
-`kg_3d_template.html` (canvas offline, no CDN); floors by **sorted** lesson id +
-dynamic floor grid; `_json_for_script` for safe offline export; 2D template uses
-server `DAY_ROUTE` (same `select_day_route`); stop list via DOM text nodes;
-download in `dashboards_graph`; tests `Test3DCoverageAndContracts` (+ script escape).
+**Статус:** `done` (2026-07-17 route-first product polish) — `build_kg_3d_html` +
+`kg_3d_template.html` (canvas offline, no CDN); `_json_for_script` for safe offline
+export; 2D/3D use server `DAY_ROUTE` (same `select_day_route`); route/local/all modes;
+route-scene geometry, quiet lesson anchors, smart labels + active reason callout,
+hover reasons, click-to-local context, controlled tour, Home/reset/resize to clean
+route fit; download in `dashboards_graph`; tests `Test3DCoverageAndContracts`
+(+ script escape + opt-in Playwright smoke).
 
 - **Problem.** 3D в продукте — 0 строк (grep three/THREE/WebGL/3d-force по app/);
   на 2D-узле все визуальные каналы заняты (заливка=level, кольцо=mastery,

@@ -1,0 +1,535 @@
+<title>Разбор №18 — Игра уже написана: не хватает двери и вчерашнего дня</title>
+<style>
+  /* ============================================================
+     HOMETUTOR NOTEBOOK STYLE v1.0 — LOCKED 2026-07-12
+     Извлечено из разборов №9-10 эволюционной серии. Это визитная
+     карточка формата «нескучный разбор». НЕ переизобретать палитру
+     заново в новой сессии — копировать этот файл и менять только
+     содержимое между <div class="wrap"> ... </div>.
+     Гайд: notebook_deck_guide.md (в этой же папке).
+     ============================================================ */
+  :root {
+    /* --- ЛОКОНО (locked core, 9 токенов) --- не менять значения --- */
+    --paper: #f7f3ea;
+    --paper-2: #fffdf7;
+    --ink: #17211b;
+    --muted: #5c6a61;
+    --terra: #b95631;
+    --terra-deep: #7d351f;
+    --forest: #243b2c;
+    --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14);
+    --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+    --done: #1e6e46;
+    --silent: #b98a2d;
+    --hole: #8c2f39;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141a16;
+      --paper-2: #1b231e;
+      --ink: #ece5d4;
+      --muted: #9aa89d;
+      --terra: #d97a52;
+      --terra-deep: #e8a583;
+      --forest: #9dbfa8;
+      --gold: #d9a55e;
+      --line: rgba(236, 229, 212, 0.16);
+      --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(157, 191, 168, 0.10);
+      --verdict-keep: #6fc493;
+      --verdict-fix: #e0a35c;
+      --verdict-no: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+      --done: #6fc493;
+      --silent: #d9b45e;
+      --hole: #e08691;
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+    --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+    --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+    --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+    --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+      radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--terra-deep); }
+  em { color: var(--muted); }
+
+  code {
+    font-family: Consolas, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--terra);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 0.95rem; color: var(--gold);
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .sec-name {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem;
+    font-weight: 700; color: var(--muted);
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.1rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+  }
+  .anchor-card { border-left: 4px solid var(--terra); }
+  .ev { font-size: 0.86rem; color: var(--muted); margin-top: 0.5rem; }
+  .ev code { font-size: 0.8rem; }
+
+  .figure { margin: 1.4rem 0 0.4rem; }
+  .figure svg { width: 100%; height: auto; display: block; }
+  .figcap { font-size: 0.84rem; color: var(--muted); margin-top: 0.5rem; max-width: 70ch; }
+
+  .table-scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  td:first-child { white-space: nowrap; }
+  td { font-variant-numeric: tabular-nums; }
+
+  .st { display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 99px; white-space: nowrap; }
+  .st-done { color: var(--done); border: 1px solid var(--done); }
+  .st-silent { color: var(--silent); border: 1px solid var(--silent); }
+  .st-hole { color: var(--hole); border: 1px solid var(--hole); }
+
+  .v { display: inline-block; font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+       letter-spacing: 0.08em; padding: 0.1rem 0.55rem; border-radius: 99px; margin-right: 0.5rem; }
+  .v-keep { color: var(--verdict-keep); border: 1.5px solid var(--verdict-keep); }
+  .v-fix { color: var(--verdict-fix); border: 1.5px solid var(--verdict-fix); }
+  .v-no { color: var(--verdict-no); border: 1.5px solid var(--verdict-no); }
+
+  .tension { border-left: 4px solid var(--gold); }
+  .tension .t { font-family: Georgia, serif; font-size: 1.05rem; margin-bottom: 0.35rem; }
+  .syn { color: var(--verdict-keep); font-weight: 600; }
+
+  .ladder { list-style: none; padding-left: 0; }
+  .ladder li { display: flex; gap: 0.8rem; align-items: baseline; margin-bottom: 0.55rem; }
+  .ladder .num {
+    flex: none; font-family: Georgia, serif; font-weight: 700; color: var(--gold);
+    width: 1.6rem; text-align: right;
+  }
+
+  .tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.08rem 0.5rem;
+         border-radius: 4px; color: var(--paper-2); }
+  .tag-p0 { background: var(--terra); }
+  .tag-p1 { background: var(--forest); }
+  .tag-p2 { background: var(--gold); }
+  :root[data-theme="dark"] .tag, :root[data-theme="dark"] .tag-p2 { color: #141a16; }
+  @media (prefers-color-scheme: dark) { .tag { color: #141a16; } }
+  :root[data-theme="light"] .tag { color: var(--paper-2); }
+
+  .footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
+            font-size: 0.85rem; color: var(--muted); }
+  .footer code { font-size: 0.8rem; }
+
+  a { color: var(--terra); }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">Эволюционный разбор · №18 · синтез: граф + живой конспект + 3D-зал</div>
+  <h1>Игра уже написана: не хватает двери и вчерашнего дня</h1>
+  <p class="lede">Три лучших артефакта продукта — Граф Знаний с ценой узлов, Живой
+  конспект (собранный своими руками рабочий конспект с паспортом качества) и 3D-зал с
+  маршрутом дня — уже образуют игровой мир: карту, инвентарь и сцену. Но сцена —
+  единственное место, где нельзя действовать и которое не помнит игрока: тур заканчивается
+  словами «Маршрут дня завершён», хотя ничего не собрано и не выучено. Синтез — не новая
+  геймификация, а два недостающих ребра: дверь из остановки в действие (изучить / собрать
+  в конспект) и след вчерашнего дня в сцене.</p>
+  <div class="meta">
+    <span>hometutor · HEAD <code>003beaf69</code> «253»</span>
+    <span>2026-07-16</span>
+    <span>база: разборы №1 (петля памяти), №6 (живая карта), №15/№17 (3D-зал), код рантайма</span>
+  </div>
+</header>
+
+<!-- 1. СУТЬ -->
+<section id="essence">
+  <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Суть</span></div>
+  <h2>Чего по-настоящему хочет человек, когда «играет в обучение»</h2>
+  <p>Игра — это не очки, аватары и конфетти. От первых принципов игра — это
+  <strong>цикл «решение → действие → мир изменился → новое решение»</strong> с честной
+  обратной связью. Человек хочет четыре вещи: видеть себя в мире («я здесь»), иметь
+  осмысленный следующий ход («дальше сюда, потому что…»), <strong>уносить из мира
+  добычу, собранную своими руками</strong> — и, главное, чего нет у просмотровых
+  визуализаций, — <strong>чтобы мир помнил его действия</strong>: сегодня прошёл —
+  завтра тропа выглядит иначе.</p>
+  <p>У обучения этот цикл уже существует физически: quiz и повторения меняют mastery,
+  mastery меняет worth и frontier, worth меняет маршрут завтрашнего дня, а добыча уже
+  придумана и построена — Живой конспект, собираемый из разделов лекций, с паспортом
+  качества вместо выдуманной редкости. Игра — не то, что нужно «добавить», а то, что
+  нужно <strong>показать и дать потрогать</strong>: сделать реальную петлю памяти
+  видимой и управляемой из одной сцены.</p>
+</section>
+
+<!-- 2. РЕАЛЬНОСТЬ -->
+<section id="reality">
+  <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Реальность</span></div>
+  <h2>Три артефакта, один payload — и два обрыва</h2>
+
+  <div class="card">
+    <p><strong>Граф Знаний (2D) — «мир и экономика».</strong>
+    <code>build_kg_payload</code> (<code>app/ui/knowledge_graph_d3.py:508</code>) собирает
+    узлы с полной игровой экономикой: <code>worth</code>/<code>worth_reason</code> (A1),
+    <code>due</code>, <code>novel</code>, <code>frontier</code>, <code>mastery</code>,
+    <code>decay</code>, кластеры, reach. <code>select_day_route</code>
+    (<code>knowledge_graph_d3_analysis.py:386</code>) строит серверный маршрут дня —
+    квестовую цепочку из 6 остановок с причинами.</p>
+    <p class="ev">Экспорт «живой карты» одним файлом — паттерн разбора №6; d3 вендорен,
+    CDN нет.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Живой конспект — «инвентарь и крафт».</strong> Единственный артефакт,
+    который игрок собирает своими руками: корзина разделов
+    (<code>workbench_service.add_section</code>, <code>app/workbench_service.py:310</code>;
+    UI-зеркало <code>living_konspekt_state.py:120</code> с событием-фуннелем
+    <code>living_konspekt_section_added</code>), паспорт качества и рубрика (№14),
+    <code>knowledge_status</code>/<code>open_question</code>, quiz по собранному
+    (<code>living_konspekt_scoped_quiz.py</code>) — инвентарь умеет сам себя проверять.
+    Двери в конспект уже прорублены в 2D-мире: «➕ В Живой конспект» на источниках ответа
+    (<code>source_cards.py:223</code>) и «➕ Собрать всё по концепту» прямо в карточке
+    концепта 2D-графа со счётчиком корзины (<code>dashboards_graph.py:892</code>).</p>
+    <p class="ev">Это готовая игровая механика сбора добычи — «loot» с честным паспортом
+    качества вместо выдуманной редкости.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Память мира — слой времени (петля №1).</strong>
+    <code>build_mastery_history</code> (<code>knowledge_graph_d3_analysis.py:147</code>,
+    KG-07) — хроника mastery по quiz-событиям; <code>build_decay_vector</code>
+    (<code>:127</code>, KG-06) — забывание по SM-2. В 2D-карте слой уже играет: кнопка
+    «⏱ История» и скраббер (<code>knowledge_graph_d3_template.html:187,231</code>);
+    payload несёт <code>__MASTERY_HISTORY__</code> и <code>__DECAY_VECTOR__</code>
+    (<code>knowledge_graph_d3.py:712-713</code>).</p>
+  </div>
+
+  <div class="card">
+    <p><strong>3D-зал — «сцена и камера».</strong> После №17 зал открывается как
+    маршрутная сцена: <code>viewMode = 'route'</code>, дорожка 1→6
+    (<code>routeStopPos</code>, <code>kg_3d_template.html:278</code>), управляемый тур
+    (<code>tourState</code>, <code>:94</code>), ранговые бейджи остановок
+    (<code>:611-624</code>), worth — ранг/причина, не высота. Ориентация решена:
+    «я здесь, дальше сюда, потому что…» читается без вращения.</p>
+    <p class="ev">Театр построен, актёры расставлены, программка напечатана.</p>
+  </div>
+
+  <div class="figure">
+    <svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" role="img"
+         aria-label="Три артефакта и два обрыва: из 3D-зала нет двери в действие и сбор в конспект, и память мира не доходит до зала">
+      <!-- payload core -->
+      <rect x="290" y="20" width="180" height="52" rx="10" fill="none" stroke="var(--forest)" stroke-width="1.6"/>
+      <text x="380" y="42" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="var(--ink)">один payload</text>
+      <text x="380" y="60" text-anchor="middle" font-size="11" fill="var(--muted)">worth · due · route · history · decay</text>
+      <!-- three artifacts -->
+      <rect x="30" y="130" width="200" height="64" rx="10" fill="var(--card)" stroke="var(--line)"/>
+      <text x="130" y="156" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="var(--ink)">Граф Знаний (2D)</text>
+      <text x="130" y="176" text-anchor="middle" font-size="11" fill="var(--muted)">мир + экономика + История</text>
+      <rect x="280" y="130" width="200" height="64" rx="10" fill="var(--card)" stroke="var(--line)"/>
+      <text x="380" y="156" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="var(--ink)">Живой конспект</text>
+      <text x="380" y="176" text-anchor="middle" font-size="11" fill="var(--muted)">инвентарь: корзина + паспорт</text>
+      <rect x="530" y="130" width="200" height="64" rx="10" fill="var(--card)" stroke="var(--line)"/>
+      <text x="630" y="156" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="var(--ink)">3D-зал (route)</text>
+      <text x="630" y="176" text-anchor="middle" font-size="11" fill="var(--muted)">сцена + тур + ранги</text>
+      <!-- payload feeds 2D and hall -->
+      <line x1="340" y1="72" x2="140" y2="130" stroke="var(--forest)" stroke-width="1.2"/>
+      <line x1="420" y1="72" x2="620" y2="130" stroke="var(--forest)" stroke-width="1.2"/>
+      <!-- working link: 2D -> konspekt (collect exists) -->
+      <line x1="230" y1="162" x2="280" y2="162" stroke="var(--done)" stroke-width="1.6"/>
+      <text x="255" y="150" text-anchor="middle" font-size="10" fill="var(--done)">➕ есть</text>
+      <!-- broken link: hall -> konspekt -->
+      <line x1="530" y1="162" x2="480" y2="162" stroke="var(--hole)" stroke-width="2" stroke-dasharray="5,5"/>
+      <text x="505" y="150" text-anchor="middle" font-size="12" font-weight="700" fill="var(--hole)">✂</text>
+      <!-- action box -->
+      <rect x="280" y="240" width="200" height="46" rx="10" fill="none" stroke="var(--terra)" stroke-width="1.6"/>
+      <text x="380" y="262" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="var(--ink)">Действие</text>
+      <text x="380" y="278" text-anchor="middle" font-size="11" fill="var(--muted)">quiz · flashcards · сбор разделов</text>
+      <!-- broken link: hall -> action -->
+      <line x1="600" y1="194" x2="470" y2="245" stroke="var(--hole)" stroke-width="2" stroke-dasharray="5,5"/>
+      <text x="548" y="230" text-anchor="middle" font-size="12" font-weight="700" fill="var(--hole)">✂ двери нет</text>
+      <!-- working link: 2D -> action (in product) -->
+      <line x1="160" y1="194" x2="300" y2="245" stroke="var(--muted)" stroke-width="1.2"/>
+      <!-- action -> payload (loop back) -->
+      <path d="M 480 258 C 700 250 740 60 470 40" fill="none" stroke="var(--forest)" stroke-width="1.2" stroke-dasharray="2,4"/>
+      <text x="712" y="150" text-anchor="middle" font-size="11" fill="var(--muted)" transform="rotate(78 712 150)">петля памяти</text>
+    </svg>
+    <p class="figcap">Payload питает карту и зал; действия (quiz/повторения) замыкают петлю
+    обратно в payload; конспект собирается из разделов мира. У 2D-карты обе двери есть
+    («➕ Собрать всё по концепту», Synthesis/План); у 3D-зала — ни двери в действие,
+    ни сбора в конспект, а память мира (history/decay) в зал не встраивается.</p>
+  </div>
+
+  <div class="table-scroll">
+    <table>
+      <tr><th>Элемент</th><th>Роль в игре</th><th>Статус</th><th>Комментарий</th></tr>
+      <tr><td>worth / due / novel</td><td>экономика, цена хода</td><td><span class="st st-done">сделано</span></td><td>A1/A2 из №15; честная валюта — SM-2, не XP</td></tr>
+      <tr><td>day_route (6 остановок)</td><td>квест дня</td><td><span class="st st-done">сделано</span></td><td>серверный, общий для 2D и 3D</td></tr>
+      <tr><td>route-сцена + тур</td><td>игровая сцена</td><td><span class="st st-done">сделано</span></td><td>№17: ориентация решена, шум убран</td></tr>
+      <tr><td>корзина конспекта</td><td>инвентарь</td><td><span class="st st-done">сделано</span></td><td><code>workbench_service</code> + событие-фуннель «раздел добавлен»</td></tr>
+      <tr><td>сбор в конспект из 2D</td><td>сбор добычи</td><td><span class="st st-done">сделано</span></td><td>«➕ Собрать всё по концепту» в карточке узла (<code>dashboards_graph.py:892</code>)</td></tr>
+      <tr><td>паспорт качества конспекта</td><td>честная оценка крафта</td><td><span class="st st-done">сделано</span></td><td>рубрика + knowledge_status (№14)</td></tr>
+      <tr><td>quiz по конспекту</td><td>проверка инвентаря</td><td><span class="st st-done">сделано</span></td><td><code>living_konspekt_scoped_quiz.py</code></td></tr>
+      <tr><td>mastery history + decay</td><td>память мира</td><td><span class="st st-silent">молчит</span></td><td>есть в payload и 2D; в 3D-зал не передаётся</td></tr>
+      <tr><td>ранговые бейджи 1→6</td><td>прогресс-индикаторы</td><td><span class="st st-silent">молчит</span></td><td>показывают порядок, но не «пройдено/не пройдено»</td></tr>
+      <tr><td>действие из остановки</td><td>ход игрока</td><td><span class="st st-hole">дыра</span></td><td>в 3D-шаблоне ни одной ссылки/кнопки наружу</td></tr>
+      <tr><td>сбор в конспект из 3D</td><td>сбор добычи со сцены</td><td><span class="st st-hole">дыра</span></td><td>дверь есть у 2D-карты того же экрана — у зала нет</td></tr>
+      <tr><td>3D-зал в продукте (C1)</td><td>игровая площадка</td><td><span class="st st-hole">дыра</span></td><td>только download-кнопка (<code>dashboards_graph.py:1112</code>)</td></tr>
+      <tr><td>след вчерашнего дня (C2)</td><td>сохранение игры</td><td><span class="st st-hole">дыра</span></td><td>P2-волна №15, не начата</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 3. ПРОТИВОРЕЧИЯ -->
+<section id="tensions">
+  <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Противоречия</span></div>
+  <h2>Напряжения — и их синтез</h2>
+
+  <div class="card tension">
+    <div class="t">игровая зрелищность ↔ ориентация первого кадра</div>
+    <p>№17 выиграл войну с шумом: ≤8 подписей, пустой чистый кадр. Игра тянет обратно —
+    эффекты, частицы, объекты. <span class="syn">Синтез: игровой слой меняет только
+    состояние уже существующих объектов — цвет остановки, галочка «пройдено»,
+    приглушённая тропа. Ноль новых сущностей в первом кадре;</span> лимит подписей —
+    контрактный тест, а не пожелание.</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">offline-артефакт ↔ живой след</div>
+    <p>Скачанный HTML не может писать прогресс (граница №17: «экспорт отвечает за
+    ориентацию, продукт — за действие»). Но игра без сохранения — не игра.
+    <span class="syn">Синтез: писать след может только продукт — значит, играбельный зал
+    живёт в продукте (C1 iframe), а экспорт становится «фотографией дня»: тот же файл,
+    но с уже встроенной памятью мира — вчерашний след виден и офлайн, просто read-only.</span>
+    Один шаблон, два режима честности.</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">мотивация игры ↔ честность обучения</div>
+    <p>Классическая геймификация подделывает валюту: XP за клики, стрики за открытие
+    приложения. Это разрушает доверие — центральную ценность продукта (№5).
+    <span class="syn">Синтез: единственная валюта игры — реальные метрики памяти, а
+    единственный «лут» — Живой конспект. «Пройдено» = записанное quiz/review-событие;
+    «уровень этажа» = mastery; «редкость добычи» = паспорт качества конспекта (№14).</span>
+    Ничего выдуманного: если игрок схитрил — SM-2 вернёт карточку, и мир честно это
+    покажет.</p>
+  </div>
+</section>
+
+<!-- 4. БОЛЬ-ЯКОРЬ -->
+<section id="pain">
+  <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Боль-якорь</span></div>
+  <h2>«Маршрут дня завершён» — а не произошло ничего</h2>
+  <div class="card anchor-card">
+    <p><strong>Проверяемый факт:</strong> пользователь запускает тур в 3D-зале, проходит
+    все шесть остановок, читает «потому что: due 3» — и получает финал «Маршрут дня
+    завершён». Учиться он не начал, начать не может, и завтра зал не вспомнит, что тур
+    вообще был. Победа выдана за просмотр.</p>
+    <p><strong>Точная причина в коде:</strong></p>
+    <ul>
+      <li><code>app/ui/assets/kg_3d_template.html:769</code> —
+        <code>scheduleNextTour()</code> на последней остановке пишет
+        «Маршрут дня завершён» и возвращает камеру: терминальное состояние без действия;</li>
+      <li>во всём шаблоне (996 строк) <strong>нет ни одной ссылки или действия
+        наружу</strong> — ни <code>&lt;a&gt;</code>, ни <code>window.open</code>, ни
+        postMessage; карточка остановки (<code>updateStopInfo</code>, <code>:816</code>)
+        показывает причину, но не даёт хода;</li>
+      <li>контраст в двух шагах: карточка того же концепта у <strong>2D-карты</strong>
+        имеет и «➕ Собрать всё по концепту» со счётчиком корзины
+        (<code>dashboards_graph.py:892</code>), и Synthesis, и «К плану» — дверь давно
+        спроектирована, зал просто в неё не выходит;</li>
+      <li><code>app/ui/knowledge_graph_d3.py:728-733</code> — <code>build_kg_3d_html</code>
+        встраивает только <code>NODES/EDGES/STATS/HEALTH/DAY_ROUTE</code>; память мира
+        (<code>__MASTERY_HISTORY__</code>, <code>__DECAY_VECTOR__</code>), которую 2D-карта
+        получает строкой выше (<code>:712-713</code>), в зал не передаётся — у сцены
+        нет «вчера»;</li>
+      <li><code>app/ui/dashboards_graph.py:1112</code> — 3D существует в продукте только
+        как download-кнопка; C1 (зал в продукте) отложен планами №15/№17 до прохождения
+        ориентационного теста — тест пройден (№17 done), дверь так и не открыта.</li>
+    </ul>
+    <p class="ev">Житейская проверка: откройте экспорт, нажмите «▶ Тур», дождитесь финала —
+    и попробуйте сделать хоть что-нибудь полезное, не закрывая файл. Единственное
+    доступное действие — снова смотреть.</p>
+  </div>
+</section>
+
+<!-- 5. ВЕРДИКТЫ -->
+<section id="verdicts">
+  <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Вердикты</span></div>
+  <h2>Решение по каждому элементу</h2>
+  <div class="card"><span class="v v-keep">оставить</span><strong>Route-first сцена, лимит подписей, worth = ранг/причина.</strong>
+    Победа №17 — фундамент игры; игровой слой не имеет права её откатить.</div>
+  <div class="card"><span class="v v-keep">оставить</span><strong>Один payload, offline-контракт, без CDN.</strong>
+    Kill switch №17 продолжает действовать: новая схема или хранилище — стоп.</div>
+  <div class="card"><span class="v v-fix">починить</span><strong>Финал тура без действия.</strong>
+    Каждая остановка получает два хода: «▶ Начать» (quiz/flashcards по концепту) и
+    «➕ В конспект» (сбор разделов остановки той же функцией
+    <code>_collect_concept_sections_to_workbench</code>, что у 2D-карты); финал тура
+    предлагает первый непройденный стоп, а не «спасибо за просмотр».</div>
+  <div class="card"><span class="v v-fix">починить</span><strong>C1: зал заперт в download-кнопке.</strong>
+    Ориентационный тест пройден — встроить зал iframe-ом в Knowledge Graph рядом с 2D;
+    в iframe кнопки действий работают, в скачанном файле честно ведут в продукт-подсказку.</div>
+  <div class="card"><span class="v v-fix">объединить</span><strong>Память мира + зал.</strong>
+    Передать <code>mastery_history</code>/<code>decay_vector</code> в 3D-embed (данные и
+    плейсхолдер-паттерн уже есть); «пройдено сегодня/вчера» = событие петли памяти, галочка
+    на ранговом бейдже и приглушённая тропа. Это C2 из №15, ставший игровым сохранением.</div>
+  <div class="card"><span class="v v-fix">объединить</span><strong>Инвентарь + сцена.</strong>
+    Остановка, чьи разделы уже в корзине конспекта, получает маркер «в конспекте» —
+    добыча видна со сцены; счётчик корзины (уже есть у 2D) появляется в боковой панели
+    зала.</div>
+  <div class="card"><span class="v v-no">не делать</span><strong>Three.js/WebGL, аватары, частицы.</strong>
+    Зрелищность не добавляет ни двери, ни памяти; 2.5D canvas уже честно решает ориентацию.</div>
+  <div class="card"><span class="v v-no">не делать</span><strong>XP, монеты, стрики, лидерборды.</strong>
+    Вторая валюта обесценит первую (SM-2). Один взгляд на фейковые очки — и доверие к
+    честным метрикам умирает.</div>
+  <div class="card"><span class="v v-no">не делать</span><strong>Запись прогресса из offline HTML.</strong>
+    Граница №17 остаётся: артефакт читает память и корзину, пишет только продукт.</div>
+</section>
+
+<!-- 6. ЦЕННОСТЬ -->
+<section id="value">
+  <div class="sec-label"><span class="sec-num">6</span><span class="sec-name">Ценность</span></div>
+  <h2>Игра, в которой очки — это твоя настоящая память</h2>
+  <p>Уникальность синтеза: это не «геймификация обучения» (наклейки поверх курса), а
+  <strong>визуализация настоящей петли памяти, в которой можно ходить и собирать</strong>.
+  Мир — твой собственный материал; экономика — SM-2 и frontier; добыча — Живой конспект
+  с паспортом качества; сохранение — история квизов. Всё локально, всё offline-переносимо,
+  ни одна цифра не выдумана. Duolingo рисует сову — hometutor рисует твою память.</p>
+  <div class="table-scroll">
+    <table>
+      <tr><th>Метрика</th><th>Сейчас</th><th>После</th></tr>
+      <tr><td>действие из зала</td><td>невозможно (двери нет)</td><td>2 клика: остановка → «Начать» → quiz/flashcards</td></tr>
+      <tr><td>добыча со сцены</td><td>невозможно (у 2D дверь есть, у зала нет)</td><td>1 клик: «➕ В конспект» той же функцией, что 2D</td></tr>
+      <tr><td>сцена помнит игрока</td><td>нет (память мира не доезжает до 3D)</td><td>пройденные остановки ✓; вчерашняя тропа видна при открытии</td></tr>
+      <tr><td>финал тура</td><td>«Маршрут дня завершён» (тупик)</td><td>предложение первого непройденного стопа</td></tr>
+      <tr><td>3D в продукте</td><td>download-кнопка</td><td>iframe-зал рядом с 2D-картой (C1)</td></tr>
+      <tr><td>подписей в первом кадре</td><td>≤8 (контракт №17)</td><td>≤8 — игровой слой не добавляет ни одной</td></tr>
+      <tr><td>визуальный smoke</td><td>opt-in, пропускается</td><td>обязательный Playwright-смок в CI</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 7. ПУТЬ -->
+<section id="path">
+  <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Путь</span></div>
+  <h2>Золотой путь и лестница уровней</h2>
+  <p><strong>Золотой путь одной сессии:</strong> открыл Knowledge Graph → зал показывает
+  «я здесь, дальше сюда, потому что…» → «▶ Начать» на активной остановке → quiz/повторение
+  по концепту → «➕ В конспект» забирает разделы остановки в корзину → вернулся: остановка
+  отмечена ✓, счётчик добычи вырос, тропа продвинулась → завтра маршрут перестроен с
+  учётом сегодняшнего — и вчерашний след виден в сцене.</p>
+  <ol class="ladder">
+    <li><span class="num">0</span><span><strong>Смотритель</strong> (есть, №17). Вижу маршрут, причину, следующий шаг — за 5 секунд.</span></li>
+    <li><span class="num">1</span><span><strong>Ходок.</strong> Начинаю остановку из зала — дверь в quiz/flashcards открыта (P0-1).</span></li>
+    <li><span class="num">2</span><span><strong>Собиратель.</strong> Забираю добычу со сцены: «➕ В конспект» + маркер «в конспекте» на остановке (P0-1/P1).</span></li>
+    <li><span class="num">3</span><span><strong>Следопыт.</strong> Сцена отмечает пройденное сегодня: ✓ на бейдже, тропа зажигается (P0-2).</span></li>
+    <li><span class="num">4</span><span><strong>Летописец.</strong> При открытии виден вчерашний след; финал тура предлагает следующий непройденный стоп (P1).</span></li>
+    <li><span class="num">5</span><span><strong>Строитель.</strong> Этажи отражают mastery: освоенные — плотные, забываемые — тускнеют по decay (P1/P2).</span></li>
+    <li><span class="num">6</span><span><strong>Рассказчик.</strong> Реплей недели: история проигрывается по сцене; экспорт — «фото дня» с конспектом-трофеем (P2).</span></li>
+  </ol>
+</section>
+
+<!-- 8. ПЛАН -->
+<section id="plan">
+  <div class="sec-label"><span class="sec-num">8</span><span class="sec-name">План</span></div>
+  <h2>P0–P2 по соотношению эффект/усилие</h2>
+  <div class="table-scroll">
+    <table>
+      <tr><th></th><th>Ход</th><th>Что делается</th><th>Усилие</th></tr>
+      <tr><td><span class="tag tag-p0">P0-1</span></td><td><strong>Дверь из остановки.</strong></td>
+        <td>C1: зал в продукте (iframe в <code>dashboards_graph.py</code> рядом с 2D) +
+        два хода в карточке остановки: «▶ Начать» → quiz/flashcards с преселектом
+        концепта и «➕ В конспект» → уже существующая
+        <code>_collect_concept_sections_to_workbench</code> (та же, что у 2D-карты).
+        В скачанном экспорте кнопки ведут на честную подсказку «откройте в
+        hometutor».</td><td>день</td></tr>
+      <tr><td><span class="tag tag-p0">P0-2</span></td><td><strong>Вчера в зале.</strong></td>
+        <td>Встроить <code>__MASTERY_HISTORY__</code>/<code>__DECAY_VECTOR__</code> в
+        <code>build_kg_3d_html</code> (данные уже в payload — схема не меняется);
+        остановки с событием памяти за сегодня/вчера получают ✓ и приглушённую тропу;
+        финал тура называет первый непройденный стоп.</td><td>день</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td><td>Инвентарь на сцене + CI-смок.</td>
+        <td>Маркер «в конспекте» на остановках и счётчик корзины в панели зала; снять
+        opt-in с Playwright-смока и добавить CI-джоб; hover-подписи из №17 (R1.4/L1.3),
+        так и не сделанные.</td><td>дни</td></tr>
+      <tr><td><span class="tag tag-p2">P2</span></td><td>Прогрессия и реплей.</td>
+        <td>Этажи-уровни по mastery/decay (плотность/тусклость), реплей недели по
+        mastery_history, экспорт «фото дня» с конспектом-трофеем.</td><td>волна</td></tr>
+    </table>
+  </div>
+  <p><strong>Kill switch:</strong> потребовалась новая схема payload, новое хранилище,
+  LLM-вызов или вторая валюта прогресса — стоп. Игровой слой добавил хоть одну подпись
+  или сущность в первый кадр route-режима — стоп: ориентация №17 неприкосновенна.</p>
+</section>
+
+<div class="footer">
+  <p>Разбор №18 · hometutor HEAD <code>003beaf69</code> «253» · 2026-07-16.</p>
+  <p>Триада синтеза (по слову владельца): Граф Знаний + Живой конспект + 3D-зал.
+  Память мира (mastery history KG-07, decay KG-06) — поддерживающий слой петли №1,
+  а не четвёртый артефакт. Правило двух слоёв: этот HTML — слой анализа;
+  actionable-кандидаты — в <code>doc/next/knowledge_graph_3d_game_plan.md</code>.
+  Серия: <code>doc/presentations/evolutionary_analyses/</code>.</p>
+</div>
+
+</div>
