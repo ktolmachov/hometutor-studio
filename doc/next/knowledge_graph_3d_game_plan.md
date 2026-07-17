@@ -23,6 +23,8 @@
 | W3c Keeper threats (B) | @281 | ✅ |
 | W4a sidebar «В Мнемополис» | WT 2026-07-18 | ✅ uncommitted |
 | W4b return CTA after quiz | WT 2026-07-18 | ✅ uncommitted |
+| W4c district doors MVP | @286? / prior | ✅ |
+| W4d return after FC/collect | WT 2026-07-18 | ✅ uncommitted |
 | G4.1 floor tint · G4.2 history replay | 275 | ✅ |
 | G4.3 «фото дня» | — | ⬜ privacy DoD |
 | Мнемополис (разбор №19) | vision v1 | 🟡 W0′+W1 done in WT; next W2a / catalog |

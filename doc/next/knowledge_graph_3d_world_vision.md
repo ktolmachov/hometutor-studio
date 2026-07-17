@@ -502,7 +502,8 @@ UI-волнах, живой прогон running-артефакта. Если с
 |---|---|---|---|
 | **W4a** Сайдбар «В Мнемополис» | deep link only | P2 | ✅ WT 2026-07-18 | `mnemo_nav.open_mnemo_polis` |
 | **W4b** Return CTA after quiz | trophy toast recipe quiz-channel | P2 | ✅ WT 2026-07-18 | after interactive/scoped quiz; honest quiz channel copy |
-| **W4c** District doors MVP (4) | local/all door chips + routing table | P2 | W4a; routing table §5.3 |
+| **W4c** District doors MVP (4) | local/all door chips + routing table | P2 | ✅ WT 2026-07-18 | `door_*` actions; not in route frame |
+| **W4d** Return after flashcards / collect | SR/◆ channels | P2 | ✅ WT 2026-07-18 | FC review CTA; collect ◆ toast in-hall |
 | **W4d** Return after flashcards / collect | SR/◆ channels | P2 | W2a/W2b as needed |
 | **W5a** Keeper C1 tutor handoff | interior «Спросить» → tutor chat | P2 | — |
 | **W5b** design spike scene-DSL | schema/validator only | P2 | owner go; may stop |
