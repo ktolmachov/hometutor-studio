@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Разбор №19 — Тьютор, который опаздывает на лекцию</title>
+<style>
+  /* ============================================================
+     HOMETUTOR NOTEBOOK STYLE v1.0 — LOCKED 2026-07-12
+     Копия notebook_template.html буквально. Палитра не менялась.
+     Гайд: notebook_deck_guide.md (в этой же папке).
+     ============================================================ */
+  :root {
+    /* --- ЛОКОНО (locked core, 9 токенов) --- не менять значения --- */
+    --paper: #f7f3ea;
+    --paper-2: #fffdf7;
+    --ink: #17211b;
+    --muted: #5c6a61;
+    --terra: #b95631;
+    --terra-deep: #7d351f;
+    --forest: #243b2c;
+    --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14);
+    --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+    /* --- расширение: статус-токены (опционально, для сводных таблиц
+       «сделано/молчит/дыра» — см. §6 guide) --- */
+    --done: #1e6e46;
+    --silent: #b98a2d;
+    --hole: #8c2f39;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141a16;
+      --paper-2: #1b231e;
+      --ink: #ece5d4;
+      --muted: #9aa89d;
+      --terra: #d97a52;
+      --terra-deep: #e8a583;
+      --forest: #9dbfa8;
+      --gold: #d9a55e;
+      --line: rgba(236, 229, 212, 0.16);
+      --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(157, 191, 168, 0.10);
+      --verdict-keep: #6fc493;
+      --verdict-fix: #e0a35c;
+      --verdict-no: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+      --done: #6fc493;
+      --silent: #d9b45e;
+      --hole: #e08691;
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+    --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+    --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+    --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+    --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+      radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--terra-deep); }
+  em { color: var(--muted); }
+
+  code {
+    font-family: Consolas, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--terra);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 0.95rem; color: var(--gold);
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .sec-name {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem;
+    font-weight: 700; color: var(--muted);
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.1rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+  }
+  .anchor-card { border-left: 4px solid var(--terra); }
+  .ev { font-size: 0.86rem; color: var(--muted); margin-top: 0.5rem; }
+  .ev code { font-size: 0.8rem; }
+
+  .figure { margin: 1.4rem 0 0.4rem; }
+  .figure svg { width: 100%; height: auto; display: block; }
+  .figcap { font-size: 0.84rem; color: var(--muted); margin-top: 0.5rem; max-width: 70ch; }
+
+  .table-scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  td:first-child { white-space: nowrap; }
+  td { font-variant-numeric: tabular-nums; }
+
+  .st { display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 99px; white-space: nowrap; }
+  .st-done { color: var(--done); border: 1px solid var(--done); }
+  .st-silent { color: var(--silent); border: 1px solid var(--silent); }
+  .st-hole { color: var(--hole); border: 1px solid var(--hole); }
+
+  .v { display: inline-block; font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+       letter-spacing: 0.08em; padding: 0.1rem 0.55rem; border-radius: 99px; margin-right: 0.5rem; }
+  .v-keep { color: var(--verdict-keep); border: 1.5px solid var(--verdict-keep); }
+  .v-fix { color: var(--verdict-fix); border: 1.5px solid var(--verdict-fix); }
+  .v-no { color: var(--verdict-no); border: 1.5px solid var(--verdict-no); }
+
+  .tension { border-left: 4px solid var(--gold); }
+  .tension .t { font-family: Georgia, serif; font-size: 1.05rem; margin-bottom: 0.35rem; }
+  .syn { color: var(--verdict-keep); font-weight: 600; }
+
+  .ladder { list-style: none; padding-left: 0; }
+  .ladder li { display: flex; gap: 0.8rem; align-items: baseline; margin-bottom: 0.55rem; }
+  .ladder .num {
+    flex: none; font-family: Georgia, serif; font-weight: 700; color: var(--gold);
+    width: 1.6rem; text-align: right;
+  }
+
+  .tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.08rem 0.5rem;
+         border-radius: 4px; color: var(--paper-2); }
+  .tag-p0 { background: var(--terra); }
+  .tag-p1 { background: var(--forest); }
+  .tag-p2 { background: var(--gold); }
+  :root[data-theme="dark"] .tag, :root[data-theme="dark"] .tag-p2 { color: #141a16; }
+  @media (prefers-color-scheme: dark) { .tag { color: #141a16; } }
+  :root[data-theme="light"] .tag { color: var(--paper-2); }
+
+  .footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
+            font-size: 0.85rem; color: var(--muted); }
+  .footer code { font-size: 0.8rem; }
+
+  a { color: var(--terra); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">Эволюционный разбор · №19 · сложное — просто, скучное — не усыпляет</div>
+  <h1>Тьютор, который опаздывает на лекцию</h1>
+  <p class="lede">Продукт собрал два арсенала — «объяснить проще» и «не дать заскучать» —
+  и оба включаются только после лекции. Реальный урок длится 123 минуты, размечен на 120
+  разделов, 75 из них — с таймкодами; всё это время продукт присутствует ровно одним битом.
+  Сильный ход — не новый плеер и не детектор скуки, а знакомство двух подсистем, которые
+  уже написаны и никогда не встречались.</p>
+  <div class="meta">
+    <span>hometutor · HEAD <code>b9eee3ef3</code> «287»</span>
+    <span>2026-07-18</span>
+    <span>база: 15 элементов двух фронтов + сайдкар реального урок_2 (120 разделов · 75 таймкодов · 59 semantic-блоков)</span>
+  </div>
+</header>
+
+<!-- 1. СУТЬ -->
+<section id="essence">
+  <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Суть</span></div>
+  <h2>Чего хочет студент перед скучной лекцией о сложном</h2>
+  <p>Понять сложное — значит пройти мост от уже известного к новому, и пройти его
+  короткими пролётами: наводка, частичный шаг, полное решение. Продукт исповедует это
+  буквально — scaffolding записан правилом №2 системного промпта тьютора
+  (<code>app/prompts/_impl.py:662-665</code>). Здесь дыры нет.</p>
+  <p>Не заснуть — значит иметь <strong>живой вопрос со ставкой на ближайшие минуты</strong>.
+  Скука — не свойство материала: та же лекция перестаёт быть скучной, когда через пять минут
+  узнаёшь, был ли ты прав. Лектор монотонен не потому, что тема плоха, а потому, что у
+  слушателя нет открытого предсказания, которое лекция вот-вот проверит.</p>
+  <p>Значит, оба желания — одно желание, увиденное с двух сторон: <strong>чтобы у следующих
+  пяти минут лекции была причина</strong>. «Проще» без ставки — разжёванная каша; ставка без
+  «проще» — азарт без понимания. Продукт умеет и то и другое — Socratic-вопрос, микро-квиз,
+  «Объясни проще» приоритетом №1 — но всё это живёт в диалоге <em>после</em> лекции, когда
+  ставка уже сгорела. Тезис разбора: <strong>hometutor — превосходный собеседник после лекции
+  и пустое кресло во время неё</strong>. Сильный ход — принести уже существующую петлю
+  «вопрос → проверка → проще/дальше» внутрь лекционного времени, не тронув ни материал,
+  ни плеер.</p>
+</section>
+
+<!-- 2. РЕАЛЬНОСТЬ -->
+<section id="reality">
+  <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Реальность</span></div>
+  <h2>Два богатых фронта — и оба стоят за дверью аудитории</h2>
+
+  <div class="card">
+    <p><strong>Фронт А «сложное → простое» — язык дозируется, материал измеряется.</strong>
+    Scaffolding кодифицирован (<code>_impl.py:662-665</code>), ответ несёт
+    <code>depth_level</code> из трёх уровней (<code>:678</code>) и адаптируется под
+    mastery/цель/историю (<code>:669</code>). «Объясни проще» — не кнопка, а сквозная
+    система: приоритет №1 в suggested_ctas промпта (<code>:677</code>), кнопка под ответом
+    (<code>query_tab_answer_section.py:194-196</code>), первый пункт обоих fallback-наборов
+    оркестратора (<code>tutor_orchestrator.py:461,465</code>), коррекция next_action
+    (<code>:557</code>), рекомендация адаптивного плана после провала квиза
+    (<code>learning_plan_adaptive.py:206-212</code>). Уровень ученика проброшен и в
+    генерацию квизов: <code>{user_level}</code> (<code>_impl.py:805</code>),
+    <code>{mastery_level}</code> (<code>:1127, :1160</code>).</p>
+    <p class="ev">Материальная сторона фронта: рубрика качества конспекта с колонкой про
+    простые слова и примеры (<code>konspekt_discovery.py:283-288</code>), схема раздела по
+    кнопке (<code>living_konspekt_workbench_panel.py:67-85</code>), метка «нового для тебя
+    ~N%» (<code>living_konspekt_reader.py:129-130</code>).</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Фронт Б «скучное → живое» — реакция есть, инициативы нет.</strong>
+    EMOTIONAL OVERRIDE — правило №1 диспетчера агентов: «скучно/устал/надоело» перекрывает
+    тематику запроса и зовёт MotivationCoach (<code>_impl.py:1007</code>). Скука и
+    вовлечённость — ярлыки профиля (<code>learner_profile_panel.py:75-81</code>). Проверка —
+    целый стек из девяти quiz-модулей с лестницей recognition → recall → transfer
+    (<code>quiz_adaptive.py:223-227</code>) и восстановлением уверенности через
+    level_downgrade (<code>_impl.py:1017</code>). Навигация ценности: маршрут дня по worth
+    (<code>dashboards_graph.py:1846, 1912-1913</code>), 3D-зал с мостом действия
+    <code>_kg3d</code> (<code>:563-568, :1884</code>) и экскурсиями Хранителя
+    (<code>:1717, :1722</code>). Сенсорика: пять миров оформления
+    (<code>app/ui/theme_presets.py</code>), онбординг первой сессии
+    (<code>mission_control_first_session.py</code>).</p>
+    <p class="ev">Аудио-стек №13 — самый близкий к лекции: плейлист разделов
+    (<code>living_konspekt_media.py:81-130</code>), «Выпуск в дорогу» (<code>:164</code>),
+    и — ключевая деталь — <strong>обрезанный плеер</strong>: <code>st.audio(start_time,
+    end_time)</code> умеет сам остановиться на границе раздела (<code>:396-399</code>).</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Третья группа: медиа-слой — единственный, кто знает время лекции.</strong>
+    Сайдкар <code>.media.json</code> связывает минуты со строками конспекта:
+    <code>MediaSection</code> несёт и <code>line_start/line_end</code>, и
+    <code>t_start/t_end</code> (<code>media_sidecar.py:64-84</code>). У реального урок_2
+    («как агент думает и действует») — 120 разделов, из них 75 с таймкодами, плюс 59
+    semantic-блоков, длительность 123 минуты. Разметка точная, до слайда:
+    «Слайд 9: Tokenizer» = 284–673 сек.</p>
+    <p class="ev">Проверено по живому файлу
+    <code>DATA_DIR/ИИ Агенты/урок_2_как_агент_думает_и_действует.media.json</code>
+    (schema_version 1) — стартовый факт «120 таймкодированных разделов» уточнён:
+    разделов 120, таймкодированы 75.</p>
+  </div>
+
+  <div class="figure">
+    <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" role="img"
+         aria-label="Линия времени лекции 123 минуты: во время лекции продукт присутствует одним битом mark_listened, после лекции доступны все пятнадцать инструментов">
+      <!-- ось времени -->
+      <line x1="40" y1="150" x2="560" y2="150" stroke="var(--line)" stroke-width="2"/>
+      <text x="40" y="175" font-family="Consolas, monospace" font-size="11" fill="var(--muted)">0:00</text>
+      <text x="530" y="175" font-family="Consolas, monospace" font-size="11" fill="var(--muted)">2:03</text>
+      <text x="300" y="175" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="var(--muted)">лекция · 123 минуты · 75 таймкодированных разделов</text>
+      <!-- тики разделов -->
+      <g stroke="var(--line)" stroke-width="1">
+        <line x1="76" y1="144" x2="76" y2="156"/><line x1="112" y1="144" x2="112" y2="156"/>
+        <line x1="148" y1="144" x2="148" y2="156"/><line x1="184" y1="144" x2="184" y2="156"/>
+        <line x1="220" y1="144" x2="220" y2="156"/><line x1="256" y1="144" x2="256" y2="156"/>
+        <line x1="292" y1="144" x2="292" y2="156"/><line x1="328" y1="144" x2="328" y2="156"/>
+        <line x1="364" y1="144" x2="364" y2="156"/><line x1="400" y1="144" x2="400" y2="156"/>
+        <line x1="436" y1="144" x2="436" y2="156"/><line x1="472" y1="144" x2="472" y2="156"/>
+        <line x1="508" y1="144" x2="508" y2="156"/>
+      </g>
+      <!-- один бит присутствия -->
+      <circle cx="76" cy="150" r="7" fill="none" stroke="var(--silent)" stroke-width="2.5"/>
+      <text x="76" y="120" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="var(--silent)">mark_listened</text>
+      <text x="76" y="104" text-anchor="middle" font-size="11" fill="var(--muted)">1 бит: нажал play</text>
+      <!-- зона глухоты -->
+      <rect x="90" y="60" width="470" height="56" rx="8" fill="none" stroke="var(--hole)" stroke-dasharray="5 4"/>
+      <text x="325" y="84" text-anchor="middle" font-family="Georgia, serif" font-size="13" fill="var(--hole)">продукт не знает, на какой минуте студент — и слушает ли вообще</text>
+      <text x="325" y="104" text-anchor="middle" font-family="Consolas, monospace" font-size="10.5" fill="var(--muted)">st.video / st.audio: HTML5 без обратного канала позиции</text>
+      <!-- после лекции -->
+      <rect x="580" y="40" width="110" height="220" rx="10" fill="var(--card)" stroke="var(--done)"/>
+      <text x="635" y="64" text-anchor="middle" font-family="Georgia, serif" font-size="12" fill="var(--done)">после лекции</text>
+      <g font-size="10.5" fill="var(--muted)">
+        <text x="635" y="88" text-anchor="middle">чат тьютора</text>
+        <text x="635" y="106" text-anchor="middle">«Объясни проще»</text>
+        <text x="635" y="124" text-anchor="middle">quiz ×9 модулей</text>
+        <text x="635" y="142" text-anchor="middle">micro-quiz</text>
+        <text x="635" y="160" text-anchor="middle">карточки / SM-2</text>
+        <text x="635" y="178" text-anchor="middle">адаптивный план</text>
+        <text x="635" y="196" text-anchor="middle">маршрут дня</text>
+        <text x="635" y="214" text-anchor="middle">3D-зал · миры</text>
+        <text x="635" y="232" text-anchor="middle">конспект · схемы</text>
+        <text x="635" y="250" text-anchor="middle">аудио-выпуски</text>
+      </g>
+      <!-- стрелка -->
+      <line x1="560" y1="150" x2="576" y2="150" stroke="var(--muted)" stroke-width="2"/>
+      <path d="M576 150 l-7 -4 v8 z" fill="var(--muted)"/>
+    </svg>
+    <p class="figcap">Присутствие продукта на оси времени урок_2. Во время лекции — один бит
+    (<code>mark_listened</code> в момент клика, «no effect on mastery»); весь арсенал двух
+    фронтов ждёт студента за финальной чертой.</p>
+  </div>
+
+  <div class="table-scroll">
+    <table>
+      <tr><th>Элемент</th><th>Статус</th><th>Зачем / плюс</th><th>Минус для этой темы</th><th>Связь для нового эффекта</th></tr>
+      <tr><td>Scaffolding + depth_level</td><td><span class="st st-done">сделано</span></td><td>дозировать помощь, не разжёвывать</td><td>применяется к вопросу в чате, не к минуте лекции</td><td>готовые «ворота» чекпоинта</td></tr>
+      <tr><td>CTA «Объясни проще» (5 точек)</td><td><span class="st st-done">сделано</span></td><td>сквозной приоритет №1</td><td>без адреса: «проще» про последний ответ</td><td>дать CTA адрес раздела лекции</td></tr>
+      <tr><td>Рубрика + novelty + схемы</td><td><span class="st st-done">сделано</span></td><td>простота как измеримое свойство материала</td><td>про конспект, не про живое слушание</td><td>текст раздела = контекст вопроса</td></tr>
+      <tr><td>EMOTIONAL OVERRIDE + ярлык скуки</td><td><span class="st st-silent">молчит</span></td><td>скука перекрывает всё</td><td>реактивно: ждёт признания «скучно» в чате</td><td>провал чекпоинта = сигнал без признания</td></tr>
+      <tr><td>Quiz-стек (9 модулей)</td><td><span class="st st-done">сделано</span></td><td>лестница сложности, scoped-режим без retrieval</td><td>ни один не принимает t_start</td><td>вопрос к тексту timed-раздела</td></tr>
+      <tr><td>Маршрут дня / worth / 3D-зал</td><td><span class="st st-done">сделано</span></td><td>ставка «зачем сегодня», игровая петля</td><td>гранулярность — концепты, не минуты</td><td>worth объясняет, зачем этот урок</td></tr>
+      <tr><td>Аудио-стек + clipped-плеер</td><td><span class="st st-done">сделано</span></td><td>умеет резать лекцию и останавливаться</td><td>fire-and-forget: продукт слеп после play</td><td>остановка на границе = известная позиция</td></tr>
+      <tr><td>Сайдкар: минуты ↔ строки</td><td><span class="st st-done">сделано</span></td><td>урок_2: 75 разделов с t_start + line_start</td><td>используется только «в лекцию», не «из лекции»</td><td>адресное пространство чекпоинтов</td></tr>
+      <tr><td>Вопрос к минуте лекции</td><td><span class="st st-hole">дыра</span></td><td>—</td><td>не существует: grep t_start по quiz-модулям = 0</td><td><strong>ядро хода №19</strong></td></tr>
+    </table>
+  </div>
+
+  <p>Вид с высоты: оба фронта богаты, но <strong>каждый их элемент живёт во времени «после»</strong>.
+  Единственная подсистема, знающая время лекции, — медиа-слой — используется строго как дверь
+  <em>в</em> лекцию: конспект открывает плеер с минуты раздела
+  (<code>living_konspekt_media.py:348</code>), карточка прыгает на минуту цитаты
+  (<code>flashcards_review_view.py:756, 818</code>), «интересные моменты» указывают таймкоды
+  (<code>living_konspekt_next_steps.py:128-139</code>), видео-цитаты строят ссылку от
+  <code>t_start</code> (<code>living_konspekt_video_citations.py:74, 95</code>). Дверей
+  <em>из</em> лекции в петлю вовлечения — ноль.</p>
+</section>
+
+<!-- 3. ПРОТИВОРЕЧИЯ -->
+<section id="tensions">
+  <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Противоречия</span></div>
+  <h2>Четыре напряжения — и их синтез</h2>
+
+  <div class="card tension">
+    <div class="t">простые слова ↔ точность</div>
+    <p>Упростить, не соврав, — нельзя выбором «либо строго, либо доступно».
+    <span class="syn">Синтез: простота — это маршрут по глубине, а не перевод.</span>
+    Продукт уже решил это в промпте: наводка → частичный шаг → полное решение
+    (<code>_impl.py:662-665</code>), три depth_level, честный
+    <code>coverage_warning</code> (<code>:668</code>). Истина не переписывается — она
+    дозируется. Осталось применить тот же принцип к лекции: «проще» должно означать
+    «проще про этот раздел» — его текст уже вырезан якорями строк сайдкара.</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">интерес / игра ↔ фокус учёбы</div>
+    <p>Развлечение, подменяющее понимание, — худший исход; но и «просто держись» не работает.
+    <span class="syn">Синтез: игра ставит вопрос — учёба на него отвечает.</span>
+    Всё игровое в продукте ценно ровно настолько, насколько порождает живой вопрос:
+    ставка-предсказание перед фрагментом лекции — это игра, работающая на понимание
+    (predict-then-listen), а не рядом с ним. XP за закрытые ворота — уже есть механика
+    (<code>quiz_scoped.py:105</code>).</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">лёгкость ↔ усилие</div>
+    <p>Разжёванное не тренирует; непосильное отталкивает.
+    <span class="syn">Синтез: распределить трудность по оси времени.</span>
+    Вопрос <em>до</em> фрагмента имеет право быть трудным — усилие вспоминания и
+    предсказания и есть обучение; «Объясни проще» и level_downgrade <em>после</em> неудачи
+    имеют право быть лёгкими — восстановление уверенности кодифицировано правилом №6
+    диспетчера (<code>_impl.py:1017</code>). Обе половины уже написаны — их надо расставить
+    по разные стороны отрезка лекции.</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">материал лектора неприкосновенен ↔ адаптация под ученика</div>
+    <p>Вердикт №14 в силе: слои поверх, не перегенерация — якоря строк, sha256, сайдкары.
+    <span class="syn">Синтез: чекпоинты — ещё один сайдкар-слой поверх той же разметки.</span>
+    Лекцию не режем и не переозвучиваем: обрезанный плеер лишь останавливается на границе,
+    которую уже провёл <code>.media.json</code>; вопросы указывают на минуту так же, как
+    видео-цитаты указывают на минуту. Материал остаётся байт-в-байт материалом лектора.</p>
+  </div>
+</section>
+
+<!-- 4. БОЛЬ-ЯКОРЬ -->
+<section id="pain">
+  <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Боль-якорь</span></div>
+  <h2>Студент засыпает к середине — и код объясняет почему</h2>
+  <div class="card anchor-card">
+    <p><strong>Проверяемый факт:</strong> на скучной лекции студент отключается к середине и
+    не может пересказать вторую половину; «Объясни проще» спасает точку, но не 123 минуты
+    урок_2.</p>
+    <p><strong>Точная причина в коде — три звена:</strong></p>
+    <ul>
+      <li><code>living_konspekt_media.py:356-366</code> — всё присутствие продукта во время
+      лекции: один бит <code>mark_listened</code> в момент клика «🎧 Слушать раздел»
+      (в коде честно: <em>«best-effort trace… No effect on mastery»</em>). Дальше —
+      <code>st.video</code> (<code>:379</code>) и <code>st.audio</code> (<code>:397</code>):
+      нативные HTML5-плееры без обратного канала. Продукт не знает, на какой минуте студент
+      и слушает ли он вообще.</li>
+      <li>Все таймкоды — двери «в лекцию» (конспект <code>:348</code>, карточки
+      <code>flashcards_review_view.py:818</code>, моменты
+      <code>living_konspekt_next_steps.py:139</code>, цитаты
+      <code>living_konspekt_video_citations.py:95</code>) — и ни одной двери «из лекции
+      в петлю»: grep <code>t_start</code> по всем девяти quiz-модулям — ноль совпадений.
+      Единственное «media» в них — подстрока в слове «inter<strong>media</strong>te».</li>
+      <li><code>_impl.py:1007</code> — скука распознаётся только по явному «скучно/устал/надоело»
+      в сообщении. Засыпающий студент в чат не пишет — он спит. Реактивный канал
+      физически не может сработать в момент, ради которого создан.</li>
+    </ul>
+    <p><strong>Озарение, которое делает ход дешёвым:</strong> продукту не нужна телеметрия
+    позиции, чтобы присутствовать на лекции. Обрезанный плеер уже умеет останавливаться на
+    границе раздела (<code>end_time</code>, <code>:396-399</code>) — если отрезок 284–673
+    доиграл, позиция известна <em>по конструкции</em>: студент на 673-й секунде. А quiz уже
+    умеет спрашивать по ограниченному тексту без retrieval
+    (<code>generate_scoped_quiz_from_content</code>, <code>quiz_scoped.py:182</code>), и
+    сайдкар уже связывает эту минуту с этими строками. <strong>Две готовые подсистемы надо
+    только познакомить.</strong></p>
+    <p class="ev">Житейская проверка: поставь урок_2 на 40-й минуте и выйди из комнаты —
+    ни один экран продукта не изменится до конца лекции. Вернись через час — продукт
+    предложит то же, что и до ухода.</p>
+  </div>
+</section>
+
+<!-- 5. ВЕРДИКТЫ -->
+<section id="verdicts">
+  <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Вердикты</span></div>
+  <h2>Позиции по каждому элементу карты</h2>
+
+  <div class="card"><span class="v v-keep">оставить</span><strong>Scaffolding / depth_level / CTA-стек «Объясни проще».</strong>
+  Лучшее, что есть у продукта для «сложное → простое»; №14 подтвердил работоспособность.
+  Не трогать — переиспользовать как «ворота» чекпоинта.</div>
+
+  <div class="card"><span class="v v-keep">оставить</span><strong>Рубрика, novelty, схемы разделов.</strong>
+  Простота как свойство материала измеряется и показывается; для хода №19 они — контекст,
+  не стройплощадка.</div>
+
+  <div class="card"><span class="v v-keep">оставить</span><strong>Маршрут дня / worth / 3D-зал / миры / туры.</strong>
+  Ставка «зачем сегодня» и сенсорная свежесть работают на своём уровне (концепты и дни).
+  В лекционное время их не тащить — там нужна ставка на минуты, не на дни.</div>
+
+  <div class="card"><span class="v v-keep">оставить</span><strong>EMOTIONAL OVERRIDE + ярлык скуки.</strong>
+  Реактивный канал честен и дёшев — пусть живёт. Но он перестаёт быть единственным датчиком:
+  поведенческий сигнал (см. «объединить» ниже) не требует признания в чате.</div>
+
+  <div class="card"><span class="v v-fix">объединить</span><strong>Quiz-стек ⊕ медиа-слой — ядро хода.</strong>
+  Вопрос получает адрес минуты: scoped-квиз генерируется из текста timed-раздела
+  (<code>line_start/line_end</code> → текст, <code>t_start/t_end</code> → отрезок плеера).
+  Один и тот же <code>.media.json</code> — оба конца моста уже стоят на нём.</div>
+
+  <div class="card"><span class="v v-fix">починить</span><strong>«Объясни проще» без адреса.</strong>
+  После провала ворот CTA обязан нести контекст раздела и кнопку «Переслушать отрезок»
+  (<code>t_start/t_end</code> готовы). Replay шести минут вместо беспомощного «проще»
+  обо всём уроке.</div>
+
+  <div class="card"><span class="v v-fix">объединить</span><strong>Провал чекпоинта → сигнал скуки.</strong>
+  Два подряд проваленных ворот — поведенческий эквивалент «скучно», доступный без слов.
+  Скормить его существующему override-каналу (MotivationCoach предлагает сменить формат:
+  карточки, 3D-зал, перерыв) — датчик, который работает на спящих.</div>
+
+  <div class="card"><span class="v v-keep">оставить</span><strong>Односторонние двери «в лекцию».</strong>
+  Конспект → минута, карточка → минута, цитата → минута — правильные и полезные. Ход №19
+  не заменяет их, а достраивает обратное направление.</div>
+
+  <h3>НЕ делать — отклонённые ходы</h3>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>Кастомный плеер с телеметрией позиции.</strong>
+  JS-компонент + канал событий ради данных, которые clip-конструкция даёт бесплатно.
+  Это типовой kill switch («новый компонент/пайплайн») в чистом виде.</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>Realtime-детекция скуки (паузы, скорость, камера).</strong>
+  Слежка вместо ставки: не создаёт живой вопрос, а фиксирует его отсутствие. Для
+  локального продукта — чужеродно и дорого.</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>LLM-вставки «оживляжа» в материал лектора.</strong>
+  Перегенерация нарушает вердикт №14 (слои поверх, не вместо), а развлечение, встроенное в
+  материал, подменяет понимание — противоречие 2 решается ставкой, не шутками.</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>Офлайн-предгенерация вопросов ко всем 75 разделам.</strong>
+  Scoped-квиз работает on-demand за секунды и всегда свеж к mastery-уровню; пайплайн
+  предгенерации — новое хранилище и новый цикл инвалидации ради экономии, которой никто
+  не просил.</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>«Сократи лекцию» / авто-выжимка вместо прослушивания.</strong>
+  Сжатие уже существует и называется конспектом. Боль не в длине лекции, а в отсутствии
+  ставки на её следующие минуты.</div>
+</section>
+
+<!-- 6. ЦЕННОСТЬ -->
+<section id="value">
+  <div class="sec-label"><span class="sec-num">6</span><span class="sec-name">Ценность</span></div>
+  <h2>Уникальность — одно адресное пространство учёбы</h2>
+  <p>MOOC-плеер знает минуту, но не знает твой mastery. Чат-тьютор знает mastery, но не
+  знает минуту. hometutor — единственная из окружающих систем, где лекция, конспект, граф,
+  карточки и проверка живут в <strong>одном адресном пространстве</strong>: минута ↔ строка ↔
+  концепт ↔ карточка (сайдкар несёт обе пары координат, карточка уже прыгает на минуту
+  цитаты). Ход №19 не добавляет новое измерение — он впервые проходит по уже построенному
+  мосту в обратную сторону.</p>
+  <p><strong>North star-метрика — «глубина лекции с подтверждением»:</strong> доля
+  таймкодированных разделов урока, закрытых воротами (правильный ответ после отрезка).
+  Сегодня продукт не может её даже измерить — плеер глух, и где студент бросил урок,
+  неизвестно. Если ход удался, число появляется и растёт.</p>
+  <div class="table-scroll">
+    <table>
+      <tr><th>Метрика</th><th>Сейчас</th><th>После P0</th></tr>
+      <tr><td>Глубина лекции с подтверждением (урок_2)</td><td>неизмеримо (фактически 0: вопросов к минуте не существует)</td><td>измеряется; цель — медиана ≥ 70% разделов</td></tr>
+      <tr><td>Судьба второй половины лекции</td><td>немая зона: пересказать нечем, спросить не о чем</td><td>каждые ~10 минут — закрытые ворота с фактом ответа</td></tr>
+      <tr><td>Обнаружение скуки</td><td>только по слову «скучно» в чате</td><td>+ поведенческий сигнал: провалы ворот без признаний</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 7. ПУТЬ -->
+<section id="path">
+  <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Путь</span></div>
+  <h2>Золотой путь сквозь скучную лекцию сложной темы</h2>
+  <p><strong>Одна сессия:</strong> студент открывает урок_2 → «Маршрут лекции»: ~12 отрезков
+  по ~10 минут (смежные timed-разделы сгруппированы арифметикой; непокрытые таймкодами
+  куски честно остаются обычным прослушиванием) → перед отрезком — ставка: один вопрос-
+  предсказание («через 8 минут лектор объяснит, почему слово ≠ токен — твоя версия?») →
+  отрезок играет и <em>сам останавливается</em> на границе → ворота: тот же вопрос + один
+  recall по тексту раздела → верно: +XP, следующий отрезок; неверно: «Объясни проще» с
+  адресом раздела или «Переслушать отрезок» → финал: карта урока с закрытыми воротами,
+  несданные уходят в карточки — и наутро возвращаются через SM-2.</p>
+  <ol class="ladder">
+    <li><span class="num">0</span><span><strong>Слушатель.</strong> Прослушал отрезок —
+    уже фиксируется (<code>mark_listened</code>); нулевой уровень достижим одним кликом.</span></li>
+    <li><span class="num">1</span><span><strong>Первые ворота.</strong> Один правильный ответ
+    после отрезка — первое доказательство «я не сплю», доступное за 10 минут.</span></li>
+    <li><span class="num">2</span><span><strong>Экватор.</strong> Половина урока с закрытыми
+    воротами — то самое место, где раньше начинался сон.</span></li>
+    <li><span class="num">3</span><span><strong>Вторая половина.</strong> Все ворота после
+    экватора с первой попытки — немой зоны больше нет.</span></li>
+    <li><span class="num">4</span><span><strong>Наутро.</strong> Несданные ворота вернулись
+    карточками, SM-2 закрыл долг — лекция дожила до долгой памяти.</span></li>
+  </ol>
+</section>
+
+<!-- 8. ПЛАН -->
+<section id="plan">
+  <div class="sec-label"><span class="sec-num">8</span><span class="sec-name">План</span></div>
+  <h2>P0–P2 по соотношению эффект/усилие</h2>
+  <div class="table-scroll">
+    <table>
+      <tr><th></th><th>Ход</th><th>Что делается</th><th>Усилие</th></tr>
+      <tr><td><span class="tag tag-p0">P0-1</span></td><td><strong>«Маршрут лекции»: отрезки + ворота.</strong></td>
+      <td>Режим прохождения в Living Konspekt: группировка timed-разделов в отрезки
+      (арифметика по готовым t_start/t_end), clipped-плеер (существующий
+      <code>_render_local_audio_player</code>), после остановки — ворота из
+      <code>generate_scoped_quiz_from_content</code> по тексту раздела, результат — в
+      существующий quiz-стек и XP.</td><td>~день</td></tr>
+      <tr><td><span class="tag tag-p0">P0-2</span></td><td><strong>«Проще + переслушать» с адресом.</strong></td>
+      <td>Провал ворот → CTA «Объясни проще» получает текст раздела контекстом + кнопка
+      «Переслушать отрезок» (t_start/t_end готовы). Спасает отрезок, а не точку.</td><td>часы</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td><td>Ставка до отрезка + глубина в user_state.</td>
+      <td>Вопрос-предсказание перед отрезком (predict-then-listen); персист «глубины лекции»
+      через существующие user_state-хелперы — North star становится числом на дашборде;
+      handoff несданных ворот в карточки (механизм №1 B1).</td><td>дни</td></tr>
+      <tr><td><span class="tag tag-p2">P2</span></td><td>Скука без признания + связка с маршрутом дня.</td>
+      <td>Два провала ворот подряд → поведенческий сигнал в override-канал (MotivationCoach
+      предлагает сменить формат: карточки / 3D-зал / перерыв); worth объясняет в шапке
+      маршрута, зачем этот урок сегодня.</td><td>волна</td></tr>
+    </table>
+  </div>
+  <p><strong>Kill switch для P0:</strong> (а) потребовался кастомный JS-плеер или телеметрия
+  позиции — стоп: конструкция clip-остановки обязана хватать; (б) потребовалось новое
+  хранилище или офлайн-пайплайн предгенерации вопросов — стоп: session_state и существующие
+  quiz-таблицы достаточны; (в) захотелось LLM для группировки отрезков — стоп: это
+  арифметика готовых t_start.</p>
+</section>
+
+<div class="footer">
+  <p>Разбор №19 · hometutor HEAD <code>b9eee3ef3</code> «287» · 2026-07-18.</p>
+  <p>Правило двух слоёв: этот HTML — слой анализа; actionable-кандидаты — в
+  <code>doc/next/lecture_presence_checkpoints_plan.md</code>. Серия:
+  <code>doc/presentations/evolutionary_analyses/</code>.</p>
+</div>
+
+</div>
+</body>
+</html>

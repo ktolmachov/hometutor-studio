@@ -57,7 +57,7 @@
 |---|---|
 | `knowledge_graph_3d_world_vision.md` | полная ревизия **v1** (~38 KB) |
 | `knowledge_graph_3d_game_plan.md` | синхронизация хвоста «→ Мнемополис», статусов, residual W0′ |
-| `doc/presentations/evolutionary_analyses/19_mnemopolis_world.html` | добавлен разбор №19 / презентационный артефакт |
+| `doc/presentations/evolutionary_analyses/20_mnemopolis_world.html` | добавлен разбор №20 (номер сдвинут 2026-07-18: №19 занят темой обучения) / презентационный артефакт |
 
 Runtime-код hometutor **не менялся**.
 
@@ -159,7 +159,7 @@ hometutor-studio/
 
 ## 7. Рекомендации владельцу
 
-1. **Принять vision v1** как актуальный candidate №19 (вместо v0).
+1. **Принять vision v1** как актуальный candidate №20 (вместо v0; номер сдвинут 2026-07-18).
 2. **Промоут в backlog только среза** `W0′ → W1` (+ опционально `W2a`).
 3. Отдельно решить (когда понадобится):
    - переоткрывать MC = home только при явном owner override; в vision это уже принято как рекомендация;

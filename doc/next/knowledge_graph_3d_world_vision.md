@@ -1,6 +1,6 @@
 # Мнемополис: от «3D-зала» к живому миру памяти (vision + аудит качества)
 
-**Статус:** кандидат-материал к эволюционному разбору №19 («расширение границ игрового
+**Статус:** кандидат-материал к эволюционному разбору №20 (номер сдвинут 2026-07-18: №19 занят темой обучения) («расширение границ игрового
 3D-мира и интеграция разделов приложения»). **НЕ backlog** — владелец промоутит
 вручную. Материал `hometutor-studio` (`doc/next/`), не runtime-docs `hometutor/docs/`.
 
@@ -37,7 +37,7 @@
 | W0: axis/nav underlay, compass labels, fitRouteCamera margin, link styles, interior head, smooth path, progress track | ✅ bulk | @273–274 |
 | G4.1 floor tint (local/all) · G4.2 `#replaybar` scrubber | ✅ | @275 |
 | G4.3 «фото дня» | ⬜ | privacy DoD из game plan |
-| Мнемополис (разбор №19) | vision only | этот документ |
+| Мнемополис (разбор №20) | vision only | этот документ |
 
 ---
 
