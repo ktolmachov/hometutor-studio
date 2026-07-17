@@ -17,7 +17,7 @@
 | W0 quality Q1–Q9 (vision audit) | 273–274 | ✅ |
 | G4.1 floor tint · G4.2 history replay | 275 | ✅ |
 | G4.3 «фото дня» | — | ⬜ privacy DoD |
-| Мнемополис (разбор №19) | vision only | ⬜ кандидат |
+| Мнемополис (разбор №19) | vision v1 @2026-07-18 | ⬜ кандидат (W0′+W1 ready to promote) |
 
 **Line-refs в исторических разделах G0–G3 — ориентиры на момент реализации, не
 контракт**; сверять по имени функции. Актуальный порядок и статусы — в разделе
@@ -232,7 +232,7 @@ stored=config (15 files / 414 nodes); mismatch pplx↔qwen3 снят.
 - G4.1 floor tint · G4.2 history replay — **@275** ✅  
 
 **Осталось в этом плане:** G4.3 «фото дня» ⬜ (privacy DoD).  
-**Вне плана (кандидат №19):** Мнемополис — `knowledge_graph_3d_world_vision.md`.
+**Вне плана (кандидат №19):** Мнемополис — `knowledge_graph_3d_world_vision.md` (v1).
 
 | Что | Было (@263) | Стало (@275) |
 |---|---|---|
@@ -765,16 +765,20 @@ R1–R3 @271–272 ✅; W0 @273–274 ✅; **G4.1+G4.2 @275 ✅**; **G4.3 ⬜**.
 
 ## Продолжение линии → Мнемополис (кандидат к разбору №19)
 
-Следующий этап линии — расширение зала до **мира** (районы = разделы приложения,
-ИИ-Хранитель, антагонисты из данных, рассвет по прогрессу): см.
-`knowledge_graph_3d_world_vision.md` (2026-07-17, tracked).
+Следующий этап линии — расширение зала до **мира** (ceremonial hub, не замена
+Mission Control; двери в разделы; Хранитель; антагонисты из данных; рассвет):
+см. `knowledge_graph_3d_world_vision.md` (**v1, 2026-07-18**, re-baseline @275).
 
-**Качество скина из vision (Q1–Q9):** закрыто в runtime **@273–274** (W0) —
-axis/nav, compass, `fitRouteCamera`, learner status, link skin, smooth path, ring track.
-Оставшиеся пункты vision — уже **мир/механики №19**, не долг Memory Run.
+**Качество скина (Q1–Q9 @270):** bulk закрыт runtime **W0 @273–274**
+(axis/nav underlay, compass rename, `fitRouteCamera` margin, link skin, interior
+head, smooth path, ring track). **Residual W0′** (vision §1.2): vertical fill
+desktop, одна легенда compass/axis, mobile overlap, hide `#hint`, learner chips
+(`due true` bug), ring contrast — это ещё долг Memory Run polish, **до** механик
+мира. Промоут в backlog: **W0′ → W1** (+ opt. W2a); остальное — каталог.
 
-Kill switch в vision v3: LLM через provider layer с кэшем/бюджетом/деградацией;
-домен и первый route-кадр остаются неприкосновенными.
+Kill switch vision **v3.1**: LLM только с числовым budget (§6.2 vision), cache,
+degrade, non-blocking first paint, no domain write; scene-DSL = design spike;
+домен и first route-кадр неприкосновенны; G0 `+review` — отдельная волна W2b.
 
 ### Что осталось (чеклист владельца)
 
@@ -782,5 +786,5 @@ Kill switch в vision v3: LLM через provider layer с кэшем/бюдже
 |---|---|---|
 | 1 | G4.3 export «фото дня» + privacy DoD | ⬜ |
 | 2 | Push hometutor `main` (ahead origin; @275) | ops |
-| 3 | Мнемополис / разбор №19 | ⬜ кандидат |
+| 3 | Мнемополис vision v1 → backlog slice W0′+W1 | ⬜ кандидат (промоут вручную) |
 | 4 | Live Streamlit smoke (опционально) | ops |

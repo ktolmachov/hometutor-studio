@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Разбор №19 — Мнемополис: город без декораций</title>
+<style>
+/* ============================================================
+   HOMETUTOR NOTEBOOK STYLE v1.0 — LOCKED 2026-07-12
+   Копия notebook_template.html буквально. Палитра не менялась.
+   ============================================================ */
+:root {
+  --paper: #f7f3ea;
+  --paper-2: #fffdf7;
+  --ink: #17211b;
+  --muted: #5c6a61;
+  --terra: #b95631;
+  --terra-deep: #7d351f;
+  --forest: #243b2c;
+  --gold: #c98a3d;
+  --line: rgba(23, 33, 27, 0.14);
+  --card: rgba(255, 255, 255, 0.72);
+  --code-bg: rgba(36, 59, 44, 0.07);
+  --verdict-keep: #1e6e46;
+  --verdict-fix: #a05010;
+  --verdict-no: #8c2f39;
+  --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  --done: #1e6e46;
+  --silent: #b98a2d;
+  --hole: #8c2f39;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+    --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+    --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+}
+:root[data-theme="light"] {
+  --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+  --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+  --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+  --code-bg: rgba(36, 59, 44, 0.07);
+  --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+  --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+  --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+}
+:root[data-theme="dark"] {
+  --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+  --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+  --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+  --code-bg: rgba(157, 191, 168, 0.10);
+  --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+  --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+  --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+    radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+    var(--paper);
+  color: var(--ink);
+  font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  font-size: 16.5px;
+  line-height: 1.68;
+}
+
+.wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+p { margin: 0 0 1rem; max-width: 72ch; }
+ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+li { margin-bottom: 0.45rem; }
+strong { color: var(--terra-deep); }
+em { color: var(--muted); }
+
+code {
+  font-family: Consolas, "SF Mono", Menlo, monospace;
+  font-size: 0.86em;
+  background: var(--code-bg);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  word-break: break-word;
+}
+
+.kicker {
+  text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+  font-weight: 700; color: var(--terra);
+}
+.lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+.meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+.meta code { font-size: 0.82rem; }
+
+section { margin-top: 3.4rem; }
+.sec-label {
+  display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+  border-top: 1px solid var(--line); padding-top: 1.6rem;
+}
+.sec-num {
+  font-family: Georgia, serif; font-size: 0.95rem; color: var(--gold);
+  font-weight: 700; letter-spacing: 0.06em;
+}
+.sec-name {
+  text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem;
+  font-weight: 700; color: var(--muted);
+}
+
+.card {
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  padding: 1.1rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+}
+.anchor-card { border-left: 4px solid var(--terra); }
+.ev { font-size: 0.86rem; color: var(--muted); margin-top: 0.5rem; }
+.ev code { font-size: 0.8rem; }
+
+.figure { margin: 1.4rem 0 0.4rem; }
+.figure svg { width: 100%; height: auto; display: block; }
+.figcap { font-size: 0.84rem; color: var(--muted); margin-top: 0.5rem; max-width: 70ch; }
+
+.table-scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+td:first-child { white-space: nowrap; }
+td { font-variant-numeric: tabular-nums; }
+
+.st { display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 99px; white-space: nowrap; }
+.st-done { color: var(--done); border: 1px solid var(--done); }
+.st-silent { color: var(--silent); border: 1px solid var(--silent); }
+.st-hole { color: var(--hole); border: 1px solid var(--hole); }
+
+.v { display: inline-block; font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+     letter-spacing: 0.08em; padding: 0.1rem 0.55rem; border-radius: 99px; margin-right: 0.5rem; }
+.v-keep { color: var(--verdict-keep); border: 1.5px solid var(--verdict-keep); }
+.v-fix { color: var(--verdict-fix); border: 1.5px solid var(--verdict-fix); }
+.v-no { color: var(--verdict-no); border: 1.5px solid var(--verdict-no); }
+
+.tension { border-left: 4px solid var(--gold); }
+.tension .t { font-family: Georgia, serif; font-size: 1.05rem; margin-bottom: 0.35rem; }
+.syn { color: var(--verdict-keep); font-weight: 600; }
+
+.ladder { list-style: none; padding-left: 0; }
+.ladder li { display: flex; gap: 0.8rem; align-items: baseline; margin-bottom: 0.55rem; }
+.ladder .num {
+  flex: none; font-family: Georgia, serif; font-weight: 700; color: var(--gold);
+  width: 1.6rem; text-align: right;
+}
+
+.tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.08rem 0.5rem;
+       border-radius: 4px; color: var(--paper-2); }
+.tag-p0 { background: var(--terra); }
+.tag-p1 { background: var(--forest); }
+.tag-p2 { background: var(--gold); }
+:root[data-theme="dark"] .tag, :root[data-theme="dark"] .tag-p2 { color: #141a16; }
+@media (prefers-color-scheme: dark) { .tag { color: #141a16; } }
+:root[data-theme="light"] .tag { color: var(--paper-2); }
+
+.footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
+          font-size: 0.85rem; color: var(--muted); }
+.footer code { font-size: 0.8rem; }
+
+a { color: var(--terra); }
+
+/* --- Демонстратор «Рассвет и Туман» — намеренно вне notebook-палитры:
+   тот же приём, что production kg_3d_template.html (собственный night-hall
+   скин компонента, не подчиняется теме страницы), токены = --kgx-* Memory Run. --- */
+.mnx {
+  --kgx-night:#080812; --kgx-panel:#151728; --kgx-line:rgba(223,229,255,.15);
+  --kgx-text:#faf9ff; --kgx-muted:#aeb5cf; --kgx-cyan:#42e8e0; --kgx-violet:#9a6cff;
+  --kgx-gold:#ffc857; --kgx-lime:#b9f75b; --kgx-coral:#ff6b8a; --kgx-blue:#4ca4ff;
+  background: var(--kgx-night); border: 1px solid rgba(255,255,255,.12); border-radius: 10px;
+  padding: 1rem; margin: 1.1rem 0 0.6rem; box-shadow: 0 20px 50px rgba(6,12,16,.34);
+}
+.mnx-stage { border-radius: 6px; overflow: hidden; background: #050508; }
+.mnx canvas { display: block; width: 100%; height: auto; }
+.mnx-controls { display: flex; flex-wrap: wrap; gap: 1.1rem; margin-top: .9rem; }
+.mnx-row { display: flex; align-items: center; gap: .5rem; color: var(--kgx-muted); font-size: .82rem; }
+.mnx-label { color: var(--kgx-text); font-weight: 600; }
+.mnx-btn {
+  border: 1px solid var(--kgx-line); background: var(--kgx-panel); color: var(--kgx-text);
+  border-radius: 5px; padding: .32rem .7rem; cursor: pointer; font-size: .82rem; font-weight: 600;
+}
+.mnx-btn:hover { border-color: var(--kgx-cyan); color: var(--kgx-cyan); }
+.mnx-btn:focus-visible { outline: 2px solid var(--kgx-cyan); outline-offset: 2px; }
+.mnx-btn-wide { min-width: 9.5rem; }
+.mnx-legend { display: flex; flex-wrap: wrap; gap: .4rem 1rem; margin-top: .7rem; font-size: .74rem; color: var(--kgx-muted); }
+.mnx-legend b { color: var(--kgx-text); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">Эволюционный разбор · №19 · Мнемополис (расширение 3D-мира)</div>
+  <h1>Мнемополис: город без декораций</h1>
+  <p class="lede">Разбор №18 дал залу мост, действия и память (G0–G3); дизайн-волна Memory
+  Run (U0–U4) довела скин до «Вау». Живой прогон готового артефакта в этой же сессии нашёл
+  9 визуальных столкновений, невидимых для зелёного gate, — и владелец закрыл все девять
+  тем же днём (коммиты 271–274). Это хорошая новость и одновременно точный диагноз: гейт
+  умеет проверять текст и теперь ещё и геометрию DOM-хрома, но два независимых слоя сцены —
+  canvas и DOM — по-прежнему синхронизируются вручную, магическими числами, а не общим
+  измерением. Разбор фиксирует этот корень, формулирует закон, который превращает «зал на
+  одну комнату» в мир на весь продукт, и вводит в этот мир ИИ-хранителя и честных
+  антагонистов — без единого элемента, который не был бы проекцией реальных данных ученика.</p>
+  <div class="meta">
+    <span>hometutor · HEAD <code>852f28e89</code> «274»</span>
+    <span>2026-07-17/18</span>
+    <span>живой прогон Playwright (embedded+export, 1366×768/860×768/390×844) + vision-документ <code>knowledge_graph_3d_world_vision.md</code></span>
+  </div>
+</header>
+
+<!-- Демонстратор — по образцу «hall-prototype» из разбора №18 -->
+<section id="dawn-fog-prototype" aria-labelledby="dawn-fog-title">
+  <h2 id="dawn-fog-title">Рассвет и Туман: закон мира в двух образах</h2>
+  <p>Offline-демонстратор двух флагманских образов волн W1/W2 (§7, §9). Не production-код —
+  палитра и приём взяты из уже отгруженного скина Memory Run
+  (<code>--kgx-*</code>, <code>app/ui/assets/kg_3d_template.html:16-24</code>), без
+  Three.js и CDN. Данные синтетические, маршрут — тот же набор остановок, что в живом
+  прогоне §2.</p>
+  <div class="mnx">
+    <div class="mnx-stage">
+      <canvas id="mnxCanvas" width="700" height="300" role="img"
+        aria-label="Тропа маршрута дня: небо темнеет к ночи при низком прогрессе и светлеет к рассвету при полном; пройденные остановки светятся фонарями; на выбранной остановке можно включить Туман Забвения, стирающий буквы подписи"></canvas>
+    </div>
+    <div class="mnx-controls">
+      <div class="mnx-row">
+        <span class="mnx-label">Прогресс дня</span>
+        <button type="button" id="mnxMinus" class="mnx-btn" aria-label="Уменьшить прогресс">−</button>
+        <strong id="mnxProgressVal" style="color:var(--kgx-text)">2 из 6</strong>
+        <button type="button" id="mnxPlus" class="mnx-btn" aria-label="Увеличить прогресс">+</button>
+      </div>
+      <div class="mnx-row">
+        <span class="mnx-label">Туман Забвения на «Hometutor»</span>
+        <button type="button" id="mnxFog" class="mnx-btn mnx-btn-wide">decay: 0%</button>
+      </div>
+    </div>
+    <div class="mnx-legend">
+      <span><b>лит-фонарь</b> — пройдено</span>
+      <span><b>крупная точка</b> — активная остановка</span>
+      <span><b>синяя точка</b> — впереди</span>
+      <span><b>Туман</b> = decay_vector, буквы стираются пропорционально забыванию</span>
+    </div>
+  </div>
+  <p class="figcap">«−/+» честно перекрашивают небо и зажигают тропу за спиной; кнопка тумана
+  трёхступенчато стирает буквы подписи одной остановки. Ничего не анимируется само —
+  сцена перерисовывается только по клику, как и должен вести себя честный слой данных, а
+  не бегущий рендер (тот же принцип «нет фонового движения без причины», что в
+  production route-кадре №17).</p>
+</section>
+
+<!-- 1. СУТЬ -->
+<section id="essence">
+  <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Суть</span></div>
+  <h2>Чего по-настоящему хочет ученик, гуляющий по графу своих знаний</h2>
+  <p>Не «поиграть» — увидеть. У hometutor уже есть всё, что нужно для честного ответа на
+  вопрос «что происходит с моей памятью»: граф, spaced repetition, история квизов,
+  RAG-тьютор, паспорт качества конспекта. Но это знание живёт в цифрах и панелях, а
+  человек мыслит образами и местом. 3D-зал был первым органом чувств для этого знания —
+  и он сработал (владелец: «Вау!» после Memory Run). <strong>Дальше вопрос не «добавить
+  ли ещё фич», а «может ли зал стать единственным честным зеркалом всего продукта»</strong> —
+  тем местом, куда возвращаются между разделами, а не тем, что открывают раз и забывают.
+  Это и есть суть разбора: 3D — не украшение поверх продукта, а орган чувств, которого
+  раньше не было ни у одного его раздела.</p>
+</section>
+
+<!-- 2. РЕАЛЬНОСТЬ -->
+<section id="reality">
+  <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Реальность</span></div>
+  <h2>Что уже есть в коде — и как быстро закрылся вчерашний аудит</h2>
+
+  <div class="card">
+    <p><strong>Игровая петля закрыта полностью.</strong> Разборы №17/№18 и их ревизии
+    довели зал до production: мост действия (G0, <code>app/ui/assets/kg_3d_component/index.html</code>,
+    envelope <code>_kg3d</code> с nonce/dedup), <code>start</code>→Quiz и
+    <code>collect</code>→workbench (G1, <code>_collect_concept_sections_to_workbench</code>),
+    память по квизам с честной датой снимка (G2, <code>__MASTERY_HISTORY__</code>/
+    <code>__SNAPSHOT_DATE__</code>), маркер «в конспекте» + счётчик корзины (G3). Поверх —
+    дизайн-волна Memory Run: топбар/карточка остановки/CTA (U0), карточка ценности узла
+    (U1), двери в Obsidian через <code>__CONCEPT_SECTIONS__</code> (U2), интерьер узла
+    <code>openInterior</code> (U3), onboarding + «Экскурсия дня» вместо тупика (U4).</p>
+  </div>
+
+  <div class="figure">
+    <svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg" role="img"
+      aria-label="Закон мира: реальный сигнал данных превращается в образ сцены, который видит ученик — три примера в трёх колонках">
+      <rect x="8" y="8" width="684" height="214" rx="10" fill="none" stroke="var(--line)"/>
+      <text x="98" y="34" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="700" fill="var(--gold)">СИГНАЛ ДАННЫХ</text>
+      <text x="350" y="34" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="700" fill="var(--gold)">ОБРАЗ СЦЕНЫ</text>
+      <text x="602" y="34" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="700" fill="var(--gold)">ЧТО ВИДИТ УЧЕНИК</text>
+      <line x1="8" y1="46" x2="692" y2="46" stroke="var(--line)"/>
+
+      <text x="20" y="76" font-size="12" fill="var(--ink)">decay_vector[concept]</text>
+      <text x="270" y="76" text-anchor="middle" font-size="16" fill="var(--muted)">→</text>
+      <text x="300" y="76" font-size="12" fill="var(--ink)">Туман Забвения, буквы стираются</text>
+      <text x="530" y="76" text-anchor="middle" font-size="16" fill="var(--muted)">→</text>
+      <text x="560" y="76" font-size="12" fill="var(--ink)">«этот узел я забываю»</text>
+
+      <text x="20" y="116" font-size="12" fill="var(--ink)">done/route.length (day_route)</text>
+      <text x="270" y="116" text-anchor="middle" font-size="16" fill="var(--muted)">→</text>
+      <text x="300" y="116" font-size="12" fill="var(--ink)">небо от ночи к рассвету</text>
+      <text x="530" y="116" text-anchor="middle" font-size="16" fill="var(--muted)">→</text>
+      <text x="560" y="116" font-size="12" fill="var(--ink)">«сколько сегодня сделано»</text>
+
+      <text x="20" y="156" font-size="12" fill="var(--ink)">mastery_history (quiz ✓)</text>
+      <text x="270" y="156" text-anchor="middle" font-size="16" fill="var(--muted)">→</text>
+      <text x="300" y="156" font-size="12" fill="var(--ink)">фонарь на пройденной остановке</text>
+      <text x="530" y="156" text-anchor="middle" font-size="16" fill="var(--muted)">→</text>
+      <text x="560" y="156" font-size="12" fill="var(--ink)">«это я уже сдал»</text>
+
+      <text x="20" y="196" font-size="12" fill="var(--ink)">workbench (корзина конспекта)</text>
+      <text x="270" y="196" text-anchor="middle" font-size="16" fill="var(--muted)">→</text>
+      <text x="300" y="196" font-size="12" fill="var(--ink)">ромб ◆ на существующем узле</text>
+      <text x="530" y="196" text-anchor="middle" font-size="16" fill="var(--muted)">→</text>
+      <text x="560" y="196" font-size="12" fill="var(--ink)">«это я уже собрал»</text>
+    </svg>
+    <p class="figcap">Все четыре строки — уже посчитанные production-поля (payload не
+    меняется, только render-контракт). Ни один образ в §7/§9 этого разбора не выдумывает
+    новую сущность — только переводит существующее число в свет/цвет/форму.</p>
+  </div>
+
+  <h3>Живой прогон нашёл 9 находок — все закрыты в тот же день</h3>
+  <p>На запущенном embedded-артефакте (Playwright, фикстура 12 узлов/маршрут 6) в начале
+  этой сессии обнаружено 9 визуальных столкновений, невидимых для
+  <code>test_3d_memory_run_design_contract_static</code>
+  (<code>tests/test_knowledge_graph_counters.py:640</code>) — тот тест проверяет
+  <em>наличие</em> строк/классов в HTML, не координаты. Коммиты 271–274 закрыли все девять
+  тем же днём: компас переработан на четыре различимые оси
+  (<code>kg_3d_template.html:122-127</code>, комментарий «Q2: clear unique axes»), подпись
+  «СЕГОДНЯ» разведена с нижней панелью действий
+  (<code>kg_3d_template.html:1269-1270</code>, комментарий «Q1: never under ←/▶/→»), и —
+  важнее всего — сам gate дорос до geometry-assertions: `topbarMinH` в диапазоне 64–72px,
+  `sideWidth` 300–330px, `primaryIconCount` 3–4, `bodyOverflowX === false`
+  (<code>tests/test_knowledge_graph_counters.py:855-863</code>). Это настоящее закрытие
+  урока «зелёный gate ≠ живой экран» из прошлых аудитов №17/№18 — не косметика.</p>
+
+  <div class="table-scroll">
+    <table>
+      <tr><th>Находка (Q1–Q9, живой прогон)</th><th>Статус на HEAD 274</th></tr>
+      <tr><td>Нижние иконки-кнопки перекрывали ось «СЕГОДНЯ»</td><td><span class="st st-done">закрыто</span> — axisY разведён, комментарий «Q1»</td></tr>
+      <tr><td>Компас: «ВХОД» дважды на разных углах</td><td><span class="st st-done">закрыто</span> — 4 уникальные подписи, комментарий «Q2»</td></tr>
+      <tr><td>Mobile 390×844: активная остановка за левым краем; desktop: тропа прижата к верху</td><td><span class="st st-done">закрыто</span> — план фиксирует «fitRouteCamera mobile/desktop» (W0)</td></tr>
+      <tr><td>«Внутрь»/«Открыть раздел» — разнобой стиля; footer dev-строка</td><td><span class="st st-done">закрыто</span> — план фиксирует «link skin»</td></tr>
+      <tr><td>Интерьер: просвечивающая шапка, зигзаг тропы, кольцо прогресса на 0</td><td><span class="st st-done">закрыто</span> — план фиксирует «smooth path, ring track»</td></tr>
+      <tr><td>Мост G0–G3, скин U0–U4, V2′-gate</td><td><span class="st st-done">сделано</span> — базовая петля, не Q-находка</td></tr>
+      <tr><td>Двери разделов приложения (Quiz/SR/Живой конспект/Прогресс/…) в зал</td><td><span class="st st-hole">дыра</span> — вне охвата W0, см. §8 P2</td></tr>
+      <tr><td>ИИ-хранитель / LLM-вызовы в сцене</td><td><span class="st st-hole">дыра</span> — 0 вызовов, вне охвата W0</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <p><strong>Материал для мира уже существует и не тронут заморозкой домена.</strong>
+    <code>app/gamification_service.py</code> — XP/уровни (<code>level_from_total_xp</code>),
+    daily/quiz-стрики, бейджи; <code>app/ui/feature_registry.py:22-61</code> — 10 view'ов
+    продукта (Quiz, Flashcards, Живой конспект, Прогресс, Тьютор, Курс, История…), ни один
+    не связан с 3D-залом. <code>app/obsidian_export.py:168</code> уже умеет открывать
+    раздел по URI — использовано в U2, но только для одного концепта за раз. Провайдер-слой
+    (<code>app/provider.py</code>, профили LOCAL_STRICT/BALANCED, circuit breaker) готов
+    обслуживать текстового ИИ-агента в сцене — сегодня 3D-зал не делает ни одного LLM-вызова
+    (грепом по <code>kg_3d_template.html</code> — 0 упоминаний provider/OpenAI).</p>
+    <p class="ev">Побочная находка (без изменений на 274): проба с рёбрами
+    <code>{type:...}</code> вместо <code>{relation_type:...}</code> даёт пустое
+    «Созвездие» без единого предупреждения — <code>kg_3d_template.html:689</code> тихо
+    пропускает рёбра с незнакомым полем.</p>
+  </div>
+</section>
+
+<!-- 3. ПРОТИВОРЕЧИЯ -->
+<section id="tensions">
+  <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Противоречия</span></div>
+  <h2>Напряжения — и их синтез</h2>
+
+  <div class="card tension">
+    <div class="t">Local-first, ноль CDN ↔ «мировой класс» визуала</div>
+    <p>Продукт принципиально offline (провайдер-слой, вендоринг d3/mermaid по тому же
+    правилу, что и здесь). «Мировой класс» обычно читают как Three.js/WebGL/частицы.
+    <span class="syn">Синтез: глубина — через семантику цвета и честное движение, не
+    полигоны.</span> Reference Memory Run уже доказал: canvas 2D + свет + пунктир держат
+    уровень «Вау» без единой внешней зависимости. Кандидатура WebGL остаётся закрытой,
+    пока canvas 2D не упёрся в потолок выразительности — а он пока не упёрся.</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">ИИ-хранитель мира ↔ заморозка домена</div>
+    <p>Расширение мира просит агента, который «достраивает, объясняет, управляет» —
+    но kill switch v1/v2 запрещал LLM в 3D-зале целиком. Оставить запрет — мир остаётся
+    немым; снять его без границ — риск, что текст модели незаметно начнёт решать за
+    систему, что ученик «знает». <span class="syn">Синтез: LLM разрешён строго как
+    рендер текста/сцены поверх уже посчитанных данных</span> — provider layer, кэш по
+    <code>(snapshot_date, concept_id, сценарий)</code>, бюджет вызовов, обязательная
+    офлайн-деградация, и жёсткое «пишет в домен» = запрещено по построению (scene-DSL —
+    whitelist презентационных команд, не мутаций mastery/SR/workbench).</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">Мотивация ↔ анти-паттерн «вторая валюта»</div>
+    <p>Игровой слой должен поднимать желание пройти путь — а любимый инструмент
+    геймдизайна тут прямо запрещён и предыдущими разборами, и здравым смыслом (XP-инфляция,
+    нездоровые петли вовлечения не место в обучающем продукте). <span class="syn">Синтез:
+    мир не изобретает валюту — визуализирует уже существующую</span>
+    (<code>gamification_service.py</code>: XP/уровень/стрик/бейдж). Рассвет неба, высота
+    Обсерватории, свет фонарей — 100% derived от того, что уже считается; ноль новых чисел.</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">Опасность как двигатель внимания ↔ «не пугать, не стыдить»</div>
+    <p>Антагонисты — сильный крючок вовлечения в любой игре, но hometutor — учебный
+    продукт, а не аркада; тревога — плохой педагогический инструмент.
+    <span class="syn">Синтез: угроза = приглашение, не приговор.</span> Ровно три
+    антагониста, каждый — честная визуализация реального врага обучения (забывание,
+    ложная уверенность, пропущенный пререквизит), ни один не блокирует контент, каждый
+    закрывается действием ≤2 минуты, есть тумблер «Спокойный мир», и ни один не
+    показывается в первом route-кадре (ориентация №17 неприкосновенна).</p>
+  </div>
+</section>
+
+<!-- 4. БОЛЬ-ЯКОРЬ -->
+<section id="pain">
+  <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Боль-якорь</span></div>
+  <h2>Гейт стал зорче — но по-прежнему верит на слово двум разным художникам</h2>
+  <div class="card anchor-card">
+    <p><strong>Проверяемый факт:</strong> ось «СЕГОДНЯ» больше не перекрыта кнопками
+    навигации (закрыто 271–274) — но координата, на которой она рисуется, и высота панели,
+    от которой она отстраивается, живут в двух разных файлах как два независимых
+    литерала, никогда не сверяемых друг с другом ни в коде, ни в тесте.</p>
+    <p><strong>Точная причина в коде:</strong></p>
+    <ul>
+      <li><code>app/ui/assets/kg_3d_template.html:126</code> — DOM-панель
+      <code>.kgx-route-actions</code> закреплена CSS-константой
+      <code>bottom:4.6rem</code>/аналогичной раскладкой, независимо считанной для мобильного
+      брейкпоинта (<code>:354</code> — иной набор чисел для узких экранов);</li>
+      <li><code>app/ui/assets/kg_3d_template.html:1270</code> — canvas отдельно вычисляет
+      <code>axisY = Math.max(H * 0.86, H - 78)</code>: число <code>78</code> — это
+      рукописная оценка высоты DOM-панели сверху, а не
+      <code>getBoundingClientRect()</code> этой самой панели;</li>
+      <li>у шаблона уже есть собственная система защиты от коллизий для canvas-подписей
+      узлов — <code>labelBoxes</code>/<code>labelIntersects</code>
+      (<code>:1008-1013</code>, используется <code>drawSmartLabel</code> и
+      <code>drawActiveReasonCallout</code>) — но ось «ВХОД/СЕГОДНЯ/ДАЛЬШЕ» в эту систему
+      не зарегистрирована и не резервирует зону DOM-панели как «занятую»;</li>
+      <li><code>tests/test_knowledge_graph_counters.py:855-874</code> — новый (271–274)
+      geometry-gate меряет высоту топбара, ширину панели, число иконок, переполнение
+      body — но ни один assert не читает <code>axisY</code> и не сверяет его с
+      <code>.kgx-route-actions.getBoundingClientRect()</code>.</li>
+    </ul>
+    <p class="ev">Житейски: сегодняшний фикс — это не «мы научили сцену не сталкиваться»,
+    а «мы один раз руками подобрали число 78, которое сегодня совпадает с реальной высотой
+    панели». Стоит панели вырасти на пиксель (новая иконка, локализация с более длинным
+    словом, изменённый брейкпоинт) — число 78 не узнает об этом первым; узнает пользователь,
+    когда снова увидит текст под кнопкой. Тот же урок, что нашёл прошлый аудит на пустом 1×1
+    canvas №17: не «баг закрыт», а «класс бага не закрыт», пока два слоя сцены не измеряют
+    друг друга, а угадывают.</p>
+  </div>
+</section>
+
+<!-- 5. ВЕРДИКТЫ -->
+<section id="verdicts">
+  <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Вердикты</span></div>
+  <h2>Решение по каждому элементу мира</h2>
+
+  <div class="card"><span class="v v-keep">оставить</span><strong>Canvas 2D, не WebGL/Three.js.</strong>
+  Reference Memory Run уже доказал достаточность на production-данных; смена движка —
+  решение, отдельное от этого разбора, не обязательное условие «мирового класса».</div>
+
+  <div class="card"><span class="v v-keep">оставить</span><strong>Единственная валюта прогресса — существующий gamification_service.</strong>
+  Мир визуализирует XP/стрик/бейдж, не изобретает вторую систему баллов.</div>
+
+  <div class="card"><span class="v v-keep">оставить</span><strong>Скорость закрытия аудита (271–274, тот же день).</strong>
+  9 находок → geometry-gate + фикс за один день — образцовый темп, не трогать процесс,
+  которым это было сделано.</div>
+
+  <div class="card"><span class="v v-fix">починить</span><strong>Магическое число 78 → измерение.</strong>
+  Зарегистрировать <code>.kgx-route-actions</code> (и компас) как «занятые зоны» в уже
+  существующей системе <code>labelBoxes</code>, либо читать их реальную высоту в JS перед
+  вычислением <code>axisY</code>. Дёшево (часы), закрывает класс бага, а не один экземпляр.</div>
+
+  <div class="card"><span class="v v-fix">починить</span><strong>Kill switch: LLM v1/v2 «стоп» → v3 «разрешён по контракту».</strong>
+  Только через provider layer, только рендер текста/сцены, обязательный кэш/бюджет/офлайн-деградация,
+  запись в домен запрещена конструктивно (scene-DSL whitelist), не решением совести
+  каждого промпта.</div>
+
+  <div class="card"><span class="v v-fix">починить</span><strong>Название «3D-зал» → «Мнемополис».</strong>
+  Чисто UI-переименование поверх того же render-контракта; ноль доменных изменений,
+  ноль новых схем.</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>Аватар игрока / открытый мир-бродилка.</strong>
+  Это другой продукт (симулятор), не орган чувств для памяти; расфокусирует золотой путь
+  «вошёл → увидел → действие».</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>Вторая валюта (монеты/лидерборды/жизни).</strong>
+  Прямо запрещено серией разборов (№18 kill switch) и здравым смыслом обучающего продукта;
+  визуализировать существующее дешевле и честнее, чем изобретать новое.</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>Антагонисты, которые блокируют контент или стыдят.</strong>
+  Убивает то самое доверие, ради которого построена вся линия «честности» (провайдер-бейдж,
+  паспорт качества, честный след памяти — разборы №5/№10/№14). Угроза обязана быть
+  приглашением к действию ≤2 минуты, не наказанием.</div>
+</section>
+
+<!-- 6. ЦЕННОСТЬ -->
+<section id="value">
+  <div class="sec-label"><span class="sec-num">6</span><span class="sec-name">Ценность</span></div>
+  <h2>Уникальность — и измеримое доказательство</h2>
+  <p>У геймификаторов обучения есть один общий приём: нарисовать талисман (сова, дракон,
+  питомец) поверх честной статистики прогресса — картинка живёт отдельно от данных и
+  ничего не теряет, если данные исчезнут. Мнемополис устроен наоборот: <strong>картинка и
+  есть данные.</strong> Нет тумана — нет декоративного слоя, есть только показание
+  decay_vector. Нет рассвета — нет анимации, есть только доля пройденного маршрута.
+  Убери любой объект мира — под ним всегда обнажится реальное число продукта. Это
+  сочетание — граф знаний + spaced repetition + история квизов + RAG + локальный ИИ,
+  честно спроецированные в одну сцену — уникально для этого приложения и не
+  воспроизводится косметическим редизайном конкурента.</p>
+
+  <div class="table-scroll">
+    <table>
+      <tr><th>Метрика</th><th>Сейчас (@274)</th><th>После P0 (W0-hardening + W1)</th></tr>
+      <tr><td>Находок живого прогона Q1–Q9</td><td>0 открытых (закрыты 271–274 за день)</td><td>класс бага закрыт измерением, не числом</td></tr>
+      <tr><td>Дверей разделов приложения в зал</td><td>2 из 10 (Quiz, Живой конспект)</td><td>без изменений в P0 — район-карта см. §8 P2</td></tr>
+      <tr><td>LLM-вызовов в 3D-зале</td><td>0</td><td>0 в P0 (Хранитель — P1, волна W3)</td></tr>
+      <tr><td>Образов, кодирующих прогресс/забывание</td><td>0 (только цифры в панели)</td><td>2 (рассвет неба, фонари троп)</td></tr>
+      <tr><td>Новых доменных полей/хранилищ</td><td>0</td><td>0 — инвариант держится всей волной</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 7. ПУТЬ -->
+<section id="path">
+  <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Путь</span></div>
+  <h2>Золотой путь и лестница уровней мира</h2>
+  <p><strong>Золотой путь одной сессии (после P0):</strong> открыл Мнемополис → небо уже
+  теплее вчерашнего (рассвет по вчерашнему прогрессу) → тропа дня без единой коллизии
+  геометрии, читается за 5 секунд → тронул подёрнутую туманом остановку → 2 карточки
+  spaced repetition → фонарь зажёгся, туман отступил → «Дальше» → квиз → вернулся в зал с
+  трофеем, тропа за спиной светится длиннее.</p>
+  <ol class="ladder">
+    <li><span class="num">0</span><span><strong>Скин (сегодня).</strong> Memory Run
+    визуально узнаваем, геометрия исправна на живом экране — но чинится вручную, не
+    измерением; следующая визуальная регрессия того же класса ничем не гарантированно поймана.</span></li>
+    <li><span class="num">1</span><span><strong>Измерение + Рассвет.</strong> Zero-drift
+    геометрия (DOM меряет сам себя для canvas); небо и фонари делают прогресс дня видимым
+    без чтения панели — первый настоящий «Вау» уровня мира, не только скина.</span></li>
+    <li><span class="num">2</span><span><strong>Туман Забвения.</strong> Забывание
+    становится зрением, не числом; «развеять» — один клик до карточек повторения.</span></li>
+    <li><span class="num">3</span><span><strong>Хранитель заговорил.</strong>
+    Экскурсовод и сводка угроз — первые LLM-сценарии, строго по контракту §3/§6 vision-документа.</span></li>
+    <li><span class="num">4</span><span><strong>Районы и порталы.</strong> Каждый раздел
+    приложения — дверь в мире и обратно; «🌆 в Мнемополис» — кнопка на каждой странице.</span></li>
+    <li><span class="num">5</span><span><strong>Собеседник и NL-командование.</strong>
+    «Спросить об этом» прямо в интерьере узла; голосовая команда сцены через scene-DSL.</span></li>
+    <li><span class="num">6</span><span><strong>Полный мир.</strong> Призрак Уверенности,
+    Разлом, Летопись недели, «фото дня» — Мнемополис как ритуал, а не разовый экран.</span></li>
+  </ol>
+</section>
+
+<!-- 8. ПЛАН -->
+<section id="plan">
+  <div class="sec-label"><span class="sec-num">8</span><span class="sec-name">План</span></div>
+  <h2>P0–P2 по соотношению эффект/усилие</h2>
+  <div class="table-scroll">
+    <table>
+      <tr><th></th><th>Ход</th><th>Что делается</th><th>Усилие</th></tr>
+      <tr><td><span class="tag tag-p0">P0-1</span></td><td><strong>Закрепить W0 измерением.</strong></td>
+      <td>Заменить <code>Math.max(H*0.86, H-78)</code>
+      (<code>kg_3d_template.html:1270</code>) на реальную высоту
+      <code>.kgx-route-actions</code>/компаса через <code>getBoundingClientRect()</code>
+      или зарегистрировать их зоны в существующей <code>labelBoxes</code>; добавить в
+      geometry-gate assert «axisY выше верхней границы route-actions на всех viewport'ах».</td>
+      <td>часы</td></tr>
+      <tr><td><span class="tag tag-p0">P0-2</span></td><td><strong>W1 — Рассвет и фонари.</strong></td>
+      <td>Небо сцены = функция от <code>done/route.length</code>; пройденные остановки
+      получают постоянное свечение тропы за спиной. Ноль новых данных — только render-слой
+      поверх уже посчитанных полей.</td><td>день</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td><td>W2 Туман Забвения + W3 Хранитель (экскурсовод, сводка угроз)</td>
+      <td>Первый антагонист из decay_vector с «развеять»→flashcards и тумблером «Спокойный
+      мир»; первые LLM-сценарии по контракту §3 (provider layer, кэш, бюджет, деградация).</td>
+      <td>2–3 дня + волна</td></tr>
+      <tr><td><span class="tag tag-p2">P2</span></td><td>W4 Районы/порталы, W5 интерьер-собеседник + NL, W6 Призрак/Разлом/Летопись</td>
+      <td>Карта районов = существующие view'ы <code>feature_registry</code>; «спросить об
+      этом» в интерьере через ask-pipeline; scene-DSL; оставшиеся антагонисты; реплей
+      недели (G4).</td><td>волна</td></tr>
+    </table>
+  </div>
+  <p><strong>Kill switch:</strong> первый route-кадр перестал быть чистой тропой (новая
+  сущность/подпись в нём) — стоп; LLM записал что-либо в mastery/SR/workbench напрямую,
+  минуя существующие функции, — стоп; появилась вторая валюта прогресса — стоп; антагонист
+  заблокировал доступ к контенту или не закрывается действием ≤2 минуты — стоп; потребовалось
+  новое доменное хранилище/схема payload — стоп (расширяем только render-контракт).</p>
+</section>
+
+<div class="footer">
+  <p>Разбор №19 · hometutor HEAD <code>852f28e89</code> «274» · 2026-07-17/18.</p>
+  <p>Правило двух слоёв: этот HTML — слой анализа; полная детализация сценариев
+  ИИ-хранителя, антагонистов и карты районов — в
+  <code>doc/next/knowledge_graph_3d_world_vision.md</code>; предшествующая игровая петля —
+  <code>doc/next/knowledge_graph_3d_game_plan.md</code>. Серия:
+  <code>doc/presentations/evolutionary_analyses/</code>.</p>
+</div>
+
+</div>
+
+<script>
+(function(){
+  var cv = document.getElementById('mnxCanvas');
+  if(!cv) return;
+  var ctx = cv.getContext('2d');
+  var W = cv.width, H = cv.height;
+  var nodes = [
+    {label:'Study session agent', x:0.09, y:0.80},
+    {label:'RAG', x:0.24, y:0.62},
+    {label:'Hometutor', x:0.41, y:0.56},
+    {label:'AI-агент', x:0.59, y:0.42},
+    {label:'Петля памяти', x:0.75, y:0.34},
+    {label:'Тьютор', x:0.91, y:0.22}
+  ];
+  var progress = 2;
+  var fogLevel = 0;
+  var fogIdx = 2; // "Hometutor"
+
+  function mix(a,b,t){ return Math.round(a+(b-a)*t); }
+
+  function skyGradient(p){
+    var t = p/6;
+    var g = ctx.createLinearGradient(0,0,0,H);
+    var nightTop=[8,8,18], nightBot=[18,15,30];
+    var dawnTop=[255,201,120], dawnBot=[122,72,112];
+    var top=[0,1,2].map(function(i){return mix(nightTop[i],dawnTop[i],t);});
+    var bot=[0,1,2].map(function(i){return mix(nightBot[i],dawnBot[i],t);});
+    g.addColorStop(0,'rgb('+top.join(',')+')');
+    g.addColorStop(1,'rgb('+bot.join(',')+')');
+    return g;
+  }
+
+  function fogLabel(text, level){
+    if(level<=0) return text;
+    var keep = level===1 ? 0.62 : 0.28;
+    var out='';
+    for(var i=0;i<text.length;i++){
+      var ch=text[i];
+      if(ch===' '){ out+=' '; continue; }
+      var h=(i*31+level*17)%100;
+      out += (h/100 < keep) ? ch : '·';
+    }
+    return out;
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = skyGradient(progress);
+    ctx.fillRect(0,0,W,H);
+
+    ctx.strokeStyle = 'rgba(223,229,255,0.22)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    nodes.forEach(function(n,i){
+      var x=n.x*W, y=n.y*H;
+      if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+
+    ctx.strokeStyle = '#b9f75b';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    for(var i=0;i<Math.min(progress,nodes.length-1);i++){
+      var a=nodes[i], b=nodes[i+1];
+      ctx.moveTo(a.x*W,a.y*H); ctx.lineTo(b.x*W,b.y*H);
+    }
+    ctx.stroke();
+
+    nodes.forEach(function(n,i){
+      var x=n.x*W, y=n.y*H;
+      var lit = i<progress;
+      var isFogNode = i===fogIdx;
+
+      if(lit){
+        var glow = ctx.createRadialGradient(x,y,0,x,y,26);
+        glow.addColorStop(0,'rgba(185,247,91,0.45)');
+        glow.addColorStop(1,'rgba(185,247,91,0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath(); ctx.arc(x,y,26,0,Math.PI*2); ctx.fill();
+      }
+
+      ctx.beginPath();
+      ctx.fillStyle = lit ? '#b9f75b' : (i===progress ? '#9a6cff' : '#4ca4ff');
+      ctx.arc(x,y, i===progress ? 9 : 6, 0, Math.PI*2);
+      ctx.fill();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = 'rgba(8,8,18,0.85)';
+      ctx.stroke();
+
+      if(isFogNode && fogLevel>0){
+        var fog = ctx.createRadialGradient(x,y,4,x,y,42);
+        fog.addColorStop(0,'rgba(174,181,207,'+(0.12*fogLevel)+')');
+        fog.addColorStop(1,'rgba(174,181,207,0)');
+        ctx.fillStyle = fog;
+        ctx.beginPath(); ctx.arc(x,y,42,0,Math.PI*2); ctx.fill();
+      }
+
+      var text = isFogNode ? fogLabel(n.label, fogLevel) : n.label;
+      ctx.font = '600 12px system-ui, -apple-system, sans-serif';
+      ctx.fillStyle = (isFogNode && fogLevel>=2) ? 'rgba(232,235,247,0.4)' : '#e8ebf7';
+      ctx.textBaseline = 'middle';
+      var tx = x+12, ty = y - (n.y>0.5 ? 14 : -14);
+      ctx.fillText(text, tx, ty);
+    });
+  }
+
+  var progEl = document.getElementById('mnxProgressVal');
+  var fogBtn = document.getElementById('mnxFog');
+
+  document.getElementById('mnxMinus').addEventListener('click', function(){
+    progress = Math.max(0, progress-1);
+    progEl.textContent = progress + ' из 6';
+    draw();
+  });
+  document.getElementById('mnxPlus').addEventListener('click', function(){
+    progress = Math.min(6, progress+1);
+    progEl.textContent = progress + ' из 6';
+    draw();
+  });
+  fogBtn.addEventListener('click', function(){
+    fogLevel = (fogLevel+1) % 3;
+    fogBtn.textContent = 'decay: ' + (fogLevel*40) + '%';
+    draw();
+  });
+
+  draw();
+})();
+</script>
+</body>
+</html>
