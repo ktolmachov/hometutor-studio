@@ -33,9 +33,11 @@
 **Статус волн v1 по факту:** G0 ✅, G1 ✅, G2 ✅, G3 ✅ — реализованы коммитами 257–263
 (компонент `app/ui/assets/kg_3d_component/index.html`, action-мост `_kg3d` с nonce и
 dedup, `start`→Quiz + `collect`→workbench в `app/ui/dashboards_graph.py`, память
-`__MASTERY_HISTORY__`/`__SNAPSHOT_DATE__`, ◆ и счётчик корзины в шаблоне). V2 ⬜ — смок
-всё ещё opt-in (`tests/test_knowledge_graph_counters.py:637`: без
-`HT_RUN_KG_3D_VISUAL=1` — skip). G4 не начат.
+`__MASTERY_HISTORY__`/`__SNAPSHOT_DATE__`, ◆ и счётчик корзины в шаблоне).
+**Ревизия v2 UI (2026-07-17):** U0 ✅ Memory Run skin, U1 ✅ карточка ценности,
+U2 ✅ двери Obsidian (view-model), U3 ✅ интерьер узла, U4 ✅ onboarding «?»,
+V2′ ✅ структурный design-contract always-on + browser-смок по-прежнему opt-in
+(`HT_RUN_KG_3D_VISUAL=1`). G4 не начат.
 
 **Живой прогон владельца (2026-07-17): петля работает — восторга нет.** Зал читается как
 «непонятная игрушка»: мрачно; подписи плохо видны; ценность узла не раскрыта; двери в
