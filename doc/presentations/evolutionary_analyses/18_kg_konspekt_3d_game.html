@@ -179,6 +179,177 @@
   @media (prefers-color-scheme: dark) { .tag { color: #141a16; } }
   :root[data-theme="light"] .tag { color: var(--paper-2); }
 
+  /* Interactive product study: a scoped night-time knowledge hall. */
+  .kgx-intro {
+    width: min(1180px, calc(100vw - 28px));
+    margin: 2.4rem 50% 0;
+    transform: translateX(-50%);
+  }
+  .kgx-intro > h2 { max-width: 900px; margin-inline: auto; }
+  .kgx-intro > .figcap { max-width: 900px; margin: 0.75rem auto 0; }
+  .kgx-shell {
+    --kgx-night: #070a0d;
+    --kgx-panel: #0c1014;
+    --kgx-panel-2: #12171c;
+    --kgx-line: rgba(203, 219, 216, 0.14);
+    --kgx-text: #f5f3ec;
+    --kgx-muted: #92a09f;
+    --kgx-cyan: #58d6d0;
+    --kgx-violet: #a58af4;
+    --kgx-gold: #efb761;
+    --kgx-green: #72c994;
+    position: relative;
+    overflow: hidden;
+    color: var(--kgx-text);
+    background: var(--kgx-night);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    box-shadow: 0 26px 80px rgba(6, 12, 16, 0.34);
+    min-height: 690px;
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+  }
+  .kgx-shell button { font: inherit; }
+  .kgx-topbar {
+    min-height: 64px;
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) auto minmax(180px, 1fr);
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--kgx-line);
+    background: rgba(7, 10, 13, 0.94);
+  }
+  .kgx-brand { display: flex; align-items: center; gap: 0.65rem; min-width: 0; }
+  .kgx-brand-mark {
+    width: 28px; height: 28px; flex: none; position: relative;
+    border: 1px solid rgba(88,214,208,0.48); border-radius: 50%;
+  }
+  .kgx-brand-mark::before,
+  .kgx-brand-mark::after {
+    content: ""; position: absolute; inset: 5px; border: 1px solid var(--kgx-cyan);
+    transform: rotate(45deg);
+  }
+  .kgx-brand-mark::after { inset: 10px; background: var(--kgx-gold); border: 0; }
+  .kgx-brand-copy { min-width: 0; }
+  .kgx-brand-copy strong { display:block; color:var(--kgx-text); font-size:0.8rem; letter-spacing:0.08em; text-transform:uppercase; }
+  .kgx-brand-copy span { display:block; color:var(--kgx-muted); font-size:0.7rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .kgx-modes {
+    display: inline-flex; align-items: center; padding: 3px; gap: 2px;
+    border: 1px solid var(--kgx-line); border-radius: 6px; background: var(--kgx-panel);
+  }
+  .kgx-mode {
+    border: 0; border-radius: 4px; padding: 0.45rem 0.72rem;
+    background: transparent; color: var(--kgx-muted); cursor: pointer;
+    font-size: 0.76rem; font-weight: 600;
+  }
+  .kgx-mode:hover { color: var(--kgx-text); background: rgba(255,255,255,0.05); }
+  .kgx-mode[aria-pressed="true"] { color: var(--kgx-text); background: #263038; }
+  .kgx-progress { justify-self:end; display:flex; align-items:center; gap:0.8rem; }
+  .kgx-progress-copy { text-align:right; }
+  .kgx-progress-copy strong { color:var(--kgx-text); display:block; font-size:0.86rem; }
+  .kgx-progress-copy span { color:var(--kgx-muted); display:block; font-size:0.68rem; }
+  .kgx-progress-ring {
+    --p: 33%; width: 36px; height: 36px; border-radius:50%; position:relative;
+    background: conic-gradient(var(--kgx-gold) var(--p), rgba(255,255,255,0.10) 0);
+  }
+  .kgx-progress-ring::after { content:""; position:absolute; inset:4px; border-radius:50%; background:var(--kgx-night); }
+  .kgx-body { display:grid; grid-template-columns:minmax(0,1fr) 314px; min-height:624px; }
+  .kgx-stage { position:relative; min-width:0; min-height:624px; overflow:hidden; background:var(--kgx-night); }
+  .kgx-stage canvas { display:block; width:100%; height:100%; cursor:grab; }
+  .kgx-stage canvas:active { cursor:grabbing; }
+  .kgx-stage-status {
+    position:absolute; left:1rem; top:1rem; display:flex; align-items:center; gap:0.55rem;
+    color:var(--kgx-muted); font-size:0.72rem; pointer-events:none;
+  }
+  .kgx-live-dot { width:7px; height:7px; border-radius:50%; background:var(--kgx-green); box-shadow:0 0 16px var(--kgx-green); }
+  .kgx-compass {
+    position:absolute; left:1rem; bottom:1rem; width:88px; height:88px; border-radius:50%;
+    border:1px solid var(--kgx-line); color:var(--kgx-muted); pointer-events:none;
+  }
+  .kgx-compass::before, .kgx-compass::after { content:""; position:absolute; background:var(--kgx-line); }
+  .kgx-compass::before { left:43px; top:10px; bottom:10px; width:1px; }
+  .kgx-compass::after { top:43px; left:10px; right:10px; height:1px; }
+  .kgx-compass span { position:absolute; font-size:0.58rem; letter-spacing:0.08em; }
+  .kgx-compass .n { top:5px; left:38px; color:var(--kgx-text); }
+  .kgx-compass .e { right:4px; top:35px; }
+  .kgx-compass .s { bottom:4px; left:36px; }
+  .kgx-compass .w { left:4px; top:35px; }
+  .kgx-compass i { position:absolute; left:39px; top:20px; width:8px; height:27px; background:var(--kgx-cyan); clip-path:polygon(50% 0,100% 100%,50% 76%,0 100%); transform:rotate(38deg); transform-origin:50% 23px; }
+  .kgx-route-actions { position:absolute; left:50%; bottom:1.15rem; transform:translateX(-50%); display:flex; gap:0.45rem; }
+  .kgx-icon-btn {
+    width:36px; height:36px; border:1px solid var(--kgx-line); border-radius:5px;
+    background:rgba(12,16,20,0.88); color:var(--kgx-text); cursor:pointer;
+  }
+  .kgx-icon-btn:hover { border-color:rgba(88,214,208,0.5); color:var(--kgx-cyan); }
+  .kgx-panel { min-width:0; border-left:1px solid var(--kgx-line); background:var(--kgx-panel); display:flex; flex-direction:column; }
+  .kgx-panel-head { padding:1rem 1rem 0.9rem; border-bottom:1px solid var(--kgx-line); }
+  .kgx-eyebrow { color:var(--kgx-cyan); font-size:0.68rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; }
+  .kgx-panel-head h3 { color:var(--kgx-text); font-family:Georgia,"Times New Roman",serif; font-size:1.42rem; line-height:1.15; letter-spacing:0; margin:0.38rem 0 0.4rem; }
+  .kgx-reason { color:var(--kgx-muted); font-size:0.78rem; min-height:2.7em; margin:0; }
+  .kgx-memory-row { margin-top:0.85rem; display:grid; grid-template-columns:1fr auto; align-items:center; gap:0.7rem; }
+  .kgx-memory-copy span { display:block; color:var(--kgx-muted); font-size:0.65rem; }
+  .kgx-memory-copy strong { display:block; color:var(--kgx-text); font-size:0.77rem; }
+  .kgx-mastery { width:46px; height:46px; border-radius:50%; display:grid; place-items:center; border:1px solid rgba(165,138,244,0.5); color:var(--kgx-text); font-size:0.7rem; position:relative; }
+  .kgx-mastery::before { content:""; position:absolute; inset:4px; border:1px dashed rgba(165,138,244,0.34); border-radius:50%; }
+  .kgx-primary-actions { display:grid; grid-template-columns:1fr auto; gap:0.45rem; margin-top:0.9rem; }
+  .kgx-action {
+    min-height:40px; border-radius:5px; border:1px solid var(--kgx-line); padding:0.55rem 0.72rem;
+    cursor:pointer; font-size:0.76rem; font-weight:700;
+  }
+  .kgx-action-primary { color:#07100d; background:var(--kgx-cyan); border-color:var(--kgx-cyan); }
+  .kgx-action-primary:hover { background:#76e0db; }
+  .kgx-action-primary:disabled { color:var(--kgx-muted); background:#1d2728; border-color:var(--kgx-line); cursor:default; }
+  .kgx-action-secondary { color:var(--kgx-text); background:transparent; }
+  .kgx-action-secondary:hover, .kgx-action-secondary.is-on { border-color:var(--kgx-gold); color:var(--kgx-gold); }
+  .kgx-route-title { padding:0.8rem 1rem 0.45rem; display:flex; align-items:center; justify-content:space-between; color:var(--kgx-muted); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.08em; }
+  .kgx-route-title strong { color:var(--kgx-gold); font-size:0.68rem; }
+  .kgx-stops { display:grid; gap:1px; padding:0 0.55rem 0.55rem; }
+  .kgx-stop {
+    width:100%; display:grid; grid-template-columns:28px minmax(0,1fr) auto; align-items:center; gap:0.55rem;
+    min-height:48px; padding:0.35rem 0.45rem; border:0; border-left:2px solid transparent; border-radius:3px;
+    background:transparent; color:var(--kgx-muted); text-align:left; cursor:pointer;
+  }
+  .kgx-stop:hover { background:rgba(255,255,255,0.04); color:var(--kgx-text); }
+  .kgx-stop[aria-current="step"] { background:rgba(165,138,244,0.10); border-left-color:var(--kgx-violet); color:var(--kgx-text); }
+  .kgx-stop.is-done .kgx-stop-index { border-color:var(--kgx-green); color:var(--kgx-green); }
+  .kgx-stop-index { width:24px; height:24px; border-radius:50%; border:1px solid var(--kgx-line); display:grid; place-items:center; font-size:0.65rem; }
+  .kgx-stop-copy { min-width:0; }
+  .kgx-stop-copy strong { color:inherit; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.75rem; }
+  .kgx-stop-copy span { color:var(--kgx-muted); display:block; font-size:0.62rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .kgx-stop-state { color:var(--kgx-gold); font-size:0.8rem; }
+  .kgx-inventory { margin-top:auto; min-height:48px; display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:0.7rem 1rem; border-top:1px solid var(--kgx-line); background:var(--kgx-panel-2); }
+  .kgx-inventory span { color:var(--kgx-muted); font-size:0.68rem; }
+  .kgx-inventory strong { color:var(--kgx-text); font-size:0.76rem; }
+  .kgx-toast {
+    position:absolute; z-index:5; left:50%; top:78px; transform:translate(-50%,-8px);
+    padding:0.55rem 0.8rem; border:1px solid rgba(114,201,148,0.45); border-radius:5px;
+    background:rgba(12,24,19,0.94); color:var(--kgx-text); font-size:0.74rem;
+    opacity:0; pointer-events:none; transition:opacity 160ms ease, transform 160ms ease;
+  }
+  .kgx-toast.is-visible { opacity:1; transform:translate(-50%,0); }
+  @media (max-width: 860px) {
+    .kgx-topbar { grid-template-columns:1fr auto; }
+    .kgx-modes { grid-column:1 / -1; grid-row:2; justify-self:stretch; }
+    .kgx-mode { flex:1; }
+    .kgx-body { grid-template-columns:1fr; }
+    .kgx-stage { min-height:480px; }
+    .kgx-panel { border-left:0; border-top:1px solid var(--kgx-line); }
+    .kgx-stops { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .kgx-shell { min-height:0; }
+  }
+  @media (max-width: 560px) {
+    .kgx-intro { width:calc(100vw - 16px); }
+    .kgx-topbar { padding:0.65rem; gap:0.55rem; }
+    .kgx-progress-copy { display:none; }
+    .kgx-stage { min-height:420px; }
+    .kgx-compass { transform:scale(0.78); transform-origin:left bottom; }
+    .kgx-stops { grid-template-columns:1fr; }
+    .kgx-primary-actions { grid-template-columns:1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .kgx-toast { transition:none; }
+  }
+
   .footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
             font-size: 0.85rem; color: var(--muted); }
   .footer code { font-size: 0.8rem; }
@@ -204,6 +375,58 @@
     <span>база: разборы №1 (петля памяти), №6 (живая карта), №15/№17 (3D-зал), код рантайма</span>
   </div>
 </header>
+
+<section class="kgx-intro" id="hall-prototype" aria-labelledby="hall-prototype-title">
+  <h2 id="hall-prototype-title">Зал памяти: рабочий прототип сильного хода</h2>
+  <div class="kgx-shell" id="kgx-demo">
+    <div class="kgx-topbar">
+      <div class="kgx-brand">
+        <span class="kgx-brand-mark" aria-hidden="true"></span>
+        <span class="kgx-brand-copy"><strong>Hometutor</strong><span>Зал памяти · маршрут 17 июля</span></span>
+      </div>
+      <div class="kgx-modes" aria-label="Режим сцены">
+        <button class="kgx-mode" type="button" data-mode="route" aria-pressed="true">Маршрут</button>
+        <button class="kgx-mode" type="button" data-mode="world" aria-pressed="false">Созвездие</button>
+        <button class="kgx-mode" type="button" data-mode="memory" aria-pressed="false">След памяти</button>
+      </div>
+      <div class="kgx-progress">
+        <span class="kgx-progress-copy"><strong data-progress-label>2 из 6 пройдено</strong><span>маршрут перестраивается по памяти</span></span>
+        <span class="kgx-progress-ring" aria-hidden="true"></span>
+      </div>
+    </div>
+    <div class="kgx-body">
+      <div class="kgx-stage">
+        <canvas aria-label="Интерактивный маршрут из шести концептов в пространственном зале знаний"></canvas>
+        <div class="kgx-stage-status"><span class="kgx-live-dot"></span><span data-stage-status>Сцена синхронизирована</span></div>
+        <div class="kgx-compass" aria-hidden="true"><span class="n">КУРС</span><span class="e">→</span><span class="s">ВХОД</span><span class="w">·</span><i></i></div>
+        <div class="kgx-route-actions" aria-label="Навигация по остановкам">
+          <button class="kgx-icon-btn" type="button" data-prev aria-label="Предыдущая остановка">←</button>
+          <button class="kgx-icon-btn" type="button" data-next aria-label="Следующая остановка">→</button>
+        </div>
+      </div>
+      <aside class="kgx-panel" aria-label="Текущая остановка">
+        <div class="kgx-panel-head">
+          <div class="kgx-eyebrow" data-stop-eyebrow>Остановка 3 · связующий узел</div>
+          <h3 data-stop-name>Hometutor</h3>
+          <p class="kgx-reason" data-stop-reason>Связывает retrieval, агента и личную петлю памяти в одну учебную систему.</p>
+          <div class="kgx-memory-row">
+            <div class="kgx-memory-copy"><span>След памяти</span><strong data-memory-copy>Вчера не встречалось</strong></div>
+            <div class="kgx-mastery" data-mastery aria-label="Освоено на 68 процентов">68%</div>
+          </div>
+          <div class="kgx-primary-actions">
+            <button class="kgx-action kgx-action-primary" type="button" data-start>Начать · 12 мин</button>
+            <button class="kgx-action kgx-action-secondary" type="button" data-collect>В конспект</button>
+          </div>
+        </div>
+        <div class="kgx-route-title"><span>Маршрут дня</span><strong data-worth>W 6.8</strong></div>
+        <div class="kgx-stops" data-stops></div>
+        <div class="kgx-inventory"><span>Живой конспект</span><strong data-inventory>8 разделов</strong></div>
+      </aside>
+    </div>
+    <div class="kgx-toast" role="status" aria-live="polite"></div>
+  </div>
+  <p class="figcap">Не «граф в космосе», а зал с направлением, памятью и последствиями: выберите остановку, начните изучение или заберите концепт в Живой конспект — сцена изменится сразу.</p>
+</section>
 
 <!-- 1. СУТЬ -->
 <section id="essence">
@@ -360,9 +583,11 @@
     <p>Скачанный HTML не может писать прогресс (граница №17: «экспорт отвечает за
     ориентацию, продукт — за действие»). Но игра без сохранения — не игра.
     <span class="syn">Синтез: писать след может только продукт — значит, играбельный зал
-    живёт в продукте (C1 iframe), а экспорт становится «фотографией дня»: тот же файл,
-    но с уже встроенной памятью мира — вчерашний след виден и офлайн, просто read-only.</span>
-    Один шаблон, два режима честности.</p>
+    живёт в продукте (embedded, C1 iframe), а экспорт становится честной «фотографией
+    дня»: тот же файл с запечённым снимком прогресса и явной датой — виден офлайн, но
+    read-only и не «сегодня» навсегда.</span> Один шаблон, два режима честности:
+    <code>export</code> = запечённый read-only снимок; <code>embedded</code> = мост к
+    продукту + живое состояние (корзина, действия).</p>
   </div>
 
   <div class="card tension">
@@ -459,13 +684,13 @@
   <div class="table-scroll">
     <table>
       <tr><th>Метрика</th><th>Сейчас</th><th>После</th></tr>
-      <tr><td>действие из зала</td><td>невозможно (двери нет)</td><td>2 клика: остановка → «Начать» → quiz/flashcards</td></tr>
-      <tr><td>добыча со сцены</td><td>невозможно (у 2D дверь есть, у зала нет)</td><td>1 клик: «➕ В конспект» той же функцией, что 2D</td></tr>
-      <tr><td>сцена помнит игрока</td><td>нет (память мира не доезжает до 3D)</td><td>пройденные остановки ✓; вчерашняя тропа видна при открытии</td></tr>
+      <tr><td>действие из зала</td><td>невозможно (моста наружу нет)</td><td>клик в зале → возврат <code>{concept, action}</code> в продукт (G0), затем «Начать»/«В конспект» (G1)</td></tr>
+      <tr><td>добыча со сцены</td><td>невозможно (у 2D дверь есть, у зала нет)</td><td>1 клик: «➕ В конспект» той же функцией, что 2D (embedded)</td></tr>
+      <tr><td>сцена помнит игрока</td><td>нет (память не доезжает до 3D)</td><td>✓ по квизам; export — снимок с явной датой (не «сегодня» вечно)</td></tr>
       <tr><td>финал тура</td><td>«Маршрут дня завершён» (тупик)</td><td>предложение первого непройденного стопа</td></tr>
-      <tr><td>3D в продукте</td><td>download-кнопка</td><td>iframe-зал рядом с 2D-картой (C1)</td></tr>
+      <tr><td>3D в продукте</td><td>download-кнопка</td><td>iframe-зал рядом с 2D-картой (C1) — после зелёного V2</td></tr>
       <tr><td>подписей в первом кадре</td><td>≤8 (контракт №17)</td><td>≤8 — игровой слой не добавляет ни одной</td></tr>
-      <tr><td>визуальный smoke</td><td>opt-in, пропускается</td><td>обязательный Playwright-смок в CI</td></tr>
+      <tr><td>визуальный smoke</td><td>opt-in, пропускается (1 viewport)</td><td>обязательный CI-gate, матрица viewport'ов (V2)</td></tr>
     </table>
   </div>
 </section>
@@ -477,15 +702,15 @@
   <p><strong>Золотой путь одной сессии:</strong> открыл Knowledge Graph → зал показывает
   «я здесь, дальше сюда, потому что…» → «▶ Начать» на активной остановке → quiz/повторение
   по концепту → «➕ В конспект» забирает разделы остановки в корзину → вернулся: остановка
-  отмечена ✓, счётчик добычи вырос, тропа продвинулась → завтра маршрут перестроен с
-  учётом сегодняшнего — и вчерашний след виден в сцене.</p>
+  отмечена ✓ по квизу, счётчик добычи вырос, тропа продвинулась → завтра маршрут перестроен
+  с учётом сегодняшнего прогресса по квизам — и снимок этого прогресса виден в сцене.</p>
   <ol class="ladder">
     <li><span class="num">0</span><span><strong>Смотритель</strong> (есть, №17). Вижу маршрут, причину, следующий шаг — за 5 секунд.</span></li>
-    <li><span class="num">1</span><span><strong>Ходок.</strong> Начинаю остановку из зала — дверь в quiz/flashcards открыта (P0-1).</span></li>
-    <li><span class="num">2</span><span><strong>Собиратель.</strong> Забираю добычу со сцены: «➕ В конспект» + маркер «в конспекте» на остановке (P0-1/P1).</span></li>
-    <li><span class="num">3</span><span><strong>Следопыт.</strong> Сцена отмечает пройденное сегодня: ✓ на бейдже, тропа зажигается (P0-2).</span></li>
-    <li><span class="num">4</span><span><strong>Летописец.</strong> При открытии виден вчерашний след; финал тура предлагает следующий непройденный стоп (P1).</span></li>
-    <li><span class="num">5</span><span><strong>Строитель.</strong> Этажи отражают mastery: освоенные — плотные, забываемые — тускнеют по decay (P1/P2).</span></li>
+    <li><span class="num">1</span><span><strong>Ходок.</strong> Начинаю остановку из зала — мост (G0) доставляет действие, дверь в quiz/flashcards открыта (G1).</span></li>
+    <li><span class="num">2</span><span><strong>Собиратель.</strong> Забираю добычу со сцены: «➕ В конспект» (G1) + маркер «в конспекте» на остановке (embedded, G3).</span></li>
+    <li><span class="num">3</span><span><strong>Следопыт.</strong> Сцена отмечает прогресс по квизам: ✓ на бейдже, тропа зажигается (G2).</span></li>
+    <li><span class="num">4</span><span><strong>Летописец.</strong> При открытии виден снимок с честной датой; финал тура предлагает следующий непройденный стоп (G2).</span></li>
+    <li><span class="num">5</span><span><strong>Строитель.</strong> Этажи отражают mastery: освоенные — плотные, забываемые — тускнеют по decay (P2).</span></li>
     <li><span class="num">6</span><span><strong>Рассказчик.</strong> Реплей недели: история проигрывается по сцене; экспорт — «фото дня» с конспектом-трофеем (P2).</span></li>
   </ol>
 </section>
@@ -497,39 +722,443 @@
   <div class="table-scroll">
     <table>
       <tr><th></th><th>Ход</th><th>Что делается</th><th>Усилие</th></tr>
-      <tr><td><span class="tag tag-p0">P0-1</span></td><td><strong>Дверь из остановки.</strong></td>
-        <td>C1: зал в продукте (iframe в <code>dashboards_graph.py</code> рядом с 2D) +
-        два хода в карточке остановки: «▶ Начать» → quiz/flashcards с преселектом
-        концепта и «➕ В конспект» → уже существующая
-        <code>_collect_concept_sections_to_workbench</code> (та же, что у 2D-карты).
-        В скачанном экспорте кнопки ведут на честную подсказку «откройте в
-        hometutor».</td><td>день</td></tr>
-      <tr><td><span class="tag tag-p0">P0-2</span></td><td><strong>Вчера в зале.</strong></td>
-        <td>Встроить <code>__MASTERY_HISTORY__</code>/<code>__DECAY_VECTOR__</code> в
-        <code>build_kg_3d_html</code> (данные уже в payload — схема не меняется);
-        остановки с событием памяти за сегодня/вчера получают ✓ и приглушённую тропу;
-        финал тура называет первый непройденный стоп.</td><td>день</td></tr>
-      <tr><td><span class="tag tag-p1">P1</span></td><td>Инвентарь на сцене + CI-смок.</td>
-        <td>Маркер «в конспекте» на остановках и счётчик корзины в панели зала; снять
-        opt-in с Playwright-смока и добавить CI-джоб; hover-подписи из №17 (R1.4/L1.3),
-        так и не сделанные.</td><td>дни</td></tr>
+      <tr><td><span class="tag tag-p0">P0 · G0</span></td><td><strong>Мост действия.</strong></td>
+        <td>Embedded-зал возвращает <code>{concept, action}</code> в Python через уже
+        проверенный мост 2D-карты (<code>declare_component</code> +
+        <code>kg_d3_component</code>), <strong>без записи</strong>: клик →
+        <code>st.session_state["kg_3d_action"]</code> + toast. Сначала доказать канал,
+        потом вешать действия.</td><td>день</td></tr>
+      <tr><td><span class="tag tag-p0">P0 · G1</span></td><td><strong>Действия продукта.</strong></td>
+        <td>Поверх моста, навигация и запись <strong>разделены</strong>: «▶ Начать» →
+        quiz/flashcards с преселектом (навигация); «➕ В конспект» → готовая
+        <code>_collect_concept_sections_to_workbench</code> (запись, та же, что у 2D).
+        Export read-only, кнопки деградируют в подсказку.</td><td>день</td></tr>
+      <tr><td><span class="tag tag-p1">P1 · V2</span></td><td><strong>Визуальный gate.</strong></td>
+        <td>Снять opt-in с Playwright-смока, обязательный CI-джоб, матрица viewport'ов.
+        <strong>Блокирует</strong> промоут iframe C1: зал не идёт в продукт, пока gate
+        не зелёный.</td><td>полдня</td></tr>
+      <tr><td><span class="tag tag-p1">P1 · G2</span></td><td>Снимок прогресса по квизам.</td>
+        <td>Передать <code>__MASTERY_HISTORY__</code>/<code>__DECAY_VECTOR__</code> в
+        <code>build_kg_3d_html</code> (render-контракт, домен не трогаем). ✓ = quiz-событие
+        (только квизы — collect/flashcards не считаются); export помечен явной датой
+        снимка, не «сегодня».</td><td>день</td></tr>
+      <tr><td><span class="tag tag-p1">P1 · G3</span></td><td>Инвентарь на сцене.</td>
+        <td>Маркер «в конспекте» + счётчик корзины — только embedded, через мост
+        (live state, не в payload-домене). Долги №17 (hover, resize, active-подпись,
+        <code>/6</code>) уже закрыты в 254/256.</td><td>день</td></tr>
       <tr><td><span class="tag tag-p2">P2</span></td><td>Прогрессия и реплей.</td>
-        <td>Этажи-уровни по mastery/decay (плотность/тусклость), реплей недели по
-        mastery_history, экспорт «фото дня» с конспектом-трофеем.</td><td>волна</td></tr>
+        <td>Этажи-уровни по mastery/decay, реплей недели по mastery_history, экспорт
+        «фото дня» с конспектом-трофеем (+ privacy DoD: состав экспорта и
+        обезличивание).</td><td>волна</td></tr>
     </table>
   </div>
-  <p><strong>Kill switch:</strong> потребовалась новая схема payload, новое хранилище,
-  LLM-вызов или вторая валюта прогресса — стоп. Игровой слой добавил хоть одну подпись
-  или сущность в первый кадр route-режима — стоп: ориентация №17 неприкосновенна.</p>
+  <p><strong>Kill switch:</strong> меняется <strong>доменная</strong> схема payload,
+  новое хранилище, LLM-вызов или вторая валюта прогресса — стоп. Расширение 3D
+  render-контракта (флаг режима, journal-плейсхолдеры, view-model корзины через мост) —
+  не домен, под kill switch не попадает. Игровой слой добавил хоть одну подпись или
+  сущность в первый кадр route-режима — стоп: ориентация №17 неприкосновенна.</p>
 </section>
 
 <div class="footer">
-  <p>Разбор №18 · hometutor HEAD <code>003beaf69</code> «253» · 2026-07-16.</p>
+  <p>Разбор №18 · hometutor · разбор @ HEAD <code>003beaf69</code> «253» (2026-07-16),
+  план отревизирован после критического аудита @ <code>37d109fb5</code> «256»
+  (2026-07-17).</p>
   <p>Триада синтеза (по слову владельца): Граф Знаний + Живой конспект + 3D-зал.
-  Память мира (mastery history KG-07, decay KG-06) — поддерживающий слой петли №1,
-  а не четвёртый артефакт. Правило двух слоёв: этот HTML — слой анализа;
-  actionable-кандидаты — в <code>doc/next/knowledge_graph_3d_game_plan.md</code>.
+  «Память мира» = снимок прогресса <strong>по квизам</strong> (mastery history KG-07 —
+  строится только из quiz-событий; decay KG-06) — поддерживающий слой петли №1, а не
+  четвёртый артефакт. Правило двух слоёв: этот HTML — слой видения; точный
+  actionable-план (мост G0, разделение навигация/запись, gate V2, честная семантика
+  снимка) — в <code>doc/next/knowledge_graph_3d_game_plan.md</code>.
   Серия: <code>doc/presentations/evolutionary_analyses/</code>.</p>
 </div>
+
+<script>
+(() => {
+  const root = document.getElementById('kgx-demo');
+  if (!root) return;
+
+  const route = [
+    { name: 'Study session agent', short: 'новое для тебя', reason: 'Запускает учебную сессию и удерживает цель до следующего проверяемого действия.', worth: 7.0, mastery: 38, x: -0.78, z: 0.08, done: true, collected: false, memory: 'Вчера: первое знакомство' },
+    { name: 'RAG', short: 'пора повторить', reason: 'Возвращает точные фрагменты курса и связывает ответ с проверяемыми источниками.', worth: 6.6, mastery: 56, x: -0.42, z: 0.31, done: true, collected: true, memory: 'Вчера: 1 верный ответ' },
+    { name: 'Hometutor', short: 'связующий узел', reason: 'Связывает retrieval, агента и личную петлю памяти в одну учебную систему.', worth: 6.8, mastery: 68, x: -0.02, z: 0.46, done: false, collected: false, memory: 'Вчера не встречалось' },
+    { name: 'AI-агент', short: 'на границе знания', reason: 'Планирует следующий ход, но обязан опираться на контекст и проверяемый результат.', worth: 6.7, mastery: 61, x: 0.27, z: 0.64, done: false, collected: false, memory: 'Вчера: уверенность снизилась' },
+    { name: 'Петля памяти', short: 'пора закрепить', reason: 'Замыкает ответ, квиз, повторение и новый маршрут в один измеримый цикл.', worth: 6.7, mastery: 73, x: 0.50, z: 0.79, done: false, collected: true, memory: 'Вчера: повторено 2 раза' },
+    { name: 'Тьютор', short: 'последняя остановка', reason: 'Объясняет ровно тот разрыв, который мешает перейти к следующему уровню.', worth: 6.6, mastery: 81, x: 0.70, z: 0.92, done: false, collected: false, memory: 'Вчера: освоение выросло' }
+  ];
+  const worldNodes = [
+    {x:-0.90,z:0.40,r:5},{x:-0.66,z:0.58,r:7},{x:-0.24,z:0.76,r:4},{x:0.03,z:0.88,r:6},
+    {x:0.35,z:0.30,r:5},{x:0.61,z:0.48,r:7},{x:0.86,z:0.70,r:4},{x:0.90,z:0.94,r:5},
+    {x:-0.55,z:0.92,r:4},{x:0.12,z:0.22,r:6},{x:0.78,z:0.20,r:5}
+  ];
+
+  const canvas = root.querySelector('canvas');
+  const ctx = canvas.getContext('2d');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ui = {
+    eyebrow: root.querySelector('[data-stop-eyebrow]'),
+    name: root.querySelector('[data-stop-name]'),
+    reason: root.querySelector('[data-stop-reason]'),
+    memory: root.querySelector('[data-memory-copy]'),
+    mastery: root.querySelector('[data-mastery]'),
+    worth: root.querySelector('[data-worth]'),
+    stops: root.querySelector('[data-stops]'),
+    inventory: root.querySelector('[data-inventory]'),
+    progress: root.querySelector('[data-progress-label]'),
+    ring: root.querySelector('.kgx-progress-ring'),
+    start: root.querySelector('[data-start]'),
+    collect: root.querySelector('[data-collect]'),
+    status: root.querySelector('[data-stage-status]'),
+    toast: root.querySelector('.kgx-toast')
+  };
+
+  let selected = 2;
+  let mode = 'route';
+  let width = 0;
+  let height = 0;
+  let dpr = 1;
+  let pointerX = 0;
+  let pointerY = 0;
+  let hitNodes = [];
+  let toastTimer = 0;
+  let actionTimer = 0;
+
+  function fitCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    width = Math.max(1, rect.width);
+    height = Math.max(1, rect.height);
+    dpr = Math.min(2, window.devicePixelRatio || 1);
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    draw(performance.now());
+  }
+
+  function project(node, depthOffset = 0) {
+    const horizon = height * 0.245;
+    const camera = reducedMotion ? 0 : pointerX * 0.022;
+    const z = Math.max(0.02, node.z + depthOffset);
+    const perspective = 1 + z * 0.34;
+    return {
+      x: width * 0.49 + ((node.x + camera) * width * 0.39) / perspective,
+      y: height * 0.86 - z * height * 0.58 + pointerY * 4,
+      scale: 1.22 - z * 0.48,
+      horizon
+    };
+  }
+
+  function pathFor(nodes, offset = 0) {
+    ctx.beginPath();
+    nodes.forEach((node, index) => {
+      const p = project(node, offset);
+      if (index === 0) ctx.moveTo(p.x, p.y);
+      else {
+        const prev = project(nodes[index - 1], offset);
+        const cx = (prev.x + p.x) / 2;
+        ctx.quadraticCurveTo(cx, prev.y, p.x, p.y);
+      }
+    });
+  }
+
+  function drawArchitecture() {
+    const horizon = height * 0.245;
+    const vanishX = width * (0.5 + pointerX * 0.012);
+    const floorTop = height * 0.31;
+    const floorBottom = height * 0.95;
+
+    ctx.fillStyle = '#070a0d';
+    ctx.fillRect(0, 0, width, height);
+
+    const wash = ctx.createLinearGradient(0, 0, 0, height);
+    wash.addColorStop(0, 'rgba(30,50,53,0.15)');
+    wash.addColorStop(0.5, 'rgba(7,10,13,0)');
+    wash.addColorStop(1, 'rgba(20,10,26,0.28)');
+    ctx.fillStyle = wash;
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.lineWidth = 1;
+    for (let i = -6; i <= 6; i += 1) {
+      const bottomX = width * 0.5 + i * width * 0.115;
+      ctx.strokeStyle = i === 0 ? 'rgba(88,214,208,0.20)' : 'rgba(157,180,183,0.085)';
+      ctx.beginPath();
+      ctx.moveTo(bottomX, floorBottom);
+      ctx.lineTo(vanishX + i * 7, horizon);
+      ctx.stroke();
+    }
+    for (let i = 0; i < 11; i += 1) {
+      const t = i / 10;
+      const eased = t * t;
+      const y = floorTop + eased * (floorBottom - floorTop);
+      const half = width * (0.10 + eased * 0.50);
+      ctx.strokeStyle = i === 10 ? 'rgba(165,138,244,0.24)' : 'rgba(157,180,183,0.085)';
+      ctx.beginPath();
+      ctx.moveTo(vanishX - half, y);
+      ctx.lineTo(vanishX + half, y);
+      ctx.stroke();
+    }
+
+    ctx.strokeStyle = 'rgba(88,214,208,0.12)';
+    ctx.lineWidth = 1.2;
+    [0.18, 0.31, 0.44].forEach((inset, index) => {
+      ctx.beginPath();
+      ctx.moveTo(width * inset, floorBottom);
+      ctx.lineTo(width * (0.27 + index * 0.07), height * 0.24);
+      ctx.quadraticCurveTo(vanishX, height * (0.03 + index * 0.025), width * (0.73 - index * 0.07), height * 0.24);
+      ctx.lineTo(width * (1 - inset), floorBottom);
+      ctx.stroke();
+    });
+
+    ctx.fillStyle = 'rgba(146,160,159,0.62)';
+    ctx.font = '600 10px "Segoe UI", sans-serif';
+    ctx.letterSpacing = '1px';
+    ctx.fillText('ВХОД', width * 0.105, height * 0.91);
+    ctx.fillText('СЕГОДНЯ', width * 0.47, height * 0.91);
+    ctx.fillText('ДАЛЬШЕ', width * 0.82, height * 0.91);
+  }
+
+  function drawWorld() {
+    if (mode !== 'world') return;
+    worldNodes.forEach((node, index) => {
+      const p = project(node);
+      const radius = node.r * p.scale;
+      ctx.fillStyle = index % 3 === 0 ? 'rgba(88,214,208,0.32)' : 'rgba(136,151,164,0.23)';
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(174,196,199,0.10)';
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(width * 0.49, height * 0.27);
+      ctx.stroke();
+    });
+  }
+
+  function drawMemoryTrace() {
+    if (mode !== 'memory') return;
+    ctx.save();
+    ctx.setLineDash([4, 7]);
+    ctx.lineWidth = 1.4;
+    ctx.strokeStyle = 'rgba(239,183,97,0.48)';
+    pathFor(route, -0.055);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    route.forEach((node, index) => {
+      if (index % 2 === 1 || index === 5) {
+        const p = project(node, -0.055);
+        ctx.fillStyle = 'rgba(239,183,97,0.72)';
+        ctx.fillRect(p.x - 2, p.y - 2, 4, 4);
+      }
+    });
+    ctx.restore();
+  }
+
+  function drawRoute(time) {
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = 7;
+    ctx.strokeStyle = 'rgba(165,138,244,0.08)';
+    pathFor(route);
+    ctx.stroke();
+    ctx.lineWidth = 1.6;
+    ctx.setLineDash([6, 8]);
+    ctx.lineDashOffset = reducedMotion ? 0 : -(time * 0.018);
+    ctx.strokeStyle = 'rgba(165,138,244,0.68)';
+    pathFor(route);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    const completed = route.filter(node => node.done);
+    if (completed.length > 1) {
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = 'rgba(114,201,148,0.82)';
+      pathFor(completed);
+      ctx.stroke();
+    }
+
+    hitNodes = [];
+    route.forEach((node, index) => {
+      const p = project(node);
+      const active = index === selected;
+      const radius = (active ? 19 : 13) * p.scale;
+      const pulse = reducedMotion ? 0 : Math.sin(time * 0.003) * 2;
+      hitNodes.push({ index, x: p.x, y: p.y, radius: radius + 12 });
+
+      if (active) {
+        const halo = ctx.createRadialGradient(p.x, p.y, 2, p.x, p.y, radius + 24 + pulse);
+        halo.addColorStop(0, 'rgba(165,138,244,0.34)');
+        halo.addColorStop(1, 'rgba(165,138,244,0)');
+        ctx.fillStyle = halo;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, radius + 24 + pulse, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = node.done ? '#72c994' : active ? '#a58af4' : '#58d6d0';
+      ctx.strokeStyle = active ? '#f5f3ec' : node.done ? 'rgba(114,201,148,0.60)' : 'rgba(88,214,208,0.42)';
+      ctx.lineWidth = active ? 2 : 1;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#070a0d';
+      ctx.font = '700 10px "Segoe UI", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(node.done ? '✓' : String(index + 1), p.x, p.y);
+
+      if (node.collected) {
+        ctx.save();
+        ctx.translate(p.x + radius * 0.78, p.y - radius * 0.75);
+        ctx.rotate(Math.PI / 4);
+        ctx.fillStyle = '#efb761';
+        ctx.fillRect(-4, -4, 8, 8);
+        ctx.restore();
+      }
+
+      if (active || index === selected + 1) {
+        const label = active ? node.name : `Дальше · ${node.name}`;
+        ctx.font = `${active ? '700' : '600'} ${active ? 12 : 10}px "Segoe UI", sans-serif`;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'alphabetic';
+        const labelWidth = ctx.measureText(label).width;
+        const lx = Math.min(width - labelWidth - 14, p.x + radius + 10);
+        const ly = p.y + (active ? 4 : 3);
+        ctx.fillStyle = active ? '#f5f3ec' : 'rgba(213,222,220,0.72)';
+        ctx.fillText(label, lx, ly);
+      }
+    });
+    ctx.restore();
+  }
+
+  function draw(time = 0) {
+    drawArchitecture();
+    drawWorld();
+    drawMemoryTrace();
+    drawRoute(time);
+  }
+
+  function renderLoop(time) {
+    draw(time);
+    if (!reducedMotion) requestAnimationFrame(renderLoop);
+  }
+
+  function renderStops() {
+    ui.stops.innerHTML = '';
+    route.forEach((node, index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = `kgx-stop${node.done ? ' is-done' : ''}`;
+      if (index === selected) button.setAttribute('aria-current', 'step');
+      button.innerHTML = `<span class="kgx-stop-index">${node.done ? '✓' : index + 1}</span><span class="kgx-stop-copy"><strong>${node.name}</strong><span>${node.short}</span></span><span class="kgx-stop-state">${node.collected ? '◆' : ''}</span>`;
+      button.addEventListener('click', () => selectStop(index));
+      ui.stops.appendChild(button);
+    });
+  }
+
+  function updateUI() {
+    const node = route[selected];
+    ui.eyebrow.textContent = `Остановка ${selected + 1} · ${node.short}`;
+    ui.name.textContent = node.name;
+    ui.reason.textContent = node.reason;
+    ui.memory.textContent = node.memory;
+    ui.mastery.textContent = `${node.mastery}%`;
+    ui.mastery.setAttribute('aria-label', `Освоено на ${node.mastery} процентов`);
+    ui.worth.textContent = `W ${node.worth.toFixed(1)}`;
+    ui.start.textContent = node.done ? 'Изучено сегодня' : 'Начать · 12 мин';
+    ui.start.disabled = node.done;
+    ui.collect.textContent = node.collected ? 'В конспекте' : 'В конспект';
+    ui.collect.classList.toggle('is-on', node.collected);
+    const doneCount = route.filter(item => item.done).length;
+    const collectedCount = route.filter(item => item.collected).length;
+    ui.progress.textContent = `${doneCount} из ${route.length} пройдено`;
+    ui.ring.style.setProperty('--p', `${(doneCount / route.length) * 100}%`);
+    ui.inventory.textContent = `${8 + collectedCount} разделов`;
+    renderStops();
+    if (reducedMotion) draw(performance.now());
+  }
+
+  function selectStop(index) {
+    selected = Math.max(0, Math.min(route.length - 1, index));
+    ui.status.textContent = `В фокусе: ${route[selected].name}`;
+    updateUI();
+  }
+
+  function showToast(message) {
+    window.clearTimeout(toastTimer);
+    ui.toast.textContent = message;
+    ui.toast.classList.add('is-visible');
+    toastTimer = window.setTimeout(() => ui.toast.classList.remove('is-visible'), 1800);
+  }
+
+  ui.start.addEventListener('click', () => {
+    const node = route[selected];
+    if (node.done) return;
+    node.done = true;
+    node.mastery = Math.min(100, node.mastery + 8);
+    node.memory = 'Сегодня: след записан';
+    ui.status.textContent = 'Мир обновлён по результату сессии';
+    showToast(`След записан · ${node.name}`);
+    updateUI();
+    window.clearTimeout(actionTimer);
+    actionTimer = window.setTimeout(() => {
+      const nextOpen = route.findIndex((item, index) => index > selected && !item.done);
+      if (nextOpen >= 0) selectStop(nextOpen);
+    }, 650);
+  });
+
+  ui.collect.addEventListener('click', () => {
+    const node = route[selected];
+    node.collected = !node.collected;
+    showToast(node.collected ? `Добавлено в Живой конспект · ${node.name}` : `Убрано из конспекта · ${node.name}`);
+    updateUI();
+  });
+
+  root.querySelector('[data-prev]').addEventListener('click', () => selectStop(selected - 1));
+  root.querySelector('[data-next]').addEventListener('click', () => selectStop(selected + 1));
+  root.querySelectorAll('[data-mode]').forEach(button => {
+    button.addEventListener('click', () => {
+      mode = button.dataset.mode;
+      root.querySelectorAll('[data-mode]').forEach(peer => peer.setAttribute('aria-pressed', String(peer === button)));
+      ui.status.textContent = mode === 'route' ? 'Маршрут дня' : mode === 'world' ? 'Открыто созвездие курса' : 'Показан след предыдущей сессии';
+      draw(performance.now());
+    });
+  });
+
+  canvas.addEventListener('pointermove', event => {
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    pointerX = (x / rect.width - 0.5) * 2;
+    pointerY = (y / rect.height - 0.5) * 2;
+    const overNode = hitNodes.some(node => Math.hypot(node.x - x, node.y - y) <= node.radius);
+    canvas.style.cursor = overNode ? 'pointer' : 'grab';
+    if (reducedMotion) draw(performance.now());
+  });
+  canvas.addEventListener('pointerleave', () => {
+    pointerX = 0;
+    pointerY = 0;
+    canvas.style.cursor = 'grab';
+    if (reducedMotion) draw(performance.now());
+  });
+  canvas.addEventListener('click', event => {
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    const hit = hitNodes.find(node => Math.hypot(node.x - x, node.y - y) <= node.radius);
+    if (hit) selectStop(hit.index);
+  });
+  root.addEventListener('keydown', event => {
+    if (event.key === 'ArrowLeft') selectStop(selected - 1);
+    if (event.key === 'ArrowRight') selectStop(selected + 1);
+  });
+
+  const observer = new ResizeObserver(fitCanvas);
+  observer.observe(canvas);
+  updateUI();
+  fitCanvas();
+  if (!reducedMotion) requestAnimationFrame(renderLoop);
+})();
+</script>
 
 </div>
