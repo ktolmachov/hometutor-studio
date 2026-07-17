@@ -222,7 +222,7 @@
     background:linear-gradient(90deg,var(--kgx-cyan),var(--kgx-lime) 24%,var(--kgx-gold) 49%,var(--kgx-coral) 73%,var(--kgx-violet));
   }
   .kgx-shell[data-scene-mode="world"] { --kgx-accent:var(--kgx-coral); }
-  .kgx-shell[data-scene-mode="memory"] { --kgx-accent:var(--kgx-gold); }
+  .kgx-shell[data-memory="on"] { --kgx-accent:var(--kgx-gold); }
   .kgx-shell button { font: inherit; }
   .kgx-topbar {
     min-height: 64px;
@@ -323,6 +323,7 @@
   .kgx-action-primary:disabled { color:var(--kgx-muted); background:#1d2728; border-color:var(--kgx-line); cursor:default; }
   .kgx-action-secondary { color:var(--kgx-text); background:transparent; }
   .kgx-action-secondary:hover, .kgx-action-secondary.is-on { border-color:var(--kgx-coral); color:var(--kgx-coral); background:rgba(255,107,138,0.06); }
+  .kgx-action-secondary:disabled { opacity:.55; border-color:var(--kgx-line); color:var(--kgx-muted); background:transparent; cursor:default; }
   .kgx-route-title { padding:0.8rem 1rem 0.45rem; display:flex; align-items:center; justify-content:space-between; color:var(--kgx-muted); font-size:0.68rem; text-transform:uppercase; letter-spacing:0.08em; }
   .kgx-route-title strong { color:var(--kgx-gold); font-size:0.68rem; }
   .kgx-stops { display:grid; gap:1px; padding:0 0.55rem 0.55rem; }
@@ -383,16 +384,16 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
 <body>
 <section class="kgx-intro" id="hall-prototype" aria-labelledby="hall-prototype-title">
   <h2 id="hall-prototype-title">Зал памяти: рабочий прототип сильного хода</h2>
-  <div class="kgx-shell" id="kgx-demo" data-initial-mode="route" data-scene-mode="route">
+  <div class="kgx-shell" id="kgx-demo" data-initial-mode="route" data-scene-mode="route" data-memory="off">
     <div class="kgx-topbar">
       <div class="kgx-brand">
         <span class="kgx-brand-mark" aria-hidden="true"></span>
         <span class="kgx-brand-copy"><strong>Hometutor</strong><span>Memory Run · 17 июля</span></span>
       </div>
-      <div class="kgx-modes" aria-label="Режим сцены">
+      <div class="kgx-modes" aria-label="Режим сцены и оверлей памяти">
         <button class="kgx-mode" type="button" data-mode="route" aria-pressed="true">Маршрут</button>
-        <button class="kgx-mode" type="button" data-mode="world" aria-pressed="false">Созвездие</button>
-        <button class="kgx-mode" type="button" data-mode="memory" aria-pressed="false">След памяти</button>
+        <button class="kgx-mode" type="button" data-mode="world" aria-pressed="false" title="Созвездие = production local; полный граф — отдельное действие">Созвездие</button>
+        <button class="kgx-mode" type="button" data-overlay="memory" aria-pressed="false" title="Оверлей следа снимка поверх текущего режима, не отдельный режим">След памяти</button>
       </div>
       <div class="kgx-progress">
         <span class="kgx-progress-copy"><strong data-progress-label>2 из 6 пройдено</strong><span>маршрут перестраивается по памяти</span></span>
@@ -472,7 +473,11 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
   };
 
   let selected = 2;
-  let mode = ['route', 'world', 'memory'].includes(root.dataset.initialMode) ? root.dataset.initialMode : 'route';
+  // Оси независимы (план G0/G2): «След памяти» — overlay поверх сцены, не третий
+  // взаимоисключающий режим; production scene_mode = route|local|all.
+  const initialMode = root.dataset.initialMode;
+  let sceneMode = initialMode === 'world' ? 'world' : 'route';
+  let memoryOverlay = initialMode === 'memory';
   let width = 0;
   let height = 0;
   let dpr = 1;
@@ -481,6 +486,9 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
   let hitNodes = [];
   let toastTimer = 0;
   let actionTimer = 0;
+  let collectTimer = 0;
+  let pendingStartIndex = null;
+  let pendingCollectIndex = null;
 
   function fitCanvas() {
     const rect = canvas.getBoundingClientRect();
@@ -529,7 +537,7 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
     ctx.fillRect(0, 0, width, height);
 
     const wash = ctx.createLinearGradient(0, 0, 0, height);
-    wash.addColorStop(0, mode === 'memory' ? 'rgba(255,200,87,0.12)' : mode === 'world' ? 'rgba(255,107,138,0.11)' : 'rgba(66,232,224,0.10)');
+    wash.addColorStop(0, memoryOverlay ? 'rgba(255,200,87,0.12)' : sceneMode === 'world' ? 'rgba(255,107,138,0.11)' : 'rgba(66,232,224,0.10)');
     wash.addColorStop(0.48, 'rgba(8,8,18,0)');
     wash.addColorStop(1, 'rgba(54,30,92,0.30)');
     ctx.fillStyle = wash;
@@ -620,7 +628,7 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
   }
 
   function drawWorld() {
-    if (mode !== 'world') return;
+    if (sceneMode !== 'world') return;
     const palette = ['#42e8e0','#ff6b8a','#4ca4ff','#b9f75b','#ffc857','#9a6cff'];
     worldNodes.forEach((node, index) => {
       const p = project(node);
@@ -642,7 +650,7 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
   }
 
   function drawMemoryTrace() {
-    if (mode !== 'memory') return;
+    if (!memoryOverlay) return;
     ctx.save();
     ctx.setLineDash([3, 8]);
     ctx.lineWidth = 2;
@@ -806,9 +814,12 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
     ui.mastery.textContent = `${node.mastery}%`;
     ui.mastery.setAttribute('aria-label', `Освоено на ${node.mastery} процентов`);
     ui.worth.textContent = `W ${node.worth.toFixed(1)}`;
-    ui.start.textContent = node.done ? 'Изучено сегодня' : 'Начать · 12 мин';
-    ui.start.disabled = node.done;
-    ui.collect.textContent = node.collected ? 'В конспекте' : 'В конспект';
+    ui.start.textContent = pendingStartIndex === selected ? 'Отправлено…'
+      : node.done ? 'Изучено сегодня' : 'Начать · 12 мин';
+    ui.start.disabled = node.done || pendingStartIndex !== null;
+    ui.collect.textContent = pendingCollectIndex === selected ? 'Отправляем…'
+      : node.collected ? 'В конспекте' : 'В конспект';
+    ui.collect.disabled = pendingCollectIndex !== null;
     ui.collect.classList.toggle('is-on', node.collected);
     const doneCount = route.filter(item => item.done).length;
     const collectedCount = route.filter(item => item.collected).length;
@@ -834,40 +845,62 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
 
   ui.start.addEventListener('click', () => {
     const node = route[selected];
-    if (node.done || ui.start.dataset.pending === '1') return;
-    // Демо моста действий: «Начать» = только намерение навигации в продукт.
-    // Production фиксирует done/mastery из реального quiz-события, НЕ из этого клика,
-    // поэтому макет НЕ трогает mastery и не «рисует успех» — показывает pending → ack.
-    ui.start.dataset.pending = '1';
-    ui.start.disabled = true;
-    ui.start.textContent = 'Отправлено…';
-    ui.status.textContent = 'Намерение отправлено в продукт (демо ack)';
-    showToast(`Открыт режим · ${node.name}`);
+    if (node.done || pendingStartIndex !== null) return;
+    // Демо action-моста: «Начать» = намерение навигации, pending → ack.
+    // done/mastery в production приходят из реального quiz-события, не из клика,
+    // поэтому сцена ничего не мутирует и не рисует успех до ack.
+    pendingStartIndex = selected;
+    ui.status.textContent = 'Намерение отправлено — ждём ack продукта';
+    updateUI();
     window.clearTimeout(actionTimer);
     actionTimer = window.setTimeout(() => {
-      ui.start.dataset.pending = '';
+      const acked = route[pendingStartIndex];
+      pendingStartIndex = null;
+      ui.status.textContent = 'Ack получен: продукт открыл режим изучения';
+      showToast(`Ack: режим открыт · ${acked.name}`);
       updateUI();
     }, 900);
   });
 
   ui.collect.addEventListener('click', () => {
-    const node = route[selected];
-    node.collected = !node.collected;
-    showToast(node.collected ? `Добавлено в Живой конспект · ${node.name}` : `Убрано из конспекта · ${node.name}`);
+    if (pendingCollectIndex !== null) return;
+    // Демо записи: optimistic pending; состояние меняется только на demo-ack —
+    // в production источник истины для ◆/счётчика — component args после Python ack.
+    pendingCollectIndex = selected;
+    ui.status.textContent = 'Отправляем в Живой конспект — ждём ack';
     updateUI();
+    window.clearTimeout(collectTimer);
+    collectTimer = window.setTimeout(() => {
+      const acked = route[pendingCollectIndex];
+      acked.collected = !acked.collected;
+      pendingCollectIndex = null;
+      showToast(acked.collected ? `Ack: добавлено в Живой конспект · ${acked.name}` : `Ack: убрано из конспекта · ${acked.name}`);
+      updateUI();
+    }, 700);
   });
 
   root.querySelector('[data-prev]').addEventListener('click', () => selectStop(selected - 1));
   root.querySelector('[data-next]').addEventListener('click', () => selectStop(selected + 1));
+  function syncSceneControls() {
+    root.dataset.sceneMode = sceneMode;
+    root.dataset.memory = memoryOverlay ? 'on' : 'off';
+    root.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === sceneMode)));
+    const overlayBtn = root.querySelector('[data-overlay]');
+    if (overlayBtn) overlayBtn.setAttribute('aria-pressed', String(memoryOverlay));
+    const base = sceneMode === 'route' ? 'Маршрут дня' : 'Открыто созвездие курса';
+    ui.status.textContent = memoryOverlay ? `${base} · след снимка поверх` : base;
+  }
   root.querySelectorAll('[data-mode]').forEach(button => {
-    button.setAttribute('aria-pressed', String(button.dataset.mode === mode));
     button.addEventListener('click', () => {
-      mode = button.dataset.mode;
-      root.dataset.sceneMode = mode;
-      root.querySelectorAll('[data-mode]').forEach(peer => peer.setAttribute('aria-pressed', String(peer === button)));
-      ui.status.textContent = mode === 'route' ? 'Маршрут дня' : mode === 'world' ? 'Открыто созвездие курса' : 'Показан след предыдущей сессии';
+      sceneMode = button.dataset.mode;
+      syncSceneControls();
       draw(performance.now());
     });
+  });
+  root.querySelector('[data-overlay]').addEventListener('click', () => {
+    memoryOverlay = !memoryOverlay;
+    syncSceneControls();
+    draw(performance.now());
   });
 
   canvas.addEventListener('pointermove', event => {
@@ -899,8 +932,7 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
   });
 
   const observer = new ResizeObserver(fitCanvas);
-  root.dataset.sceneMode = mode;
-  ui.status.textContent = mode === 'route' ? 'Маршрут дня' : mode === 'world' ? 'Открыто созвездие курса' : 'Показан след предыдущей сессии';
+  syncSceneControls();
   observer.observe(canvas);
   updateUI();
   fitCanvas();
