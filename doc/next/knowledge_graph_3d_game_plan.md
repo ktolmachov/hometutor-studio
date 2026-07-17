@@ -229,8 +229,9 @@ mismatch `perplexity/pplx-embed-v1-0.6b` ↔ qwen3. API/UI на момент з�
 
 **Исполнено (@264–265):** P0 U0+V2′ ✅ · P1 U1+U2 ✅ · P2 U3+U4 ✅.  
 **Post-audit (@269–270):** U0/G2 rank+✓ overlay ✅.  
-**Polish (@271–272 + W0):** R1 chrome ✅ · R2 toast ✅ · R3 hall ✅ · W0 Q1–Q4/Q7 ✅.  
-**Осталось:** W0 Q5–Q6/Q8–Q9 (мелочи); P3 G4 ⬜; Мнемополис vision (разбор №19).
+**Polish (@271–274):** R1 chrome ✅ · R2 toast ✅ · R3 hall ✅ · **W0 Q1–Q9 ✅**
+(axis/nav, compass, fitCamera, learner status, link skin, smooth path, ring track).  
+**Осталось:** P3 G4 ⬜; Мнемополис vision (разбор №19) — `knowledge_graph_3d_world_vision.md`.
 
 | Что | Было (@263) | Стало (@270) |
 |---|---|---|
