@@ -10,8 +10,8 @@ from app.ui.cockpit_rotator import (
 
 def test_normalize_slot_index_clamps():
     assert normalize_slot_index(0) == 0
-    assert normalize_slot_index(3) == 0
-    assert normalize_slot_index(-1) == 2
+    assert normalize_slot_index(4) == 0
+    assert normalize_slot_index(-1) == 3
     assert normalize_slot_index("x") == 0
 
 
@@ -27,4 +27,4 @@ def test_slot_id_at():
 
 
 def test_default_slots_tuple():
-    assert len(DEFAULT_SLOTS) == 3
+    assert DEFAULT_SLOTS == ("flashcards", "micro_quiz", "tutor_chat", "living_konspekt")

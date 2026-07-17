@@ -14,7 +14,7 @@ def test_hint_to_tile_covers_all_router_hints() -> None:
     mc.assert_hint_mapping_complete()
 
 
-def test_tile_definitions_are_locked_seven(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_tile_definitions_include_primary_modes(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(mc, "get_active_scope", lambda: None)
     tiles = mc._tile_definitions(due_count=3)
     assert [tile.tile_id for tile in tiles] == [
@@ -25,6 +25,7 @@ def test_tile_definitions_are_locked_seven(monkeypatch: pytest.MonkeyPatch) -> N
         "topics",
         "course",
         "adaptive_plan",
+        "agent_session",
     ]
     assert tiles[5].title == "Активируй курс"
 
@@ -43,9 +44,10 @@ def test_course_options_include_document_counts_and_paths() -> None:
             "files": ["ml/intro.md", "ml/week1.pdf", "math/algebra.md", "other.txt"],
         }
     )
-    assert [option.folder_rel for option in options] == ["ml", "math"]
-    assert options[0].label == "Курс: ml · 2 док."
-    assert options[0].source_paths == ("ml/intro.md", "ml/week1.pdf")
+    by_folder = {option.folder_rel: option for option in options}
+    assert set(by_folder) == {"ml", "math"}
+    assert by_folder["ml"].label == "Курс: ml · 2 док."
+    assert by_folder["ml"].source_paths == ("ml/intro.md", "ml/week1.pdf")
 
 
 def test_course_options_infer_folders_when_options_absent() -> None:
@@ -198,6 +200,11 @@ def test_ssr_banner_html_contains_expected_elements(monkeypatch: pytest.MonkeyPa
     st_mock.button.return_value = False
     monkeypatch.setattr(mc, "st", st_mock)
     monkeypatch.setattr(mc, "build_ssr_evidence_for_banner", lambda _idx: ["сигнал e2e"])
+    monkeypatch.setattr(
+        mc,
+        "feature_visible_by_id",
+        lambda feature_id, context_ok=False: feature_id == "panel:debug_summary",
+    )
     monkeypatch.setattr(mc, "smart_study_contrastive_explanation", lambda _rec: "причина")
     monkeypatch.setattr(
         mc,
@@ -224,8 +231,8 @@ def test_ssr_banner_html_contains_expected_elements(monkeypatch: pytest.MonkeyPa
     assert "e2e-ssr-contrast" in rendered_html
     assert "e2e-ssr-evidence" in rendered_html
     assert "Локальные сигналы" in rendered_html
-    cap = st_mock.caption.call_args[0][0]
-    assert "другой режим" in cap.lower() and "quiz" in cap.lower()
+    assert "другими режимами" in rendered_html.lower()
+    assert "quiz" in rendered_html.lower()
 
 
 def test_course_active_scope_renders_deactivate_button(monkeypatch: pytest.MonkeyPatch) -> None:

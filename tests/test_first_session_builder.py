@@ -99,6 +99,7 @@ def test_per_candidate_failure_others_still_written(tmp_path, monkeypatch) -> No
         folder.mkdir(parents=True)
         for idx in range(3):
             (folder / f"{idx}.md").write_text("x", encoding="utf-8")
+    monkeypatch.setattr("app.ingestion.DATA_DIR", docs_root)
 
     monkeypatch.setattr(fsb, "get_settings", lambda: _settings("local_strict"))
     monkeypatch.setattr("app.config.get_settings", lambda: _settings("local_strict"))

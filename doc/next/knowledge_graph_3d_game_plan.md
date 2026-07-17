@@ -14,10 +14,16 @@
 | U0–U4 + V2′ (Memory Run UI) | 264–265 | ✅ |
 | Overlay rank+✓ + live DOM gates | 269–270 | ✅ |
 | R1 chrome · R2 toast · R3 hall | 271–272 | ✅ |
-| W0 quality Q1–Q9 (vision audit) | 273–274 | ✅ bulk; residual W0′ ⬜ |
+| W0 quality Q1–Q9 (vision audit) | 273–274 | ✅ bulk |
+| W0′ residual + W1 dawn/lanterns | WT 2026-07-18 | ✅ uncommitted (verify-pass) |
+| W2a fog + calm world | WT 2026-07-18 | ✅ uncommitted |
+| W2b action review → Flashcards | WT 2026-07-18 | ✅ uncommitted |
+| W3a Keeper infra | @279 | ✅ |
+| W3b Keeper guide (A) | @280 | ✅ |
+| W3c Keeper threats (B) | WT 2026-07-18 | ✅ uncommitted |
 | G4.1 floor tint · G4.2 history replay | 275 | ✅ |
 | G4.3 «фото дня» | — | ⬜ privacy DoD |
-| Мнемополис (разбор №19) | vision v1 @2026-07-18 | ⬜ кандидат (W0′+W1 ready to promote) |
+| Мнемополис (разбор №19) | vision v1 | 🟡 W0′+W1 done in WT; next W2a / catalog |
 
 **Line-refs в исторических разделах G0–G3 — ориентиры на момент реализации, не
 контракт**; сверять по имени функции. Актуальный порядок и статусы — в разделе
@@ -770,13 +776,10 @@ R1–R3 @271–272 ✅; W0 @273–274 ✅; **G4.1+G4.2 @275 ✅**; **G4.3 ⬜**.
 Mission Control; двери в разделы; Хранитель; антагонисты из данных; рассвет):
 см. `knowledge_graph_3d_world_vision.md` (**v1, 2026-07-18**, re-baseline @275).
 
-**Качество скина (Q1–Q9 @270):** bulk закрыт runtime **W0 @273–274**
-(axis/nav underlay, compass rename, `fitRouteCamera` margin, link skin, interior
-head, smooth path, ring track). **Residual W0′** (vision §1.2): W0′-R1…R7 —
-vertical fill desktop, одна легенда compass/axis, mobile overlap, hide `#hint`,
-learner chips (`due true` bug), ring contrast, export CTA hierarchy — это ещё
-долг Memory Run polish, **до** механик мира. Промоут в backlog: **W0′ → W1**
-(+ opt. W2a); остальное — каталог.
+**Качество скина (Q1–Q9 @270):** bulk закрыт runtime **W0 @273–274**.
+**Residual W0′ + W1** (vision §1.2 / §8): реализованы в hometutor **working tree**
+2026-07-18 (verify-pass: 78 tests, 4 viewports, night≠dawn sky). Next: **W2a**
+Туман (opt.) и каталог Мнемополис; G4.3 photo ⬜.
 
 Kill switch vision **v3.1**: LLM только с числовым budget (§6.2 vision), cache,
 degrade, non-blocking first paint, no domain write; scene-DSL = design spike;
@@ -788,5 +791,5 @@ degrade, non-blocking first paint, no domain write; scene-DSL = design spike;
 |---|---|---|
 | 1 | G4.3 export «фото дня» + privacy DoD | ⬜ |
 | 2 | Push hometutor `main` (ahead origin; @275) | ops |
-| 3 | Мнемополис vision v1 → backlog slice W0′+W1 | ⬜ кандидат (промоут вручную) |
+| 3 | Мнемополис W0′+W1 → commit runtime WT | 🟡 verify-pass, uncommitted |
 | 4 | Live Streamlit smoke (опционально) | ops |

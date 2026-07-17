@@ -12,7 +12,6 @@ from app.ui.knowledge_graph_d3 import (
     build_kg_html,
     build_kg_payload,
     build_mastery_history,
-    build_weekly_plan,
     compute_decay,
 )
 
@@ -131,49 +130,11 @@ def test_html_renders_with_all_placeholders_filled():
     assert "forceSimulation" in html
 
 
-# ── KG-01: build_weekly_plan ─────────────────────────────────────────
+# ── KG-01 / C2: weekly planner removed from graph UI ─────────────────
 
-def test_plan_includes_frontier():
-    nodes = [n for n in _payload()["nodes"]]
-    plan = build_weekly_plan(nodes)
-    reasons = {p["reason"] for p in plan}
-    assert "frontier" in reasons
-
-
-def test_due_review_prioritized_over_frontier():
-    import datetime
-    nodes = [n for n in _payload()["nodes"]]
-    yesterday = (datetime.date.today() - datetime.timedelta(days=1)).isoformat()
-    due = [{"concept": "OOP", "next_review": yesterday}]
-    plan = build_weekly_plan(nodes, due_reviews=due)
-    assert plan[0]["concept"] == "OOP"
-    assert plan[0]["reason"] == "due_review"
-
-
-def test_plan_respects_n_limit():
-    nodes = [n for n in _payload()["nodes"]]
-    assert len(build_weekly_plan(nodes, n=2)) <= 2
-    assert len(build_weekly_plan(nodes, n=10)) <= len(nodes)
-
-
-def test_plan_empty_graph_safe():
-    assert build_weekly_plan([]) == []
-
-
-def test_in_progress_added_after_frontier():
-    # "OOP" is frontier; make it in-progress instead by zeroing mastery
-    nodes = [n for n in _payload()["nodes"]]
-    for n in nodes:
-        if n["id"] == "OOP":
-            n["frontier"] = False
-            n["mastery"] = 30.0
-            n["learned"] = False
-    plan = build_weekly_plan(nodes)
-    reasons = [p["reason"] for p in plan]
-    if "in_progress" in reasons:
-        # in_progress comes after frontier
-        if "frontier" in reasons:
-            assert reasons.index("in_progress") > reasons.index("frontier")
+def test_weekly_plan_export_key_kept_empty():
+    payload = _payload()
+    assert payload["weekly_plan"] == []
 
 
 # ── KG-02: build_graph_health ────────────────────────────────────────
@@ -274,10 +235,10 @@ def test_html_contains_export_and_link_buttons():
     assert "SVG" in html
 
 
-def test_html_contains_weekly_plan_section():
+def test_html_has_no_legacy_weekly_plan_section():
     html = build_kg_html(_payload())
-    assert "WEEKLY_PLAN" in html
-    assert "pp-cards" in html
+    assert "WEEKLY_PLAN" not in html
+    assert "pp-cards" not in html
 
 
 def test_html_contains_diagnostics_section():

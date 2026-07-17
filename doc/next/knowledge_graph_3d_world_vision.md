@@ -19,9 +19,10 @@
 без LLM/новой схемы без нужды. Толстые пакеты «весь город сразу» запрещены; ниже
 волны нарезаны так, чтобы продукт не ломался, если следующая волна не случится.
 
-**Промоут-политика (после ревью 2026-07-18):** в backlog сейчас можно выносить
-только first slice **W0′ + W1** (+ опционально **W2a**). Остальное — каталог
-кандидатов до owner-решений (§5 home, §6 LLM budget, §6F spike, §7 Разлом audit).
+**Промоут-политика (после ревью 2026-07-18):** first slice **W0′ + W1**
+реализован в hometutor **working tree** (2026-07-18, uncommitted на момент verify;
+маркеры `quizRouteProgress` / `drawRouteLantern` / W0′-R1…R7). Далее: **W2a** (opt.)
+и каталог (§5 home, §6 LLM, §6F spike, §7 Разлом audit).
 
 ---
 
@@ -359,9 +360,9 @@ G = короткий текст Хранителя над quiz-only `mastery_his
 
 | Волна | Содержание |
 |---|---|
-| W3a | infra only: cache harness, budget counters, circuit-breaker, privacy/consent gate, degrade smoke, prompts package stub |
-| W3b | scenario A |
-| W3c | scenario B |
+| W3a | ✅ @279 infra |
+| W3b | ✅ @280 guide surface |
+| W3c | ✅ WT threats panel + host buttons |
 | later | C1 handoff → D → H; C2 / E / F / G-text — по отдельным go |
 
 ---
@@ -482,24 +483,24 @@ UI-волнах, живой прогон running-артефакта. Если с
 
 | Волна | Разрыв | Содержание | P | Effort | Write-set (ориентир) | Tests / DoD |
 |---|---|---|---|---|---|---|
-| **W0′** Residual polish | W0′-R1…R7 §1.2 | `fitRouteCamera` vertical fill; одна легенда compass/axis; mobile overlap; hide `#hint`; learner chips; ring contrast; export CTA copy | P0 | ≤1 дня | `kg_3d_template.html`, `docs/user_guide.md`, counters tests | visual smoke 1366/1920/1024/390; chip text asserts; no critical overlap |
-| **W1** Рассвет и фонари | нет «живого» quiz-неба | sky gradient + lanterns from quiz-route coverage (§8) | P0 | ≤1 дня | `kg_3d_template.html` (+ tests) | 0/N night ≠ N/N dawn visually; reduced-motion ok; route frame still clean |
-| **W2a** Туман visual | forgetting invisible | fog from `1-retention` + «Спокойный мир» toggle; non-block CTAs; full name in panel | P1 | 1–2 дня | template + optional settings UI-state | fog never disables start/collect; calm world off; first route clean |
+| **W0′** Residual polish | W0′-R1…R7 §1.2 | `fitRouteCamera` vertical fill; одна легенда compass/axis; mobile overlap; hide `#hint`; learner chips; ring contrast; export CTA copy | P0 | ✅ WT 2026-07-18 | `kg_3d_template.html`, `docs/user_guide.md`, counters tests | 78 tests; live 4 viewports; R1–R7 verify-pass |
+| **W1** Рассвет и фонари | нет «живого» quiz-неба | sky gradient + lanterns from quiz-route coverage (§8) | P0 | ✅ WT 2026-07-18 | `kg_3d_template.html` (+ tests) | night mean_sky≪dawn; reduced-motion solid lantern; route clean |
+| **W2a** Туман visual | forgetting invisible | fog from `1-retention` + «Спокойный мир» toggle; non-block CTAs; full name in panel | P1 | ✅ WT 2026-07-18 | `kg_3d_template.html`, counters, user_guide | quiet markers on route; full mist local/all; calm sessionStorage; chip «туман · можно войти» |
 
 ### 11.2 Next (после W0′+W1 live)
 
 | Волна | Разрыв | Содержание | P | Effort | Notes |
 |---|---|---|---|---|---|
-| **W2b** action `review` | нет двери в Flashcards из зала | whitelist + Python handler + preselect; CTA «Развеять»/«Повторить» | P1 | 1 дня | contract tests; export inert |
-| **W3a** Keeper infra | нет безопасного LLM-слоя | cache, budget counters, degrade smoke, `app/prompts/` stubs | P1 | 1–2 дня | **без** user-facing prose yet |
-| **W3b** Keeper A | тур без нарратива | экскурсовод | P1 | 1 дня | depends W3a |
-| **W3c** Keeper B | угрозы без сводки | deterministic list + optional prose | P1 | 1 дня | depends W3a; uses W2b for CTA |
+| **W2b** action `review` | нет двери в Flashcards из зала | whitelist + Python handler + preselect; CTA «Развеять»/«Повторить» | P1 | ✅ WT 2026-07-18 | `start|collect|review`; nav → Flashcards; export inert; 80 tests |
+| **W3a** Keeper infra | нет безопасного LLM-слоя | cache, budget counters, degrade smoke, `app/prompts/` stubs | P1 | ✅ @279 | `app/mnemo_keeper.py` + prompts; unit tests; no domain writers |
+| **W3b** Keeper A | тур без нарратива | экскурсовод в карточке + host buttons offline/LLM | P1 | ✅ @280 | `build_guide_view_model` → hall; first paint offline |
+| **W3c** Keeper B | угрозы без сводки | deterministic list + optional prose + panel | P1 | ✅ WT 2026-07-18 | `build_threats_view_model`; 🔁=review |
 
 ### 11.3 Later catalog (не один «W4/W5/W6 bag»)
 
 | Волна | Содержание | P | Preconditions |
 |---|---|---|---|
-| **W4a** Сайдбар «В Мнемополис» | deep link only | P2 | — |
+| **W4a** Сайдбар «В Мнемополис» | deep link only | P2 | ✅ WT 2026-07-18 |
 | **W4b** Return CTA after quiz | trophy toast recipe quiz-channel | P2 | W1 nicer if done |
 | **W4c** District doors MVP (4) | local/all door chips + routing table | P2 | W4a; routing table §5.3 |
 | **W4d** Return after flashcards / collect | SR/◆ channels | P2 | W2a/W2b as needed |
