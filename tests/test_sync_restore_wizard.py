@@ -1,6 +1,6 @@
 """US-10.2: restore wizard preview/success contract helpers."""
 
-from app.ui.sidebar import _restore_preview_entity_rows, _restore_result_summary
+from app.ui.sidebar_panels import _restore_preview_entity_rows, _restore_result_summary
 
 
 def test_restore_preview_entity_rows_maps_key_entities() -> None:

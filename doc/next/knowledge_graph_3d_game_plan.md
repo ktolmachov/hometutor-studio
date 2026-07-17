@@ -20,7 +20,9 @@
 | W2b action review → Flashcards | WT 2026-07-18 | ✅ uncommitted |
 | W3a Keeper infra | @279 | ✅ |
 | W3b Keeper guide (A) | @280 | ✅ |
-| W3c Keeper threats (B) | WT 2026-07-18 | ✅ uncommitted |
+| W3c Keeper threats (B) | @281 | ✅ |
+| W4a sidebar «В Мнемополис» | WT 2026-07-18 | ✅ uncommitted |
+| W4b return CTA after quiz | WT 2026-07-18 | ✅ uncommitted |
 | G4.1 floor tint · G4.2 history replay | 275 | ✅ |
 | G4.3 «фото дня» | — | ⬜ privacy DoD |
 | Мнемополис (разбор №19) | vision v1 | 🟡 W0′+W1 done in WT; next W2a / catalog |

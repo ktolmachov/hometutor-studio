@@ -500,8 +500,8 @@ UI-волнах, живой прогон running-артефакта. Если с
 
 | Волна | Содержание | P | Preconditions |
 |---|---|---|---|
-| **W4a** Сайдбар «В Мнемополис» | deep link only | P2 | ✅ WT 2026-07-18 |
-| **W4b** Return CTA after quiz | trophy toast recipe quiz-channel | P2 | W1 nicer if done |
+| **W4a** Сайдбар «В Мнемополис» | deep link only | P2 | ✅ WT 2026-07-18 | `mnemo_nav.open_mnemo_polis` |
+| **W4b** Return CTA after quiz | trophy toast recipe quiz-channel | P2 | ✅ WT 2026-07-18 | after interactive/scoped quiz; honest quiz channel copy |
 | **W4c** District doors MVP (4) | local/all door chips + routing table | P2 | W4a; routing table §5.3 |
 | **W4d** Return after flashcards / collect | SR/◆ channels | P2 | W2a/W2b as needed |
 | **W5a** Keeper C1 tutor handoff | interior «Спросить» → tutor chat | P2 | — |
