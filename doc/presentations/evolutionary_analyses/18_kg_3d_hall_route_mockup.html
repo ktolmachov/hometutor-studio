@@ -986,11 +986,16 @@ html,body{margin:0;min-height:100%;background:#080812}body{font-size:16px;line-h
   });
 
   const observer = new ResizeObserver(fitCanvas);
+  window.addEventListener('resize', fitCanvas);
   syncSceneControls();
   observer.observe(canvas);
   updateUI();
-  fitCanvas();
-  if (!reducedMotion) requestAnimationFrame(renderLoop);
+  // Первый фит откладываем на кадр после layout: ResizeObserver в некоторых embed'ах
+  // не доставляет уведомления, а синхронный фит до layout оставляет canvas 1×1 (пусто).
+  requestAnimationFrame(() => {
+    fitCanvas();
+    if (!reducedMotion) requestAnimationFrame(renderLoop);
+  });
 })();
 </script>
 </body>
