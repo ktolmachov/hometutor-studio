@@ -103,6 +103,30 @@ The stack also exports `UI_API_BASE_URL` and augments `CORS_ORIGINS` for those p
 
 **DoD:** все 12 кейсов зелёные; тест #1 — сквозной acceptance-тест маршрута.
 
+## Epoch: KG 3D Memory Run (2026-07-17)
+
+Новые e2e-сценарии после реализации разборов №15/#17/#18:
+
+| Файл | Профиль | Что проверяет |
+|---|---|---|
+| `kg_3d_memory_run_smoke.spec.ts` | `@smoke` | Embedded 3D-зал рендерит Memory Run UI: route-first кадр, topbar/sidebar, canvas не пустой, есть CTA |
+| `kg_3d_actions_flow.spec.ts` | `@smoke` | G0/G1: `collect` обновляет инвентарь/конспект, `start` ведёт в учебную поверхность |
+| `kg_3d_memory_overlay.spec.ts` | `@smoke` | G2: quiz-progress виден как dated memory trace; ✓ не затирает номер остановки |
+| `kg_3d_export_inert.spec.ts` | `@smoke` | 3D export self-contained/read-only: без live action bridge и без `obsidian://` |
+| `tutor_answer_save_to_flashcard.spec.ts` | `@smoke` | Ответ тьютора можно сохранить в колоду «Из ответов тьютора» |
+| `agent_one_button_gate.spec.ts` | `@smoke` | `query_mode:"agent"` не роняет API; Agent tile скрыт gate-ом или открывает surface |
+| `appearance_theme_persistence.spec.ts` | `@smoke` | Мир оформления сохраняется после reload |
+| `audio_podcast_playlist.spec.ts` | `@smoke` | При наличии локальных audio-артефактов виден плейлист/скачивание |
+| `due_badge_sum.spec.ts` | `@smoke` | Home due badge показывает «К повторению: N» без обещания единой очереди |
+
+Demo-витрина дополнена:
+
+| ID | Что покрывает |
+|---|---|
+| `scenario_39` | Memory Run: 3D-зал маршрута дня |
+| `scenario_40` | 3D-зал → Живой конспект: collect/action bridge |
+| `scenario_41` | 3D-зал: вчерашний след quiz-прогресса |
+
 ## Current Rules
 
 - `@smoke` должен оставаться стабильным без live LLM.
@@ -194,6 +218,9 @@ The stack also exports `UI_API_BASE_URL` and augments `CORS_ORIGINS` for those p
 | `scenario_17` | [demos/scenario_17_plan_diff.spec.ts](demos/scenario_17_plan_diff.spec.ts) | ✅ | [scenario_17_plan_diff.yaml](../../doc/scenarios/scenario_17_plan_diff.yaml) | **Diff плана:** детерминированный KV → раскрытие «Что изменилось в плане» (добавлено/убрано) |
 | `scenario_18` | [demos/scenario_18_home_retention_hub.spec.ts](demos/scenario_18_home_retention_hub.spec.ts) | ✅ | [scenario_18_home_retention_hub.yaml](../../doc/scenarios/scenario_18_home_retention_hub.yaml) | **Home hub:** 6 режимов → Flashcards → Progress → возврат на Home |
 | `scenario_19` | [demos/scenario_19_env_validation.spec.ts](demos/scenario_19_env_validation.spec.ts) | ✅ | [scenario_19_env_validation.yaml](../../doc/scenarios/scenario_19_env_validation.yaml) | **Env / сайдбар:** основной UI + сайдбар (контекст ключей и провайдера) |
+| `scenario_39` | [demos/scenario_39_memory_run_3d.spec.ts](demos/scenario_39_memory_run_3d.spec.ts) | ✅ | [scenario_39_memory_run_3d.yaml](../../doc/scenarios/scenario_39_memory_run_3d.yaml) | **Memory Run:** embedded 3D-зал маршрута дня |
+| `scenario_40` | [demos/scenario_40_kg3d_collect_to_konspekt.spec.ts](demos/scenario_40_kg3d_collect_to_konspekt.spec.ts) | ✅ | [scenario_40_kg3d_collect_to_konspekt.yaml](../../doc/scenarios/scenario_40_kg3d_collect_to_konspekt.yaml) | **3D → конспект:** collect/action bridge |
+| `scenario_41` | [demos/scenario_41_kg3d_yesterday_trace.spec.ts](demos/scenario_41_kg3d_yesterday_trace.spec.ts) | ✅ | [scenario_41_kg3d_yesterday_trace.yaml](../../doc/scenarios/scenario_41_kg3d_yesterday_trace.yaml) | **3D память:** quiz trace + дата снимка |
 
 Быстрый прогон сценариев 10–14:
 

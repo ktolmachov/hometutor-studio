@@ -1,6 +1,12 @@
 
 # Журнал Изменений
 
+## 2026-07-17 (KG 3D Memory Run e2e coverage)
+
+- **E2E coverage added:** 9 smoke specs cover KG 3D Memory Run, 3D action bridge, memory overlay, inert export, tutor-answer save-to-card, agent gate, theme persistence, audio playlist presence, and due badge wording.
+- **Demo scenarios added:** `scenario_39`–`scenario_41` cover the embedded 3D hall, collect-to-konspekt flow, and dated quiz-progress trace; generator order and user scenario catalog are synced.
+- **Validation:** `playwright test --list`, `scripts/check_scenario_ids.py`, and `scripts/validate_demo_contract.py --scenarios-dir doc\scenarios` pass; demo contract warns only that screenshots/meta for new scenarios are not captured yet.
+
 ## 2026-07-11 (learning-plan-single-source C1+C2 closure)
 
 - **C1 copy/bridge shipped.** `adaptive_daily_plan_layout.py` — заголовок `"🎯 Adaptive Daily Plan"` → `"📅 План на сегодня"`. `adaptive_plan.py:build_adaptive_daily_plan()` injects `learning_plan_context` из `get_latest_learning_plan_resume()` — bridge между завершением шага программы и daily plan. UI в `adaptive_plan_hub_layout.py` отображает тему/шаг/прогресс программы под заголовком плана.

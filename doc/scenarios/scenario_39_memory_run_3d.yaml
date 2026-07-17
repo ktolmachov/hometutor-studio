@@ -1,0 +1,26 @@
+id: scenario_39
+title: "Memory Run: 3D-зал маршрута дня"
+level: "🔴 Mastery"
+persona: "Марк начинает учебный день с карты знаний и хочет быстро понять, куда идти дальше."
+duration_min: 3
+why: |
+  Показать, что 3D-зал стал не декоративным экспортом, а рабочим первым экраном:
+  маршрут дня, ценность узла и действие видны без вращения и без догадок.
+requires:
+  openai_api_key: false
+  offline_friendly: true
+wow_moment: |
+  В embedded 3D-зале виден Memory Run: маршрут, остановки с рангами, карточка ценности и кнопки действий.
+takeaway: |
+  Knowledge Graph превращается в сцену следующего учебного шага, а не в обзорную карту.
+scenario_link: "user_scenarios.md#сценарий-39--memory-run-3d-зал-маршрута-дня"
+
+shots:
+  - slug: "01_memory_run_hall"
+    caption: "Memory Run: маршрут дня в 3D-зале"
+    narration: "3D-зал открывается сразу на маршруте: видно, какая остановка первая и почему она важна."
+    duration_sec: 6
+  - slug: "02_stop_value_card"
+    caption: "Карточка ценности остановки"
+    narration: "Узел показывает роль, ценность, mastery и доступные действия без отдельной легенды."
+    duration_sec: 6
