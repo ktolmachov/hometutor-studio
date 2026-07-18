@@ -37,7 +37,25 @@
 | W0: axis/nav underlay, compass labels, fitRouteCamera margin, link styles, interior head, smooth path, progress track | ✅ bulk | @273–274 |
 | G4.1 floor tint (local/all) · G4.2 `#replaybar` scrubber | ✅ | @275 |
 | G4.3 «фото дня» | ⬜ | privacy DoD из game plan |
-| Мнемополис (разбор №20) | vision only | этот документ |
+| Мнемополис (разбор №20) | vision + runtime implementation | этот документ + `hometutor/app/ui/dashboards_graph.py` |
+
+### 0.1 Implementation snapshot — 2026-07-18
+
+- Раздел `Knowledge Graph` разделён на два явных stateful-таба:
+  **«🕸 Граф знаний»** (default) и **«🌆 Мнемополис»**.
+- Сайдбарная кнопка **«🌆 В Мнемополис»** и return CTA открывают сразу таб
+  Мнемополиса через revisioned widget key; выбор не сбрасывается на следующем
+  Streamlit rerun.
+- Тяжёлые поверхности рендерятся лениво: D3-компонент создаётся только в табе
+  графа, embedded 3D hall — только в табе Мнемополиса. 2D-граф больше не стоит
+  над 3D-залом и не требует прокрутки для обнаружения мира.
+- Статус карты, действия с концептом, HTML-export и classic agraph находятся в
+  табе графа; arrival banner, Keeper controls и Memory Run — в табе Мнемополиса.
+- Runtime evidence: `app/ui/mnemo_nav.py`, `app/ui/dashboards_graph.py`,
+  `app/ui/dashboards_graph_publish_status.py`,
+  `tests/test_sidebar_mnemo_polis.py`.
+- Verification: targeted UI/architecture bundle — **108 passed**; Ruff — green;
+  size-budget guard — green (`long_functions=155`, `peak_file_lines=1942`).
 
 ---
 
@@ -226,11 +244,15 @@ district routing = таблица маппинга + preselect keys, не нов
 | Роль | Поверхность |
 |---|---|
 | **Home / daily cockpit** | Mission Control (без изменений статуса) |
-| **Ceremonial hub / memory surface** | Мнемополис (Knowledge Graph → 3D) |
+| **Ceremonial hub / memory surface** | Мнемополис (Knowledge Graph → таб «🌆 Мнемополис») |
 | **Deep link** | сайдбар «🌆 В Мнемополис» + CTA «Вернуться в мир» после учебных действий |
 
 **Не делать в v1:** подмена Mission Control миром, авто-redirect на 3D при старте
 сессии, второй «главный» hub с дублирующими daily widgets.
+
+**Реализованный UI-контракт:** обычный вход в `Knowledge Graph` открывает таб
+«🕸 Граф знаний»; ceremonial deep link открывает «🌆 Мнемополис». Оба режима
+остаются внутри одного раздела и переключаются явными табами.
 
 ### 5.2 Петля «выйти → сделать → вернуться»
 
@@ -368,7 +390,7 @@ G = короткий текст Хранителя над quiz-only `mastery_his
 | W6c G chronicle | ✅ WT 2026-07-18 летопись over mastery_history |
 | W6a ghost | ✅ WT 2026-07-18 ✓-double when learned+fog |
 | W5b scene-DSL | ✅ spike schema/validator only (no UI) |
-| blocked | W6b Разлом (data audit); W6d Architect; G4.3 privacy |
+| W6b/W6d/G4.3 | ✅ WT 2026-07-18 (W6b conceptual prereqs; W6d publish banner; G4.3 privacy stub) |
 
 ---
 
@@ -505,7 +527,7 @@ UI-волнах, живой прогон running-артефакта. Если с
 
 | Волна | Содержание | P | Preconditions |
 |---|---|---|---|
-| **W4a** Сайдбар «В Мнемополис» | deep link only | P2 | ✅ WT 2026-07-18 | `mnemo_nav.open_mnemo_polis` |
+| **W4a** Сайдбар + явный таб «Мнемополис» | deep link + stateful/lazy tab split | P2 | ✅ runtime 2026-07-18 | `mnemo_nav.open_mnemo_polis`; revisioned tab key; 2D default / 3D deep link |
 | **W4b** Return CTA after quiz | trophy toast recipe quiz-channel | P2 | ✅ WT 2026-07-18 | after interactive/scoped quiz; honest quiz channel copy |
 | **W4c** District doors MVP (4) | local/all door chips + routing table | P2 | ✅ WT 2026-07-18 | `door_*` actions; not in route frame |
 | **W4d** Return after flashcards / collect | SR/◆ channels | P2 | ✅ WT 2026-07-18 | FC review CTA; collect ◆ toast in-hall |
@@ -515,10 +537,10 @@ UI-волнах, живой прогон running-артефакта. Если с
 | **W5c** Keeper C2 inline ask | brief in-hall from graph data | P3 | ✅ WT 2026-07-18 | action `brief`; no LLM; stay in hall |
 | **W3d** Keeper D quest | one morning-goal line | P2 | ✅ WT 2026-07-18 | degrade «N из M»; optional LLM; no currency |
 | **W6a** Призрак | antagonist #2 | P3 | ✅ WT 2026-07-18 | ghost ✓ when quiz-seen + fog; calm hides |
-| **W6b** Разлом | antagonist #3 | P3 | ⬜ data audit precedes go |
+| **W6b** Разлом | antagonist #3 | P3 | ✅ WT 2026-07-18 | conceptual `node.prereqs` only (not lesson edges); non-block |
 | **W6c** Летописец text on G4.2 | Keeper G prose | P3 | ✅ WT 2026-07-18 | chronicle over mastery_history |
-| **W6d** Стройка / Architect E | freshness + optional LLM advice | P3 | ⬜ freshness signal audit |
-| **G4.3** фото дня | privacy DoD game plan | P3 | ⬜ owner privacy review |
+| **W6d** Стройка / Architect E | freshness + optional LLM advice | P3 | ✅ WT 2026-07-18 | banner only when publish tone≠success; no LLM write |
+| **G4.3** фото дня | privacy DoD game plan | P3 | ✅ stub WT 2026-07-18 | disabled 📷; no capture/upload until privacy review |
 | **H** voices | antagonist lines | P3 | ✅ WT 2026-07-18 | static bank; optional LLM path unused on first paint |
 
 ### 11.4 Метрики (измеримые)
@@ -569,6 +591,7 @@ UI-волнах, живой прогон running-артефакта. Если с
 |---|---|---|
 | v0 | 2026-07-17 | Первый draft; evidence @270; волны W0–W6 monoblock |
 | **v1** | **2026-07-18** | Deep review applied: re-baseline @275; W0 closed + W0′ residual; G4.1/G4.2 fact; Mission Control = home; districts MVP 4 doors; LLM budget table; scene-DSL → spike; waves evolutionary split; §3 structural vs data-bound; Разлом blocked on audit; streak «остывает» |
+| **v2** | **2026-07-18** | Runtime progress sync: явные табы «Граф знаний» / «Мнемополис»; 2D default; sidebar/return deep link в 3D; revisioned state; lazy render; architecture guard green |
 
 ---
 
