@@ -1,0 +1,550 @@
+<title>Разбор №23 — Не меню режимов, а одна учебная нить</title>
+<style>
+  /* ============================================================
+     HOMETUTOR NOTEBOOK STYLE v1.0 — LOCKED 2026-07-12
+     Извлечено из разборов №9-10 эволюционной серии. Это визитная
+     карточка формата «нескучный разбор». НЕ переизобретать палитру
+     заново в новой сессии — копировать этот файл и менять только
+     содержимое между <div class="wrap"> ... </div>.
+     Гайд: notebook_deck_guide.md (в этой же папке).
+     ============================================================ */
+  :root {
+    /* --- ЛОКОНО (locked core, 9 токенов) --- не менять значения --- */
+    --paper: #f7f3ea;
+    --paper-2: #fffdf7;
+    --ink: #17211b;
+    --muted: #5c6a61;
+    --terra: #b95631;
+    --terra-deep: #7d351f;
+    --forest: #243b2c;
+    --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14);
+    --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+    /* --- расширение: статус-токены (опционально, для сводных таблиц
+       «сделано/молчит/дыра» — см. §6 guide) --- */
+    --done: #1e6e46;
+    --silent: #b98a2d;
+    --hole: #8c2f39;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141a16;
+      --paper-2: #1b231e;
+      --ink: #ece5d4;
+      --muted: #9aa89d;
+      --terra: #d97a52;
+      --terra-deep: #e8a583;
+      --forest: #9dbfa8;
+      --gold: #d9a55e;
+      --line: rgba(236, 229, 212, 0.16);
+      --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(157, 191, 168, 0.10);
+      --verdict-keep: #6fc493;
+      --verdict-fix: #e0a35c;
+      --verdict-no: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+      --done: #6fc493;
+      --silent: #d9b45e;
+      --hole: #e08691;
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+    --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+    --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+    --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+    --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+      radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--terra-deep); }
+  em { color: var(--muted); }
+
+  code {
+    font-family: Consolas, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--terra);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 0.95rem; color: var(--gold);
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .sec-name {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem;
+    font-weight: 700; color: var(--muted);
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.1rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+  }
+  .anchor-card { border-left: 4px solid var(--terra); }
+  .ev { font-size: 0.86rem; color: var(--muted); margin-top: 0.5rem; }
+  .ev code { font-size: 0.8rem; }
+
+  .figure { margin: 1.4rem 0 0.4rem; }
+  .figure svg { width: 100%; height: auto; display: block; }
+  .figcap { font-size: 0.84rem; color: var(--muted); margin-top: 0.5rem; max-width: 70ch; }
+
+  .table-scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  td:first-child { white-space: nowrap; }
+  td { font-variant-numeric: tabular-nums; }
+
+  .st { display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 99px; white-space: nowrap; }
+  .st-done { color: var(--done); border: 1px solid var(--done); }
+  .st-silent { color: var(--silent); border: 1px solid var(--silent); }
+  .st-hole { color: var(--hole); border: 1px solid var(--hole); }
+
+  .v { display: inline-block; font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+       letter-spacing: 0.08em; padding: 0.1rem 0.55rem; border-radius: 99px; margin-right: 0.5rem; }
+  .v-keep { color: var(--verdict-keep); border: 1.5px solid var(--verdict-keep); }
+  .v-fix { color: var(--verdict-fix); border: 1.5px solid var(--verdict-fix); }
+  .v-no { color: var(--verdict-no); border: 1.5px solid var(--verdict-no); }
+
+  .tension { border-left: 4px solid var(--gold); }
+  .tension .t { font-family: Georgia, serif; font-size: 1.05rem; margin-bottom: 0.35rem; }
+  .syn { color: var(--verdict-keep); font-weight: 600; }
+
+  .ladder { list-style: none; padding-left: 0; }
+  .ladder li { display: flex; gap: 0.8rem; align-items: baseline; margin-bottom: 0.55rem; }
+  .ladder .num {
+    flex: none; font-family: Georgia, serif; font-weight: 700; color: var(--gold);
+    width: 1.6rem; text-align: right;
+  }
+
+  .tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.08rem 0.5rem;
+         border-radius: 4px; color: var(--paper-2); }
+  .tag-p0 { background: var(--terra); }
+  .tag-p1 { background: var(--forest); }
+  .tag-p2 { background: var(--gold); }
+  :root[data-theme="dark"] .tag, :root[data-theme="dark"] .tag-p2 { color: #141a16; }
+  @media (prefers-color-scheme: dark) { .tag { color: #141a16; } }
+  :root[data-theme="light"] .tag { color: var(--paper-2); }
+
+  .footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
+            font-size: 0.85rem; color: var(--muted); }
+  .footer code { font-size: 0.8rem; }
+
+  a { color: var(--terra); }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">Эволюционный разбор · №23 · спокойный учебный маршрут</div>
+  <h1>Не меню режимов, а одна учебная нить</h1>
+  <p class="lede">Hometutor уже умеет отвечать, объяснять, проверять, повторять,
+  планировать и вести по графу. Его следующий сильный ход — перестать показывать
+  эти способности как равноправные двери. <strong>Студент сообщает намерение;
+  система сохраняет нить и выбирает инструмент.</strong></p>
+  <div class="meta">
+    <span>hometutor · HEAD <code>1f242b9d7</code> «374»</span>
+    <span>2026-07-18</span>
+    <span>код + живой read-only прогон активного бандла и user-state</span>
+  </div>
+</header>
+
+<!-- 1. СУТЬ -->
+<section id="essence">
+  <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Суть</span></div>
+  <h2>Студент хочет не выбрать способ учиться, а снова почувствовать движение</h2>
+  <p>Когда человек открывает учебный продукт, он редко знает, нужен ли ему сейчас
+  retrieval, Socratic tutor, micro-quiz или SM-2. Он знает другое: <em>«я не понял»</em>,
+  <em>«у меня пять минут»</em>, <em>«проверь меня»</em>, <em>«помоги не забыть»</em>.
+  Выбор режима требует метакогнитивного диагноза именно в момент, когда внимание и
+  уверенность уже просели.</p>
+  <p><strong>Свобода в обучении — не число кнопок, а возможность влиять на направление,
+  не проектируя собственный педагогический пайплайн.</strong> Поэтому режимы должны
+  остаться мощными внутренними инструментами. На поверхности нужны одна учебная нить,
+  один следующий шаг, короткая причина и безопасная фраза «хочу иначе».</p>
+  <div class="card">
+    <p><strong>Корневая проблема — перенос служебной сложности на студента.</strong>
+    Большое меню создаёт четыре налога: сравнить несопоставимые действия; угадать свой
+    пробел; предсказать педагогический эффект; помнить, где продолжать после перехода.
+    Ошибка выбора ощущается как личная неспособность, поэтому возникает знакомая
+    защита: открыть несколько экранов, ничего не начать и отложить учёбу.</p>
+  </div>
+</section>
+
+<!-- 2. РЕАЛЬНОСТЬ -->
+<section id="reality">
+  <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Реальность</span></div>
+  <h2>Почти все детали синтеза уже существуют — но как несколько умных центров</h2>
+
+  <div class="table-scroll">
+    <table>
+      <tr><th>Элемент</th><th>Что уже умеет</th><th>Вердикт реальности</th></tr>
+      <tr><td>Полный UI-контракт</td><td><code>ui/constants.py:5-24</code> хранит 18 views; <code>feature_registry.py:22-107</code> раскладывает их по тирам и условиям.</td><td><span class="st st-silent">мощность</span> внутренне богато, внешне всё ещё названо режимами</td></tr>
+      <tr><td>Ручная навигация</td><td><code>global_navigation.py:27-67</code> уже сводит views к четырём устойчивым местам: Главная, Учиться, Память, Библиотека; полный список спрятан в «Ещё» (<code>main.py:302-328</code>).</td><td><span class="st st-done">оставить</span> хорошая аварийная лестница</td></tr>
+      <tr><td>Один hero</td><td>Mission Control показывает SSR первым и прячет сетку под «Ещё режимы» (<code>mission_control.py:1115-1181</code>).</td><td><span class="st st-done">сделано</span> разбор простоты уже реализован</td></tr>
+      <tr><td>Smart Study Router</td><td>Собирает due, последний quiz, resume тьютора, Q&amp;A, чтение и слабые понятия; выдаёт primary, reason и alternatives (<code>smart_study_router.py:45-114</code>).</td><td><span class="st st-done">ядро</span> кандидат на единый арбитр</td></tr>
+      <tr><td>Приоритет SSR</td><td>Детерминированный каскад: карточки → concept-SM2 → ошибка quiz → план → resume → ответ → слабое место → safe default (<code>smart_study_recommendation.py:337-378</code>).</td><td><span class="st st-silent">локально</span> политика не владеет всеми «сегодня»</td></tr>
+      <tr><td>Намерения</td><td>Уже есть «Объясни проще», «Проверь меня», «Следующий шаг», «Дай задачу» (<code>tutor_chat_header.py:51-79</code>, <code>tutor_chat_render.py:354-392</code>); SSR secondary умеет открыть источники, тьютора, quiz, прогресс и карточки (<code>adaptive_plan_card.py:69-114</code>).</td><td><span class="st st-done">словарь</span> пока живёт внутри отдельных экранов</td></tr>
+      <tr><td>Дневной план</td><td>Сам показывает свой «Следующий шаг» и отдельно строит SSR с primary block (<code>adaptive_plan_hub_layout.py:91-185</code>).</td><td><span class="st st-silent">советчик №2</span> верная логика, отдельный центр</td></tr>
+      <tr><td>Маршрут Мнемополиса</td><td>Ранжирует узлы по due, novelty, decay, frontier и reach; выбирает до шести остановок (<code>knowledge_graph_d3_analysis.py:227-293,386-444</code>).</td><td><span class="st st-silent">советчик №3</span> полезная проекция, не общий маршрут</td></tr>
+      <tr><td>ИИ-агент</td><td>Отдельный view «Собрать учебную сессию»; read-only tools для RAG, профиля, mastery, quiz, карточек-черновиков, графа и конспекта (<code>agent/tool_registry.py:1-18,129-144</code>).</td><td><span class="st st-hole">не навигатор</span> дверь выключена по умолчанию</td></tr>
+    </table>
+  </div>
+
+  <div class="figure">
+    <svg viewBox="0 0 860 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Три независимых советчика сходятся в один контракт учебного маршрута, который показывает студенту один следующий шаг и мягкие намерения">
+      <defs>
+        <marker id="arr23" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--terra)"/>
+        </marker>
+      </defs>
+      <g font-family="Segoe UI, Arial, sans-serif" font-size="12.5">
+        <rect x="20" y="25" width="178" height="58" rx="11" fill="var(--card)" stroke="var(--line)"/>
+        <text x="109" y="49" text-anchor="middle" fill="var(--ink)" font-weight="700">SSR</text>
+        <text x="109" y="68" text-anchor="middle" fill="var(--muted)">«Повторить 97 карточек»</text>
+        <rect x="20" y="101" width="178" height="58" rx="11" fill="var(--card)" stroke="var(--line)"/>
+        <text x="109" y="125" text-anchor="middle" fill="var(--ink)" font-weight="700">Адаптивный план</text>
+        <text x="109" y="144" text-anchor="middle" fill="var(--muted)">gap: agent-harness</text>
+        <rect x="20" y="177" width="178" height="58" rx="11" fill="var(--card)" stroke="var(--line)"/>
+        <text x="109" y="201" text-anchor="middle" fill="var(--ink)" font-weight="700">Мнемополис</text>
+        <text x="109" y="220" text-anchor="middle" fill="var(--muted)">6 новых остановок</text>
+
+        <rect x="318" y="72" width="224" height="118" rx="14" fill="var(--card)" stroke="var(--terra)" stroke-width="2"/>
+        <text x="430" y="100" text-anchor="middle" fill="var(--ink)" font-family="Georgia, serif" font-size="17" font-weight="700">Один контракт маршрута</text>
+        <text x="430" y="124" text-anchor="middle" fill="var(--muted)">сигналы + намерение + время</text>
+        <text x="430" y="146" text-anchor="middle" fill="var(--muted)">одна политика приоритета</text>
+        <text x="430" y="169" text-anchor="middle" fill="var(--terra-deep)" font-weight="700">одна нить продолжения</text>
+
+        <rect x="662" y="72" width="178" height="118" rx="14" fill="var(--forest)"/>
+        <text x="751" y="103" text-anchor="middle" fill="var(--paper-2)" font-family="Georgia, serif" font-size="17" font-weight="700">Следующий шаг</text>
+        <text x="751" y="128" text-anchor="middle" fill="var(--paper-2)">почему сейчас</text>
+        <text x="751" y="150" text-anchor="middle" fill="var(--paper-2)">«хочу иначе»</text>
+        <text x="751" y="172" text-anchor="middle" fill="var(--paper-2)">стоп / ручной режим</text>
+
+        <line x1="198" y1="54" x2="316" y2="101" stroke="var(--terra)" stroke-width="1.6" marker-end="url(#arr23)"/>
+        <line x1="198" y1="130" x2="316" y2="130" stroke="var(--terra)" stroke-width="1.6" marker-end="url(#arr23)"/>
+        <line x1="198" y1="206" x2="316" y2="159" stroke="var(--terra)" stroke-width="1.6" marker-end="url(#arr23)"/>
+        <line x1="542" y1="131" x2="660" y2="131" stroke="var(--terra)" stroke-width="1.8" marker-end="url(#arr23)"/>
+      </g>
+    </svg>
+    <p class="figcap">Сильный ход не удаляет ни одного умного механизма. Он меняет
+    право голоса: SSR, план и граф становятся поставщиками сигналов одной политики,
+    а не тремя авторами сегодняшнего дня.</p>
+  </div>
+</section>
+
+<!-- 3. ПРОТИВОРЕЧИЯ -->
+<section id="tensions">
+  <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Противоречия</span></div>
+  <h2>Не выбрать сторону, а развести уровни ответственности</h2>
+  <div class="card tension">
+    <div class="t">Мощность системы ↔ простота опыта</div>
+    <p>Мощность остаётся в наборе исполнителей, простота — в единственном контракте
+    маршрута. <span class="syn">Синтез: many engines, one journey.</span> Режим
+    существует в архитектуре и ручном доступе, но не требует решения до начала учёбы.</p>
+  </div>
+  <div class="card tension">
+    <div class="t">Свобода выбора ↔ направленный маршрут</div>
+    <p>Семнадцать альтернатив не дают автономию; они отдают студенту работу методиста.
+    <span class="syn">Синтез: один рекомендованный шаг + «Сменить направление» языком
+    намерений + постоянный ручной выход.</span></p>
+  </div>
+  <div class="card tension">
+    <div class="t">Видимый наставник ↔ скрытый агент</div>
+    <p>Полностью скрытая автоматика похожа на произвол; отдельный «режим агента» — ещё
+    одна дверь. <span class="syn">Синтез: навигатор видим как автор рекомендации,
+    исполнитель скрыт как техническая деталь.</span> Трассировка доступна по запросу,
+    но не становится главным содержанием.</p>
+  </div>
+  <div class="card tension">
+    <div class="t">Персонализация ↔ предсказуемость</div>
+    <p>Персонализация не должна означать случайность. <span class="syn">Синтез:
+    детерминированные правила решают «что», персональный контекст меняет «для какой
+    темы и какой мягкости», LLM только объясняет формулировку.</span> Это уже близко к
+    текущему SSR, где ответ LLM не меняет маршрут.</p>
+  </div>
+  <div class="card tension">
+    <div class="t">Автопилот ↔ контроль</div>
+    <p>Автопилот полезен, когда снимает микровыбор, и вреден, когда присваивает цель.
+    <span class="syn">Синтез: студент заранее выбирает бюджет 5/15/25 минут, система
+    предлагает следующий внутренний шаг, а после каждого результата есть checkpoint:
+    продолжить, сменить направление или закончить.</span></p>
+  </div>
+</section>
+
+<!-- 4. БОЛЬ-ЯКОРЬ -->
+<section id="pain">
+  <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Боль-якорь</span></div>
+  <h2>Сегодня у студента не один маршрут, а три правдоподобных «сегодня»</h2>
+  <div class="card anchor-card">
+    <p><strong>Живой read-only прогон 2026-07-18:</strong> на одной и той же локальной
+    памяти SSR главной сказал «Повторить» из-за 97 due-карточек; сохранённый план
+    первым блоком выбрал пробел <code>agent-harness</code> с mastery 0.44; карта
+    построила шесть остановок по новым frontier-концептам —
+    <code>multi-agent-systems</code>, <code>hierarchy-topology</code>,
+    <code>ai-agent</code>, <code>rag</code>, <code>tools</code>, <code>lamock</code>.
+    Агентная дверь при этом: <code>agent_enabled=False</code>.</p>
+    <p><strong>Точная причина в коде:</strong></p>
+    <ul>
+      <li><code>mission_control.py:267-297</code> собирает SSR для home, но сознательно
+      передаёт <code>plan_primary_block=None</code>;</li>
+      <li><code>smart_study_recommendation.py:337-378</code> выбирает один сигнал своим
+      каскадом, а <code>smart_study_scoring.py:92-160</code> ставит due-карточки выше
+      plan block;</li>
+      <li><code>adaptive_plan_hub_layout.py:91-185</code> отдельно объявляет
+      «Следующий шаг» плана и затем строит собственный SSR;</li>
+      <li><code>knowledge_graph_d3_analysis.py:386-444</code> независимо выбирает до
+      шести actionable-узлов по worth;</li>
+      <li><code>config.env:81-82</code> держит <code>AGENT_ENABLED=false</code>, а
+      <code>main.py:451-489</code> оформляет агента отдельным режимом с новым вводом.</li>
+    </ul>
+    <p class="ev">Каждый совет педагогически защитим. Совместно они возвращают
+    студенту главный вопрос, который система обещала снять: «кому из вас верить и что
+    мне нажать сейчас?» Это не недостаток алгоритмов — это отсутствие арбитража между
+    ними.</p>
+  </div>
+</section>
+
+<!-- 5. ВЕРДИКТЫ -->
+<section id="verdicts">
+  <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Вердикты</span></div>
+  <h2>Режимы остаются; право выбирать момент переходит маршруту</h2>
+
+  <div class="card"><span class="v v-keep">оставить и повысить</span><strong>Smart
+  Study Router.</strong> Это не ещё одна рекомендация, а будущая единая Route Policy.
+  В неё входят plan primary и графовые кандидаты; она одна возвращает primary,
+  причину, две мягкие альтернативы и точку продолжения.</div>
+
+  <div class="card"><span class="v v-fix">объединить</span><strong>Два повторения.</strong>
+  Flashcard due и concept-SM2 остаются разными очередями внутри, но студент видит одно
+  намерение «Помоги запомнить» и одно объяснение долга памяти. Конкретный executor
+  выбирается по типу сигнала.</div>
+
+  <div class="card"><span class="v v-fix">подчинить маршруту</span><strong>Адаптивный
+  план и маршрут Мнемополиса.</strong> План даёт кандидата последовательности, граф —
+  кандидатов ценности. Оба показывают тот же активный route step; на своих экранах они
+  объясняют его подробнее, но не создают другое «сегодня».</div>
+
+  <div class="card"><span class="v v-keep">вынести наверх</span><strong>Язык
+  намерений.</strong> Уже реализованные «Объясни проще», «Проверь меня», «Следующий
+  шаг», «Дай задачу» становятся универсальной палитрой «Сменить направление». Это
+  команды навигатору, не названия экранов.</div>
+
+  <div class="card"><span class="v v-fix">переопределить</span><strong>Роль
+  ИИ-агента.</strong> Не полностью скрытый, не отдельный главный режим и не говорящая
+  голова на каждом экране. Он видим компактной подписью «Навигатор предлагает» и
+  появляется в переходах, неопределённости и по вопросу «почему». Агентный loop
+  запускается только когда нужно собрать несколько read-only инструментов; простая
+  маршрутизация остаётся арифметикой SSR.</div>
+
+  <div class="card"><span class="v v-keep">оставить глубже</span><strong>Четыре
+  destination и «Ещё».</strong> Это ручное управление, recovery и экспертный доступ.
+  Оно не конкурирует с primary-шагом и всегда позволяет немедленно выйти из
+  автопилота.</div>
+
+  <div class="card"><span class="v v-fix">сжать</span><strong>Объяснимость.</strong>
+  Всегда видны одна человеческая причина и источник сигнала: «97 карточек уже
+  созрели». По раскрытию — «почему не другое» и what-if. Сырые policy flags и tool
+  trace остаются debug/expert-слоем.</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>Новую домашнюю
+  панель из семи intent-кнопок.</strong> Это то же меню, только с добрыми глаголами.
+  По умолчанию виден primary и максимум две контекстные альтернативы; полный словарь
+  открывается по «Сменить направление».</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>LLM-арбитра там,
+  где хватает правил.</strong> Решение due versus quiz versus resume должно быть
+  быстрым, тестируемым и предсказуемым. LLM объясняет, формирует упражнение или
+  оркестрирует инструменты, но не прячет базовую политику.</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>Навязанный
+  бесконечный автопилот.</strong> Никаких скрытых сохранений карточек, автоматической
+  смены цели или следующего quiz без checkpoint. Студент делегирует микровыбор на
+  оговорённое время, а не отдаёт контроль над обучением.</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>Ещё один
+  «универсальный режим» рядом.</strong> Нельзя добавлять «Умный маршрут» девятой
+  плиткой. Маршрут — оболочка всего опыта; Q&amp;A, tutor, quiz, cards, plan и graph —
+  его внутренние операции и ручные рабочие места.</div>
+</section>
+
+<!-- 6. ЦЕННОСТЬ -->
+<section id="value">
+  <div class="sec-label"><span class="sec-num">6</span><span class="sec-name">Ценность</span></div>
+  <h2>Уникальность — спокойная непрерывность, а не число AI-функций</h2>
+  <p>Большинство ассистентов умеют ответить или сгенерировать quiz. Hometutor уже
+  хранит due, mastery, источник, resume, план и структуру знаний. Его отличие может
+  быть доказано не каталогом возможностей, а тем, что <strong>после любого результата
+  следующий педагогически уместный ход появляется в той же нити, с причиной и правом
+  отказаться.</strong></p>
+  <div class="table-scroll">
+    <table>
+      <tr><th>Измерение</th><th>Сейчас</th><th>Критерий успеха</th></tr>
+      <tr><td><strong>North star: Calm Start Rate</strong> — доля сессий, где студент за ≤60 секунд начинает содержательное действие через primary или одну альтернативу, не открывая полный список режимов и не меняя направление больше одного раза</td><td>не инструментировано</td><td>зафиксировать 7-дневный baseline; после P0 +20 п.п.</td></tr>
+      <tr><td>Конкурирующие «следующие шаги» на основных поверхностях</td><td>SSR + план + маршрут дня</td><td>один route step, три согласованные проекции</td></tr>
+      <tr><td>Выбор до понимания задачи</td><td>до 18 views в command access, 9 mode tiles по контексту</td><td>0 обязательных mode-решений до старта</td></tr>
+      <tr><td>Объяснение рекомендации</td><td>есть у SSR, неодинаково по поверхностям</td><td>reason + «сменить направление» везде</td></tr>
+    </table>
+  </div>
+  <p class="ev">Guardrail: рост Calm Start Rate не засчитывается, если падает доля
+  завершённых первых шагов или растут мгновенные отмены. Быстрый клик не равен
+  спокойному обучению; метрика должна заканчиваться реальным действием — ответом,
+  попыткой quiz, оценкой карточки или завершённым микро-шагом тьютора.</p>
+</section>
+
+<!-- 7. ПУТЬ -->
+<section id="path">
+  <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Путь</span></div>
+  <h2>Один экран решения, одна нить контекста, сколько угодно внутренних инструментов</h2>
+  <p><strong>Золотой путь одной сессии:</strong> открыть Главную → увидеть «Сегодня:
+  коротко повторить 10 из 97 due-карточек» → прочитать «почему сейчас» → выбрать
+  15 минут → пройти короткую пачку → checkpoint «осталось время: разобрать
+  agent-harness или закончить?» → выбрать «разобрать» → тьютор открывается уже с
+  темой, причиной и возвратной точкой → мини-проверка → карточка-кандидат → итог
+  «что сделал / когда вернуться». Для студента это одна сессия; внутри сменились
+  retention, tutor, quiz и cards.</p>
+
+  <div class="table-scroll">
+    <table>
+      <tr><th>Студент говорит</th><th>Система диагностирует</th><th>Внутренний executor</th></tr>
+      <tr><td>«Я не понял»</td><td>последняя ошибка / текущая тема / источник</td><td>recovery ladder → тьютор с одной подсказкой</td></tr>
+      <tr><td>«Объясни проще»</td><td>сохраняет topic и return point</td><td><code>tutor_simpler</code>, короткие шаги + пример</td></tr>
+      <tr><td>«Хочу практику»</td><td>mastery и тип знания</td><td>одно упражнение тьютора или scoped quiz</td></tr>
+      <tr><td>«Проверь меня»</td><td>контекст и покрытие источниками</td><td>quiz; при слабом coverage — сначала Q&amp;A/source guard</td></tr>
+      <tr><td>«Помоги запомнить»</td><td>due, новые кандидаты, две очереди памяти</td><td>review или preview карточек с подтверждением</td></tr>
+      <tr><td>«Составь план»</td><td>цель, время, gap/new/review</td><td>адаптивный план как последовательность route steps</td></tr>
+      <tr><td>«Что делать дальше»</td><td>все локальные сигналы + активная нить</td><td>единая Route Policy</td></tr>
+    </table>
+  </div>
+
+  <ol class="ladder">
+    <li><span class="num">0</span><span><strong>Спокойный ручной старт.</strong>
+    Один следующий шаг, одна причина, две альтернативы и «Сменить направление».
+    Никакой автоматики после клика без согласия.</span></li>
+    <li><span class="num">1</span><span><strong>Автопилот одной сессии.</strong>
+    Студент выбирает 5/15/25 минут; система связывает шаги, но после каждого результата
+    показывает checkpoint и кнопку «Закончить».</span></li>
+    <li><span class="num">2</span><span><strong>Учебный компас.</strong> Всегда видны
+    цель, текущая фаза (понять / применить / проверить / удержать), прогресс сессии и
+    ближайший возврат — не названия движков.</span></li>
+    <li><span class="num">3</span><span><strong>Ручная кабина.</strong> Четыре
+    destination, полный command access, настройки мягкости и inspectability для
+    опытного пользователя. Это право вмешаться, а не обязательный маршрут.</span></li>
+  </ol>
+</section>
+
+<!-- 8. ПЛАН -->
+<section id="plan">
+  <div class="sec-label"><span class="sec-num">8</span><span class="sec-name">План</span></div>
+  <h2>Первые восемь решений — два хода меняют ощущение продукта</h2>
+  <div class="table-scroll">
+    <table>
+      <tr><th></th><th>Ход</th><th>Что делается</th><th>Усилие</th></tr>
+      <tr><td><span class="tag tag-p0">P0-1</span></td><td><strong>Одна правда
+      маршрута.</strong></td><td>Расширить pure Route Policy: SSR принимает primary
+      адаптивного плана и кандидатов KG, возвращает один <code>RouteDecision</code> с
+      primary/reason/alternatives/return point. Mission Control, план, прогресс и KG
+      рендерят одну decision, а не пересчитывают своё «сегодня». Добавить session-tape
+      события выбора и содержательного старта.</td><td>2–3 дня</td></tr>
+      <tr><td><span class="tag tag-p0">P0-2</span></td><td><strong>Намерение вместо
+      режима.</strong></td><td>Универсальный блок: один primary, максимум две
+      контекстные альтернативы, «Почему», «Сменить направление». Палитра семи
+      намерений переиспользует готовые navigation/prompt handlers; 5/15/25 минут и
+      «мягко» живут в session state/существующей steering preference. Полный список
+      views остаётся в «Ещё».</td><td>2–3 дня</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td><td>Route checkpoint.</td><td>После
+      ответа, quiz и review вызывать один следующий decision: продолжить, сменить
+      направление, закончить. Хранить тему, цель, origin и return point в существующем
+      continuity/session state.</td><td>2 дня</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td><td>Учебный компас.</td><td>Одна
+      строка на всех учебных поверхностях: цель · фаза · минут осталось · следующий
+      возврат. План и Мнемополис становятся подробными проекциями этой строки.</td><td>1–2 дня</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td><td>Безопасный автопилот.</td><td>
+      Opt-in бюджет 5/15/25 минут, максимум один автоматически предложенный переход за
+      checkpoint, явные «Пауза», «Вручную», «Готово». Никаких write-actions без
+      подтверждения.</td><td>2–3 дня</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td><td>Навигатор как присутствие.</td><td>
+      Подпись «Навигатор предлагает», короткая причина и раскрытие «как выбрано».
+      Отдельную плитку агента убрать из learner-primary IA; backend-agent вызывать для
+      композиции read-only tools и сложного объяснения.</td><td>1–2 дня</td></tr>
+      <tr><td><span class="tag tag-p2">P2</span></td><td>Калибровка политики.</td><td>
+      Анализировать Calm Start Rate, отмены и feedback SSR; менять веса и порядок только
+      через тестируемые policy-версии, не через непрозрачный LLM ranking.</td><td>волна</td></tr>
+      <tr><td><span class="tag tag-p2">P2</span></td><td>Адаптивная глубина UI.</td><td>
+      По мере опыта раскрывать ручные инструменты и inspectability; не по числу дней,
+      а по фактическому использованию и явной настройке студента.</td><td>волна</td></tr>
+    </table>
+  </div>
+  <p><strong>Kill switch:</strong> P0 потребовал новую БД, новый агентный пайплайн или
+  LLM для выбора между готовыми числовыми сигналами — стоп: ход разросся. Появился
+  новый view/режим «Умный маршрут» — стоп: оболочка ошибочно стала ещё одной дверью.
+  Route Policy не может объяснить решение одной человеческой строкой или разные
+  поверхности всё ещё показывают разные primary — P0 не завершён.</p>
+</section>
+
+<div class="footer">
+  <p>Разбор №23 · hometutor HEAD <code>1f242b9d7</code> «374» · 2026-07-18 ·
+  живой read-only прогон: 97 due-карточек, plan gap <code>agent-harness</code>,
+  6 frontier-остановок, <code>AGENT_ENABLED=false</code>.</p>
+  <p>Связи серии: №4 — агент как одна кнопка; №7 — единый контекст плана; №10 —
+  видимая петля; №15/17 — route-first карта; реализованный
+  <code>learning_loop_simplicity_plan.md</code> — один hero. Правило двух слоёв:
+  actionable-кандидаты — в <code>doc/next/one_calm_learning_route_plan.md</code>.</p>
+</div>
+
+</div>
