@@ -1,28 +1,30 @@
 # Мнемополис: от «3D-зала» к живому миру памяти (vision + аудит качества)
 
-**Статус:** кандидат-материал к эволюционному разбору №20 (номер сдвинут 2026-07-18: №19 занят темой обучения) («расширение границ игрового
-3D-мира и интеграция разделов приложения»). **НЕ backlog** — владелец промоутит
-вручную. Материал `hometutor-studio` (`doc/next/`), не runtime-docs `hometutor/docs/`.
+**Статус:** north-star + **runtime implementation status** (разбор №20).  
+Материал `hometutor-studio` (`doc/next/`), не runtime-docs `hometutor/docs/`.  
+**НЕ backlog-registry** — владелец промоутит вручную; при конфликте с кодом
+приоритет у `hometutor` runtime.
 
-**Источники и evidence-база (re-baseline 2026-07-18):**
-- hometutor HEAD @ `ec9a3c250` «275»;
-- план-предшественник `knowledge_graph_3d_game_plan.md` (G0–G3 + U0–U4 + V2′ —
-  DONE @257–265; rank+✓ @269–270; R1–R3 @271–272; **W0 Q1–Q9 @273–274**;
-  **G4.1 floor tint + G4.2 history replay @275**; G4.3 «фото дня» ⬜ privacy DoD);
-- исторический audit-snapshot vision v0: @ `3d6fe0a94` «270» (до W0/G4 polish);
-- живой прогон production export (Playwright, viewports 1366×768 / 860×768 /
-  390×844, фикстура 12 узлов / маршрут 6) + `tests/test_knowledge_graph_counters.py`
-  (structural + viewport gates always-on).
+**Источники и evidence-база (re-baseline 2026-07-18, doc-sync v3):**
+- hometutor HEAD @ `fe63bb3e2` «302» (Мнемополис-каталог + W5b.2 NL + H/G LLM
+  controls; локальный G4.3 PNG; tab split graph/Мнемополис);
+- исторический baseline G0–G4.2: commits **@257–275** (мост, Memory Run skin,
+  rank+✓, R1–R3, W0 Q1–Q9, G4.1/G4.2);
+- план-предшественник `knowledge_graph_3d_game_plan.md` (исторический; может
+  отставать от runtime — сверять §0 / §11 этого файла);
+- structural + viewport gates: `tests/test_knowledge_graph_counters.py`,
+  `tests/test_mnemo_keeper.py`, `tests/test_mnemo_scene_dsl.py`,
+  `tests/test_sidebar_mnemo_polis.py`.
 
 **Связь с эволюционной разработкой** (`hometutor/docs/evolutionary_development.md`):
-каждая реализация — **одна волна = один разрыв**, рабочее состояние после волны,
-без LLM/новой схемы без нужды. Толстые пакеты «весь город сразу» запрещены; ниже
-волны нарезаны так, чтобы продукт не ломался, если следующая волна не случится.
+каждая реализация — **одна волна = один разрыв**, рабочее состояние после волны.
+Толстые пакеты «весь город сразу» запрещены.
 
-**Промоут-политика (после ревью 2026-07-18):** first slice **W0′ + W1**
-реализован в hometutor **working tree** (2026-07-18, uncommitted на момент verify;
-маркеры `quizRouteProgress` / `drawRouteLantern` / W0′-R1…R7). Далее: **W2a** (opt.)
-и каталог (§5 home, §6 LLM, §6F spike, §7 Разлом audit).
+**Состояние каталога (doc-sync v3):** product-механики v1 из §11 **реализованы
+в runtime**. Открыто: (1) optional live UX residual R1–R3 после U5 HUD;
+(2) kill-switch polish антагонистов (§7: ≤1 сцена / TTL / ghost→quiz);
+(3) measurable metrics §11.4; (4) cloud/share G4.3 — out of scope без privacy
+review. **Не** re-open closed waves «с нуля».
 
 ---
 
@@ -35,27 +37,35 @@
 | Overlay rank+✓ live DOM | ✅ | @269–270 |
 | Legacy polish R1 chrome · R2 toast · R3 hall lanes | ✅ | @271–272 |
 | W0: axis/nav underlay, compass labels, fitRouteCamera margin, link styles, interior head, smooth path, progress track | ✅ bulk | @273–274 |
-| G4.1 floor tint (local/all) · G4.2 `#replaybar` scrubber | ✅ | @275 |
-| G4.3 «фото дня» | ⬜ | privacy DoD из game plan |
-| Мнемополис (разбор №20) | vision + runtime implementation | этот документ + `hometutor/app/ui/dashboards_graph.py` |
+| W0′ residual R1–R7 (code + structural tests) | ✅ code | WT 2026-07-18; live visual re-check optional after U5 |
+| W1 dawn / lanterns | ✅ | `quizRouteProgress` / `drawRouteLantern` |
+| W2a fog + calm · W2b `review` | ✅ | template + action whitelist |
+| G4.1 floor tint · G4.2 `#replaybar` | ✅ | @275 |
+| G4.3 «фото дня» | ✅ **local PNG only** | browser download; **no** server/cloud/share |
+| Keeper A–D, H; C1/C2; W4a–d; W5b/W5b.1/W5b.2; W6a–d | ✅ | §11.1–11.3 |
+| Tab split «Граф» / «Мнемополис» + deep link | ✅ | `mnemo_nav` + `dashboards_graph` |
+| Мнемополис (разбор №20) | vision **synced to runtime** | этот документ + `hometutor/app/ui/*` |
 
-### 0.1 Implementation snapshot — 2026-07-18
+### 0.1 Implementation snapshot — 2026-07-18 (runtime @302)
 
-- Раздел `Knowledge Graph` разделён на два явных stateful-таба:
-  **«🕸 Граф знаний»** (default) и **«🌆 Мнемополис»**.
-- Сайдбарная кнопка **«🌆 В Мнемополис»** и return CTA открывают сразу таб
-  Мнемополиса через revisioned widget key; выбор не сбрасывается на следующем
-  Streamlit rerun.
-- Тяжёлые поверхности рендерятся лениво: D3-компонент создаётся только в табе
-  графа, embedded 3D hall — только в табе Мнемополиса. 2D-граф больше не стоит
-  над 3D-залом и не требует прокрутки для обнаружения мира.
-- Статус карты, действия с концептом, HTML-export и classic agraph находятся в
-  табе графа; arrival banner, Keeper controls и Memory Run — в табе Мнемополиса.
-- Runtime evidence: `app/ui/mnemo_nav.py`, `app/ui/dashboards_graph.py`,
-  `app/ui/dashboards_graph_publish_status.py`,
-  `tests/test_sidebar_mnemo_polis.py`.
-- Verification: targeted UI/architecture bundle — **108 passed**; Ruff — green;
-  size-budget guard — green (`long_functions=155`, `peak_file_lines=1942`).
+- Раздел `Knowledge Graph` — два stateful-таба: **«🕸 Граф знаний»** (default) и
+  **«🌆 Мнемополис»**; lazy render 2D vs 3D.
+- Сайдбар **«🌆 В Мнемополис»** + return CTA → таб Мнемополиса (revisioned key).
+- Hall: fog / ghost / rift (conceptual `prereqs`) / quest / voices / chronicle /
+  architect banner / local photo / scene presets + host NL panel.
+- Runtime evidence (ядро):
+  `app/ui/assets/kg_3d_template.html`,
+  `app/ui/knowledge_graph_d3.py`,
+  `app/ui/dashboards_graph.py`,
+  `app/ui/dashboards_graph_keeper.py`,
+  `app/ui/dashboards_graph_scene.py`,
+  `app/ui/mnemo_nav.py`,
+  `app/mnemo_keeper.py`, `app/mnemo_keeper_views.py`,
+  `app/mnemo_scene_dsl.py`,
+  `docs/user_guide.md`.
+- Verification (типичный targeted bundle): counters + mnemo_keeper + scene_dsl +
+  sidebar_mnemo + architecture guards; size-budget
+  (`long_functions=155`, `peak_file_lines=1942`).
 
 ---
 
@@ -66,66 +76,44 @@
 На @270 живой прогон фиксировал P0/P1 дефекты **Q1–Q9**. Они были backlog-ом
 полировки Memory Run и **в основном закрыты** в `kg_3d_template.html` @273–274:
 
-| ID | Было (@270) | Статус @275 |
+| ID | Было (@270) | Статус (doc-sync v3 / runtime) |
 |---|---|---|
 | Q1 | nav перекрывал «СЕГОДНЯ» | ✅ underlay + axisY выше nav |
-| Q2 | компас vs floor-ось — две системы | ⚠️ partial: оси переименованы (КУРС/ДАЛ/ВХОД/СЕГ), но **двойная легенда остаётся** |
-| Q3 | mobile crop / fitCamera | ⚠️ partial: margin clamp есть; 390×844 всё ещё плотный chrome (callout∩compass∩nav) |
-| Q4 | desktop маршрут в верхней половине | ⚠️ residual: нижняя «чернота» всё ещё выражена |
+| Q2 | компас vs floor-ось | ✅ code W0′-R2 (стрелка «КУРС» + floor-легенда); live re-check optional |
+| Q3 | mobile crop / fitCamera | ✅ code W0′-R3 + U5 HUD stack; live 390 re-check optional |
+| Q4 | desktop маршрут сверху | ✅ code W0′-R1 fitRouteCamera + HUD insets; live polish optional |
 | Q5 | «Внутрь» vs «Открыть раздел» | ✅ оба `kgx-link-btn` |
 | Q6 | interior head/фон | ✅ sticky opaque head |
-| Q7 | dev-footer hint | ⚠️ residual: `#hint` «N узлов · режим · export» всё ещё в DOM |
+| Q7 | dev-footer hint | ✅ W0′-R4: `#hint` clipped / diagnostics, не learner surface |
 | Q8 | зигзаг хвоста 4→5→6 | ✅ presentation-only smooth path |
-| Q9 | ring 0/6 / stale status | ⚠️ track есть; contrast ring@0% и learner-copy чипов — residual |
+| Q9 | ring 0/6 / chip copy | ✅ W0′-R5/R6 learner chips + track contrast (code) |
 
-**Не переоткрывать** закрытые пункты как «с нуля». Дальше — только residual (§1.2).
+**Не переоткрывать** закрытые пункты как «с нуля».
 
-### 1.2 Residual @275 (живой прогон re-baseline) — scope волны **W0′**
+### 1.2 Residual after U5 HUD — **optional live quality**, not v1 blockers
 
-Memory Run узнаваем: topbar 64px, side 314px desktop, CTA ≥40px, route-first,
-export inert, G4.2 replay bar. Ниже — что **ещё** отделяет «хорошо» от «шедевра».
+W0′ + W1 **closed in code** (§11.1). После U5 (floating docks / full-bleed stage)
+имеет смысл **живой** visual smoke (1366 / 860 / 390), не re-implement R1–R7:
 
-#### P0 — residual композиции
+| ID | Тема | Статус |
+|---|---|---|
+| R1 | desktop vertical fill / «чернота» | code ✅; optional live tweak post-U5 |
+| R2 | dual nav legends | code ✅ (arrow compass + floor labels) |
+| R3 | mobile callout ∩ chrome | code ✅ + U5 stack; optional live gate |
+| R4 | `#hint` learner noise | ✅ clipped diagnostics |
+| R5 | chip copy | ✅ learner RU chips |
+| R6 | ring @0% | ✅ track contrast |
+| R7 | export CTA hierarchy | ✅ product-only copy |
 
-- **W0′-R1 (ex-Q4 residual). Desktop: маршрут всё ещё прижат к верхней половине**;
-  нижняя треть сцены — пустая чернота. `fitRouteCamera` улучшен, но vertical
-  fill reference-уровня не достигнут. Fix: донастроить pitch/centerY/targetH
-  + проверка 1366 и 1920 в visual smoke.
-- **W0′-R2 (ex-Q2 residual). Две легенды навигации:** floor «ВХОД / СЕГОДНЯ / ДАЛЬШЕ»
-  + компас «КУРС / ДАЛ / ВХОД / СЕГ» (ещё и обрезки «ДАЛ/СЕГ»). Fix: **одна**
-  семантика. Вариант A — компас без текстовых осей (только стрелка «курс»);
-  вариант B — floor-ось alone, компас = N-E-S-W без дублей смысла.
-- **W0′-R3 (ex-Q3 residual). Mobile 390×844:** маршрут в кадре в целом держится, но
-  callout активной остановки пересекается с компасом; «СЕГОДНЯ» почти не
-  читается между chrome. Fix: callout offset / hide floor-labels on narrow /
-  scale compass; gate «нет overlap critical labels» в viewport matrix.
+#### Owner decisions (зафиксировано)
 
-#### P1 — residual polish
+- **Onboarding:** first embedded open / localStorage-seen; host may force; см.
+  `docs/user_guide.md` (кнопка «Правила»).
+- **Тихие рёбра** (`type` vs `relation_type`): optional P2 diagnostics warn —
+  **не** v1 blocker.
 
-- **W0′-R4 (ex-Q7). Dev-hint footer** (`12 узлов · маршрут 6/6 · режим route · export`)
-  — убрать из learner surface; перенести в `?`-диалог / `title` / diagnostics.
-- **W0′-R5. Chip copy bug:** `due ${n.due}` при boolean даёт «due true»; `novel` —
-  developer English. Fix: learner chips (`пора повторить` / `новое`), без raw
-  boolean/english keys.
-- **W0′-R6. Progress ring @0%** — трек есть, но визуально почти «пустой круг»;
-  усилить track contrast (WCAG-ish на тёмном фоне).
-- **W0′-R7. Export CTA hierarchy** — disabled primary/secondary выглядят одинаково
-  «мёртвыми»; усилить copy «доступно в продукте» без шума.
-
-#### Примечания (owner decisions, не дефекты W0′)
-
-- **Onboarding:** `(SHOW_ONBOARDING || isEmbedded) && !sessionStorage.seen` —
-  embedded всегда предлагает onboarding на первом tab-open, даже если host
-  передал `show_onboarding=false`. **Решение (зафиксировать):** оставить
-  «раз на browser-tab для embedded» как product default; host-flag только
-  *форсирует* повтор. Документировать в `docs/user_guide.md` при промоуте W0′.
-- **Тихие рёбра:** payload с `{type:…}` вместо `{relation_type:…}` даёт пустое
-  «Созвездие» без warn. Предложение (P2): `console.warn` + счётчик «рёбер
-  отброшено» в `?`-диагностике — не блокирует W0′.
-
-**Прорыв уровня качества = W0′ (W0′-R1…R7) + W1 «Рассвет» (§8).**
-Не называть «мировым классом» до live-gate после W0′+W1. Полировка без новой
-механики + небо/фонари из quiz-данных — первый наблюдаемый скачок.
+**Механики v1 (каталог §11) закрыты в runtime.** «Мировой класс» = optional live
+polish + metrics §11.4, не re-open waves.
 
 ---
 
@@ -336,61 +324,47 @@ W2b**, не «мелочь внутри тумана».
 «Развеять» → action `review` (W2b), не старый `start`→Quiz.  
 Деградация: список угроз без прозы.
 
-#### C. Собеседник в интерьере — **phased**
-- **C1 (сначала):** кнопка «Спросить об этом» = handoff в «Чат с тьютором»
-  через существующие `build_tutor_prompt_for_concept` + `tutor_pending_prompt`
-  (деградация = основной путь v1).
-- **C2 (позже):** inline read-only concept retrieval — **отдельная** волна,
-  только если C1 доказал спрос. Не совмещать с scene-DSL.
+#### C. Собеседник в интерьере — **phased · done v1**
+- **C1 ✅:** «💬 Спросить» → handoff в «Чат с тьютором»
+  (`build_tutor_prompt_for_concept` + `tutor_pending_prompt`).
+- **C2 ✅:** «📜 Кратко» — inline read-only graph brief; stay in hall; no LLM.
 
-#### D. Квестмейстер
-Одна строка цели утра + существующие бейджи. Без новой валюты.  
-Деградация: «N из M».
+#### D. Квестмейстер — **done**
+Одна строка цели утра. Degrade «N из M»; optional LLM (host buttons). Без валюты.
 
-#### E. Архитектор достройки — **P3 / high-trust**
-Стройплощадка только при честном freshness-сигнале (иначе cut).  
-Предложения LLM — текст; человек подтверждает в существующих инструментах.  
-Высокий cost of being wrong → не near-term.
+#### E. Архитектор достройки — **done v1 (banner only)**
+Стройка (`#architectbox`) только при honest publish status (tone ≠ success).  
+LLM-советы достройки — **не** shipped (high cost of being wrong); cut v1.
 
-#### F. NL-управление миром (scene-DSL) — **design spike, не implementation wave**
-Командная строка («покажи слабое», «фильтр агенты») потребует **новой read-only
-schema** (`filter/focus/scene_mode/overlay/route_override`), **не** G0 envelope
-(`start|collect`).  
+#### F. NL-управление миром (scene-DSL) — **done spike + apply**
+Read-only schema (`filter/focus/scene_mode/overlay/route_override`), **не** G0.  
+Runtime: `app/mnemo_scene_dsl.py` (validate + presentation + deterministic NL);
+hall presets; host panel «🎛 Сцена».  
+`route_override` = highlight only; **domain `day_route` не меняется**.  
+LLM free-form → DSL: **не** shipped (security). Cloud/share photo: out of scope.
 
-**До кода обязательно:**
-- JSON schema + version;
-- allowlist команд и node ids;
-- reject unknown keys;
-- `route_override` = presentation only (доменный `day_route` не менять; UI
-  copy не говорит «маршрут дня перестроен»);
-- security/tests: prompt injection → no write, no arbitrary JS;
-- отдельный owner go/no-go.
+#### G. Летописец — **done**
+Короткий текст над G4.2 (`mastery_history` quiz-only) + optional LLM.  
+G4.3: **локальный PNG** (browser download); cloud/share = privacy out of scope.
 
-Деградация v1: **нет строки**, только кнопки. Spike может завершиться «не делаем».
+#### H. Голоса антагонистов — **done**
+Static bank + optional LLM (host buttons). Тон: уважительный, не стыдящий.
 
-#### G. Летописец — поверх **уже существующего G4.2**
-G4.1+G4.2 @275 уже дают floor tint + history scrubber.  
-G = короткий текст Хранителя над quiz-only `mastery_history` (честное сужение) +
-опционально будущий G4.3 photo (privacy DoD game plan).  
-Деградация: replay bar без прозы. **Не** описывать G4 как «ещё не реализован».
+### 6.4 Порядок LLM / narrative волн (эволюционно) — status
 
-#### H. Голоса антагонистов
-1 строка / угроза, пачка на день, кэш. Тон: уважительный юмор, **никогда не
-стыдящий**. Деградация: static bank в шаблоне / `app/prompts/`.
-
-### 6.4 Порядок LLM-волн (эволюционно)
-
-| Волна | Содержание |
-|---|---|
-| W3a | ✅ @279 infra |
-| W3b | ✅ @280 guide surface |
-| W3c | ✅ WT threats panel + host buttons |
-| W3d / D | ✅ WT 2026-07-18 quest line «N из M» + optional LLM |
-| H voices | ✅ WT 2026-07-18 static bank + optional path |
-| W6c G chronicle | ✅ WT 2026-07-18 летопись over mastery_history |
-| W6a ghost | ✅ WT 2026-07-18 ✓-double when learned+fog |
-| W5b scene-DSL | ✅ spike schema/validator only (no UI) |
-| W6b/W6d/G4.3 | ✅ WT 2026-07-18 (W6b conceptual prereqs; W6d publish banner; G4.3 privacy stub) |
+| Волна | Содержание | Status |
+|---|---|---|
+| W3a | infra budget/cache/degrade | ✅ @279 |
+| W3b | guide surface | ✅ @280 |
+| W3c | threats panel | ✅ WT |
+| W3d / D | quest «N из M» | ✅ |
+| C1 / C2 | ask handoff / brief | ✅ |
+| H voices | static + optional LLM | ✅ |
+| W6c G chronicle | летопись | ✅ |
+| W6a ghost | ✓-double | ✅ |
+| W5b / W5b.1 / W5b.2 | DSL validate + presets + NL | ✅ |
+| W6b / W6d | rift prereqs / architect banner | ✅ |
+| G4.3 | local PNG only | ✅ (no cloud) |
 
 ---
 
@@ -410,33 +384,37 @@ G = короткий текст Хранителя над quiz-only `mastery_his
 - **Не блокирует:** CTA «войти сквозь туман» / «Начать» всегда доступны.
   Contract-test: fog never disables primary actions.
 
-### Призрак Уверенности (враг №2 — иллюзия знания)
-- **Данные:** давний ✓ + низкий retention.
-- **Образ:** полупрозрачный ✓-двойник; при `prefers-reduced-motion` — статичный.
-- **Развеять:** 1 контрольный вопрос через quiz pipeline (домен пишет quiz-event
-  как обычно; LLM не участвует в записи).
+### Призрак Уверенности (враг №2 — иллюзия знания) — **visual done**
+- **Данные:** quiz-seen / high mastery + низкий retention (fog signal).
+- **Образ:** полупрозрачный ✓-двойник; `prefers-reduced-motion` → static.
+- **Развеять (product path):** ▶ Quiz / 💬 Спросить / 🔁 (как общие CTA).  
+  Dedicated «1 контрольный вопрос только из Призрака» — **optional polish**,
+  не v1 blocker (общий quiz pipeline уже доступен).
 
-### Разлом (враг №3 — незакрытые пререквизиты) — **blocked on data audit**
-- **Кандидат данных:** `precedes` edges. Сейчас edges в первую очередь задают
-  lesson-floor order; **не доказано**, что это conceptual prerequisites.
-- **До UI Разлома:** data audit — какие edges = учебный prereq; иначе **cut**.
-- **Если audit ok:** трещина перед stop; «перепрыгнуть» всегда можно; мост =
-  prereq practice. Non-block обязателен.
+### Разлом (враг №3 — незакрытые пререквизиты) — **done via conceptual prereqs**
+- **Не** lesson-floor `precedes` edges (они = этажи/порядок уроков, не audit-ok
+  как conceptual prerequisites).
+- **Данные v1:** `node.prereqs` из graph payload (conceptual). Weak =
+  missing node или not learned / mastery < 80%.
+- **Образ:** трещина под stop (local/all only); chip «разлом · N опоры».
+- **Non-block:** CTA всегда доступны; calm hides.
+- **Не re-open** «Разлом на precedes» без отдельного data-audit go.
 
 ### Правила дозировки (kill switch ориентации)
-- first **route**-кадр: антагонистов нет (макс. тихие markers на stops);
-  полные образы — local/all + interior;
-- одновременно ≤1 «сценка» угрозы;
-- `prefers-reduced-motion` → static;
-- тумблер **«Спокойный мир»** выключает антагонистов целиком;
-- угроза без действия ≤2 минут → не показывать;
-- copy review: запрещены формулировки «ты забыл / ты слабый / провал».
+
+| Правило | v1 status |
+|---|---|
+| first **route**-кадр: без полных антагонистов | ✅ fog/ghost/rift gated |
+| полные образы — local/all + interior | ✅ |
+| `prefers-reduced-motion` → static | ✅ partial |
+| **«Спокойный мир»** выключает антагонистов | ✅ |
+| copy: no shame («ты забыл / слабый / провал») | ✅ review |
+| одновременно ≤1 «сценка» угрозы | ⬜ optional polish |
+| угроза без действия ≤2 мин → hide | ⬜ optional polish |
 
 ### Нарезка волн антагонистов
-- **W2a:** только Туман visual + calm-world toggle (read-only, без нового action);
-- **W2b:** action `review` + preselect Flashcards (провод двери «развеять»);
-- **W6a:** Призрак (после W2a proven);
-- **W6b:** Разлом — только после data audit go.
+- **W2a ✅** Туман + calm; **W2b ✅** `review`; **W6a ✅** Призрак visual;
+  **W6b ✅** Разлом via conceptual prereqs.
 
 ---
 
@@ -491,7 +469,7 @@ punish-mechanics, второй XP-счётчик в 3D payload.
 | Декор | запрет шума | запрет **бессмысленного** шума; **structural** hall cues разрешены (§3.2); data-bound атмосфера обязана кодировать сигнал (§3.1) |
 | Three.js/WebGL | стоп | стоп, пока canvas 2D достаточен |
 | G0 action whitelist | `start\|collect` | расширение только отдельной волной + tests (`review` = W2b) |
-| scene-DSL | — | **не в implementation backlog** без design spike go (§6F) |
+| scene-DSL | — | **shipped** validate + presets + deterministic NL (§6F); no LLM-NL |
 | Home surface | — | Mission Control = home; Мнемополис = ceremonial hub (§5.1) |
 
 ---
@@ -506,7 +484,7 @@ UI-волнах, живой прогон running-артефакта. Если с
 из одного live-аудита Memory Run; он допустим только пока остаётся в пределах
 одного шаблона, doc-sync и viewport-gate без схем, stores и новых действий.
 
-### 11.1 Near-term (готовы к промоуту после doc-sync / owner ack)
+### 11.1 Near-term — **shipped**
 
 | Волна | Разрыв | Содержание | P | Effort | Write-set (ориентир) | Tests / DoD |
 |---|---|---|---|---|---|---|
@@ -514,7 +492,7 @@ UI-волнах, живой прогон running-артефакта. Если с
 | **W1** Рассвет и фонари | нет «живого» quiz-неба | sky gradient + lanterns from quiz-route coverage (§8) | P0 | ✅ WT 2026-07-18 | `kg_3d_template.html` (+ tests) | night mean_sky≪dawn; reduced-motion solid lantern; route clean |
 | **W2a** Туман visual | forgetting invisible | fog from `1-retention` + «Спокойный мир» toggle; non-block CTAs; full name in panel | P1 | ✅ WT 2026-07-18 | `kg_3d_template.html`, counters, user_guide | quiet markers on route; full mist local/all; calm sessionStorage; chip «туман · можно войти» |
 
-### 11.2 Next (после W0′+W1 live)
+### 11.2 Core narrative / actions — **shipped**
 
 | Волна | Разрыв | Содержание | P | Effort | Notes |
 |---|---|---|---|---|---|
@@ -523,7 +501,7 @@ UI-волнах, живой прогон running-артефакта. Если с
 | **W3b** Keeper A | тур без нарратива | экскурсовод в карточке + host buttons offline/LLM | P1 | ✅ @280 | `build_guide_view_model` → hall; first paint offline |
 | **W3c** Keeper B | угрозы без сводки | deterministic list + optional prose + panel | P1 | ✅ WT 2026-07-18 | `build_threats_view_model`; 🔁=review |
 
-### 11.3 Later catalog (не один «W4/W5/W6 bag»)
+### 11.3 Catalog W4–W6 / Keeper / G4.3 — **shipped in runtime**
 
 | Волна | Содержание | P | Preconditions |
 |---|---|---|---|
@@ -531,41 +509,44 @@ UI-волнах, живой прогон running-артефакта. Если с
 | **W4b** Return CTA after quiz | trophy toast recipe quiz-channel | P2 | ✅ WT 2026-07-18 | after interactive/scoped quiz; honest quiz channel copy |
 | **W4c** District doors MVP (4) | local/all door chips + routing table | P2 | ✅ WT 2026-07-18 | `door_*` actions; not in route frame |
 | **W4d** Return after flashcards / collect | SR/◆ channels | P2 | ✅ WT 2026-07-18 | FC review CTA; collect ◆ toast in-hall |
-| **W4d** Return after flashcards / collect | SR/◆ channels | P2 | W2a/W2b as needed |
 | **W5a** Keeper C1 tutor handoff | interior «Спросить» → tutor chat | P2 | ✅ WT 2026-07-18 | action `ask` + build_tutor_prompt_for_concept |
-| **W5b** design spike scene-DSL | schema/validator only | P2 | ✅ WT 2026-07-18 | `app/mnemo_scene_dsl.py`; no UI wire |
+| **W5b** design spike scene-DSL | schema/validator | P2 | ✅ WT 2026-07-18 | `app/mnemo_scene_dsl.py` |
+| **W5b.1** presentation apply | presets + filter dim | P2 | ✅ WT 2026-07-18 | hall presets; day_route unchanged |
+| **W5b.2** NL scene commands | safe parse → validate → apply | P2 | ✅ WT 2026-07-18 / @302 | host panel; no LLM; no eval |
 | **W5c** Keeper C2 inline ask | brief in-hall from graph data | P3 | ✅ WT 2026-07-18 | action `brief`; no LLM; stay in hall |
-| **W3d** Keeper D quest | one morning-goal line | P2 | ✅ WT 2026-07-18 | degrade «N из M»; optional LLM; no currency |
-| **W6a** Призрак | antagonist #2 | P3 | ✅ WT 2026-07-18 | ghost ✓ when quiz-seen + fog; calm hides |
-| **W6b** Разлом | antagonist #3 | P3 | ✅ WT 2026-07-18 | conceptual `node.prereqs` only (not lesson edges); non-block |
-| **W6c** Летописец text on G4.2 | Keeper G prose | P3 | ✅ WT 2026-07-18 | chronicle over mastery_history |
-| **W6d** Стройка / Architect E | freshness + optional LLM advice | P3 | ✅ WT 2026-07-18 | banner only when publish tone≠success; no LLM write |
-| **G4.3** фото дня | privacy DoD game plan | P3 | ✅ stub WT 2026-07-18 | disabled 📷; no capture/upload until privacy review |
-| **H** voices | antagonist lines | P3 | ✅ WT 2026-07-18 | static bank; optional LLM path unused on first paint |
+| **W3d** Keeper D quest | one morning-goal line | P2 | ✅ WT 2026-07-18 | degrade «N из M»; optional LLM |
+| **W6a** Призрак | antagonist #2 visual | P3 | ✅ WT 2026-07-18 | ghost ✓ when quiz-seen + fog; calm hides |
+| **W6b** Разлом | antagonist #3 | P3 | ✅ WT 2026-07-18 | conceptual `node.prereqs` only; non-block |
+| **W6c** Летописец text on G4.2 | Keeper G prose | P3 | ✅ WT 2026-07-18 | chronicle + optional LLM |
+| **W6d** Стройка / Architect | publish banner | P3 | ✅ WT 2026-07-18 | banner when tone≠success; no LLM write |
+| **G4.3** фото дня | local PNG only | P3 | ✅ WT 2026-07-18 | browser download; no server/cloud |
+| **H** voices | antagonist lines | P3 | ✅ WT 2026-07-18 / @302 | static bank + host LLM buttons |
 
-### 11.4 Метрики (измеримые)
+### 11.4 Метрики (измеримые) — **observational backlog, not v1 ship blockers**
 
-| Метрика | Как узнать | Цель |
-|---|---|---|
-| Time-to-first-action | client timestamp open → first `start`/`collect`/`review` | ≤10 s median на warm load |
-| Route completion visual contract | fixture 0/N vs N/N screenshots after W1 | binary diff: dawn visible only at N/N; no text/CTA overlap |
-| Return-to-hall | local counter `hall_returns` (UI-only) after W4b | baseline first; success threshold set only after ≥50 sessions |
-| LLM budget integrity | counters + tests | 0 domain writes; ≤4 calls/session; token caps §6.2 |
-| §3 invariant | review checklist per wave | no data-less «progress claim» art |
-| Orientation | contract-test route first frame | ≤8 labels; no antagonist entities |
+| Метрика | Как узнать | Цель | Status |
+|---|---|---|---|
+| Time-to-first-action | client timestamp open → first action | ≤10 s median warm | ⬜ not instrumented |
+| Route completion visual contract | 0/N vs N/N screenshots | dawn only at N/N | partial structural tests |
+| Return-to-hall | UI counter `hall_returns` | baseline then threshold | ⬜ not wired |
+| LLM budget integrity | counters + tests | 0 domain writes; ≤4 calls | ✅ unit tests |
+| §3 invariant | review checklist | no data-less progress art | ✅ process |
+| Orientation | contract-test route first frame | ≤8 labels; no full antagonists | ✅ partial tests |
 
-Неизмеримое («возврат стал нормой») — не KPI, а qualitative owner observation.
+Неизмеримое («возврат стал нормой») — qualitative owner observation.
 
 ### 11.5 Не делать
 
 - аватар игрока, open-world бродилка, экономика/магазин, punish-механики;
 - антагонисты, блокирующие контент или стыдящие;
 - LLM-запись в домен; LLM без cache/budget/degrade; LLM на first paint;
+- LLM free-form → arbitrary scene-DSL / JS;
 - новые nav-режимы сверх `route|local|all` + overlays;
 - второй источник правды прогресса; `mastery_history` ≠ «все действия»;
 - Мнемополис как замена Mission Control;
-- scene-DSL / Разлом / Architect без audit·spike go;
-- толстые «волны-пакеты» (старые W4–W6 monoblocks) — только нарезка §11.1–11.3.
+- Разлом на lesson `precedes` без data-audit go;
+- G4.3 cloud/share без privacy review;
+- толстые «волны-пакеты» monoblock — только нарезка §11.1–11.3.
 
 ---
 
@@ -590,11 +571,27 @@ UI-волнах, живой прогон running-артефакта. Если с
 | Rev | Дата | Суть |
 |---|---|---|
 | v0 | 2026-07-17 | Первый draft; evidence @270; волны W0–W6 monoblock |
-| **v1** | **2026-07-18** | Deep review applied: re-baseline @275; W0 closed + W0′ residual; G4.1/G4.2 fact; Mission Control = home; districts MVP 4 doors; LLM budget table; scene-DSL → spike; waves evolutionary split; §3 structural vs data-bound; Разлом blocked on audit; streak «остывает» |
-| **v2** | **2026-07-18** | Runtime progress sync: явные табы «Граф знаний» / «Мнемополис»; 2D default; sidebar/return deep link в 3D; revisioned state; lazy render; architecture guard green |
+| **v1** | **2026-07-18** | Deep review: re-baseline @275; W0′ residual; G4.1/G4.2; MC = home; districts; LLM budget; scene-DSL spike; evolutionary waves |
+| **v2** | **2026-07-18** | Tab split «Граф» / «Мнемополис»; deep link; lazy render |
+| **v3** | **2026-07-18** | **Doc-sync to runtime @302:** catalog §11 closed; G4.3 local PNG; Разлом = conceptual prereqs; W5b.1–2 NL; H/G LLM buttons; residual R1–R3 → optional live; metrics §11.4 marked observational; kill-switch polish listed open |
 
 ---
 
-**Итог для владельца:** north star (§3) и Memory Run-база — сильные.  
-В backlog **сейчас** — только **W0′ → W1 → (W2a)**. Остальное остаётся каталогом
-кандидатов до отдельных go-решений.
+## 14. Открыто после doc-sync v3 (не re-open closed waves)
+
+| # | Тема | Критичность | Примечание |
+|---|---|---|---|
+| 1 | Live visual smoke post-U5 (R1–R3) | UX quality | 1366 / 860 / 390; не code re-do |
+| 2 | Ghost → dedicated quiz handoff | optional polish | CTA ▶/💬 уже есть |
+| 3 | Threat TTL ≤2 min / ≤1 сцена | optional kill-switch | |
+| 4 | Metrics §11.4 instrumentation | observational | |
+| 5 | G4.3 cloud/share | privacy go | local PNG already shipped |
+| 6 | `game_plan.md` sync | doc-only | may lag this file |
+| 7 | Push `hometutor` origin | ops | ahead local commits |
+
+---
+
+**Итог для владельца (v3):** north star (§3) + Memory Run + **каталог механик v1
+в runtime** (через ~@302). Vision приведён к коду. Backlog **не** «W0′→W1→W2a» —
+это закрыто. Дальше только optional live polish, kill-switch polish, metrics,
+privacy-cloud photo, ops push.
