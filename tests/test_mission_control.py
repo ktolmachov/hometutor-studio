@@ -23,18 +23,21 @@ def test_tile_definitions_include_primary_modes(monkeypatch: pytest.MonkeyPatch)
         "flashcards",
         "quick_question",
         "topics",
+        "library",
         "course",
         "adaptive_plan",
         "agent_session",
     ]
-    assert tiles[5].title == "Активируй курс"
+    course_tile = next(tile for tile in tiles if tile.tile_id == "course")
+    assert course_tile.title == "Активируй курс"
 
 
 def test_course_tile_uses_active_scope_title(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(mc, "get_active_scope", lambda: {"active": True, "title": "ML"})
     tiles = mc._tile_definitions(due_count=0)
-    assert tiles[5].title == "ML"
-    assert tiles[5].target_view == "Курс"
+    course_tile = next(tile for tile in tiles if tile.tile_id == "course")
+    assert course_tile.title == "ML"
+    assert course_tile.target_view == "Курс"
 
 
 def test_course_options_include_document_counts_and_paths() -> None:
