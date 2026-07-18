@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>Разбор №21 — Один город без адресов</title>
 <style>
   /* ============================================================
@@ -184,6 +185,191 @@
   .footer code { font-size: 0.8rem; }
 
   a { color: var(--terra); }
+
+  /* Mega bundle catalog mockup: conference schedule rhythm, adapted to addresses. */
+  .catalog-demo {
+    --catalog-canvas: #f0f1ee;
+    --catalog-tile: #dedfdd;
+    --catalog-tile-active: #d4ddd5;
+    --catalog-rail: #aeb3af;
+    --catalog-ink: #121713;
+    --catalog-muted: #5f6761;
+    margin: 1.5rem 0 0.8rem;
+    border: 1px solid var(--line);
+    background: var(--catalog-canvas);
+    color: var(--catalog-ink);
+    box-shadow: var(--shadow);
+  }
+  @media (prefers-color-scheme: dark) {
+    .catalog-demo {
+      --catalog-canvas: #202622;
+      --catalog-tile: #2d342f;
+      --catalog-tile-active: #314039;
+      --catalog-rail: #59635c;
+      --catalog-ink: #f2ede2;
+      --catalog-muted: #aeb8b0;
+    }
+  }
+  :root[data-theme="dark"] .catalog-demo {
+    --catalog-canvas: #202622;
+    --catalog-tile: #2d342f;
+    --catalog-tile-active: #314039;
+    --catalog-rail: #59635c;
+    --catalog-ink: #f2ede2;
+    --catalog-muted: #aeb8b0;
+  }
+  :root[data-theme="light"] .catalog-demo {
+    --catalog-canvas: #f0f1ee;
+    --catalog-tile: #dedfdd;
+    --catalog-tile-active: #d4ddd5;
+    --catalog-rail: #aeb3af;
+    --catalog-ink: #121713;
+    --catalog-muted: #5f6761;
+  }
+  .catalog-toolbar {
+    display: grid;
+    grid-template-columns: minmax(150px, 1fr) auto minmax(180px, 0.9fr);
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 3px solid var(--terra);
+    background: var(--paper-2);
+  }
+  .catalog-brand strong {
+    display: block;
+    color: var(--ink);
+    font: 700 1rem/1.1 "Segoe UI", sans-serif;
+  }
+  .catalog-brand span { color: var(--muted); font-size: 0.72rem; }
+  .catalog-tabs {
+    display: inline-flex;
+    gap: 0.2rem;
+    padding: 0.2rem;
+    border: 1px solid var(--line);
+    background: var(--paper);
+  }
+  .catalog-tab {
+    min-height: 2rem;
+    border: 0;
+    border-radius: 3px;
+    padding: 0.35rem 0.65rem;
+    background: transparent;
+    color: var(--muted);
+    font: 700 0.72rem/1 "Segoe UI", sans-serif;
+    cursor: pointer;
+  }
+  .catalog-tab[aria-selected="true"] { background: var(--forest); color: var(--paper-2); }
+  .catalog-tab:focus-visible,
+  .catalog-search input:focus-visible,
+  .tile-action:focus-visible,
+  .tile-star:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+  .catalog-search { position: relative; min-width: 0; }
+  .catalog-search span {
+    position: absolute; left: 0.65rem; top: 50%; transform: translateY(-50%);
+    color: var(--muted); font-size: 0.85rem; pointer-events: none;
+  }
+  .catalog-search input {
+    width: 100%; min-height: 2.15rem; border: 1px solid var(--line); border-radius: 3px;
+    padding: 0.4rem 0.65rem 0.4rem 1.9rem; background: var(--paper); color: var(--ink);
+    font: 0.76rem/1.2 "Segoe UI", sans-serif;
+  }
+  .catalog-stage { padding: 1.05rem; }
+  .catalog-pane[hidden] { display: none; }
+  .catalog-group + .catalog-group { margin-top: 1.25rem; }
+  .catalog-group-head {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+    margin-bottom: 0.65rem;
+  }
+  .catalog-group-head strong {
+    color: var(--catalog-ink); font: 800 1.3rem/1 "Segoe UI", sans-serif;
+  }
+  .catalog-group-head span { color: var(--catalog-muted); font-size: 0.72rem; }
+  .catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+  .bundle-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 230px;
+    padding: 0.85rem 0.9rem 0.75rem;
+    overflow: hidden;
+    border: 1px solid transparent;
+    border-bottom: 3px solid var(--catalog-rail);
+    border-radius: 4px;
+    background: var(--catalog-tile);
+    color: var(--catalog-ink);
+  }
+  .bundle-tile.is-active {
+    border-color: color-mix(in srgb, var(--verdict-keep) 45%, transparent);
+    border-bottom-color: var(--verdict-keep);
+    background: var(--catalog-tile-active);
+  }
+  .tile-status {
+    display: flex; align-items: center; gap: 0.38rem; padding-right: 2.8rem;
+    color: var(--catalog-muted); font: 700 0.72rem/1.2 "Segoe UI", sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+  .tile-status strong { color: var(--catalog-ink); font-size: 0.92rem; }
+  .status-dot { width: 0.52rem; height: 0.52rem; flex: none; border-radius: 50%; background: var(--catalog-rail); }
+  .status-dot.live { background: var(--verdict-keep); }
+  .status-dot.transfer { background: var(--terra); }
+  .tile-address { margin-top: 0.45rem; color: var(--catalog-muted); font-size: 0.68rem; }
+  .tile-mark {
+    position: absolute; top: 2.85rem; right: 0.9rem;
+    display: grid; place-items: center; width: 2.8rem; height: 2.8rem;
+    border-radius: 50%; background: var(--forest); color: var(--paper-2);
+    font: 800 0.82rem/1 "Segoe UI", sans-serif;
+  }
+  .tile-mark.deep { background: var(--terra); }
+  .tile-mark.all { background: var(--gold); color: #17211b; }
+  .bundle-tile h3 {
+    margin: 0.65rem 3.15rem 0.45rem 0;
+    color: var(--catalog-ink);
+    font: 800 1.08rem/1.13 "Segoe UI", sans-serif;
+    letter-spacing: 0;
+    overflow-wrap: anywhere;
+  }
+  .tile-copy { margin: 0; color: var(--catalog-muted); font-size: 0.72rem; line-height: 1.4; }
+  .tile-tags { display: flex; flex-wrap: wrap; gap: 0.28rem; margin-top: auto; padding-top: 0.8rem; padding-right: 2.2rem; }
+  .tile-tags span {
+    padding: 0.13rem 0.38rem; border: 1px solid color-mix(in srgb, var(--catalog-muted) 30%, transparent);
+    border-radius: 3px; color: var(--catalog-muted); font: 600 0.63rem/1.2 "Segoe UI", sans-serif;
+  }
+  .tile-footer { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-top: 0.65rem; }
+  .tile-action {
+    border: 0; border-bottom: 1px solid currentColor; padding: 0.15rem 0; background: transparent;
+    color: var(--catalog-ink); font: 800 0.69rem/1.2 "Segoe UI", sans-serif; cursor: pointer;
+  }
+  .tile-star {
+    position: absolute; right: 0.65rem; bottom: 0.55rem; width: 1.8rem; height: 1.8rem;
+    border: 0; background: transparent; color: var(--paper-2); font-size: 1.45rem; line-height: 1;
+    cursor: pointer;
+  }
+  .tile-star[aria-pressed="true"] { color: var(--gold); }
+  .route-index {
+    position: absolute; right: 0.9rem; top: 3.05rem; color: var(--catalog-muted);
+    font: 800 2.3rem/1 "Segoe UI", sans-serif; opacity: 0.28;
+  }
+  .mock-note { margin-top: 0.7rem; color: var(--muted); font-size: 0.76rem; }
+
+  .verdict-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; margin-bottom: 1.2rem; }
+  .verdict-grid .card { min-height: 150px; margin: 0; border-radius: 4px; border-bottom: 3px solid var(--catalog-rail, var(--line)); }
+
+  @media (max-width: 780px) {
+    .catalog-toolbar { grid-template-columns: 1fr; }
+    .catalog-tabs { width: 100%; }
+    .catalog-tab { flex: 1; }
+    .catalog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 560px) {
+    .catalog-stage { padding: 0.75rem; }
+    .catalog-grid, .verdict-grid { grid-template-columns: 1fr; }
+    .bundle-tile { min-height: 214px; }
+  }
 </style>
 
 <div class="wrap">
@@ -397,6 +583,7 @@
 <section id="verdicts">
   <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Вердикты</span></div>
   <h2>Позиция по каждому элементу</h2>
+  <div class="verdict-grid">
   <div class="card"><span class="v v-keep">оставить</span><strong>Единый граф-бандл + gate.</strong>
     Мега-бандл достаётся бесплатно: 8 слитых тем — доказательство, что merge работает; «Deep» из
     1 модуля попадает на карту только благодаря общему бандлу.</div>
@@ -421,7 +608,9 @@
   <div class="card"><span class="v v-fix">спрятать глубже</span><strong>Scope-переключатель.</strong>
     Из «главной двери» — в фильтр внимания: карта и Q&amp;A уже умеют жить поверх всех курсов;
     активный курс остаётся дефолтным фокусом, а не границей мира.</div>
+  </div>
   <h3>НЕ делать</h3>
+  <div class="verdict-grid">
   <div class="card"><span class="v v-no">не делать</span><strong>Второй «мега-граф» или хранилище каталога.</strong>
     Бандл уже один на все курсы; каталог — проекция файловой системы и индекса. Третья копия истины —
     типовая болезнь серии (№1, №2, №13).</div>
@@ -433,6 +622,7 @@
   <div class="card"><span class="v v-no">не делать</span><strong>Автослияние конспектов разных курсов в один текст.</strong>
     Слияние — на уровне концептов (уже работает), не текстов: перегенерация рушит якоря строк,
     сайдкары и живость (вердикт №14).</div>
+  </div>
 </section>
 
 <!-- 6. ЦЕННОСТЬ -->
@@ -458,9 +648,171 @@
   </div>
 </section>
 
-<!-- 7. ПУТЬ -->
+<!-- 7. МАКЕТЫ -->
+<section id="mockups">
+  <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Макеты mega bundle</span></div>
+  <h2>Не папки и accordion. Расписание области</h2>
+  <p>Сильный ход из референса — заменить бесконечный список файлов на <strong>ритм
+  расписания</strong>: крупные группы дают ориентацию, одинаковая анатомия плиток позволяет
+  быстро сравнивать курсы, а адрес всегда стоит раньше действия. Ниже три состояния одного
+  экрана, а не три новых раздела продукта.</p>
+
+  <div class="catalog-demo" data-catalog-demo>
+    <div class="catalog-toolbar">
+      <div class="catalog-brand"><strong>Библиотека</strong><span>2 курса · 6 уроков · 82 концепта</span></div>
+      <div class="catalog-tabs" role="tablist" aria-label="Режим каталога">
+        <button class="catalog-tab" type="button" role="tab" id="tab-catalog" aria-controls="pane-catalog" aria-selected="true" data-pane-target="catalog">Каталог</button>
+        <button class="catalog-tab" type="button" role="tab" id="tab-transfer" aria-controls="pane-transfer" aria-selected="false" data-pane-target="transfer">Пересадки</button>
+        <button class="catalog-tab" type="button" role="tab" id="tab-route" aria-controls="pane-route" aria-selected="false" data-pane-target="route">Маршрут</button>
+      </div>
+      <label class="catalog-search">
+        <span aria-hidden="true">⌕</span>
+        <input type="search" placeholder="Курс, тема или раздел" aria-label="Поиск по библиотеке" data-catalog-search>
+      </label>
+    </div>
+
+    <div class="catalog-stage">
+      <div class="catalog-pane" id="pane-catalog" role="tabpanel" aria-labelledby="tab-catalog" data-pane="catalog">
+        <div class="catalog-group">
+          <div class="catalog-group-head"><strong>Сейчас</strong><span>единый фокус поверх всех курсов</span></div>
+          <div class="catalog-grid">
+            <article class="bundle-tile is-active">
+              <div class="tile-status"><strong>82 концепта</strong><span class="status-dot live"></span><span>карта актуальна</span></div>
+              <div class="tile-address">Вся область · 2 курса · 6 уроков</div>
+              <div class="tile-mark all" aria-hidden="true">∞</div>
+              <h3>ИИ-агенты: мега-бандл</h3>
+              <p class="tile-copy">Один маршрут дня, общая память и адреса обоих первоисточников.</p>
+              <div class="tile-tags"><span>8 пересадок</span><span>сквозной Q&amp;A</span></div>
+              <div class="tile-footer"><button class="tile-action" type="button">Открыть область</button></div>
+              <button class="tile-star" type="button" aria-label="Закрепить мега-бандл" aria-pressed="true">★</button>
+            </article>
+
+            <article class="bundle-tile">
+              <div class="tile-status"><strong>5 уроков</strong><span class="status-dot live"></span><span>готов к обучению</span></div>
+              <div class="tile-address">Линия 01 · базовый курс</div>
+              <div class="tile-mark" aria-hidden="true">01</div>
+              <h3>ИИ Агенты</h3>
+              <p class="tile-copy">Полный конвейер: конспекты, транскрипты, видео и точные таймкоды.</p>
+              <div class="tile-tags"><span>53 своих темы</span><span>8 общих</span></div>
+              <div class="tile-footer"><button class="tile-action" type="button">Открыть курс</button></div>
+              <button class="tile-star" type="button" aria-label="Закрепить курс ИИ Агенты" aria-pressed="false">☆</button>
+            </article>
+
+            <article class="bundle-tile">
+              <div class="tile-status"><strong>1 модуль</strong><span class="status-dot"></span><span>следующий уровень</span></div>
+              <div class="tile-address">Линия 02 · углубление</div>
+              <div class="tile-mark deep" aria-hidden="true">D</div>
+              <h3>ИИ Агенты Deep</h3>
+              <p class="tile-copy">Углубляющий слой области без ложной связи «до» базового курса.</p>
+              <div class="tile-tags"><span>12 своих тем</span><span>8 общих</span></div>
+              <div class="tile-footer"><button class="tile-action" type="button">Открыть курс</button></div>
+              <button class="tile-star" type="button" aria-label="Закрепить курс ИИ Агенты Deep" aria-pressed="false">☆</button>
+            </article>
+          </div>
+        </div>
+
+        <div class="catalog-group">
+          <div class="catalog-group-head"><strong>Личное</strong><span>не смешивается с лестницей курсов</span></div>
+          <div class="catalog-grid">
+            <article class="bundle-tile">
+              <div class="tile-status"><strong>1 документ</strong><span class="status-dot"></span><span>рабочая сборка</span></div>
+              <div class="tile-address">Личное · living-konspekt</div>
+              <div class="tile-mark" aria-hidden="true">LK</div>
+              <h3>Рабочий конспект</h3>
+              <p class="tile-copy">Собранные разделы и собственные мысли. Не урок и не линия метро.</p>
+              <div class="tile-tags"><span>workbench</span><span>вне маршрута</span></div>
+              <div class="tile-footer"><button class="tile-action" type="button">Открыть конспект</button></div>
+              <button class="tile-star" type="button" aria-label="Закрепить рабочий конспект" aria-pressed="false">☆</button>
+            </article>
+          </div>
+        </div>
+      </div>
+
+      <div class="catalog-pane" id="pane-transfer" role="tabpanel" aria-labelledby="tab-transfer" data-pane="transfer" hidden>
+        <div class="catalog-group">
+          <div class="catalog-group-head"><strong>8 пересадок</strong><span>одна память · несколько первоисточников</span></div>
+          <div class="catalog-grid">
+            <article class="bundle-tile is-active">
+              <div class="tile-status"><strong>2 курса</strong><span class="status-dot transfer"></span><span>общая тема</span></div>
+              <div class="tile-address">ИИ Агенты · ИИ Агенты Deep</div>
+              <div class="tile-mark all" aria-hidden="true">↔</div>
+              <h3>Guardrails</h3>
+              <p class="tile-copy">Один cid и два адреса: базовая рамка плюс углубляющий разбор.</p>
+              <div class="tile-tags"><span>пересадка</span><span>источники ×2</span></div>
+              <div class="tile-footer"><button class="tile-action" type="button">Сравнить источники</button></div>
+              <button class="tile-star" type="button" aria-label="Закрепить тему Guardrails" aria-pressed="true">★</button>
+            </article>
+            <article class="bundle-tile">
+              <div class="tile-status"><strong>2 курса</strong><span class="status-dot transfer"></span><span>общая тема</span></div>
+              <div class="tile-address">Линия 01 ↔ Линия 02</div>
+              <div class="tile-mark deep" aria-hidden="true">R</div>
+              <h3>RAG</h3>
+              <p class="tile-copy">Общий концепт сохраняет mastery, но показывает оба курса отдельно.</p>
+              <div class="tile-tags"><span>пересадка</span><span>одна память</span></div>
+              <div class="tile-footer"><button class="tile-action" type="button">Открыть тему</button></div>
+              <button class="tile-star" type="button" aria-label="Закрепить тему RAG" aria-pressed="false">☆</button>
+            </article>
+            <article class="bundle-tile">
+              <div class="tile-status"><strong>2 курса</strong><span class="status-dot transfer"></span><span>общая тема</span></div>
+              <div class="tile-address">Линия 01 ↔ Линия 02</div>
+              <div class="tile-mark" aria-hidden="true">T</div>
+              <h3>Tools</h3>
+              <p class="tile-copy">Быстрый переход от базового паттерна к продвинутым контрактам.</p>
+              <div class="tile-tags"><span>пересадка</span><span>разделы ×4</span></div>
+              <div class="tile-footer"><button class="tile-action" type="button">Показать адреса</button></div>
+              <button class="tile-star" type="button" aria-label="Закрепить тему Tools" aria-pressed="false">☆</button>
+            </article>
+          </div>
+        </div>
+      </div>
+
+      <div class="catalog-pane" id="pane-route" role="tabpanel" aria-labelledby="tab-route" data-pane="route" hidden>
+        <div class="catalog-group">
+          <div class="catalog-group-head"><strong>Маршрут дня</strong><span>каждая остановка имеет адрес</span></div>
+          <div class="catalog-grid">
+            <article class="bundle-tile is-active">
+              <div class="tile-status"><strong>Шаг 1</strong><span class="status-dot live"></span><span>готово начать</span></div>
+              <div class="tile-address">ИИ Агенты · Урок 1 · раздел 3</div>
+              <span class="route-index" aria-hidden="true">01</span>
+              <h3>Agentic Loop</h3>
+              <p class="tile-copy">Опорная остановка перед углублением. Адрес сохраняется в handoff.</p>
+              <div class="tile-tags"><span>15 мин</span><span>базовая линия</span></div>
+              <div class="tile-footer"><button class="tile-action" type="button">Начать</button></div>
+              <button class="tile-star" type="button" aria-label="Закрепить остановку Agentic Loop" aria-pressed="false">☆</button>
+            </article>
+            <article class="bundle-tile">
+              <div class="tile-status"><strong>Шаг 2</strong><span class="status-dot transfer"></span><span>пересадка</span></div>
+              <div class="tile-address">ИИ Агенты Deep · Модуль 1 · раздел 4</div>
+              <span class="route-index" aria-hidden="true">02</span>
+              <h3>Guardrails</h3>
+              <p class="tile-copy">Та же тема, другой источник. Mastery общий, адрес курса явный.</p>
+              <div class="tile-tags"><span>20 мин</span><span>углубление</span></div>
+              <div class="tile-footer"><button class="tile-action" type="button">Перейти</button></div>
+              <button class="tile-star" type="button" aria-label="Закрепить остановку Guardrails" aria-pressed="true">★</button>
+            </article>
+            <article class="bundle-tile">
+              <div class="tile-status"><strong>Шаг 3</strong><span class="status-dot"></span><span>после пересадки</span></div>
+              <div class="tile-address">ИИ Агенты Deep · Модуль 1 · квиз</div>
+              <span class="route-index" aria-hidden="true">03</span>
+              <h3>Проверить перенос</h3>
+              <p class="tile-copy">Короткий квиз подтверждает, что знание перенеслось между курсами.</p>
+              <div class="tile-tags"><span>8 мин</span><span>quiz</span></div>
+              <div class="tile-footer"><button class="tile-action" type="button">Открыть квиз</button></div>
+              <button class="tile-star" type="button" aria-label="Закрепить остановку Проверить перенос" aria-pressed="false">☆</button>
+            </article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="mock-note"><strong>Принцип переноса референса:</strong> время доклада → адрес,
+  спикер → курс, зал → линия, тема → концепт, звезда → pin. Плитка остаётся единицей
+  сканирования; подробности открываются следующим уровнем, а не вкладываются внутрь карточки.</p>
+</section>
+
+<!-- 8. ПУТЬ -->
 <section id="path">
-  <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Путь</span></div>
+  <div class="sec-label"><span class="sec-num">8</span><span class="sec-name">Путь</span></div>
   <h2>Золотой путь и лестница уровней</h2>
   <p><strong>Золотой путь одной сессии:</strong> открыть «Библиотеку» → увидеть свои курсы, их
   конспекты с паспортами и восемь общих тем → нажать «Маршрут дня» → пройти остановки с адресами
@@ -483,9 +835,9 @@
   </ol>
 </section>
 
-<!-- 8. ПЛАН -->
+<!-- 9. ПЛАН -->
 <section id="plan">
-  <div class="sec-label"><span class="sec-num">8</span><span class="sec-name">План</span></div>
+  <div class="sec-label"><span class="sec-num">9</span><span class="sec-name">План</span></div>
   <h2>P0–P2 по соотношению эффект/усилие</h2>
   <div class="table-scroll">
     <table>
@@ -520,5 +872,67 @@
   <code>doc/next/mega_bundle_catalog_plan.md</code>. Серия:
   <code>doc/presentations/evolutionary_analyses/</code>.</p>
 </div>
+
+<script>
+  (() => {
+    document.querySelectorAll("[data-catalog-demo]").forEach((demo) => {
+      const tabs = Array.from(demo.querySelectorAll("[data-pane-target]"));
+      const panes = Array.from(demo.querySelectorAll("[data-pane]"));
+      const search = demo.querySelector("[data-catalog-search]");
+
+      const applySearch = () => {
+        const query = search.value.trim().toLocaleLowerCase("ru");
+        panes.forEach((pane) => {
+          pane.querySelectorAll(".catalog-group").forEach((group) => {
+            const tiles = Array.from(group.querySelectorAll(".bundle-tile"));
+            tiles.forEach((tile) => {
+              tile.hidden = query !== "" && !tile.textContent.toLocaleLowerCase("ru").includes(query);
+            });
+            group.hidden = tiles.every((tile) => tile.hidden);
+          });
+        });
+      };
+
+      const selectTab = (tab, moveFocus = false) => {
+        const target = tab.dataset.paneTarget;
+        tabs.forEach((item) => {
+          const selected = item === tab;
+          item.setAttribute("aria-selected", String(selected));
+          item.tabIndex = selected ? 0 : -1;
+        });
+        panes.forEach((pane) => {
+          pane.hidden = pane.dataset.pane !== target;
+        });
+        applySearch();
+        if (moveFocus) tab.focus();
+      };
+
+      tabs.forEach((tab, index) => {
+        tab.addEventListener("click", () => selectTab(tab));
+        tab.addEventListener("keydown", (event) => {
+          let nextIndex = null;
+          if (event.key === "ArrowRight") nextIndex = (index + 1) % tabs.length;
+          if (event.key === "ArrowLeft") nextIndex = (index - 1 + tabs.length) % tabs.length;
+          if (event.key === "Home") nextIndex = 0;
+          if (event.key === "End") nextIndex = tabs.length - 1;
+          if (nextIndex === null) return;
+          event.preventDefault();
+          selectTab(tabs[nextIndex], true);
+        });
+      });
+
+      demo.querySelectorAll(".tile-star").forEach((button) => {
+        button.addEventListener("click", () => {
+          const pressed = button.getAttribute("aria-pressed") === "true";
+          button.setAttribute("aria-pressed", String(!pressed));
+          button.textContent = pressed ? "☆" : "★";
+        });
+      });
+
+      search.addEventListener("input", applySearch);
+      selectTab(tabs.find((tab) => tab.getAttribute("aria-selected") === "true") || tabs[0]);
+    });
+  })();
+</script>
 
 </div>

@@ -264,10 +264,11 @@ district routing = таблица маппинга + preselect keys, не нов
 | Источник | action / door | View | Preselect keys (best-available) |
 |---|---|---|---|
 | CTA «Начать» | `start` (G0/G1) | Интерактивный Quiz | `interactive_quiz_focus_concept`, `kg_action_concept` |
-| «Развеять туман» / review | **`review`** (новый whitelist) | Flashcards | preselect contract W2b: `flashcards_focus_concept`, `flashcards_queue=due`, `kg_return=mnemo` |
+| «Развеять туман» / review | **`review`** (whitelist) | Flashcards | W2b: tags + **one-shot** `flashcards_review_focus_filter_once` + autoload due; trust tag API; soft match only if empty |
+| Дверь Оранжерея + concept | **`door_flashcards`** | Flashcards | same due handoff as W2b when concept present; bare district door = Review nav only |
 | collect | `collect` | (остаёмся / toast) workbench | collected args refresh |
 | Дверь Арена | nav only | Quiz | concept focus if any |
-| Дверь Оранжерея | nav only | Flashcards | due/concept if any |
+| Дверь Оранжерея | door_flashcards | Flashcards | concept → due handoff (W2b); bare district → Review nav only |
 | Дверь Магистраль | nav only | Адаптивный план | — |
 | Дверь Кузница | nav only | Живой конспект | — |
 | Сайдбар | nav only | Knowledge Graph | restore last concept if any |
@@ -287,10 +288,12 @@ W2b**, не «мелочь внутри тумана».
 - промпты — только `app/prompts/` (не роутеры/UI);
 - кэш обязателен; ключ минимум
   `(provider_id, model_id, prompt_version, scenario, snapshot_date|day, locale,
-  route_fingerprint|concept_set_hash)`;
+  route_fingerprint|concept_set_hash)` (+ mode static|llm в runtime);
   для multi-concept (B) — hash набора угроз, не один `concept_id`;
 - **first paint никогда не ждёт LLM** (skeleton / static degrade → async fill);
 - circuit-breaker провайдера + session budget (ниже);
+- wall timeout / max_output: post-call enforce + best-effort client kwargs
+  (`timeout`, `max_tokens`); mid-stream hard abort — provider-dependent;
 - обязательная деградация: мир полностью функционален при LLM down.
 
 ### 6.2 LLM budget appendix (kill switch v3.1 — числовой)
@@ -488,15 +491,15 @@ UI-волнах, живой прогон running-артефакта. Если с
 
 | Волна | Разрыв | Содержание | P | Effort | Write-set (ориентир) | Tests / DoD |
 |---|---|---|---|---|---|---|
-| **W0′** Residual polish | W0′-R1…R7 §1.2 | `fitRouteCamera` vertical fill; одна легенда compass/axis; mobile overlap; hide `#hint`; learner chips; ring contrast; export CTA copy | P0 | ✅ WT 2026-07-18 | `kg_3d_template.html`, `docs/user_guide.md`, counters tests | 78 tests; live 4 viewports; R1–R7 verify-pass |
-| **W1** Рассвет и фонари | нет «живого» quiz-неба | sky gradient + lanterns from quiz-route coverage (§8) | P0 | ✅ WT 2026-07-18 | `kg_3d_template.html` (+ tests) | night mean_sky≪dawn; reduced-motion solid lantern; route clean |
-| **W2a** Туман visual | forgetting invisible | fog from `1-retention` + «Спокойный мир» toggle; non-block CTAs; full name in panel | P1 | ✅ WT 2026-07-18 | `kg_3d_template.html`, counters, user_guide | quiet markers on route; full mist local/all; calm sessionStorage; chip «туман · можно войти» |
+| **W0′** Residual polish | W0′-R1…R7 §1.2 | `fitRouteCamera` vertical fill; одна легенда compass/axis; mobile overlap; hide `#hint`; learner chips; ring contrast; export CTA copy | P0 | ✅ WT 2026-07-18 | `kg_3d_template.html`, `docs/user_guide.md`, counters tests | structural + optional live 4 viewports (1366×768 / 1920×1080 / 1024×768 / 390×844); R1–R7 design-contract; **не** claim live mean_sky pixel gate |
+| **W1** Рассвет и фонари | нет «живого» quiz-неба | sky gradient + lanterns from quiz-route coverage (§8) | P0 | ✅ WT 2026-07-18 | `kg_3d_template.html` (+ tests) | structural: `quizRouteProgress` / `drawRouteLantern` / reduced-motion path; live sky contrast = optional visual smoke (не unit mean_sky) |
+| **W2a** Туман visual | forgetting invisible | fog from `1-retention` + «Спокойный мир» toggle; non-block CTAs; full name in panel | P1 | ✅ WT 2026-07-18 | `kg_3d_template.html`, counters, user_guide | structural fog/calm markers; full mist UX = live acceptance, not string-only |
 
 ### 11.2 Core narrative / actions — **shipped**
 
 | Волна | Разрыв | Содержание | P | Effort | Notes |
 |---|---|---|---|---|---|
-| **W2b** action `review` | нет двери в Flashcards из зала | whitelist + Python handler + preselect; CTA «Развеять»/«Повторить» | P1 | ✅ WT 2026-07-18 | `start|collect|review`; nav → Flashcards; export inert; 80 tests |
+| **W2b** action `review` | нет двери в Flashcards из зала | whitelist + tags + one-shot focus + autoload due; trust tag API; soft match only if empty | P1 | ✅ audit v2 2026-07-18 | door Оранжерея+concept shares handoff; focus not sticky |
 | **W3a** Keeper infra | нет безопасного LLM-слоя | cache, budget counters, degrade smoke, `app/prompts/` stubs | P1 | ✅ @279 | `app/mnemo_keeper.py` + prompts; unit tests; no domain writers |
 | **W3b** Keeper A | тур без нарратива | экскурсовод в карточке + host buttons offline/LLM | P1 | ✅ @280 | `build_guide_view_model` → hall; first paint offline |
 | **W3c** Keeper B | угрозы без сводки | deterministic list + optional prose + panel | P1 | ✅ WT 2026-07-18 | `build_threats_view_model`; 🔁=review |
@@ -574,6 +577,8 @@ UI-волнах, живой прогон running-артефакта. Если с
 | **v1** | **2026-07-18** | Deep review: re-baseline @275; W0′ residual; G4.1/G4.2; MC = home; districts; LLM budget; scene-DSL spike; evolutionary waves |
 | **v2** | **2026-07-18** | Tab split «Граф» / «Мнемополис»; deep link; lazy render |
 | **v3** | **2026-07-18** | **Doc-sync to runtime @302:** catalog §11 closed; G4.3 local PNG; Разлом = conceptual prereqs; W5b.1–2 NL; H/G LLM buttons; residual R1–R3 → optional live; metrics §11.4 marked observational; kill-switch polish listed open |
+| **v3.1** | **2026-07-18** | **Audit fix:** W2b concept-scoped due autoload (not dead focus key); Keeper cache key = provider\|model\|prompt_version\|…; timeout/output cap; onboarding one-liner; user_guide date; evidence honesty (structural vs live; viewport matrix) |
+| **v3.2** | **2026-07-18** | **Audit recheck:** cache key mirrors get_llm (LMSTUDIO for local/balanced + CB fallback); one-shot focus (not sticky); trust tag API; door Оранжерея due handoff; ThreadPool wall timeout |
 
 ---
 
@@ -581,17 +586,23 @@ UI-волнах, живой прогон running-артефакта. Если с
 
 | # | Тема | Критичность | Примечание |
 |---|---|---|---|
-| 1 | Live visual smoke post-U5 (R1–R3) | UX quality | 1366 / 860 / 390; не code re-do |
+| 1 | Live visual smoke post-U5 (R1–R3) | UX quality | viewport matrix в tests: 1366×768 / 1920×1080 / 1024×768 / 390×844; structural ≠ live pixel acceptance |
 | 2 | Ghost → dedicated quiz handoff | optional polish | CTA ▶/💬 уже есть |
 | 3 | Threat TTL ≤2 min / ≤1 сцена | optional kill-switch | |
 | 4 | Metrics §11.4 instrumentation | observational | |
 | 5 | G4.3 cloud/share | privacy go | local PNG already shipped |
 | 6 | `game_plan.md` sync | doc-only | may lag this file |
 | 7 | Push `hometutor` origin | ops | ahead local commits |
+| 8 | Hard mid-call LLM cancel | optional | Keeper: post-call wall-clock + best-effort `max_tokens`/`timeout` kwargs; true abort mid-stream depends on provider |
+
+**Честность evidence (audit 2026-07-18):** design-contract tests в основном structural
+(наличие функций/DOM/id/copy). Они **не** доказывают «full mist local/all», «≤8 labels
+во всех состояниях» или «night vs dawn mean_sky» как live visual acceptance — для
+этого нужен optional smoke, не re-claim unit suite.
 
 ---
 
-**Итог для владельца (v3):** north star (§3) + Memory Run + **каталог механик v1
-в runtime** (через ~@302). Vision приведён к коду. Backlog **не** «W0′→W1→W2a» —
-это закрыто. Дальше только optional live polish, kill-switch polish, metrics,
+**Итог для владельца (v3 + audit fix):** north star (§3) + Memory Run + **каталог механик v1
+в runtime**. W2b handoff и Keeper cache/budget hardened post-audit. Backlog **не**
+«W0′→W1→W2a» — закрыто. Дальше optional live polish, kill-switch polish, metrics,
 privacy-cloud photo, ops push.
