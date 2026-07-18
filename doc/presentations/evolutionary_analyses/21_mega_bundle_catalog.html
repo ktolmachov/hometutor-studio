@@ -1,0 +1,524 @@
+<title>Разбор №21 — Один город без адресов</title>
+<style>
+  /* ============================================================
+     HOMETUTOR NOTEBOOK STYLE v1.0 — LOCKED 2026-07-12
+     Извлечено из разборов №9-10 эволюционной серии. Это визитная
+     карточка формата «нескучный разбор». НЕ переизобретать палитру
+     заново в новой сессии — копировать этот файл и менять только
+     содержимое между <div class="wrap"> ... </div>.
+     Гайд: notebook_deck_guide.md (в этой же папке).
+     ============================================================ */
+  :root {
+    /* --- ЛОКОНО (locked core, 9 токенов) --- не менять значения --- */
+    --paper: #f7f3ea;
+    --paper-2: #fffdf7;
+    --ink: #17211b;
+    --muted: #5c6a61;
+    --terra: #b95631;
+    --terra-deep: #7d351f;
+    --forest: #243b2c;
+    --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14);
+    --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+    --done: #1e6e46;
+    --silent: #b98a2d;
+    --hole: #8c2f39;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141a16;
+      --paper-2: #1b231e;
+      --ink: #ece5d4;
+      --muted: #9aa89d;
+      --terra: #d97a52;
+      --terra-deep: #e8a583;
+      --forest: #9dbfa8;
+      --gold: #d9a55e;
+      --line: rgba(236, 229, 212, 0.16);
+      --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(157, 191, 168, 0.10);
+      --verdict-keep: #6fc493;
+      --verdict-fix: #e0a35c;
+      --verdict-no: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+      --done: #6fc493;
+      --silent: #d9b45e;
+      --hole: #e08691;
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+    --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+    --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+    --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+    --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+      radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--terra-deep); }
+  em { color: var(--muted); }
+
+  code {
+    font-family: Consolas, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--terra);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 0.95rem; color: var(--gold);
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .sec-name {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem;
+    font-weight: 700; color: var(--muted);
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.1rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+  }
+  .anchor-card { border-left: 4px solid var(--terra); }
+  .ev { font-size: 0.86rem; color: var(--muted); margin-top: 0.5rem; }
+  .ev code { font-size: 0.8rem; }
+
+  .figure { margin: 1.4rem 0 0.4rem; }
+  .figure svg { width: 100%; height: auto; display: block; }
+  .figcap { font-size: 0.84rem; color: var(--muted); margin-top: 0.5rem; max-width: 70ch; }
+
+  .table-scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  td:first-child { white-space: nowrap; }
+  td { font-variant-numeric: tabular-nums; }
+
+  .st { display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 99px; white-space: nowrap; }
+  .st-done { color: var(--done); border: 1px solid var(--done); }
+  .st-silent { color: var(--silent); border: 1px solid var(--silent); }
+  .st-hole { color: var(--hole); border: 1px solid var(--hole); }
+
+  .v { display: inline-block; font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+       letter-spacing: 0.08em; padding: 0.1rem 0.55rem; border-radius: 99px; margin-right: 0.5rem; }
+  .v-keep { color: var(--verdict-keep); border: 1.5px solid var(--verdict-keep); }
+  .v-fix { color: var(--verdict-fix); border: 1.5px solid var(--verdict-fix); }
+  .v-no { color: var(--verdict-no); border: 1.5px solid var(--verdict-no); }
+
+  .tension { border-left: 4px solid var(--gold); }
+  .tension .t { font-family: Georgia, serif; font-size: 1.05rem; margin-bottom: 0.35rem; }
+  .syn { color: var(--verdict-keep); font-weight: 600; }
+
+  .ladder { list-style: none; padding-left: 0; }
+  .ladder li { display: flex; gap: 0.8rem; align-items: baseline; margin-bottom: 0.55rem; }
+  .ladder .num {
+    flex: none; font-family: Georgia, serif; font-weight: 700; color: var(--gold);
+    width: 1.6rem; text-align: right;
+  }
+
+  .tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.08rem 0.5rem;
+         border-radius: 4px; color: var(--paper-2); }
+  .tag-p0 { background: var(--terra); }
+  .tag-p1 { background: var(--forest); }
+  .tag-p2 { background: var(--gold); }
+  :root[data-theme="dark"] .tag, :root[data-theme="dark"] .tag-p2 { color: #141a16; }
+  @media (prefers-color-scheme: dark) { .tag { color: #141a16; } }
+  :root[data-theme="light"] .tag { color: var(--paper-2); }
+
+  .footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
+            font-size: 0.85rem; color: var(--muted); }
+  .footer code { font-size: 0.8rem; }
+
+  a { color: var(--terra); }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">Эволюционный разбор · №21 · Мега-бандл курсов</div>
+  <h1>Один город без адресов</h1>
+  <p class="lede">Владелец хочет мега-бандл: несколько курсов одной области, общий план,
+  сквозной маршрут в Мнемополисе и каталог, в котором нельзя потеряться. Разбор показывает:
+  мега-бандл в слое данных уже построен — единый граф, восемь слитых общих тем, сквозная
+  память. Не хватает не «мощнее», а трёх честных вещей: границ курсов, адресов на остановках
+  и одного экрана-каталога.</p>
+  <div class="meta">
+    <span>hometutor · HEAD <code>8623c3476</code> «291»</span>
+    <span>2026-07-18</span>
+    <span>данные: <code>D:\AI\app\data</code> — 2 курса, активная генерация графа от 2026-07-17</span>
+  </div>
+</header>
+
+<!-- 1. СУТЬ -->
+<section id="essence">
+  <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Суть</span></div>
+  <h2>Чего хочет человек, который учится на эксперта по нескольким курсам сразу</h2>
+  <p>Не «пройти три курса». Эксперт отличается от прилежного студента тем, что у него в голове
+  <strong>одна карта области, а не три конспекта</strong>. Курсы для него — источники света на одну
+  и ту же территорию: второй курс ценен не новыми главами, а тем, что он <em>повторно освещает</em>
+  уже знакомые темы под другим углом. Экспертность растёт на пересечениях.</p>
+  <p>Отсюда три первых принципа мега-бандла. <strong>Общее сливается:</strong> «RAG» из первого курса
+  и «RAG» из второго — один концепт с одной памятью, иначе прогресс дробится. <strong>Границы
+  сохраняются:</strong> внутри курса порядок уроков — авторский закон; между курсами такого закона
+  нет, и рисовать его выдумкой нельзя. <strong>Адрес не теряется:</strong> «не потеряться в курсах» —
+  это в любой момент знать, где я и где это лежит: курс → урок → раздел → минута. Каталог — это
+  не список файлов, это адресная система города.</p>
+</section>
+
+<!-- 2. РЕАЛЬНОСТЬ -->
+<section id="reality">
+  <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Реальность</span></div>
+  <h2>Два слоя: город уже един — двери всё ещё по одной</h2>
+
+  <p><strong>Данные-эталон.</strong> В <code>D:\AI\app\data</code> живут два реальных курса:
+  «ИИ Агенты» — 5 уроков полного конвейера (конспект <code>.md</code> + транскрипт <code>.txt</code> +
+  <code>.mp4</code> + <code>.segments.json</code> + медиа-сайдкар <code>.media.json</code> с таймкодами) и
+  «ИИ Агенты Deep» — пока 1 модуль. Плюс личный рабочий-конспект в <code>living-konspekt/</code>.</p>
+
+  <h3>Слой данных: мега-бандл уже существует</h3>
+  <div class="card">
+    <p><strong>Единый индекс и сквозной поиск.</strong> Реиндекс охватывает весь <code>DATA_DIR</code>;
+    курс-фильтр ретривала — опциональный параметр (<code>query_service.py:133</code>:
+    <code>course_id=options.folder_rel or options.folder</code>). Вопрос без активного курса уже
+    ищет по всем курсам сразу.</p>
+  </div>
+  <div class="card">
+    <p><strong>Единый граф обоих курсов, gate пройден.</strong> Активная генерация
+    (<code>reset_home_rag_v2_2026_07_17T21_01</code>): 13 документов обоих курсов, 82 концепта,
+    192 типизированные связи, 12 меж-документных, <code>gate_passed=true</code>
+    (10 проверок компилятора, <code>course_graph_compiler.py:712-747</code>).</p>
+    <p class="ev">Побочный выигрыш мега-бандла: курс «Deep» из 1 модуля никогда не прошёл бы гейт
+    в одиночку (<code>min_documents ≥ 3</code>, <code>:730</code>) — в общем бандле он уже на карте.</p>
+  </div>
+  <div class="card">
+    <p><strong>Общие темы уже слиты — их 8.</strong> Прямой запрос к снимку активного бандла
+    (<code>kg.sqlite → graph_snapshot</code>): у 8 концептов документы из обоих курсов —
+    <em>Agentic Loop, Tools, Guardrails, Evals, AI Agent, LLM, Pipeline, RAG</em>;
+    53 концепта только базового курса, 12 — только Deep. Компилятор уже делает работу
+    «найти общее между курсами». Наружу это не показано нигде.</p>
+  </div>
+  <div class="card">
+    <p><strong>Память уже сквозная.</strong> Mastery/SM-2 живут по каноническому
+    <code>cid</code> (<code>fact_source_binding</code>, ход разбора №8): «RAG», выученный в первом
+    курсе, — это тот же «RAG» во втором. Пересечение курсов уже засчитывается памяти —
+    молча.</p>
+  </div>
+
+  <h3>Слой опыта: все двери — одно-курсовые</h3>
+  <div class="card">
+    <p><strong>Scope — строго одна папка.</strong> <code>activate_scope(folder_rel=…)</code>
+    (<code>app/ui/study_scope.py:146-173</code>) принимает один каталог; опции курсов — top-level
+    папки индекса (<code>course_cache.py:492-520</code>). Выражения «вся область / все курсы»
+    в UI не существует (grep «Все курсы» по <code>app/ui</code> — 0 совпадений).</p>
+  </div>
+  <div class="card">
+    <p><strong>Каталога нет — есть плитки и вкладка.</strong> Конспекты перечисляет
+    <code>scan_konspekts(course_dir)</code> (<code>konspekt_discovery.py:78</code>) — только для
+    активного курса (<code>topics_tab</code>). Экрана «курсы → конспекты → разделы» с поиском
+    нет ни в одном view.</p>
+  </div>
+  <div class="card">
+    <p><strong>Агент не видит библиотеку.</strong> Из 9 read-only инструментов агента ни один
+    не принимает курс и не перечисляет материалы: <code>rag.search</code> ищет чанки,
+    <code>graph.inspect</code> — концепты, а <code>konspekt.inspect</code> смотрит личный workbench,
+    а не библиотеку курсов (grep <code>course|scope|folder</code> по <code>app/agent/tools_*.py</code> — 0).
+    «Найди раздел про guardrails в курсе Deep» — задача без инструмента.</p>
+  </div>
+  <div class="card">
+    <p><strong>Карта и 3D-зал уже показывают весь бандл — но узлы не знают, из какого они курса.</strong>
+    Экран графа рендерит концепты активной генерации целиком
+    (<code>dashboards_graph.py:1675-1676</code>); активный scope используется только для плашки
+    свежести и due-фильтра (<code>:1705-1728</code>). Маршрут дня выбирается по worth из
+    <em>всего</em> бандла (<code>select_day_route</code>,
+    <code>knowledge_graph_d3_analysis.py:386</code>) — он уже межкурсовой, просто не подписан.
+    Атрибута «курс» у узла нет.</p>
+  </div>
+
+  <div class="figure">
+    <svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Два слоя: единый слой данных и одно-курсовый слой опыта">
+      <rect x="10" y="14" width="740" height="120" rx="12" fill="var(--code-bg)" stroke="var(--verdict-keep)"/>
+      <text x="30" y="42" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="var(--verdict-keep)">ДАННЫЕ — один город</text>
+      <text x="30" y="70" font-size="13.5" fill="var(--ink)">единый индекс · единый граф: 82 концепта, gate ✓ · 8 общих тем слиты · память по одному cid</text>
+      <text x="30" y="96" font-size="13" fill="var(--muted)">«ИИ Агенты» (5 уроков) + «ИИ Агенты Deep» (1 модуль) + рабочий-конспект — в одном бандле</text>
+
+      <rect x="10" y="166" width="740" height="120" rx="12" fill="none" stroke="var(--hole)" stroke-dasharray="6 4"/>
+      <text x="30" y="194" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="var(--hole)">ОПЫТ — двери по одному курсу</text>
+      <text x="30" y="222" font-size="13.5" fill="var(--ink)">scope = одна папка · каталог = вкладка активного курса · агент без инструмента библиотеки</text>
+      <text x="30" y="248" font-size="13" fill="var(--muted)">карта показывает всё, но узлы безымянны по курсу; «все курсы» в UI не существует</text>
+
+      <line x1="380" y1="134" x2="380" y2="166" stroke="var(--terra)" stroke-width="2"/>
+      <text x="392" y="156" font-size="12.5" fill="var(--terra)">разрыв: бандл есть — адресов и границ нет</text>
+    </svg>
+    <p class="figcap">Слой данных уже мега-бандл (цифры — прямой запрос к активной генерации от
+    2026-07-17). Слой опыта режет его до одного курса — либо показывает целиком, но без имён
+    курсов.</p>
+  </div>
+
+  <div class="table-scroll">
+    <table>
+      <tr><th>Элемент</th><th>Статус</th><th>Комментарий</th></tr>
+      <tr><td>Единый индекс + сквозной Q&amp;A</td><td><span class="st st-done">сделано</span></td><td>пустой scope уже ищет по всем курсам</td></tr>
+      <tr><td>Единый граф-бандл (gate ✓)</td><td><span class="st st-done">сделано</span></td><td>82 концепта, оба курса, 192 связи</td></tr>
+      <tr><td>Общие темы курсов (8 шт.)</td><td><span class="st st-silent">молчит</span></td><td>слиты компилятором, не показаны ни одним экраном</td></tr>
+      <tr><td>Сквозная память (cid)</td><td><span class="st st-silent">молчит</span></td><td>пересечение курсов засчитывается невидимо</td></tr>
+      <tr><td>Маршрут дня по всему бандлу</td><td><span class="st st-silent">молчит</span></td><td>уже межкурсовой, но остановки без адреса курса</td></tr>
+      <tr><td>Границы курсов в графе/зале</td><td><span class="st st-hole">дыра</span></td><td>precedes рисуется сквозь папки; этажи врут (см. §4)</td></tr>
+      <tr><td>Каталог «курсы → конспекты → разделы»</td><td><span class="st st-hole">дыра</span></td><td>экрана нет; конспекты видны только у активного курса</td></tr>
+      <tr><td>ИИ-навигация по библиотеке</td><td><span class="st st-hole">дыра</span></td><td>у агента нет инструмента каталога</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 3. ПРОТИВОРЕЧИЯ -->
+<section id="tensions">
+  <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Противоречия</span></div>
+  <h2>Три напряжения — и их синтез</h2>
+  <div class="card tension">
+    <div class="t">простой каталог ↔ масштаб мега-бандла</div>
+    <p>Каталог должен быть простым («не потеряться»), но курсов будет больше, конспекты толстые,
+    разделов сотни. <span class="syn">Синтез: каталог — не новая сущность, а проекция уже готовых
+    резолверов.</span> Курсы уже перечисляет <code>build_mission_control_course_options</code>,
+    конспекты — <code>scan_konspekts</code> (с паспортом качества №14 и бейджем свежести),
+    разделы — <code>section_index</code>. Простота достигается адресом, а не сокращением
+    содержимого. Ни одного нового хранилища.</p>
+  </div>
+  <div class="card tension">
+    <div class="t">мощь всего бандла ↔ фокус одного шага</div>
+    <p>Страх мега-бандла — «утонуть во всём сразу». <span class="syn">Синтез: фокус уже построен —
+    worth и select_day_route выбирают лучший следующий шаг по всему бандлу.</span> Продукту не нужен
+    выбор «учить один курс или все»: маршрут дня и так один. Ему не хватает только подписи
+    «курс · урок» на каждой остановке, чтобы мощь не ощущалась хаосом.</p>
+  </div>
+  <div class="card tension">
+    <div class="t">граница курса ↔ сквозные темы</div>
+    <p>Внутри курса закон — авторский порядок уроков. Между курсами закона порядка нет, зато есть
+    общие концепты. <span class="syn">Синтез — метро Мнемополиса: курс = линия (жёсткая
+    последовательность станций), общая тема = пересадочная станция.</span> Линию не рвём и не
+    сшиваем с чужой; между линиями ходим по пересадкам — восьми уже слитым темам. Это дословно
+    закон vision №20 («линии метро = курсы»), у которого, как выяснилось, уже есть данные.</p>
+  </div>
+</section>
+
+<!-- 4. БОЛЬ-ЯКОРЬ -->
+<section id="pain">
+  <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Боль-якорь</span></div>
+  <h2>«Не хочу потеряться в курсах» — а теряется сам продукт</h2>
+  <div class="card anchor-card">
+    <p><strong>Проверяемый факт (живой прогон, не теория).</strong> Прямой вызов
+    <code>lesson_floor_order(...)</code> на снимке активного бандла даёт Мнемополису
+    <strong>13 этажей на 6 реальных уроков</strong>:</p>
+    <ul>
+      <li><strong>этаж 1 — «Модуль 1» продвинутого курса Deep</strong>, поставленный ПЕРЕД
+      «урок_1 Введение» базового курса — прямо в бандле лежит связь
+      <code>lesson:…deep-modul-1…&nbsp;→ precedes →&nbsp;lesson:…urok-1-vvedenie…</code>,
+      которой не существует ни в одной программе обучения;</li>
+      <li><strong>каждый урок стоит дважды</strong> — конспект (<code>.md</code>) и транскрипт
+      (<code>.txt</code>) стали отдельными «уроками»-этажами;</li>
+      <li><strong>последний этаж — личный рабочий-конспект</strong> из
+      <code>living-konspekt/</code>, вшитый в лестницу уроков как «урок №9999».</li>
+    </ul>
+    <p><strong>Точная причина в коде:</strong></p>
+    <ul>
+      <li><code>course_graph_compiler.py:157</code> — все документы бандла сортируются одним
+      плоским списком; ключ <code>_lesson_sort_key</code> (<code>:119-125</code>) берёт первое
+      число имени файла: у «Модуль 1» и «урок_1» оно равно 1, а тай-брейк по пути ставит
+      «ИИ Агенты Deep/» раньше «ИИ Агенты/» (пробел &lt; «/»);</li>
+      <li><code>:207-215</code> — <code>zip(lesson_meta, lesson_meta[1:])</code> рисует
+      <code>precedes</code> между соседями списка, не глядя на границу папки — так продвинутый
+      курс становится «прологом» базового;</li>
+      <li><code>knowledge_graph_d3_analysis.py:297-309</code> — <code>lesson_anchor_key</code>
+      срезает расширения «.md»/«.txt», но id уроков уже слагифицированы в «-md»/«-txt» —
+      коллапс вариантов не срабатывает, урок раздваивается;</li>
+      <li>lesson-узел создаётся «на каждый документ курса»
+      (<code>course_graph_compiler.py:146</code>) — включая личный конспект, который курсом
+      не является.</li>
+    </ul>
+    <p class="ev">Это и есть «потеряться»: первый же экран мега-бандла — маршрут и этажи —
+    уверенно врёт про порядок области. Не потому, что данных мало, а потому, что у 13 документов
+    нет понятия «курс»: одна безымянная куча, отсортированная по первой цифре имени файла.</p>
+  </div>
+</section>
+
+<!-- 5. ВЕРДИКТЫ -->
+<section id="verdicts">
+  <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Вердикты</span></div>
+  <h2>Позиция по каждому элементу</h2>
+  <div class="card"><span class="v v-keep">оставить</span><strong>Единый граф-бандл + gate.</strong>
+    Мега-бандл достаётся бесплатно: 8 слитых тем — доказательство, что merge работает; «Deep» из
+    1 модуля попадает на карту только благодаря общему бандлу.</div>
+  <div class="card"><span class="v v-keep">оставить</span><strong>Сквозная память по cid.</strong>
+    Ровно то, что нужно эксперту: пересечение курсов уже засчитывается. Не дублировать per-course.</div>
+  <div class="card"><span class="v v-keep">оставить</span><strong>worth + select_day_route.</strong>
+    Межкурсовой фокус уже построен — механизм не трогать, добавить только адрес на остановке.</div>
+  <div class="card"><span class="v v-keep">оставить</span><strong>scan_konspekts + паспорт №14 + section_index.</strong>
+    Готовые кирпичи каталога; им не хватает лишь одного экрана, где они встречаются.</div>
+  <div class="card"><span class="v v-fix">починить</span><strong>precedes через границы папок.</strong>
+    Цепочка уроков — только внутри top-папки курса. Дёшево: группировка перед существующим zip.</div>
+  <div class="card"><span class="v v-fix">починить</span><strong>Раздвоение урока (.md/.txt).</strong>
+    Один урок = один lesson-узел: группировать документы урока по стему до расширения на этапе
+    компиляции — тогда оба зеркала (Python и JS) наследуют правду без правок.</div>
+  <div class="card"><span class="v v-fix">починить</span><strong>Личный конспект в лестнице уроков.</strong>
+    <code>living-konspekt/</code> — не курс; lesson-узел ему не положен.</div>
+  <div class="card"><span class="v v-fix">починить</span><strong>Безымянность узлов.</strong>
+    Узел получает атрибут «курс» (top-папка) — аддитивное поле payload, домен-схема не ломается.</div>
+  <div class="card"><span class="v v-fix">объединить</span><strong>Плитки курсов + вкладка конспектов + поиск.</strong>
+    Один экран-каталог «Библиотека»: курсы → конспекты → разделы → действие (открыть / активировать /
+    спросить).</div>
+  <div class="card"><span class="v v-fix">спрятать глубже</span><strong>Scope-переключатель.</strong>
+    Из «главной двери» — в фильтр внимания: карта и Q&amp;A уже умеют жить поверх всех курсов;
+    активный курс остаётся дефолтным фокусом, а не границей мира.</div>
+  <h3>НЕ делать</h3>
+  <div class="card"><span class="v v-no">не делать</span><strong>Второй «мега-граф» или хранилище каталога.</strong>
+    Бандл уже один на все курсы; каталог — проекция файловой системы и индекса. Третья копия истины —
+    типовая болезнь серии (№1, №2, №13).</div>
+  <div class="card"><span class="v v-no">не делать</span><strong>LLM для порядка курсов и границ.</strong>
+    Границы даёт файловая система, порядок внутри курса — номера уроков, порядок между курсами —
+    явное решение владельца (метаданные), не генерация.</div>
+  <div class="card"><span class="v v-no">не делать</span><strong>Мульти-scope ретривала.</strong>
+    Сквозной поиск уже есть (пустой scope); чинить нечего.</div>
+  <div class="card"><span class="v v-no">не делать</span><strong>Автослияние конспектов разных курсов в один текст.</strong>
+    Слияние — на уровне концептов (уже работает), не текстов: перегенерация рушит якоря строк,
+    сайдкары и живость (вердикт №14).</div>
+</section>
+
+<!-- 6. ЦЕННОСТЬ -->
+<section id="value">
+  <div class="sec-label"><span class="sec-num">6</span><span class="sec-name">Ценность</span></div>
+  <h2>Библиотека, которая сама знает, чем её книги связаны</h2>
+  <p>NotebookLM даёт чат по источникам — без памяти ученика. Anki даёт память — без карты области.
+  Obsidian даёт карту — без памяти и без маршрута. hometutor с мега-бандлом — единственный из
+  четырёх, где «RAG» из двух разных курсов — один узел с одной памятью и адресами обоих
+  первоисточников. <strong>Уникальность — пересадочные станции: общие темы курсов с общей памятью
+  и обратными адресами.</strong></p>
+  <p><strong>North star:</strong> «у каждого шага есть адрес» — доля остановок маршрута дня,
+  подписанных «курс · урок»: <strong>0% → 100%</strong>.</p>
+  <div class="table-scroll">
+    <table>
+      <tr><th>Метрика</th><th>Сейчас</th><th>После</th></tr>
+      <tr><td>Остановки маршрута с адресом «курс · урок»</td><td>0%</td><td>100%</td></tr>
+      <tr><td>Этажей в 3D-зале</td><td>13 (при 6 реальных уроках)</td><td>6</td></tr>
+      <tr><td>precedes через границы папок</td><td>2</td><td>0</td></tr>
+      <tr><td>Общих тем курсов видно на экранах</td><td>0 (слито 8 — невидимо)</td><td>8 с бейджем «в 2 курсах»</td></tr>
+      <tr><td>Кликов до любого конспекта любого курса</td><td>пути нет (только через смену курса)</td><td>≤ 2 из каталога</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 7. ПУТЬ -->
+<section id="path">
+  <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Путь</span></div>
+  <h2>Золотой путь и лестница уровней</h2>
+  <p><strong>Золотой путь одной сессии:</strong> открыть «Библиотеку» → увидеть свои курсы, их
+  конспекты с паспортами и восемь общих тем → нажать «Маршрут дня» → пройти остановки с адресами
+  («Guardrails · Deep, Модуль 1 · раздел 4»), пересадка между курсами — только через общую тему →
+  из остановки — в раздел конспекта или отрезок лекции (ворота №19) → след уходит в сквозную
+  память → вечером карта честно показывает, что область стала на N шагов ближе.</p>
+  <ol class="ladder">
+    <li><span class="num">0</span><span><strong>Один курс.</strong> Сегодняшний режим: активный scope,
+      вкладка конспектов, карта без имён курсов.</span></li>
+    <li><span class="num">1</span><span><strong>Честные границы.</strong> Этажи = реальные уроки,
+      precedes не пересекает папки, у каждого узла есть курс (P0-1).</span></li>
+    <li><span class="num">2</span><span><strong>Библиотека.</strong> Один экран: курсы → конспекты →
+      разделы, до любого материала ≤ 2 кликов (P0-2).</span></li>
+    <li><span class="num">3</span><span><strong>Пересадочные станции.</strong> Общие темы видимы:
+      бейдж «в 2 курсах», в зале — пересадка между линиями (P1).</span></li>
+    <li><span class="num">4</span><span><strong>Агент-навигатор.</strong> «Найди, где в Deep про
+      guardrails» — инструмент каталога у агента, ответ с адресом (P1).</span></li>
+    <li><span class="num">5</span><span><strong>Мнемополис-метрополитен.</strong> Курс = линия метро,
+      цвет линии, пересадки = общие темы — мир vision №20, волна W4 (P2).</span></li>
+  </ol>
+</section>
+
+<!-- 8. ПЛАН -->
+<section id="plan">
+  <div class="sec-label"><span class="sec-num">8</span><span class="sec-name">План</span></div>
+  <h2>P0–P2 по соотношению эффект/усилие</h2>
+  <div class="table-scroll">
+    <table>
+      <tr><th></th><th>Ход</th><th>Что делается</th><th>Усилие</th></tr>
+      <tr><td><span class="tag tag-p0">P0-1</span></td><td><strong>Курс — гражданин графа.</strong></td>
+        <td>Компилятор: precedes только внутри top-папки; документы одного урока (md+txt) → один
+        lesson-узел; living-konspekt без lesson-узла; аддитивное поле «course» на узлах.
+        DoD: пересборка реального бандла → 0 межкурсовых precedes, 6 этажей, у узлов курс.</td><td>~день</td></tr>
+      <tr><td><span class="tag tag-p0">P0-2</span></td><td><strong>Библиотека — один экран.</strong></td>
+        <td>View-каталог: курсы (готовый резолвер) → конспекты (scan_konspekts + паспорт №14 +
+        свежесть) → разделы (section_index); действия: открыть / активировать курс / спросить
+        (Q&amp;A с фильтром курса или по всем). 0 LLM, 0 хранилищ.</td><td>~день</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td><td>Пересадки + адреса + агент.</td>
+        <td>Бейдж «в N курсах» на общих концептах; адрес «курс · урок» на остановках маршрута/плана;
+        read-only инструмент <code>catalog.list</code> у агента + golden-кейс «найди раздел».</td><td>дни</td></tr>
+      <tr><td><span class="tag tag-p2">P2</span></td><td>Метрополитен и порядок области.</td>
+        <td>Линии метро в 3D-зале (vision №20 W4); порядок курсов от владельца (метаданные
+        «Deep после базового», дефолт — независимы); межкурсовой план области.</td><td>волна</td></tr>
+    </table>
+  </div>
+  <p><strong>Kill switch:</strong> потребовалось новое хранилище каталога/курсов — стоп (каталог —
+  проекция); LLM там, где хватает файловой системы и готовых резолверов, — стоп; появился третий
+  резолвер «что такое курс» — стоп (их уже два: пути индекса и файловая система — каталог обязан
+  проецировать существующие).</p>
+</section>
+
+<div class="footer">
+  <p>Разбор №21 · hometutor HEAD <code>8623c3476</code> «291» · 2026-07-18 ·
+  данные: активная генерация графа <code>reset_home_rag_v2_2026_07_17T21_01</code>
+  (снимок <code>kg.sqlite</code>), корпус <code>D:\AI\app\data</code>.</p>
+  <p>Правило двух слоёв: этот HTML — слой анализа; actionable-кандидаты — в
+  <code>doc/next/mega_bundle_catalog_plan.md</code>. Серия:
+  <code>doc/presentations/evolutionary_analyses/</code>.</p>
+</div>
+
+</div>
