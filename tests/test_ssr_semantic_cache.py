@@ -58,15 +58,17 @@ def test_load_embeddings_model_thread_safe_single_init() -> None:
 
     init_count = 0
 
-    def _fake_transformer(name, device):
+    def _fake_transformer(name, **kwargs):
         nonlocal init_count
         init_count += 1
         m = MagicMock()
         m.encode = lambda text, **kw: [0.1] * 10
         return m
 
-    # Reset global state
+    # Reset lazy model globals that previous tests may have poisoned with
+    # an unavailable local model snapshot.
     cache_mod._EMBEDDINGS_MODEL = None
+    cache_mod._MODEL_LOAD_ATTEMPTED = False
 
     with patch.dict("sys.modules", {"sentence_transformers": MagicMock(SentenceTransformer=_fake_transformer)}):
         errors: list[str] = []
@@ -92,6 +94,7 @@ def test_load_embeddings_model_thread_safe_single_init() -> None:
     assert all(r is results[0] for r in results), "Threads received different model instances"
     # Cleanup
     cache_mod._EMBEDDINGS_MODEL = None
+    cache_mod._MODEL_LOAD_ATTEMPTED = False
 
 
 def test_semantic_cache_lookup_survives_missing_cache_entry() -> None:
