@@ -194,6 +194,8 @@
     --catalog-rail: #aeb3af;
     --catalog-ink: #121713;
     --catalog-muted: #5f6761;
+    --catalog-star-idle: #5f6761;
+    --catalog-star-active: #7d351f;
     margin: 1.5rem 0 0.8rem;
     border: 1px solid var(--line);
     background: var(--catalog-canvas);
@@ -208,6 +210,8 @@
       --catalog-rail: #59635c;
       --catalog-ink: #f2ede2;
       --catalog-muted: #aeb8b0;
+      --catalog-star-idle: #aeb8b0;
+      --catalog-star-active: #d9a55e;
     }
   }
   :root[data-theme="dark"] .catalog-demo {
@@ -217,6 +221,8 @@
     --catalog-rail: #59635c;
     --catalog-ink: #f2ede2;
     --catalog-muted: #aeb8b0;
+    --catalog-star-idle: #aeb8b0;
+    --catalog-star-active: #d9a55e;
   }
   :root[data-theme="light"] .catalog-demo {
     --catalog-canvas: #f0f1ee;
@@ -225,6 +231,8 @@
     --catalog-rail: #aeb3af;
     --catalog-ink: #121713;
     --catalog-muted: #5f6761;
+    --catalog-star-idle: #5f6761;
+    --catalog-star-active: #7d351f;
   }
   .catalog-toolbar {
     display: grid;
@@ -303,6 +311,7 @@
     background: var(--catalog-tile);
     color: var(--catalog-ink);
   }
+  .bundle-tile[hidden] { display: none; }
   .bundle-tile.is-active {
     border-color: color-mix(in srgb, var(--verdict-keep) 45%, transparent);
     border-bottom-color: var(--verdict-keep);
@@ -317,7 +326,7 @@
   .status-dot { width: 0.52rem; height: 0.52rem; flex: none; border-radius: 50%; background: var(--catalog-rail); }
   .status-dot.live { background: var(--verdict-keep); }
   .status-dot.transfer { background: var(--terra); }
-  .tile-address { margin-top: 0.45rem; color: var(--catalog-muted); font-size: 0.68rem; }
+  .tile-address { margin: 0.45rem 3.15rem 0 0; color: var(--catalog-muted); font-size: 0.68rem; }
   .tile-mark {
     position: absolute; top: 2.85rem; right: 0.9rem;
     display: grid; place-items: center; width: 2.8rem; height: 2.8rem;
@@ -346,18 +355,34 @@
   }
   .tile-star {
     position: absolute; right: 0.65rem; bottom: 0.55rem; width: 1.8rem; height: 1.8rem;
-    border: 0; background: transparent; color: var(--paper-2); font-size: 1.45rem; line-height: 1;
+    border: 0; background: transparent; color: var(--catalog-star-idle); font-size: 1.45rem; line-height: 1;
     cursor: pointer;
   }
-  .tile-star[aria-pressed="true"] { color: var(--gold); }
+  .tile-star[aria-pressed="true"] { color: var(--catalog-star-active); }
   .route-index {
     position: absolute; right: 0.9rem; top: 3.05rem; color: var(--catalog-muted);
     font: 800 2.3rem/1 "Segoe UI", sans-serif; opacity: 0.28;
   }
+  .catalog-empty {
+    display: block;
+    margin-top: 0.75rem;
+    padding: 1rem;
+    border: 1px dashed color-mix(in srgb, var(--catalog-muted) 48%, transparent);
+    color: var(--catalog-muted);
+    font: 700 0.76rem/1.35 "Segoe UI", sans-serif;
+  }
+  .catalog-empty[hidden] { display: none; }
   .mock-note { margin-top: 0.7rem; color: var(--muted); font-size: 0.76rem; }
 
   .verdict-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.7rem; margin-bottom: 1.2rem; }
-  .verdict-grid .card { min-height: 150px; margin: 0; border-radius: 4px; border-bottom: 3px solid var(--catalog-rail, var(--line)); }
+  .verdict-grid .card {
+    --verdict-rail: var(--line);
+    min-height: 150px; margin: 0; border-radius: 4px;
+    border-bottom: 3px solid var(--verdict-rail);
+  }
+  .verdict-grid .card:has(.v-keep) { --verdict-rail: var(--verdict-keep); }
+  .verdict-grid .card:has(.v-fix) { --verdict-rail: var(--verdict-fix); }
+  .verdict-grid .card:has(.v-no) { --verdict-rail: var(--verdict-no); }
 
   @media (max-width: 780px) {
     .catalog-toolbar { grid-template-columns: 1fr; }
@@ -726,6 +751,7 @@
             </article>
           </div>
         </div>
+        <div class="catalog-empty" hidden data-catalog-empty>Ничего не найдено в каталоге. Попробуйте курс, тему или раздел.</div>
       </div>
 
       <div class="catalog-pane" id="pane-transfer" role="tabpanel" aria-labelledby="tab-transfer" data-pane="transfer" hidden>
@@ -764,6 +790,7 @@
             </article>
           </div>
         </div>
+        <div class="catalog-empty" hidden data-catalog-empty>Пересадок по этому запросу нет. Попробуйте название общей темы.</div>
       </div>
 
       <div class="catalog-pane" id="pane-route" role="tabpanel" aria-labelledby="tab-route" data-pane="route" hidden>
@@ -802,6 +829,7 @@
             </article>
           </div>
         </div>
+        <div class="catalog-empty" hidden data-catalog-empty>В маршруте нет остановок по этому запросу.</div>
       </div>
     </div>
   </div>
@@ -883,13 +911,17 @@
       const applySearch = () => {
         const query = search.value.trim().toLocaleLowerCase("ru");
         panes.forEach((pane) => {
+          let visibleGroups = 0;
           pane.querySelectorAll(".catalog-group").forEach((group) => {
             const tiles = Array.from(group.querySelectorAll(".bundle-tile"));
             tiles.forEach((tile) => {
               tile.hidden = query !== "" && !tile.textContent.toLocaleLowerCase("ru").includes(query);
             });
             group.hidden = tiles.every((tile) => tile.hidden);
+            if (!group.hidden) visibleGroups += 1;
           });
+          const empty = pane.querySelector("[data-catalog-empty]");
+          if (empty) empty.hidden = query === "" || visibleGroups > 0;
         });
       };
 
