@@ -1,0 +1,585 @@
+<title>Разбор №22 — Зеркало с чужими отпечатками</title>
+<style>
+  /* ============================================================
+     HOMETUTOR NOTEBOOK STYLE v1.0 — LOCKED 2026-07-12
+     Извлечено из разборов №9-10 эволюционной серии. Это визитная
+     карточка формата «нескучный разбор». НЕ переизобретать палитру
+     заново в новой сессии — копировать этот файл и менять только
+     содержимое между <div class="wrap"> ... </div>.
+     Гайд: notebook_deck_guide.md (в этой же папке).
+     ============================================================ */
+  :root {
+    /* --- ЛОКОНО (locked core, 9 токенов) --- не менять значения --- */
+    --paper: #f7f3ea;
+    --paper-2: #fffdf7;
+    --ink: #17211b;
+    --muted: #5c6a61;
+    --terra: #b95631;
+    --terra-deep: #7d351f;
+    --forest: #243b2c;
+    --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14);
+    --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+    --done: #1e6e46;
+    --silent: #b98a2d;
+    --hole: #8c2f39;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141a16;
+      --paper-2: #1b231e;
+      --ink: #ece5d4;
+      --muted: #9aa89d;
+      --terra: #d97a52;
+      --terra-deep: #e8a583;
+      --forest: #9dbfa8;
+      --gold: #d9a55e;
+      --line: rgba(236, 229, 212, 0.16);
+      --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(157, 191, 168, 0.10);
+      --verdict-keep: #6fc493;
+      --verdict-fix: #e0a35c;
+      --verdict-no: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+      --done: #6fc493;
+      --silent: #d9b45e;
+      --hole: #e08691;
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+    --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+    --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+    --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+    --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+      radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--terra-deep); }
+  em { color: var(--muted); }
+
+  code {
+    font-family: Consolas, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--terra);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 0.95rem; color: var(--gold);
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .sec-name {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem;
+    font-weight: 700; color: var(--muted);
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.1rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+  }
+  .anchor-card { border-left: 4px solid var(--terra); }
+  .ev { font-size: 0.86rem; color: var(--muted); margin-top: 0.5rem; }
+  .ev code { font-size: 0.8rem; }
+
+  .figure { margin: 1.4rem 0 0.4rem; }
+  .figure svg { width: 100%; height: auto; display: block; }
+  .figcap { font-size: 0.84rem; color: var(--muted); margin-top: 0.5rem; max-width: 70ch; }
+
+  .table-scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  td:first-child { white-space: nowrap; }
+  td { font-variant-numeric: tabular-nums; }
+
+  .st { display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 99px; white-space: nowrap; }
+  .st-done { color: var(--done); border: 1px solid var(--done); }
+  .st-silent { color: var(--silent); border: 1px solid var(--silent); }
+  .st-hole { color: var(--hole); border: 1px solid var(--hole); }
+
+  .v { display: inline-block; font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+       letter-spacing: 0.08em; padding: 0.1rem 0.55rem; border-radius: 99px; margin-right: 0.5rem; }
+  .v-keep { color: var(--verdict-keep); border: 1.5px solid var(--verdict-keep); }
+  .v-fix { color: var(--verdict-fix); border: 1.5px solid var(--verdict-fix); }
+  .v-no { color: var(--verdict-no); border: 1.5px solid var(--verdict-no); }
+
+  .tension { border-left: 4px solid var(--gold); }
+  .tension .t { font-family: Georgia, serif; font-size: 1.05rem; margin-bottom: 0.35rem; }
+  .syn { color: var(--verdict-keep); font-weight: 600; }
+
+  .ladder { list-style: none; padding-left: 0; }
+  .ladder li { display: flex; gap: 0.8rem; align-items: baseline; margin-bottom: 0.55rem; }
+  .ladder .num {
+    flex: none; font-family: Georgia, serif; font-weight: 700; color: var(--gold);
+    width: 1.6rem; text-align: right;
+  }
+
+  .tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.08rem 0.5rem;
+         border-radius: 4px; color: var(--paper-2); }
+  .tag-p0 { background: var(--terra); }
+  .tag-p1 { background: var(--forest); }
+  .tag-p2 { background: var(--gold); }
+  :root[data-theme="dark"] .tag, :root[data-theme="dark"] .tag-p2 { color: #141a16; }
+  @media (prefers-color-scheme: dark) { .tag { color: #141a16; } }
+  :root[data-theme="light"] .tag { color: var(--paper-2); }
+
+  .footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
+            font-size: 0.85rem; color: var(--muted); }
+  .footer code { font-size: 0.8rem; }
+
+  a { color: var(--terra); }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">Эволюционный разбор · №22 · Экран «Мой прогресс»</div>
+  <h1>Зеркало с чужими отпечатками</h1>
+  <p class="lede">Студент открывает «Мой прогресс», чтобы увидеть себя. Вместо этого он
+  видит приборную панель системы: три версии правды о mastery, план, скопированный с
+  главной, два пустых зала графов — и эмоциональную карту, где семь из восьми тем
+  никогда не существовали: их каждый день дописывают чужие тесты. У страницы нет даже
+  двери назад. Разбор о том, как вернуть зеркалу отражение.</p>
+  <div class="meta">
+    <span>hometutor · HEAD <code>d92b81957</code> «326» + рабочее дерево</span>
+    <span>2026-07-18</span>
+    <span>живой прогон UI + прямые запросы к <code>D:\AI\app\data\user_state.db</code></span>
+  </div>
+</header>
+
+<!-- 1. СУТЬ -->
+<section id="essence">
+  <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Суть</span></div>
+  <h2>Чего по-настоящему хочет студент, открывая «Мой прогресс»</h2>
+  <p>Не метрик. Он просит: <strong>«покажи мне меня»</strong> — и это ровно три вопроса.
+  <em>Где я был</em> — что я на самом деле делал: какие лекции слушал, что повторял,
+  в какие дни приходил. <em>Что мне легко, а что трудно</em> — честный диагноз по моим
+  действиям, а не по чужим. <em>Где я на маршруте</em> — какая точка пути курса моя
+  и какой один шаг следующий.</p>
+  <p>Прогресс — это рассказ о пути, а не сумма счётчиков. Единица ценности такого
+  экрана — <strong>узнавание</strong>: «да, это я». Каждая строка, в которой студент
+  себя не узнаёт («слабое место TopicB», «78 мини-квизов за неделю»), тратит доверие
+  ко всем остальным строкам — в том числе честным.</p>
+  <p><strong>Тезис:</strong> экран прогресса — зеркало. Он ценен ровно настолько,
+  насколько в нём отражается студент, а не система и её тесты.</p>
+</section>
+
+<!-- 2. РЕАЛЬНОСТЬ -->
+<section id="reality">
+  <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Реальность</span></div>
+  <h2>Три поверхности, одна сирота и богатство под полом</h2>
+
+  <div class="card">
+    <p><strong>Прогресс отвечает с трёх поверхностей сразу.</strong> В роутере живёт view
+    «Прогресс обучения» (tier 2: <code>main.py:422</code> →
+    <code>dashboards_progress.py</code> — сводка, gauge/radar/treemap, персонализация,
+    панель курса, счётчики flashcards). Отдельной multipage-страницей живёт
+    «Мой прогресс» (<code>app/ui/pages/3_Мой_прогресс.py</code>, 433 строки). Третьей —
+    «Аналитика» (<code>pages/4_Аналитика.py</code>: heatmap и ROI поверх
+    <code>quiz_results</code>). Сводки первых двух — почти дословные копии друг друга
+    (<code>dashboards_progress.py:251-348</code> ↔ <code>pages/3:93-167</code>: те же
+    шесть метрик, те же цели недели, тот же снимок prerequisites).</p>
+  </div>
+
+  <div class="card">
+    <p><strong>«Мой прогресс» — сирота с первого дня.</strong> Страница пришла из
+    коммита извлечения продукта (<code>fffeecb9a</code> «Extract product…») и с тех пор
+    правилась четыре раза. Она не знает ни роутера (<code>current_view</code> потребляет
+    только <code>main.py</code>), ни сайдбара (<code>render_sidebar</code> не вызывается),
+    ни фич-тиров. Штатную навигацию Streamlit выключил
+    <code>.streamlit/config.toml:8</code> (<code>showSidebarNavigation = false</code>) —
+    у страницы физически нет двери назад. Пользователь захардкожен:
+    <code>_user_id = "local"</code> (<code>pages/3:79</code>) — это видно даже в
+    отладочном JSON прямо на экране.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Под страницей лежит настоящее богатство — и почти не показано.</strong>
+    Живая БД студента: <strong>100 flashcards</strong> с реальным SM-2 и тегами уроков
+    (<code>source:ии агенты/урок_3…</code>) + <strong>44 повторения</strong> в журнале;
+    XP 7027, уровень Scholar и — главное — <code>xp_daily_history</code>:
+    готовая история занятий по дням с 21 июня. <code>reading_status</code> знает
+    позицию на маршруте: «План по теме „Курс: ИИ Агенты“, шаг 1 из 7 —
+    Фундамент: Агент vs LLM и концепция Harness». PLM держит единственный честный
+    вектор: <code>ai-agent 0.8, engaged</code>. Из всего этого на экране — только XP
+    и уровень. Карточек, дней занятий и позиции на маршруте на странице нет.</p>
+    <p class="ev">Снимок БД 2026-07-18: flashcards 100 · flashcard_review_log 44 ·
+    reading_status 2 · quiz_results 182 · app_kv 24 ключа (включая
+    <code>xp_daily_history</code> внутри <code>gamification_state_v1</code>).</p>
+  </div>
+
+  <div class="table-scroll">
+    <table>
+      <tr><th>Элемент страницы</th><th>Статус</th><th>Комментарий</th></tr>
+      <tr><td>Карточка «Следующий шаг»</td><td><span class="st st-hole">дыра</span></td><td>идея верная, но primary-кнопка мертва: пишет <code>current_view</code> и делает <code>st.rerun</code> в никуда (<code>pages/3:64-73</code>)</td></tr>
+      <tr><td>Сводка Progress</td><td><span class="st st-silent">молчит</span></td><td>копия сводки «Прогресса обучения»; три разных mastery на одном экране: 0.0% / 44% / 80</td></tr>
+      <tr><td>План на сегодня (целиком)</td><td><span class="st st-silent">молчит</span></td><td>дубликат главной; его кнопки навигации здесь тоже мертвы (<code>adaptive_daily_plan_layout.py:371-387</code>)</td></tr>
+      <tr><td>Emotional Heatmap</td><td><span class="st st-hole">дыра</span></td><td>уникальный канал «время × эмоции», но 7 из 8 строк — призраки тестов</td></tr>
+      <tr><td>Mastery radar</td><td><span class="st st-done">сделано</span></td><td>единственный живой канал PLM-вектора (ai-agent 80%)</td></tr>
+      <tr><td>Подграф + эмоции (agraph)</td><td><span class="st st-hole">дыра</span></td><td>canvas 1200×560 — ноль не-белых пикселей (живой замер)</td></tr>
+      <tr><td>Граф зависимостей ×2 палитры</td><td><span class="st st-hole">дыра</span></td><td>82 узла, 0 рёбер — легаси-канал prerequisites пуст; пустырь отрисован дважды</td></tr>
+      <tr><td>Геймификация (детали)</td><td><span class="st st-done">сделано</span></td><td>но <code>xp_daily_history</code> — готовая лента дней — не показана</td></tr>
+      <tr><td>AI Coach + 2 рекомендации</td><td><span class="st st-silent">молчит</span></td><td>один и тот же совет тремя блоками</td></tr>
+      <tr><td>Чтение по темам</td><td><span class="st st-silent">молчит</span></td><td>сырой dataframe с <code>resource_id</code>/<code>topic_id</code> в самом низу</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 3. ПРОТИВОРЕЧИЯ -->
+<section id="tensions">
+  <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Противоречия</span></div>
+  <h2>Напряжения — и их синтез</h2>
+
+  <div class="card tension">
+    <div class="t">отдельная страница (быстро завести) ↔ жизнь в доме (роутер, навигация, тиры)</div>
+    <p>Multipage-страница когда-то была самым дешёвым способом получить экран. Но всё
+    взрослое — сайдбар, фич-тиры, e2e-сцены, PENDING-навигация — выросло в роутере,
+    и страница осталась за забором. <span class="syn">Синтез: прогресс — это view
+    роутера; отдельный URL может остаться тонким входом-алиасом, но контент,
+    сайдбар и навигация — одни.</span></p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">показать всю телеметрию ↔ ответить на три вопроса студента</div>
+    <p>Каждый виджет честен в своём силосе, но студент приходит не за силосами.
+    <span class="syn">Синтез: табы «Главное» / «Расширенные» — просьба владельца
+    ложится ровно в формат.</span> «Главное» — три ответа (след, легко/трудно,
+    маршрут) и одна работающая кнопка, один экран без скролла. «Расширенные» —
+    вся сегодняшняя телеметрия после чистки дублей.</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">память пишется отовсюду (петля №1) ↔ зеркалу нужна чистота</div>
+    <p>Разборы №1–№10 боролись за то, чтобы каждый шаг оставлял след — и победили.
+    Но канал записи один для студента и для pytest: сегодня тесты «оставляют след»
+    наравне с человеком. <span class="syn">Синтез: не меньше записей, а граница —
+    тестовые процессы не достигают живой БД (изоляция), а представление показывает
+    только концепты, известные графам курсов</span> (джойн уже защищает
+    <code>quiz_mastery</code>-счётчики — распространить на heatmap и наратив).</p>
+  </div>
+</section>
+
+<!-- 4. БОЛЬ-ЯКОРЬ -->
+<section id="pain">
+  <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Боль-якорь</span></div>
+  <h2>Продукт советует студенту подтянуть тему, которой не существует</h2>
+
+  <div class="card anchor-card">
+    <p><strong>Проверяемый факт (экран, живой прогон 2026-07-18):</strong> блок
+    «Неделя в обучении» говорит: <em>«Слабые места: TopicB — на них чаще уходили
+    подсказки»</em>. TopicB нет ни в одном курсе студента. Рядом:
+    <em>«Мини-квизы: 78 / 3»</em> — при «0 строк quiz_mastery» и стрике UI-квизов
+    0 дней. На оси Emotional Heatmap восемь тем; семь из них — TopicA, TopicB,
+    e2e_topic, topic_x, t, global, общая.</p>
+
+    <p><strong>Причина в данных</strong> (прямой запрос к <code>user_state.db</code>):</p>
+    <ul>
+      <li><code>emotional_heatmap_json</code>: 216 строк, из них <strong>214 — не о
+      студенте</strong> (topic_x 52, global 31, общая 27, TopicA/TopicB/e2e_topic/t
+      по 26); о студенте — 2 (ai-agent);</li>
+      <li><code>quiz_mastery</code>: <strong>7/7 строк — фикстуры</strong> (TopicA,
+      TopicB, e2e_topic, BindA, LegacyTopic…), записаны сегодня в 11:42 и привязаны
+      к активной генерации графа;</li>
+      <li><code>spaced_repetition</code>: 6/6 — фикстуры; у topic_x 26 «повторений»,
+      интервал 3650 дней, next_review <strong>2036-07-15</strong>;</li>
+      <li><code>quiz_results</code>: 182/182 — фикстуры; topic_x ровно вдвое больше
+      остальных — в тесте два проходящих вызова за прогон, прогоны ежедневные
+      с 21 июня.</li>
+    </ul>
+
+    <p><strong>Причина в коде — кто и как пишет:</strong></p>
+    <ul>
+      <li>писатель — тесты соседнего репо hometutor-studio:
+      <code>test_quiz_service.py:434,456</code> (topic_x),
+      <code>test_fact_source_binding.py:62,77</code> (BindA, LegacyTopic — прямые
+      <code>save_quiz_result</code>/<code>update_mastery_after_score</code>),
+      <code>test_e2e_user_flow.py:118</code> (e2e_topic);</li>
+      <li>канал — hometutor установлен в студию editable-пакетом, а
+      <code>app/config.py:17-18</code> грузит <code>.env</code> по <em>абсолютному</em>
+      пути репо → <code>HOME_RAG_HOME=D:\AI\app</code> → любой импорт
+      <code>app.config</code> из любого процесса пишет в живую БД студента.
+      Изоляции нет нигде: conftest студии не трогает DATA_DIR, а
+      <code>tests/conftest.py</code> в hometutor отсутствует;</li>
+      <li>свой вклад продукта: тьютор без темы пишет снимки под «общая»
+      (<code>query_tutor_context.py:357</code>), а heatmap рендерит KV-блоб как есть,
+      без сверки с графом (<code>progress_visuals.py:58-68</code>).</li>
+    </ul>
+  </div>
+
+  <div class="figure">
+    <svg viewBox="0 0 860 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Путь призрачной записи: pytest в hometutor-studio через editable-пакет и абсолютный .env попадает в живую базу студента и на экран Мой прогресс">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--terra)"/>
+        </marker>
+      </defs>
+      <g font-family="Segoe UI, Arial, sans-serif" font-size="12.5">
+        <rect x="10" y="55" width="150" height="66" rx="10" fill="var(--card)" stroke="var(--line)"/>
+        <text x="85" y="80" text-anchor="middle" fill="var(--ink)" font-weight="700">pytest</text>
+        <text x="85" y="97" text-anchor="middle" fill="var(--muted)">hometutor-studio</text>
+        <text x="85" y="112" text-anchor="middle" fill="var(--muted)" font-size="10.5">topic_x · TopicB · BindA</text>
+
+        <rect x="188" y="55" width="150" height="66" rx="10" fill="var(--card)" stroke="var(--line)"/>
+        <text x="263" y="84" text-anchor="middle" fill="var(--ink)" font-weight="700">editable-пакет</text>
+        <text x="263" y="101" text-anchor="middle" fill="var(--muted)">hometutor 3.0.0</text>
+
+        <rect x="366" y="55" width="168" height="66" rx="10" fill="var(--card)" stroke="var(--terra)" stroke-width="1.6"/>
+        <text x="450" y="80" text-anchor="middle" fill="var(--ink)" font-weight="700">app/config.py:17</text>
+        <text x="450" y="97" text-anchor="middle" fill="var(--muted)">load_dotenv(BASE_DIR/.env)</text>
+        <text x="450" y="112" text-anchor="middle" fill="var(--muted)" font-size="10.5">абсолютный путь → всегда прод</text>
+
+        <rect x="562" y="55" width="140" height="66" rx="10" fill="var(--card)" stroke="var(--line)"/>
+        <text x="632" y="84" text-anchor="middle" fill="var(--ink)" font-weight="700">user_state.db</text>
+        <text x="632" y="101" text-anchor="middle" fill="var(--muted)">D:\AI\app\data</text>
+
+        <rect x="730" y="40" width="122" height="96" rx="10" fill="var(--card)" stroke="var(--hole)" stroke-width="1.6"/>
+        <text x="791" y="66" text-anchor="middle" fill="var(--ink)" font-weight="700">«Мой прогресс»</text>
+        <text x="791" y="86" text-anchor="middle" fill="var(--hole)" font-size="10.5">«Слабые места:</text>
+        <text x="791" y="100" text-anchor="middle" fill="var(--hole)" font-size="10.5">TopicB»</text>
+        <text x="791" y="118" text-anchor="middle" fill="var(--muted)" font-size="10.5">Мини-квизы: 78/3</text>
+
+        <line x1="160" y1="88" x2="186" y2="88" stroke="var(--terra)" stroke-width="1.6" marker-end="url(#arr)"/>
+        <line x1="338" y1="88" x2="364" y2="88" stroke="var(--terra)" stroke-width="1.6" marker-end="url(#arr)"/>
+        <line x1="534" y1="88" x2="560" y2="88" stroke="var(--terra)" stroke-width="1.6" marker-end="url(#arr)"/>
+        <line x1="702" y1="88" x2="728" y2="88" stroke="var(--terra)" stroke-width="1.6" marker-end="url(#arr)"/>
+
+        <text x="430" y="170" text-anchor="middle" fill="var(--muted)" font-size="11.5">26 ежедневных прогонов с 21 июня · 214 из 216 строк эмоциональной истории · 7/7 строк quiz_mastery · 182/182 quiz_results</text>
+      </g>
+    </svg>
+    <p class="figcap">Путь призрака: чужой pytest → editable-пакет → абсолютный
+    <code>.env</code> → живая память студента → совет «подтянуть TopicB» на экране.
+    Ни одно звено не является багом само по себе — багом является цепочка.</p>
+  </div>
+
+  <div class="card anchor-card">
+    <p><strong>Вторая створка — тупик.</strong> Кнопка сайдбара «Мой прогресс»
+    (<code>sidebar.py:294-295</code>) уводит через <code>st.switch_page</code> на
+    страницу, где DOM-проверка живого прогона даёт <code>hasSidebar: false</code> —
+    выхода нет. Primary-CTA «Следующий шаг» пишет <code>current_view</code> и делает
+    <code>st.rerun()</code> (<code>pages/3:64-73</code>) — но потребитель
+    <code>current_view</code> живёт только в <code>main.py</code>. Живой клик:
+    остались на «Мой прогресс», ничего не произошло. Код признаётся сам:
+    <em>«Тема передана. Откройте главный экран Home RAG…»</em>
+    (<code>pages/3:317</code>).</p>
+    <p><strong>Третья створка — пустые залы.</strong> Canvas «персонального подграфа»
+    1200×560 — ноль не-белых пикселей (живой замер по пикселям). «Граф зависимостей» —
+    82 узла (это 69 концептов + 13 лекций, подписанные «узлами prerequisites») и
+    0 рёбер: легаси-канал prerequisites современный компилятор графа не заполняет.
+    И этот пустырь отрисован дважды — в двух палитрах.</p>
+    <p class="ev">Житейская проверка: за неделю студент завершил 0 UI-квизов
+    (стрик: 0 дн.), а недельная цель «Мини-квизы: 78 / 3» перевыполнена в 26 раз —
+    ежедневными прогонами чужих тестов.</p>
+  </div>
+</section>
+
+<!-- 5. ВЕРДИКТЫ -->
+<section id="verdicts">
+  <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Вердикты</span></div>
+  <h2>Решение по каждому элементу</h2>
+
+  <div class="card"><span class="v v-fix">починить</span><strong>Дом.</strong> Контент
+  «Моего прогресса» становится view «Прогресс» роутера, сливаясь с «Прогрессом
+  обучения» (одна сводка вместо двух копий). Кнопка сайдбара ведёт на view. Вся
+  мёртвая навигация (<code>PENDING_CURRENT_VIEW_KEY</code>, префиллы тьютора,
+  «Целевой quiz») оживает бесплатно — механизм уже работает в роутере.</div>
+
+  <div class="card"><span class="v v-fix">починить</span><strong>Табы «Главное» /
+  «Расширенные».</strong> «Главное» отвечает на три вопроса сути и помещается в один
+  экран; «Расширенные» — сегодняшняя телеметрия после чистки дублей; отладка
+  (полный JSON, <code>user_id="local"</code>, сырая таблица reading_status) — за
+  debug-тиром.</div>
+
+  <div class="card"><span class="v v-fix">починить</span><strong>Чистота зеркала.</strong>
+  Сначала кран: изоляция user_state в тестах обоих репо (в hometutor —
+  <code>tests/conftest.py</code> с временным DATA_DIR; guard в user_state — при
+  активном <code>PYTEST_CURRENT_TEST</code> запись в прод-путь запрещена). Затем джойн
+  представления: heatmap, наратив и «слабые места» показывают только концепты,
+  известные графам курсов. И только потом разовая чистка призраков по явному правилу
+  с бэкапом.</div>
+
+  <div class="card"><span class="v v-keep">оставить</span><strong>Heatmap, radar,
+  геймификация, карточка «Следующий шаг».</strong> Heatmap — уникальный канал
+  «время × эмоции», radar — единственный живой вывод PLM-вектора, геймификация —
+  честные числа, карточка сверху — правильная идея одного шага. Всё это ядро
+  «Главного», просто ему нужны чистые данные и работающая кнопка.</div>
+
+  <div class="card"><span class="v v-keep">добавить из готового</span><strong>«Мой след»
+  и «Мой путь».</strong> Всё уже посчитано: 100 карточек и 44 повторения; лента дней
+  занятий из <code>xp_daily_history</code>; биты «прослушано» (№19);
+  «шаг 1/7: Фундамент…» из <code>reading_status</code> плюс адрес «курс · урок»
+  (P0-1 разбора №21). Ни одного нового вычисления — только рендер.</div>
+
+  <div class="card"><span class="v v-no">убрать</span><strong>Полный «План на сегодня»,
+  pie «Распределение по уровням», все три agraph-рендера.</strong> План живёт на
+  главной (здесь — строка-тизер со ссылкой); pie повторяет три числа, стоящие прямо
+  над ним; подграф эмоций возвращается слоем на карту KG (у которой уже есть worth и
+  mastery-слои), а пустырь prerequisites ×2 просто удаляется.</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>Четвёртую поверхность
+  прогресса.</strong> Экранов уже три; ход — слияние, а не «новый правильный
+  дашборд рядом».</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>Новый прогресс-сервис
+  или хранилище.</strong> Каждая карточка «Главного» — проекция уже существующих
+  таблиц и KV-ключей. Появилась потребность в новой схеме — значит, ход выбран
+  неверно (kill switch).</div>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>Чистку живой БД до
+  перекрытия крана — и любую LLM-чистку.</strong> Призраки возвращаются ежедневно,
+  пока тесты пишут в прод; а отличение призрака от концепта — арифметика джойна
+  с графами, ей не нужна модель.</div>
+</section>
+
+<!-- 6. ЦЕННОСТЬ -->
+<section id="value">
+  <div class="sec-label"><span class="sec-num">6</span><span class="sec-name">Ценность</span></div>
+  <h2>Единственный экран, где студент виден во времени</h2>
+  <p>Карта знаний показывает пространство, план — сегодняшний день. «Мой прогресс» —
+  единственное место, где студент может увидеть <em>себя во времени</em>: эмоции по
+  дням, дни занятий, пройденную часть маршрута. Эта уникальность уже заложена в данных
+  (heatmap-история, <code>xp_daily_history</code>, reading_status) — её осталось
+  показать чистой.</p>
+  <div class="table-scroll">
+    <table>
+      <tr><th>Метрика</th><th>Сейчас</th><th>После</th></tr>
+      <tr><td>Призрачные концепты на экране</td><td>7 из 8 строк heatmap</td><td>0</td></tr>
+      <tr><td>Ответ «где я на маршруте»</td><td>отсутствует</td><td>«курс · урок · шаг» без скролла</td></tr>
+      <tr><td>Поверхности прогресса</td><td>3 (две — копии)</td><td>1 видимая (+ debug-слой)</td></tr>
+      <tr><td>Мёртвые навигационные кнопки</td><td>≥5 на странице</td><td>0</td></tr>
+      <tr><td>Реальный след на «Главном»</td><td>XP и уровень</td><td>карточки · дни · прослушано · шаг плана</td></tr>
+    </table>
+  </div>
+  <p><strong>North star:</strong> зеркальная точность — доля строк главного таба,
+  подтверждённых реальным действием студента: <strong>100%</strong> (сегодня на
+  героине экрана, эмоциональной карте, — 1 строка из 8).</p>
+</section>
+
+<!-- 7. ПУТЬ -->
+<section id="path">
+  <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Путь</span></div>
+  <h2>Золотой путь и лестница уровней</h2>
+  <p><strong>Золотой путь одной сессии:</strong> Mission Control → «Прогресс» →
+  таб «Главное»: <em>Я на маршруте</em> (Курс: ИИ Агенты · урок 1/6 · шаг 1/7
+  «Фундамент: Агент vs LLM») → <em>Мой след</em> (дни занятий за неделю, карточки,
+  прослушанные разделы) → <em>Легко / трудно</em> (уверенно: ai-agent 80%; трудно —
+  честное «появится после квизов») → одна кнопка «Следующий шаг», которая
+  действительно ведёт к тьютору.</p>
+  <ol class="ladder">
+    <li><span class="num">0</span><span><strong>Главное.</strong> Три ответа и одна
+    кнопка, один экран, ноль призраков — уровень по умолчанию для всех.</span></li>
+    <li><span class="num">1</span><span><strong>Расширенные.</strong> Heatmap,
+    radar, геймификация, цели недели, due-очередь — сегодняшняя телеметрия после
+    чистки дублей.</span></li>
+    <li><span class="num">2</span><span><strong>Debug.</strong> Полный JSON профиля,
+    миграции, сырые таблицы — за debug-тиром, как в остальном продукте.</span></li>
+    <li><span class="num">3</span><span><strong>Аналитика.</strong> Возвращается в
+    строй только после пересадки с призрачного <code>quiz_results</code> на реальные
+    источники.</span></li>
+  </ol>
+</section>
+
+<!-- 8. ПЛАН -->
+<section id="plan">
+  <div class="sec-label"><span class="sec-num">8</span><span class="sec-name">План</span></div>
+  <h2>P0–P2 по соотношению эффект/усилие</h2>
+  <div class="table-scroll">
+    <table>
+      <tr><th></th><th>Ход</th><th>Что делается</th><th>Усилие</th></tr>
+      <tr><td><span class="tag tag-p0">P0-1</span></td><td><strong>Возвращение
+      домой.</strong></td><td>«Мой прогресс» становится view «Прогресс» роутера
+      (слияние с «Прогрессом обучения»: одна сводка, табы «Главное»/«Расширенные»);
+      кнопка сайдбара ведёт на view; вся PENDING-навигация оживает; страница-сирота —
+      тонкий алиас или удаляется.</td><td>~день</td></tr>
+      <tr><td><span class="tag tag-p0">P0-2</span></td><td><strong>Чистое
+      зеркало.</strong></td><td>(а) кран: изоляция user_state в тестах обоих репо +
+      guard от записи в прод-путь под pytest; (б) джойн: heatmap/наратив/«слабые
+      места» — только концепты активных графов; (в) разовая чистка призраков по
+      явному правилу с бэкапом — строго после (а).</td><td>~день</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td><td>Мой след + Мой путь.</td>
+      <td>Карточки (100/44) и лента дней из <code>xp_daily_history</code> на
+      «Главном»; «прослушано» (№19) в след; <code>reading_status</code> по-человечески
+      («шаг 1/7: Фундамент…») + адрес «курс · урок» из №21.</td><td>дни</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td><td>Одна правда mastery.</td>
+      <td>Одна вертикаль на экран: PLM-вектор как главное число, quiz-вектор и
+      покрытие графа — подписи в «Расширенных», а не соседние проценты-соперники.</td>
+      <td>дни</td></tr>
+      <tr><td><span class="tag tag-p2">P2</span></td><td>Судьба «Аналитики».</td>
+      <td>Пересадить heatmap/ROI на реальные источники или спрятать за тиром до
+      пересадки; подграф эмоций — слоем на карту KG, не третьим рендером; проброс
+      реального user_id вместо <code>"local"</code>.</td><td>волна</td></tr>
+    </table>
+  </div>
+  <p><strong>Kill switch:</strong> P0 потребовал новое хранилище, схему или
+  LLM — стоп. Слияние view потребовало переписать <code>dashboards_progress</code>
+  с нуля — стоп, скоуп режется до переноса контента. Чистка живой БД предложена
+  раньше изоляции тестов — стоп: призраки вернутся следующим же прогоном.</p>
+</section>
+
+<div class="footer">
+  <p>Разбор №22 · hometutor HEAD <code>d92b81957</code> «326» · 2026-07-18 ·
+  живой прогон UI (клик, DOM, замер canvas) + прямые запросы к живой
+  <code>user_state.db</code>.</p>
+  <p>Связи серии: №1/№10 — петля памяти и её видимый след; №19 — «прослушано» как
+  след лекции; №21 — адрес «курс · урок» для маршрута. Правило двух слоёв: этот
+  HTML — слой анализа; actionable-кандидаты — в
+  <code>doc/next/progress_mirror_plan.md</code>. Серия:
+  <code>doc/presentations/evolutionary_analyses/</code>.</p>
+</div>
+
+</div>
