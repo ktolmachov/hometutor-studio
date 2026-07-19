@@ -29,7 +29,7 @@
 > `resume_cards_smart_study.py:296-314`) или в новой сессии без resume/reading —
 > не «через 97 карточек», как утверждала первая версия.
 >
-> **Статус:** кандидаты. НЕ записи `backlog_registry.yaml` — промоут только решением
+> **Статус:** A1 shipped 2026-07-19; A2/B1–B4/C1–C2 — кандидаты. НЕ записи `backlog_registry.yaml` — промоут только решением
 > владельца.
 >
 > **North star:** `Calm Start Rate` — доля сессий, где студент за ≤60 секунд начинает
@@ -341,9 +341,9 @@
 
 ## Практический порядок внедрения (5–10 решений)
 
-1. A1 — единый pure decision contract и общая fixture боли.
-2. A1 — одинаковый primary на home/plan/progress/KG.
-3. A1 — три session-tape события для baseline Calm Start Rate.
+1. ✅ A1 — единый pure decision contract и общая fixture боли.
+2. ✅ A1 — одинаковый primary на home/plan/progress/KG.
+3. ✅ A1 — три session-tape события для baseline Calm Start Rate.
 4. A2 — один reusable route shell с ≤2 alternatives.
 5. A2 — закрытая palette семи намерений поверх готовых handlers.
 6. B1 — checkpoint после tutor/quiz/review.
