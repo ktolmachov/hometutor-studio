@@ -346,10 +346,10 @@
 3. ✅ A1 — три session-tape события для baseline Calm Start Rate.
 4. ✅ A2 — один reusable route shell с ≤2 alternatives.
 5. ✅ A2 — закрытая palette семи намерений поверх готовых handlers.
-6. B1 — checkpoint после tutor/quiz/review.
-7. B2 — компактный учебный компас.
-8. B3 — opt-in автопилот 5/15/25 минут.
-9. B4 — agent dispatch для composition cases, не отдельная learner-дверь.
+6. ✅ B1 — checkpoint после tutor/quiz/review. (shipped 2026-07-19)
+7. ✅ B2 — компактный учебный компас. (shipped 2026-07-19)
+8. ✅ B3 — opt-in автопилот 5/15/25 минут. (shipped 2026-07-19)
+9. ✅ B4 — agent dispatch для composition cases, не отдельная learner-дверь. (shipped 2026-07-19)
 10. C1 — калибровка только после накопления baseline и offline replay.
 
 ## Явно НЕ делать
