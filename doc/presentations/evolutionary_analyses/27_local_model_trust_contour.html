@@ -180,7 +180,7 @@
   <div class="meta">
     <span>hometutor-studio · HEAD <code>545d155</code> «113»</span>
     <span>hometutor · HEAD <code>c5182b9</code> «357»</span>
-    <span>2026-07-19 · ревизия v1.2 после второго контр-аудита (перенос в hometutor отменён)</span>
+    <span>2026-07-19 · план v1.4 после четырёх контр-аудитов: перенос отменён, journal/lock/recovery добавлены</span>
     <span>E2/E3: 4 живых прогона против production llama.cpp + 98/98 unit-тестов</span>
   </div>
 </header>
@@ -201,7 +201,8 @@
         по декларации самой модели, а не по задаче</td></tr>
       <tr><td>Доказательность</td><td><strong>E2</strong> — живой прогон триггера против
         запущенного production-сервера (default alias → <code>exit 2</code>; исправленный alias →
-        полный PASS за 2,9 с, evidence-only contract, 98/98 vitest)</td></tr>
+        полный PASS за 2,9 с, contract с test-output evidence, но без строгого
+        отделения model claims, 98/98 vitest)</td></tr>
       <tr><td>Отличие от №12</td><td>№12 — стены и сигнализация внутри кода продукта; здесь —
         стены и сигнализация внутри процесса, которым сам код пишется</td></tr>
       <tr><td>Отличие от №5</td><td>№5 — доверие рантайма к LLM-провайдеру (circuit breaker в
@@ -450,7 +451,8 @@
     прогонов в истории).</div>
   <div class="card"><span class="v v-keep">оставить</span><strong>Hardened trigger как ядро
     local-adapter'а.</strong> Контур уже живой, быстрый (2,9 с) и качественно спроектирован
-    (write-set gate, hunk normalize, controlled apply, evidence-only contract) — чинить
+    (write-set gate, hunk normalize, controlled apply, evidence section) — сохранять,
+    но заменить слабый nonempty contract gate на deterministic evidence validator; чинить
     входы и выходы доверия, не переписывать заново.</div>
   <div class="card"><span class="v v-fix">починить</span><strong>Alias и runtime defaults.</strong>
     Одна строка правки (<code>DEFAULT_MODEL</code> + guide/`.env.example` sync) — ROI
@@ -484,7 +486,7 @@
 <!-- 6. ЦЕННОСТЬ -->
 <section id="value">
   <div class="sec-label"><span class="sec-num">6</span><span class="sec-name">Ценность</span></div>
-  <h2>Verified Local Completion Rate — и честный ноль</h2>
+  <h2>Verified Local Completion Rate — и честный N/A</h2>
   <p>Уникальность хода — не «ещё один локальный LLM-адаптер», а перенос доверия с
   исполнителя на контракт: local/cloud/Kilo/человек становятся взаимозаменяемыми деталями
   за одним и тем же Evidence Gate. Единственная метрика, которая доказывает это измеримо —
@@ -492,14 +494,23 @@
   <div class="table-scroll">
     <table>
       <tr><th>Метрика</th><th>Формула / источник</th><th>Baseline</th><th>Target</th><th>Статус</th></tr>
-      <tr><td><strong>Execution VLCR</strong></td><td>verified ÷ (все терминальные исходы
-        change-expected пакетов, отправленных модели — включая <code>blocked_no_changes</code>
-        как отказ, не нейтраль); <code>ledger.jsonl</code></td>
+      <tr><td><strong>Execution VLCR (end-to-end)</strong></td><td>verified ÷ eligible
+        dispatched change-expected runs; stale/recovery/manual-cleanup считаются неуспехом
+        контура; reducer читает per-run <code>events.jsonl</code></td>
         <td><strong>N/A</strong> — знаменатель 0, не «0%»: 6 исторических прогонов, все
         smoke на старом alias, ни одного authoritative</td>
         <td>≥80% на shadow ≥10 пакетов (KPI guide §8)</td><td><span class="st st-silent">wire-in-P0</span></td></tr>
-      <tr><td>Policy precision</td><td>(compiled − preflight_rejected) ÷ compiled</td>
-        <td>N/A</td><td>измеряет качество compiler, не модели</td>
+      <tr><td>Local execution success</td><td>local_completed_ok ÷ non-transient local attempts</td>
+        <td>N/A</td><td>качество executor без review/finalize</td>
+        <td><span class="st st-silent">wire-in-P0</span></td></tr>
+      <tr><td>Review acceptance</td><td>verified ÷ (verified + review_rejected)</td>
+        <td>N/A</td><td>качество локальных drafts по независимому review</td>
+        <td><span class="st st-silent">wire-in-P0</span></td></tr>
+      <tr><td>Compiler validity</td><td>schema/allowlist/denylist PASS ÷ compiled</td>
+        <td>N/A</td><td>чистое качество compiler</td>
+        <td><span class="st st-silent">wire-in-P0</span></td></tr>
+      <tr><td>Dispatch eligibility</td><td>repo-state PASS ÷ compiler-valid</td>
+        <td>N/A</td><td>commit/hash/worktree staleness отдельно</td>
         <td><span class="st st-silent">wire-in-P0</span></td></tr>
       <tr><td>Availability</td><td>(eligible-раны − transient_unavailable) ÷ eligible-раны</td>
         <td>N/A</td><td>инфраструктура сервера, отдельно от качества модели</td>
@@ -527,13 +538,16 @@
   risk-пересчёт) и выбирает <code>local-direct</code> → Runner спавнит hardened
   <code>llamacpp_agent_trigger</code> с явным <code>LLAMACPP_TARGET_REPO_ROOT=target_repo</code>
   (вместо переезда кода — один env поверх уже существующего параметра <code>repoRoot</code>)
-  → patch/tests проверяются против <em>задачи</em>, не модели → git apply + targeted tests →
-  per-run артефакты (<code>proposed.patch</code>/<code>applied.patch</code>/<code>receipt.json</code>)
-  → событие <code>executed_pending_review</code> → независимый cloud-reviewer APPROVE →
-  терминальное <code>verified</code> в append-only <code>ledger.jsonl</code>.</p>
+  → repo-lock + baseline → patch/tests проверяются против <em>задачи</em>, не модели →
+  journal <code>prepared → applied</code> → targeted tests → Runner откатывает успешный
+  patch до <code>reverted_pending_review</code> → независимый cloud-reviewer →
+  <code>finalize_execution_packet.ts</code> при APPROVE повторно применяет frozen patch →
+  <code>verified</code>. Истина восстановления хранится в <code>patch_state.json</code> и
+  per-run <code>events.jsonl</code>; <code>receipt.jsonl</code> — отчёт, не lock/state.</p>
   <ol class="ladder">
     <li><span class="num">0</span><span><strong>Disposable no-op smoke.</strong> Пройден
-      сегодня живьём: 2,9 с, evidence-only contract, 98/98 unit — фундамент есть.</span></li>
+      сегодня живьём: 2,9 с, contract с test-output evidence, 98/98 unit. Строгий
+      deterministic evidence-only gate ещё не реализован и входит в P0-1.</span></li>
     <li><span class="num">1</span><span><strong>Disposable real patch.</strong> Один файл,
       один failing test, authoritative write-set/tests — первый прогон после P0-1.</span></li>
     <li><span class="num">2</span><span><strong>5 реальных low-risk пакетов подряд.</strong>
@@ -556,7 +570,8 @@
         <td><strong>Authoritative Trigger Hardening + target-repo parametrization.</strong></td>
         <td>alias-дефолт на <code>qwen3-coder-next-q4ks</code>; task-write-set/tests
         authoritative (model ⊆ task); input hard cap ≤20K; response.model/finish_reason/
-        reasoning gates; baseline-snapshot c untracked до apply; новый
+        reasoning gates; deterministic evidence отдельно от model claims; bounded model/test
+        timeout; argv-policy pytest; durable <code>patch_state.json</code>; baseline c untracked; новый
         <code>LLAMACPP_TARGET_REPO_ROOT</code> заменяет пять хардкод-вызовов
         <code>process.cwd()</code> уже существующим параметром <code>repoRoot</code> (без
         переезда кода); CI-шаг <code>npm run test:trigger</code>. Исполнитель: cloud/human.</td>
@@ -564,12 +579,15 @@
       <tr><td><span class="tag tag-p0">P0-2</span></td>
         <td><strong>Execution Packet Runner v0 + transactional ledger.</strong></td>
         <td>YAML-схема пакета (read-set c sha256), <code>packet_policy.ts</code> —
-        repo-allowlist, realpath containment, полный денилист; per-run артефакты
-        (<code>proposed.patch</code>/<code>applied.patch</code>/<code>receipt.json</code>/
-        <code>review.json</code>) + auto-revert при не-успехе; append-only
-        <code>ledger.jsonl</code> с поэтапными событиями
-        (<code>executed_pending_review → verified</code>), North star wired. Весь контур —
+        repo-allowlist, realpath containment, полный денилист; repo/ledger locks,
+        crash recovery, revert-before-review; per-run journal/events/artifacts,
+        run-level reducer и global ledger-index. Весь контур —
         только cloud/human.</td><td>дни</td></tr>
+      <tr><td><span class="tag tag-p0">P0-3</span></td>
+        <td><strong>Executable finalize-review.</strong></td>
+        <td>Структурированный <code>review.json</code>; state/stale/lock checks;
+        APPROVE — <code>git apply --check</code> + повторный apply frozen patch;
+        REJECT — чистое дерево; terminal transitions идемпотентны.</td><td>часы</td></tr>
       <tr><td><span class="tag tag-p1">P1</span></td>
         <td>Shadow-серия и VLCR-отчёт.</td>
         <td>5 реальных low-risk задач (promotion из guide) → затем ≥10 пакетов shadow с
