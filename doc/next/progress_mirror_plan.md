@@ -2,17 +2,18 @@
 
 > **Источник:** эволюционный разбор №22
 > ([`../presentations/evolutionary_analyses/22_progress_mirror.html`](../presentations/evolutionary_analyses/22_progress_mirror.html)),
-> hometutor HEAD `d92b81957` «326», 2026-07-18. Боль-якорь подтверждена живым прогоном
+> hometutor HEAD `a5b8c1d` «#22 P0-2 clean-room», 2026-07-19. Боль-якорь подтверждена живым прогоном
 > UI (клик по CTA, DOM-проверка `hasSidebar:false`, пиксельный замер canvas) и прямыми
 > запросами к живой `D:\AI\app\data\user_state.db`.
 >
-> **Статус:** кандидаты. НЕ записи `backlog_registry.yaml` — промоут решением владельца.
+> **Статус:** A2 shipped 2026-07-19; A1/B1–B3/C1–C3 — кандидаты. НЕ записи `backlog_registry.yaml` — промоут решением владельца.
 >
 > **North star разбора:** «зеркальная точность» — доля строк главного таба «Прогресса»,
-> подтверждённых реальным действием студента, = 100% (сегодня в Emotional Heatmap
-> реальна 1 строка из 8). Прокси-метрики: призрачные концепты на экране 7→0; мёртвые
-> навигационные кнопки ≥5→0; поверхности прогресса 3→1 видимая; ответ
-> «курс · урок · шаг» — на первом экране без скролла.
+> подтверждённых реальным действием студента, = 100% (на 2026-07-18 в Emotional Heatmap
+> реальна 1 строка из 8; после A2 clean-room — тестовые фикстуры изолированы, join
+> по активному графу отфильтровывает призраков). Прокси-метрики: призрачные концепты
+> на экране 7→0 (A2); мёртвые навигационные кнопки ≥5→0 (A1); поверхности прогресса
+> 3→1 видимая (A1); ответ «курс · урок · шаг» — на первом экране без скролла (B2).
 >
 > **Kill switch (общий для P0):** потребовалось новое хранилище/схема/пайплайн или LLM
 > там, где хватает арифметики готовых данных, — стоп. Чистка живой БД раньше изоляции
@@ -115,6 +116,14 @@
   в UI; тест на guard (запись в прод-путь под pytest → исключение).
 - **Doc-sync.** `docs/conventions_reference.md` (правило изоляции тестов от живой БД).
 - **Effort.** ~день. **Priority.** P0. **Dependencies.** нет (независим от A1).
+
+- **Runtime progress (2026-07-19).** ✅ A2 shipped — `wave-progress-clean-room`:
+  - **Кран:** `tests/conftest.py` `pytest_configure` + `app/user_state_db.py` guard (`PYTEST_CURRENT_TEST` → RuntimeError если путь в production `data/`).
+  - **Джойн:** `app/learner_model_service.py` `get_emotional_heatmap_pivot()` фильтрует по `active_concept_ids` активного графа; внеграфовые → «общий фон». `app/ssr_weekly_narrative.py` `_collect_production_signals()` использует `weak_concepts_for_kg()`.
+  - **Чистка:** `scripts/clean_progress_ghosts.py` — dry-run по умолчанию, backup, `--confirm --confirm-token CLEAN-PROGRESS-GHOSTS`.
+  - **Тесты:** `tests/test_user_state_isolation.py` (9 тестов: изоляция, guard, heatmap filter, narrative). Регрессия: guardrails/pipeline/navigation/flashcards/mnemo/mission_control — зелёные. Architecture guards + size budget pass.
+  - **Write-set:** `tests/conftest.py`, `app/user_state_db.py`, `app/learner_model_service.py`, `app/ssr_weekly_narrative.py`, `scripts/clean_progress_ghosts.py`, `tests/test_user_state_isolation.py`, `scripts/check_config_access.py`.
+  - А2 закрывает DoD: тесты не меняют production `user_state.db`; heatmap не показывает TopicB/fixture ids; guard-test падает на production-путь под pytest.
 
 ---
 
