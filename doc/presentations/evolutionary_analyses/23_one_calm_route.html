@@ -366,13 +366,15 @@
     (<code>'TopicB' in kg.get_concepts()</code> → <code>False</code>). Это на самом
     деле <strong>два независимых дефекта</strong>, которые первая версия якоря
     склеила в один:</p>
-    <p><strong>Дефект A — план не долетает до home.</strong></p>
+    <p><strong>Дефект A — план не долетает до home и не разрешён как plan-ветка на home.</strong></p>
     <ul>
       <li><code>mission_control.py:267-297</code> собирает SSR для home, но сознательно
       передаёт <code>plan_primary_block=None</code>;</li>
       <li><code>smart_study_recommendation.py:337-378</code> выбирает один сигнал своим
-      каскадом, а <code>smart_study_scoring.py:92-160</code> ставит due-карточки выше
-      plan block;</li>
+      каскадом, а <code>smart_study_scoring.py:90,142-160</code> разрешает plan block
+      только при <code>surface == "adaptive_plan"</code>; pure-прогон показывает:
+      даже если передать <code>plan_primary_block</code> на <code>surface="home"</code>,
+      сейчас получится <code>safe_default</code>, не <code>plan_block_tutor</code>;</li>
       <li><code>adaptive_plan_hub_layout.py:91-185</code> отдельно объявляет
       «Следующий шаг» плана и затем строит собственный SSR.</li>
     </ul>
@@ -381,6 +383,9 @@
       <li><code>mission_control.py:288</code> и <code>resume_cards_smart_study.py:344,379</code>
       берут <code>quiz_adaptive.get_weak_concepts()</code> напрямую — без привязки к
       текущему бандлу;</li>
+      <li><code>resume_cards_smart_study.py:126,139</code> повторяет тот же raw weak
+      source для live-metrics/диагностики; это не обязано менять primary CTA, но
+      иначе тестовая тема может остаться в observability даже после фикса маршрута;</li>
       <li>нужный фильтр уже существует и используется рядом для других данных:
       <code>weak_concepts_for_kg(kg, ...)</code>
       (<code>learner_state_scope.py:141-152</code>) пересекает список с
@@ -589,8 +594,8 @@
   <code>agent-harness</code> (0.44), 6 frontier-остановок,
   <code>AGENT_ENABLED=false</code>; изолированный weak-concept прогон подтверждает
   дефект B (<code>get_weak_concepts()</code> не фильтрован по активному графу,
-  фильтр <code>weak_concepts_for_kg()</code> существует, но не подключён на этом
-  пути) — но с полным контекстом (живой <code>tutor_learning_resume</code>) primary
+  фильтр <code>weak_concepts_for_kg()</code> существует, но не подключён на SSR и
+  live-metrics путях) — но с полным контекстом (живой <code>tutor_learning_resume</code>) primary
   сегодня «Продолжить чат», не <code>TopicB</code>.</p>
   <p>Связи серии: №4 — агент как одна кнопка; №7 — единый контекст плана; №10 —
   видимая петля; №15/17 — route-first карта; реализованный

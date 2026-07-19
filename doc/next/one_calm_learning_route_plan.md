@@ -17,7 +17,9 @@
 > с настоящей темой (`app/user_state_tutor.py:71`), а каскад ставит `tutor_resume`
 > выше `mastery_stale` (`app/smart_study_scoring.py:162-164`) — значит primary
 > сегодня «Продолжить чат», не `TopicB`. Это **два независимых дефекта**, не один:
-> (A) home SSR не получает сохранённый `plan_primary_block` (`mission_control.py:289`);
+> (A) home SSR не получает сохранённый `plan_primary_block` (`mission_control.py:289`)
+> и текущий scorer разрешает plan block только на `surface="adaptive_plan"`
+> (`smart_study_scoring.py:90,142-160`);
 > (B) `get_weak_concepts()` подаётся в SSR без фильтра по активному графу
 > (`mission_control.py:288`, `resume_cards_smart_study.py:344,379`), хотя нужный
 > фильтр `weak_concepts_for_kg()` уже существует (`app/learner_state_scope.py:141-152`)
@@ -55,6 +57,11 @@
 - **Evidence.**
   - `app/ui/mission_control.py:267-297` — `surface="home"`, при этом
     `plan_primary_block=None`;
+  - `app/smart_study_scoring.py:90,142-160` — `plan_first` сейчас равен
+    `surface == "adaptive_plan" and plan_block is not None`; pure-прогон с
+    `surface="home"` и непустым `plan_primary_block` даёт `safe_default`, а не
+    `plan_block_tutor`, то есть дефект A состоит из двух частей: missing input +
+    surface gate;
   - `app/smart_study_recommendation.py:337-378` — один детерминированный каскад
     `cards_due → sm2_due → quiz_failed → adaptive_plan → ...`;
   - `app/smart_study_scoring.py:70-220` — фактические CTA и педагогические причины;
@@ -65,6 +72,9 @@
   - `app/ui/mission_control.py:288` и `app/ui/resume_cards_smart_study.py:344,379` —
     первый weak-концепт из `quiz_adaptive.get_weak_concepts()` попадает в SSR без
     фильтра по активному графу (дефект B);
+  - `app/ui/resume_cards_smart_study.py:126,139` — live metrics/debug snapshot
+    используют тот же raw `get_weak_concepts()`; это не обязательно меняет primary
+    route, но может оставить off-graph `TopicB` в observability после фикса SSR;
   - `app/learner_state_scope.py:141-152` — `weak_concepts_for_kg(kg, ...)` уже
     пересекает weak concepts с `active_concept_ids(kg)`; это готовый фильтр для
     дефекта B, используемый рядом (mastery levels, due reviews), но не для weak
@@ -105,8 +115,9 @@
   - новый небольшой pure-модуль допустим только если facade разрастается:
     `app/smart_study_route_context.py`;
   - `app/ui/resume_cards.py` / текущие context helpers;
-  - `app/ui/resume_cards_smart_study.py` (переключить оба вызова
-    `get_weak_concepts()` на `weak_concepts_for_kg(kg, ...)` — дефект B);
+  - `app/ui/resume_cards_smart_study.py` (переключить оба SSR-вызова
+    `get_weak_concepts()` на `weak_concepts_for_kg(kg, ...)` и синхронизировать
+    live-metrics/debug weak source — дефект B);
   - `app/learner_state_scope.py` (переиспользуется как есть; менять только если
     fallback на пустом графе окажется недостаточным для home — обсудить отдельно,
     не расширять втихую);
@@ -119,11 +130,13 @@
     plan, progress и KG;
   - fixture живой боли: 97 due + plan gap + 6 frontier → primary «Повторить», plan/KG
     показывают тот же active route, остальные кандидаты — не competing hero;
-  - **Дефект A** (`plan_primary_block=None`): без due, при сохранённом actionable
-    plan → home и plan выбирают один и тот же plan step. Regression test строит
-    ctx с пустыми due-очередями и непустым `plan_primary_block`, ожидает
-    `primary_nav="plan_block_tutor"` на surface `"home"`, а не текущий фактический
-    silent skip;
+  - **Дефект A** (`plan_primary_block=None` + `surface=="adaptive_plan"` gate):
+    без due, при сохранённом actionable plan → home и plan выбирают один и тот же
+    plan step. Regression test строит ctx с пустыми due-очередями и непустым
+    `plan_primary_block`, ожидает `primary_nav="plan_block_tutor"` на
+    surface `"home"`. Фикс должен покрыть обе причины: home получает block, а
+    scorer/policy явно разрешает plan branch на home в рамках канонического route
+    contract, а не молча падает в `safe_default`;
   - **Дефект B** (weak concept без фильтра по графу): weak-концепт, отсутствующий
     в `active_concept_ids(kg)`, никогда не становится `first_weak_concept` для
     SSR — БЕЗУСЛОВНО, не «при наличии более сильного сигнала» (более сильный
@@ -132,7 +145,8 @@
     tutor/reading resume → primary НЕ ссылается на этот concept (либо
     `safe_default`, либо следующий валидный weak concept из отфильтрованного
     списка). Реализуется заменой источника на `weak_concepts_for_kg(kg, ...)`,
-    не эвристикой внутри Route Policy;
+    не эвристикой внутри Route Policy; live-metrics/debug snapshot не должны
+    продолжать показывать off-graph concept как `weak_top`;
   - `new_topic` выбирает KG candidate только при отсутствии более сильного recovery
     debt или после явного override;
   - decision строится без LLM и без новых writes; session-tape не содержит текста;
@@ -375,4 +389,3 @@ Browser-панелью на `9c4913c1d` «330»:
 страницы (все 8 секций подряд) в эту ревизию не переснят — проверены заголовок,
 секция 1, диаграмма секции 2 и light-тема; секции 3–8 проверены текстовым
 дампом (`get_page_text`), не визуально.
-
