@@ -6,14 +6,14 @@
 > UI (клик по CTA, DOM-проверка `hasSidebar:false`, пиксельный замер canvas) и прямыми
 > запросами к живой `D:\AI\app\data\user_state.db`.
 >
-> **Статус:** A2 shipped 2026-07-19; A1/B1–B3/C1–C3 — кандидаты. НЕ записи `backlog_registry.yaml` — промоут решением владельца.
+> **Статус:** A1 shipped 2026-07-19; A2 shipped 2026-07-19; B1–B3/C1–C3 — кандидаты. НЕ записи `backlog_registry.yaml` — промоут решением владельца.
 >
 > **North star разбора:** «зеркальная точность» — доля строк главного таба «Прогресса»,
 > подтверждённых реальным действием студента, = 100% (на 2026-07-18 в Emotional Heatmap
 > реальна 1 строка из 8; после A2 clean-room — тестовые фикстуры изолированы, join
 > по активному графу отфильтровывает призраков). Прокси-метрики: призрачные концепты
-> на экране 7→0 (A2); мёртвые навигационные кнопки ≥5→0 (A1); поверхности прогресса
-> 3→1 видимая (A1); ответ «курс · урок · шаг» — на первом экране без скролла (B2).
+> на экране 7→0 (A2); мёртвые навигационные кнопки ≥5→0 (A1 ✅ shipped 2026-07-19); поверхности прогресса
+> 3→1 видимая (A1 ✅ shipped 2026-07-19); ответ «курс · урок · шаг» — на первом экране без скролла (B2).
 >
 > **Kill switch (общий для P0):** потребовалось новое хранилище/схема/пайплайн или LLM
 > там, где хватает арифметики готовых данных, — стоп. Чистка живой БД раньше изоляции
@@ -69,6 +69,17 @@
 - **Doc-sync.** `docs/user_guide.md` (раздел «Мой прогресс»), `docs/architecture.md`
   (если структура app/ui/pages меняется).
 - **Effort.** ~день. **Priority.** P0. **Dependencies.** нет.
+
+- **Runtime progress (2026-07-19).** ✅ A1 shipped — `wave-progress-home`:
+  - **Слияние view:** `app/ui/dashboards_progress.py` — tabs «Главное» / «Расширенные»; контент orphan page (`pages/3_Мой_прогресс.py`) перенесён в оба таба без дублей.
+  - **Таб «Главное»:** handoff-контекст + primary CTA (с `PENDING_CURRENT_VIEW_KEY`), emotional heatmap, mastery radar, геймификация-кратко, weekly narrative. Реализация в `app/ui/dashboards_progress_home.py` (helpers разбиты <80 строк для size budget).
+  - **Таб «Расширенные»:** вся телеметрия (gauge, radar, treemap, SVG heatmap, quiz UI stats, course progress, персонализация, быстрый тест) + ex-orphan extras (learner panel, adaptive plan, quiz mastery сводка, KG subgraph, AI Coach, due reviews, quiz pie chart, prerequisite graph, reading topics).
+  - **Sidebar:** `st.switch_page("pages/3_Мой_прогресс.py")` → `PENDING_CURRENT_VIEW_KEY = "Прогресс обучения"` (`app/ui/sidebar.py:299-300`).
+  - **Orphan page:** `app/ui/pages/3_Мой_прогресс.py` → тонкий алиас (`st.switch_page("app/ui/main.py")`).
+  - **Debug tier:** `st.dataframe(due_reviews)` и `st.json(pg)` обёрнуты в `feature_visible_by_id("panel:debug_summary")`.
+  - **Write-set:** `app/ui/dashboards_progress.py`, `app/ui/dashboards_progress_home.py` (новый), `app/ui/sidebar.py`, `app/ui/pages/3_Мой_прогресс.py`.
+  - **Тесты:** `test_navigation_visibility.py` (4), `test_feature_registry.py` (5), `test_user_state_isolation.py` (9), `test_architecture_guards.py` (14), `test_mission_control_progressive.py`, `test_mission_control_navigation.py`, `test_ui_preferences.py`, `test_ui_preferences_sync.py` — 74 passed. Size budget: green.
+  - А1 закрывает DoD: sidebar ведёт на routed view; primary CTA работает через PENDING-навигацию; 0 мёртвых кнопок; 0 дублей сводок; debug за тиром; сайдбар видим на странице прогресса.
 
 ### A2. «Чистое зеркало»: кран, джойн, чистка — строго в этом порядке
 
@@ -216,7 +227,9 @@
 
 ## Рекомендованный порядок
 
-A1 → A2 (можно параллельно) → B1 → B2 → B3 → C1 → C2 → C3.
+✅ A1 → ✅ A2 → B1 → B2 → B3 → C1 → C2 → C3.
+
+Обе P0-волны #22 shipped 2026-07-19. Продолжение с #23 P0-1.
 
 ## Явно НЕ входит в план (вердикты разбора)
 
