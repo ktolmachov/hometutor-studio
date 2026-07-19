@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Разбор №27 — Протокол суда пишет обвиняемый</title>
+<style>
+  /* ============================================================
+     HOMETUTOR NOTEBOOK STYLE v1.0 — LOCKED 2026-07-12
+     Копия notebook_template.html. Менять только содержимое
+     между <div class="wrap"> ... </div>. Гайд: notebook_deck_guide.md.
+     ============================================================ */
+  :root {
+    --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+    --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+    --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+      --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+      --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(157, 191, 168, 0.10);
+      --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+      --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+    --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+    --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+    --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+    --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+      radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--terra-deep); }
+  em { color: var(--muted); }
+
+  code {
+    font-family: Consolas, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--terra);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 0.95rem; color: var(--gold);
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .sec-name {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem;
+    font-weight: 700; color: var(--muted);
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.1rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+  }
+  .anchor-card { border-left: 4px solid var(--terra); }
+  .ev { font-size: 0.86rem; color: var(--muted); margin-top: 0.5rem; }
+  .ev code { font-size: 0.8rem; }
+
+  .figure { margin: 1.4rem 0 0.4rem; }
+  .figure svg { width: 100%; height: auto; display: block; }
+  .figcap { font-size: 0.84rem; color: var(--muted); margin-top: 0.5rem; max-width: 70ch; }
+
+  .table-scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  td:first-child { white-space: nowrap; }
+  td { font-variant-numeric: tabular-nums; }
+
+  .st { display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 99px; white-space: nowrap; }
+  .st-done { color: var(--done); border: 1px solid var(--done); }
+  .st-silent { color: var(--silent); border: 1px solid var(--silent); }
+  .st-hole { color: var(--hole); border: 1px solid var(--hole); }
+
+  .v { display: inline-block; font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+       letter-spacing: 0.08em; padding: 0.1rem 0.55rem; border-radius: 99px; margin-right: 0.5rem; }
+  .v-keep { color: var(--verdict-keep); border: 1.5px solid var(--verdict-keep); }
+  .v-fix { color: var(--verdict-fix); border: 1.5px solid var(--verdict-fix); }
+  .v-no { color: var(--verdict-no); border: 1.5px solid var(--verdict-no); }
+
+  .tension { border-left: 4px solid var(--gold); }
+  .tension .t { font-family: Georgia, serif; font-size: 1.05rem; margin-bottom: 0.35rem; }
+  .syn { color: var(--verdict-keep); font-weight: 600; }
+
+  .ladder { list-style: none; padding-left: 0; }
+  .ladder li { display: flex; gap: 0.8rem; align-items: baseline; margin-bottom: 0.55rem; }
+  .ladder .num {
+    flex: none; font-family: Georgia, serif; font-weight: 700; color: var(--gold);
+    width: 1.6rem; text-align: right;
+  }
+
+  .tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.08rem 0.5rem;
+         border-radius: 4px; color: var(--paper-2); }
+  .tag-p0 { background: var(--terra); }
+  .tag-p1 { background: var(--forest); }
+  .tag-p2 { background: var(--gold); }
+  :root[data-theme="dark"] .tag, :root[data-theme="dark"] .tag-p2 { color: #141a16; }
+  @media (prefers-color-scheme: dark) { .tag { color: #141a16; } }
+  :root[data-theme="light"] .tag { color: var(--paper-2); }
+
+  .footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
+            font-size: 0.85rem; color: var(--muted); }
+  .footer code { font-size: 0.8rem; }
+
+  a { color: var(--terra); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">Эволюционный разбор · №27 · инженерный процесс: контур доверия к локальной модели</div>
+  <h1>Протокол суда пишет обвиняемый</h1>
+  <p class="lede">Локальный coding-контур для Qwen3-Coder-Next жив и быстр: сегодняшний
+  живой прогон закрыл полный цикл patch → tests → evidence за <strong>2,9 секунды</strong>
+  против реального production-сервера. Но триггер измеряет собственные границы —
+  write-set и набор тестов — по декларации <em>той же модели</em>, которую проверяет,
+  а вход по умолчанию указывает на alias, которого сервер не знает. Пока печать доверия
+  ставит сам подсудимый, автономность нельзя повышать — можно только измерить,
+  в какой именно точке она соврёт первой.</p>
+  <div class="meta">
+    <span>hometutor-studio · HEAD <code>545d155</code> «113»</span>
+    <span>hometutor · HEAD <code>c5182b9</code> «357»</span>
+    <span>2026-07-19 · ревизия v1.1 после контр-аудита (перенос контура в hometutor)</span>
+    <span>E2/E3: 4 живых прогона против production llama.cpp + 98/98 unit-тестов</span>
+  </div>
+</header>
+
+<!-- ПАСПОРТ -->
+<section id="passport">
+  <div class="table-scroll">
+    <table>
+      <tr><th>Паспорт</th><th></th></tr>
+      <tr><td>Область покрытия</td><td>инженерный процесс разработки (аналог №12, не продуктовая
+        UX-область) — контур «план → декомпозиция → local/cloud исполнение → проверка»</td></tr>
+      <tr><td>Стадии учебного цикла</td><td>не применимо — уровень студии/инструментов, не путь
+        студента (прецедент: №12 «Архитектура и дизайн»)</td></tr>
+      <tr><td>Сигнал результата</td><td>доля Execution Packets, исполненных локальной моделью без
+        ручной правки patch и подтверждённых независимым cloud-ревью (Verified Local Completion Rate)</td></tr>
+      <tr><td>Сквозная болезнь</td><td><code>PAIN-02</code> — закон вне ежедневного цикла:
+        authoritative write-set/tests описаны в guide словами, но код валидирует границы
+        по декларации самой модели, а не по задаче</td></tr>
+      <tr><td>Доказательность</td><td><strong>E2</strong> — живой прогон триггера против
+        запущенного production-сервера (default alias → <code>exit 2</code>; исправленный alias →
+        полный PASS за 2,9 с, evidence-only contract, 98/98 vitest)</td></tr>
+      <tr><td>Отличие от №12</td><td>№12 — стены и сигнализация внутри кода продукта; здесь —
+        стены и сигнализация внутри процесса, которым сам код пишется</td></tr>
+      <tr><td>Отличие от №5</td><td>№5 — доверие рантайма к LLM-провайдеру (circuit breaker в
+        проде); здесь — доверие процесса разработки к исполнителю кода</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 1. СУТЬ -->
+<section id="essence">
+  <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Суть</span></div>
+  <h2>Чего по-настоящему хочет разработчик, отдавая задачу модели</h2>
+  <p>Не «локальная модель в IDE» — а дешёвый, контролируемый и доказуемый способ превращать
+  часть плана в рабочий код. Ценность локальной модели не в бесплатности токенов вообще,
+  а в дешёвых <strong>draft-токенах внутри контура</strong>, где границы держит не модель,
+  а детерминированный код вокруг неё. Облачные токены дороги на массовую генерацию, но дёшевы
+  на компиляцию задач и ревью диффов; локальные токены бесплатны, но по умолчанию недоверенны.
+  Оптимум: облако думает и проверяет (мало токенов, высокая ставка), локальная модель печатает
+  (много токенов, низкая ставка), а границы держит код, у которого ставка — ноль. Сегодняшняя
+  находка: этот контур уже <em>физически</em> существует и работает за секунды — разбор
+  фиксирует, где именно он сейчас доверяет не тому и не тем.</p>
+</section>
+
+<!-- 2. РЕАЛЬНОСТЬ -->
+<section id="reality">
+  <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Реальность</span></div>
+  <h2>Что уже есть в коде и что показал живой прогон</h2>
+
+  <div class="card">
+    <p><strong>Production runtime зафиксирован и подтверждён живьём.</strong>
+    Модель <code>qwen3-coder-next-q4ks</code> (Qwen3-Coder-Next, ~80B, Q4_K_S) прошла
+    Home Coder gate: 6/6 исполняемых hidden-задач PASS, agent workflow 100%, strict quality
+    95%. Production API сегодня отвечает: <code>n_ctx=65536</code>, <code>n_params=79 674 391 296</code>,
+    единственный alias — <code>qwen3-coder-next-q4ks</code>. Registry: <code>ACCEPTED_CODING_PRIMARY</code>,
+    runtime profile <code>no_mmap_prio2</code>.</p>
+  </div>
+
+  <div class="card">
+    <p><strong>Триггер — не набросок, а рабочий 910-строчный модуль.</strong>
+    <code>hometutor-studio@545d155:scripts/llamacpp_agent_trigger.ts</code> уже умеет:
+    паковать read-set в контекст с лимитами и truncation-флагом, требовать строгий порядок
+    секций и запрещать <code>&lt;think&gt;</code>, извлекать единственный fenced diff,
+    нормализовать hunk counts, применять патч через <code>git apply --check/--recount</code>,
+    откатывать свой же патч при провале тестов и писать <code>execution_contract.md</code>
+    только из фактического evidence. 98 из 98 unit-тестов зелёные.</p>
+    <p class="ev">Это качественный adapter — проблема не в нём, а в том, откуда он берёт
+    границы (см. §4).</p>
+  </div>
+
+  <div class="figure">
+    <svg viewBox="0 0 700 660" xmlns="http://www.w3.org/2000/svg" role="img"
+         aria-label="Конвейер из десяти звеньев от плана до независимого ревью, каждое отмечено статусом: сделано, работает-но-не-туда или дыра">
+      <line x1="50" y1="46" x2="50" y2="530" stroke="var(--line)" stroke-width="2"/>
+      <!-- 1 plan/packet -->
+      <circle cx="50" cy="30" r="15" fill="var(--paper-2)" stroke="var(--silent)" stroke-width="3"/>
+      <text x="80" y="26" font-size="13.5" fill="var(--ink)" font-weight="600">план / packet</text>
+      <text x="80" y="42" font-size="11.5" fill="var(--muted)">есть только для backlog; нет входа «план+промпт»</text>
+      <!-- 2 risk -->
+      <circle cx="50" cy="84" r="15" fill="var(--paper-2)" stroke="var(--silent)" stroke-width="3"/>
+      <text x="80" y="80" font-size="13.5" fill="var(--ink)" font-weight="600">risk classification</text>
+      <text x="80" y="96" font-size="11.5" fill="var(--muted)">regex-эвристика, llama.cpp не учтён</text>
+      <!-- 3 executor selection -->
+      <circle cx="50" cy="138" r="15" fill="var(--paper-2)" stroke="var(--hole)" stroke-width="3"/>
+      <text x="80" y="134" font-size="13.5" fill="var(--ink)" font-weight="600">executor selection</text>
+      <text x="80" y="150" font-size="11.5" fill="var(--muted)">llama.cpp отсутствует в registry/strategy</text>
+      <!-- 4 context packing -->
+      <circle cx="50" cy="192" r="15" fill="var(--paper-2)" stroke="var(--done)" stroke-width="3"/>
+      <text x="80" y="188" font-size="13.5" fill="var(--ink)" font-weight="600">context packing</text>
+      <text x="80" y="204" font-size="11.5" fill="var(--muted)">read-set → excerpts, лимиты — работает</text>
+      <!-- 5 model call -->
+      <circle cx="50" cy="246" r="15" fill="var(--paper-2)" stroke="var(--hole)" stroke-width="3"/>
+      <text x="80" y="242" font-size="13.5" fill="var(--ink)" font-weight="600">model call</text>
+      <text x="80" y="258" font-size="11.5" fill="var(--muted)">alias по умолчанию мёртв → exit 2 живьём</text>
+      <!-- 6 patch validation -->
+      <circle cx="50" cy="300" r="15" fill="var(--paper-2)" stroke="var(--hole)" stroke-width="3"/>
+      <text x="80" y="296" font-size="13.5" fill="var(--ink)" font-weight="600">patch validation</text>
+      <text x="80" y="312" font-size="11.5" fill="var(--muted)">сверяет diff с WRITE_SET модели, не задачи</text>
+      <!-- 7 apply -->
+      <circle cx="50" cy="354" r="15" fill="var(--paper-2)" stroke="var(--done)" stroke-width="3"/>
+      <text x="80" y="350" font-size="13.5" fill="var(--ink)" font-weight="600">apply (git apply)</text>
+      <text x="80" y="366" font-size="11.5" fill="var(--muted)">check/recount/rollback — надёжно</text>
+      <!-- 8 targeted tests -->
+      <circle cx="50" cy="408" r="15" fill="var(--paper-2)" stroke="var(--silent)" stroke-width="3"/>
+      <text x="80" y="404" font-size="13.5" fill="var(--ink)" font-weight="600">targeted tests</text>
+      <text x="80" y="420" font-size="11.5" fill="var(--muted)">команду выбирает модель, не задача/DoD</text>
+      <!-- 9 execution contract -->
+      <circle cx="50" cy="462" r="15" fill="var(--paper-2)" stroke="var(--done)" stroke-width="3"/>
+      <text x="80" y="458" font-size="13.5" fill="var(--ink)" font-weight="600">execution contract</text>
+      <text x="80" y="474" font-size="11.5" fill="var(--muted)">evidence-only, живой, PASS сегодня</text>
+      <!-- 10 review -->
+      <circle cx="50" cy="516" r="15" fill="var(--paper-2)" stroke="var(--hole)" stroke-width="3"/>
+      <text x="80" y="512" font-size="13.5" fill="var(--ink)" font-weight="600">независимый reviewer gate</text>
+      <text x="80" y="528" font-size="11.5" fill="var(--muted)">для packet-пути отсутствует полностью</text>
+
+      <!-- legend -->
+      <circle cx="70" cy="600" r="8" fill="var(--paper-2)" stroke="var(--done)" stroke-width="3"/>
+      <text x="86" y="605" font-size="12.5" fill="var(--muted)">сделано и работает</text>
+      <circle cx="280" cy="600" r="8" fill="var(--paper-2)" stroke="var(--silent)" stroke-width="3"/>
+      <text x="296" y="605" font-size="12.5" fill="var(--muted)">работает, но не туда</text>
+      <circle cx="480" cy="600" r="8" fill="var(--paper-2)" stroke="var(--hole)" stroke-width="3"/>
+      <text x="496" y="605" font-size="12.5" fill="var(--muted)">дыра</text>
+    </svg>
+    <p class="figcap">Десять звеньев пути от «плана» до «независимой проверки». Три готовы,
+    три работают не туда (эвристики и выбор без учёта llama.cpp), четыре — открытые дыры.
+    Мёртвый alias (5) и trust inversion (6) — центр боли §4.</p>
+  </div>
+
+  <h3>Девять стартовых гипотез — перепроверены живьём</h3>
+  <div class="table-scroll">
+    <table>
+      <tr><th>№</th><th>Гипотеза</th><th>Вердикт</th><th>Якорь</th></tr>
+      <tr><td>1</td><td>Alias по умолчанию устарел</td><td><span class="st st-hole">CONFIRMED · E2</span></td>
+        <td><code>llamacpp_agent_trigger.ts:22</code>; живой прогон → <code>exit 2</code></td></tr>
+      <tr><td>2</td><td>Production runtime ctx/batch/flags</td><td><span class="st st-done">CONFIRMED</span></td>
+        <td>live <code>n_ctx=65536</code>; отчёт §15.1</td></tr>
+      <tr><td>3</td><td>Patch сверяется с model-WRITE_SET</td><td><span class="st st-hole">CONFIRMED</span></td>
+        <td><code>::callLlamaCpp</code> строка 748</td></tr>
+      <tr><td>4</td><td>Tests выбирает модель</td><td><span class="st st-hole">CONFIRMED</span></td>
+        <td>строка 804, <code>extractTestCommands(parsed.testsRaw)</code></td></tr>
+      <tr><td>5</td><td>MAX_INPUT_TOKENS не hard gate</td><td><span class="st st-hole">CONFIRMED</span></td>
+        <td>читается (633), нигде не сравнивается с размером промпта</td></tr>
+      <tr><td>6</td><td>Нет response.model/finish_reason/dirty-baseline</td><td><span class="st st-hole">CONFIRMED</span></td>
+        <td>строка 728 читает только <code>content</code>; <code>gitChangedFiles</code> без pre-apply снимка</td></tr>
+      <tr><td>7</td><td>llama.cpp вне registry/strategy</td><td><span class="st st-hole">CONFIRMED</span></td>
+        <td><code>trigger_registry.ts::TRIGGER_REGISTRY</code> — 3 записи, llamacpp нет</td></tr>
+      <tr><td>8</td><td>scripts/local_llamacpp/* не в репозитории</td><td><span class="st st-hole">CONFIRMED</span></td>
+        <td><code>ls</code> → No such file; отчёт сам признаёт <code>BLOCKED_BY_TOOL_ERROR</code></td></tr>
+      <tr><td>9</td><td>Trigger — single-root</td><td><span class="st st-hole">CONFIRMED</span></td>
+        <td><code>process.cwd()</code> в 5 местах, ни одного <code>git -C</code></td></tr>
+    </table>
+  </div>
+
+  <h3>Расхождения guide ↔ report ↔ код</h3>
+  <div class="table-scroll">
+    <table>
+      <tr><th>Утверждение</th><th>Источник</th><th>Реальность</th></tr>
+      <tr><td>Canonical alias <code>qwen/qwen3-coder-next</code></td><td>agent_adapter_llamacpp.md</td>
+        <td>production: <code>qwen3-coder-next-q4ks</code> — guide устарел</td></tr>
+      <tr><td>batch 2048 / ubatch 512</td><td>guide §9</td><td>production: 512/128 (<code>no_mmap_prio2</code>)</td></tr>
+      <tr><td>«MIN_CONTEXT_TOKENS нужно добавить» (P1)</td><td>integration report §3</td>
+        <td>уже реализовано и оттестировано (<code>resolveMinContextTokens</code>)</td></tr>
+      <tr><td>«4 скрипта scripts/local_llamacpp GENERATED»</td><td>integration report §10</td>
+        <td>отсутствуют в репозитории</td></tr>
+      <tr><td>«Метрики в общий trigger_metrics.jsonl»</td><td>guide §8</td>
+        <td>свой файл; orchestrator читает <em>другой</em> файл — интеграция as-is сломает
+        чтение error_reason молча</td></tr>
+      <tr><td>«Kilo — только GUI»</td><td>agent_adapter_kilo.md</td>
+        <td>официальные docs: есть Kilo CLI, <code>kilo run --auto</code>, exit codes 0/124/1</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <p><strong>Kilo уже смотрит в правильную сторону.</strong> Конфиг в hometutor разнесён
+    по двум файлам: корневой <code>kilo.jsonc</code> задаёт только instructions
+    (<code>.kilo/rules/hometutor-agent.md</code>), а модель задаётся в
+    <code>.kilo/kilo.jsonc</code> — <code>llamacpp-local/qwen3-coder-next-q4ks</code>,
+    верный production alias. Официальная документация Kilo подтверждает поддержку локальных
+    OpenAI-compatible endpoint'ов и non-interactive <code>--auto</code>-режим с exit-кодами,
+    но evidence там остаётся самодекларацией агента: auto-approval режет по инструментам,
+    не по diff-путям.</p>
+  </div>
+</section>
+
+<!-- 3. ПРОТИВОРЕЧИЯ -->
+<section id="tensions">
+  <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Противоречия</span></div>
+  <h2>Напряжения — и их синтез</h2>
+
+  <div class="card tension">
+    <div class="t">Удобство IDE ↔ воспроизводимый headless-конвейер</div>
+    <p>Kilo незаменим для итеративной, исследовательской работы; headless-Runner незаменим
+    для measurable auto-routing. <span class="syn">Синтез:</span> разные плоскости одного
+    контракта — Kilo и Runner используют один production runtime, один alias и один формат
+    packet/evidence contract. Kilo для человека, Runner для машины; артефакты неразличимы
+    для reviewer.</p>
+  </div>
+  <div class="card tension">
+    <div class="t">Автономность ↔ жёсткая безопасность</div>
+    <p><span class="syn">Синтез:</span> gates неизменны навсегда; растёт только
+    routing-политика, и только по данным ledger (VLCR), а не по ощущению «сегодня прошло».</p>
+  </div>
+  <div class="card tension">
+    <div class="t">Большой контекст ↔ узкая понятная задача</div>
+    <p>64K — свойство сервера, не разрешение раздувать промпт. <span class="syn">Синтез:</span>
+    context budget — обязательное поле пакета (жёсткий gate до вызова модели), 128K остаётся
+    отдельным ручным профилем для редких long-repo задач.</p>
+  </div>
+  <div class="card tension">
+    <div class="t">Экономия cloud-токенов ↔ стоимость повторных исправлений</div>
+    <p><span class="syn">Синтез:</span> облако платит за маленькие артефакты (компиляция
+    пакета, ревью диффа), локальная модель — за большие (черновик + повторы). Полный
+    cloud-executor включается по policy, а не по нетерпению разработчика.</p>
+  </div>
+  <div class="card tension">
+    <div class="t">Два репозитория ↔ single-root исполнитель</div>
+    <p><span class="syn">Синтез:</span> Task Compiler режет двурепную задачу на два
+    single-root пакета с явной <code>dependencies</code>-связью; полномочия исполнителя
+    не расширяются ни на строку.</p>
+  </div>
+</section>
+
+<!-- 4. БОЛЬ-ЯКОРЬ -->
+<section id="pain">
+  <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Боль-якорь</span></div>
+  <h2>Одна конкретная проверяемая боль</h2>
+  <div class="card anchor-card">
+    <p><strong>Проверяемый факт:</strong> живой прогон триггера с параметрами по умолчанию
+    против реально запущенного production-сервера падает мгновенно — не из-за качества
+    модели, а из-за строки конфигурации, которую никто давно не сверял с registry.</p>
+    <p><strong>Точная причина в коде:</strong></p>
+    <ul>
+      <li><code>llamacpp_agent_trigger.ts:22</code> — <code>DEFAULT_MODEL = "qwen/qwen3-coder-next"</code>,
+        а production <code>/v1/models</code> отдаёт единственный alias
+        <code>qwen3-coder-next-q4ks</code>;</li>
+      <li><code>llamacpp_agent_trigger.ts:318,748</code> — <code>validatePatchAgainstWriteSet(diff,
+        parsed.writeSetRaw)</code> сверяет диф с декларацией <em>ответа модели</em>, а не
+        с write-set задачи — извлечения task-write-set в файле нет вообще;</li>
+      <li><code>llamacpp_agent_trigger.ts:804</code> — <code>extractTestCommands(parsed.testsRaw)</code>
+        берёт команды тестов из секции TESTS того же ответа.</li>
+    </ul>
+    <p class="ev">Живая проверка: прогон с дефолтным alias против запущенного сервера
+    падает за <strong>54 мс</strong> с <code>error_reason: model_alias_not_found</code>
+    (exit 2). После правки одной переменной окружения
+    (<code>LLAMACPP_MODEL=qwen3-coder-next-q4ks</code>) тот же процесс на том же
+    strict no-op задании проходит целиком за <strong>2860 мс</strong>: применяет диф
+    (в данном случае — «нет изменений»), пишет evidence-only
+    <code>execution_contract.md</code>, помечает proof как substantive. Параллельно
+    <code>npm.cmd run test:trigger</code> — 98/98 тестов зелёные. Контур жив и быстр;
+    сломан не он, а то, кому он верит на входе и на выходе.</p>
+  </div>
+</section>
+
+<!-- 5. ВЕРДИКТЫ -->
+<section id="verdicts">
+  <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Вердикты</span></div>
+  <h2>Решение по каждому элементу карты</h2>
+
+  <div class="card"><span class="v v-no">не делать</span><strong>Kilo как control plane.</strong>
+    Auto-approval режет по инструментам, не по diff-границам; evidence остаётся
+    самодекларацией агента даже в headless <code>--auto</code>-режиме.</div>
+  <div class="card"><span class="v v-no">не делать</span><strong>Встраивание llama.cpp
+    в <code>trigger_orchestrator.ts</code> сейчас.</strong> Метрики раздвоены — оркестратор
+    читает last-row <code>trigger_metrics.jsonl</code>, а llamacpp-триггер пишет в
+    собственный <code>llamacpp_agent_trigger.jsonl</code>; интеграция as-is сломает чтение
+    <code>error_reason</code> молча, и promotion-данных для llama.cpp пока нет (0 authoritative
+    прогонов в истории).</div>
+  <div class="card"><span class="v v-keep">оставить</span><strong>Hardened trigger как ядро
+    local-adapter'а.</strong> Контур уже живой, быстрый (2,9 с) и качественно спроектирован
+    (write-set gate, hunk normalize, controlled apply, evidence-only contract) — чинить
+    входы и выходы доверия, не переписывать заново.</div>
+  <div class="card"><span class="v v-fix">починить</span><strong>Alias и runtime defaults.</strong>
+    Одна строка правки (<code>DEFAULT_MODEL</code> + guide/`.env.example` sync) — ROI
+    огромный: контур мгновенно из «падает на старте» переходит в «работает».</div>
+  <div class="card"><span class="v v-fix">починить</span><strong>Trust inversion write-set/tests.</strong>
+    Центральный фикс: task write-set/tests становятся authoritative, model-декларация —
+    только предложением, которое обязано быть подмножеством.</div>
+  <div class="card"><span class="v v-fix">починить</span><strong>Место жительства контура.</strong>
+    Контур исполнения пакетов переезжает в <code>hometutor/scripts/agent_exec/</code> —
+    туда, где он применяет диффы: cwd корректен by construction, packet-путь выходит
+    из-под studio-SSoT (<code>AGENTS.md:138</code>), Kilo/.venv/pytest уже там. Backlog-машина
+    (workflow.py, cursor/deepseek, orchestrator) остаётся в studio — переносится только
+    контур. Цена признана: корневой <code>package.json</code> в hometutor + урезанный
+    <code>_exec_shared.ts</code> (bounded-дубликация, сведение — P2).</div>
+  <div class="card"><span class="v v-fix">починить</span><strong>Kilo — оставить интерактивным
+    рабочим местом и ручным escape hatch,</strong> не контуром принятия решений; production
+    alias там уже верный, менять нечего.</div>
+  <div class="card"><span class="v v-keep">оставить</span><strong><code>workflow.py</code> —
+    перевести в compatibility mode,</strong> не убирать. Backlog-driven работа продолжает
+    его использовать; <code>--trigger-cmd</code> уже принимает произвольную команду, значит
+    llamacpp-триггер можно дёрнуть из старого loop уже сегодня без единой правки.</div>
+  <div class="card"><span class="v v-no">не делать</span><strong>Полную автономность /
+    auto-routing до shadow-серии.</strong> Один удачный smoke — не основание; нужны
+    ≥10 реальных пакетов с cloud-ревью каждого диффа, прежде чем local-direct станет
+    маршрутом по умолчанию хоть для одного класса задач.</div>
+</section>
+
+<!-- 6. ЦЕННОСТЬ -->
+<section id="value">
+  <div class="sec-label"><span class="sec-num">6</span><span class="sec-name">Ценность</span></div>
+  <h2>Verified Local Completion Rate — и честный ноль</h2>
+  <p>Уникальность хода — не «ещё один локальный LLM-адаптер», а перенос доверия с
+  исполнителя на контракт: local/cloud/Kilo/человек становятся взаимозаменяемыми деталями
+  за одним и тем же Evidence Gate. Единственная метрика, которая доказывает это измеримо —
+  доля пакетов, реально доведённых локальной моделью до independent-approved состояния.</p>
+  <div class="table-scroll">
+    <table>
+      <tr><th>Метрика</th><th>Формула / источник</th><th>Baseline</th><th>Target</th><th>Статус</th></tr>
+      <tr><td><strong>VLCR</strong></td><td>verified ÷ (verified + failed + policy_violation);
+        blocked/reject/transient — вне формулы, отдельными rate;
+        <code>verified_packets.jsonl</code></td><td><strong>0%</strong> — 6 исторических
+        прогонов, все smoke на старом alias, ни одного authoritative</td>
+        <td>≥80% на shadow ≥10 пакетов (KPI guide §8)</td><td><span class="st st-silent">wire-in-P0</span></td></tr>
+      <tr><td>Review defect rate</td><td>замечания cloud-reviewer на принятых патчах</td>
+        <td>не измерено</td><td>0 критичных на 10 shadow-пакетах</td>
+        <td><span class="st st-silent">wire-in-P0</span></td></tr>
+      <tr><td>Lead time / packet</td><td>время от компиляции до verified</td>
+        <td>не измерено</td><td>сравнить с cloud-only baseline</td>
+        <td><span class="st st-silent">wire-in-P1</span></td></tr>
+      <tr><td>Retries / packet</td><td>попытки до PASS</td><td>не измерено</td>
+        <td>снижаться по мере roadmap</td><td><span class="st st-silent">wire-in-P1</span></td></tr>
+      <tr><td>Cloud tokens saved</td><td>оценка размера драфта × cloud-цена минус
+        компиляция+ревью</td><td>не измерено</td><td>вторичная, после P0</td>
+        <td><span class="st st-hole">not-measurable (UNKNOWN)</span></td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 7. ПУТЬ -->
+<section id="path">
+  <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Путь</span></div>
+  <h2>Золотой путь пакета и лестница зрелости</h2>
+  <p><strong>Золотой путь одного пакета:</strong> готовый план → облачный Task Compiler режет
+  его на Execution Packet (авторится в studio, <code>doc/packets/</code>) → детерминированный
+  <code>packet_policy</code> в <code>hometutor/scripts/agent_exec/</code> делает pre-flight
+  (path-safety, денилист, risk-пересчёт) и выбирает <code>local-direct</code> → hardened
+  <code>llamacpp_agent_trigger</code> вызывает <code>qwen3-coder-next-q4ks</code> из cwd=hometutor
+  → patch/tests проверяются против <em>задачи</em>, не модели → git apply + targeted tests →
+  evidence-only contract + per-run receipt → независимый cloud-reviewer APPROVE → запись
+  <code>packet_id+run_id</code> в <code>verified_packets.jsonl</code>.</p>
+  <ol class="ladder">
+    <li><span class="num">0</span><span><strong>Disposable no-op smoke.</strong> Пройден
+      сегодня живьём: 2,9 с, evidence-only contract, 98/98 unit — фундамент есть.</span></li>
+    <li><span class="num">1</span><span><strong>Disposable real patch.</strong> Один файл,
+      один failing test, authoritative write-set/tests — первый прогон после P0-1.</span></li>
+    <li><span class="num">2</span><span><strong>5 реальных low-risk пакетов подряд.</strong>
+      Promotion-порог из integration report — ещё не начат.</span></li>
+    <li><span class="num">3</span><span><strong>Shadow-серия ≥10 пакетов.</strong>
+      Cloud-reviewer проверяет каждый дифф; auto-merge выключен — P1.</span></li>
+    <li><span class="num">4</span><span><strong>Auto-routing «зелёных» классов.</strong>
+      Только после promotion gates §8 — P2, не раньше.</span></li>
+  </ol>
+</section>
+
+<!-- 8. ПЛАН -->
+<section id="plan">
+  <div class="sec-label"><span class="sec-num">8</span><span class="sec-name">План</span></div>
+  <h2>P0–P2 по соотношению эффект/усилие</h2>
+  <div class="table-scroll">
+    <table>
+      <tr><th></th><th>Ход</th><th>Что делается</th><th>Усилие</th></tr>
+      <tr><td><span class="tag tag-p0">P0-1</span></td>
+        <td><strong>Relocation + Authoritative Trigger Hardening.</strong></td>
+        <td>перенос контура в <code>hometutor/scripts/agent_exec/</code> (cwd = repo диффа
+        by construction; studio-копия удаляется после sign-off); alias-дефолт на
+        <code>qwen3-coder-next-q4ks</code>; task-write-set/tests authoritative (model ⊆ task);
+        input hard cap ≤20K (<code>token_safety_registry</code>); response.model/finish_reason/
+        reasoning gates; baseline-snapshot c untracked до apply. Исполнитель: cloud/human —
+        модели нельзя патчить собственный контур доверия.</td><td>часы</td></tr>
+      <tr><td><span class="tag tag-p0">P0-2</span></td>
+        <td><strong>Execution Packet Runner v0 + ledger + ADR.</strong></td>
+        <td>YAML-схема пакета (read-set c sha256), <code>packet_policy.ts</code> — repo-allowlist,
+        realpath containment, встроенный денилист; per-run receipt + <code>run_id</code>
+        (никакого last-row чтения); post-verify по дельте к baseline в границах write-set;
+        <code>verified_packets.jsonl</code> (North star wired); ADR о сосуществовании
+        с backlog-SSoT studio. Весь контур — только cloud/human, без исключений.</td><td>дни</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td>
+        <td>Shadow-серия и VLCR-отчёт.</td>
+        <td>5 реальных low-risk задач (promotion из guide) → затем ≥10 пакетов shadow с
+        cloud-ревью каждого диффа; скрипт агрегации ledger'а.</td><td>дни</td></tr>
+      <tr><td><span class="tag tag-p2">P2</span></td>
+        <td>Auto-routing и расширение adapters.</td>
+        <td>local-direct для «зелёных» классов только после promotion gates; Kilo CLI как
+        второй adapter; парные пакеты для two-root; workflow.py — окончательно legacy-режим.</td>
+        <td>волна</td></tr>
+    </table>
+  </div>
+  <p><strong>Kill switch:</strong> 1 write-set violation, 1 dirty-worktree конфликт или
+  1 ложный evidence contract на shadow-серии — стоп немедленно, promotion не продолжается.
+  Также стоп, если для маршрутизации потребовалось изменить сам trigger/runner изнутри
+  локальной моделью — самомодификация контура доверия запрещена навсегда.</p>
+</section>
+
+<div class="footer">
+  <p>Разбор №27 · hometutor-studio HEAD <code>545d155</code> «113» / hometutor HEAD
+  <code>c5182b9</code> «357» · 2026-07-19.</p>
+  <p>Правило двух слоёв: этот HTML — слой анализа; actionable-план — в
+  <code>doc/next/local_model_execution_packet_plan.md</code>. Серия:
+  <code>doc/presentations/evolutionary_analyses/</code>.</p>
+</div>
+
+</div>
+</body>
+</html>
