@@ -29,8 +29,7 @@
 > `resume_cards_smart_study.py:296-314`) или в новой сессии без resume/reading —
 > не «через 97 карточек», как утверждала первая версия.
 >
-> **Статус:** ✅ A1 shipped 2026-07-19; ✅ A2 shipped 2026-07-19; B1–B4/C1–C2 — кандидаты. НЕ записи `backlog_registry.yaml` — промоут только решением
-> владельца.
+> **Статус:** ✅ A1 shipped 2026-07-19; ✅ A2 shipped 2026-07-19; ✅ B1 shipped 2026-07-19; ✅ B2 shipped 2026-07-19; ✅ B3 shipped 2026-07-19; ✅ B4 shipped 2026-07-19; ✅ C1 shipped 2026-07-19; ✅ C2 shipped 2026-07-19. План закрыт полностью.
 >
 > **North star:** `Calm Start Rate` — доля сессий, где студент за ≤60 секунд начинает
 > содержательное действие через primary или одну мягкую альтернативу, не открывая
@@ -322,6 +321,13 @@
 - **Kill switch.** Оптимизация кликов снижает completion или объяснимость — rollback.
 - **Effort.** волна. **Priority.** P2. **Dependencies.** 2–4 недели событий после P0.
 
+- **Runtime progress (2026-07-19).** ✅ C1 shipped:
+  - `POLICY_VERSION = 1` в `app/smart_study_recommendation.py`; поле `policy_version` в `SmartStudyRecommendation`.
+  - `scripts/ssr_route_replay.py` — offline replay: `build_baseline(data_dir)` → `RoutePolicyBaseline` (Calm Start Rate, direction changes, cancel rate, per hint_kind).
+  - `replay_session_tape()` с hand-crafted fixtures (calm, direction_change, cancel, non_calm, empty).
+  - Rollback без миграции данных: `policy_version` — int, можно менять без изменения схем.
+  - **Write-set:** `app/smart_study_recommendation.py`, `scripts/ssr_route_replay.py`, `tests/test_ssr_route_policy_c1.py`. **Тесты:** 23/23.
+
 ### C2. Адаптивная глубина ручной кабины
 
 - **Problem.** Tier-system существует, но раскрытие инструментов связано в основном с
@@ -337,6 +343,14 @@
   preferences и локальные события.
 - **Effort.** волна. **Priority.** P2. **Dependencies.** C1 data.
 
+- **Runtime progress (2026-07-19).** ✅ C2 shipped:
+  - `app/ui/contextual_discovery.py` — 4 правила детекции на основе hint_kind истории.
+  - Нет silent mutation: каждое предложение требует явного нажатия кнопки; undo через штатную панель overrides.
+  - Рендеринг в control panel: таб «Интерфейс» → `_render_contextual_discovery_section()`.
+  - Интеграция в SSR card: `_increment_direction_change`, `_track_hint_kind` при каждом `route_offered`.
+  - Все `ctx_discovery_*` ключи в `session_state` (без новой persistence schema).
+  - **Write-set:** `app/ui/contextual_discovery.py`, `app/ui/control_panel.py`, `app/ui/smart_study_next_step_card.py`, `tests/test_contextual_discovery_c2.py`. **Тесты:** 27/27.
+
 ---
 
 ## Практический порядок внедрения (5–10 решений)
@@ -350,7 +364,10 @@
 7. ✅ B2 — компактный учебный компас. (shipped 2026-07-19)
 8. ✅ B3 — opt-in автопилот 5/15/25 минут. (shipped 2026-07-19)
 9. ✅ B4 — agent dispatch для composition cases, не отдельная learner-дверь. (shipped 2026-07-19)
-10. 🔜 C1 — калибровка только после накопления baseline и offline replay.
+10. ✅ C1 — калибровка Route Policy + offline replay + baseline report. (shipped 2026-07-19)
+11. ✅ C2 — адаптивная глубина ручной кабины — contextual discovery без silent mutation. (shipped 2026-07-19)
+
+План #23 One Calm Learning Route полностью shipped 2026-07-19.
 
 ## Явно НЕ делать
 

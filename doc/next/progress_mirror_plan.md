@@ -6,7 +6,7 @@
 > UI (клик по CTA, DOM-проверка `hasSidebar:false`, пиксельный замер canvas) и прямыми
 > запросами к живой `D:\AI\app\data\user_state.db`.
 >
-> **Статус:** ✅ A1 shipped 2026-07-19; ✅ A2 shipped 2026-07-19; ✅ B1 shipped 2026-07-19; ✅ B2 shipped 2026-07-19; ✅ B3 shipped 2026-07-19; C1–C3 — кандидаты. НЕ записи `backlog_registry.yaml` — промоут решением владельца.
+> **Статус:** ✅ A1 shipped 2026-07-19; ✅ A2 shipped 2026-07-19; ✅ B1 shipped 2026-07-19; ✅ B2 shipped 2026-07-19; ✅ B3 shipped 2026-07-19; ✅ C1 shipped 2026-07-19; ✅ C2 shipped 2026-07-19; ✅ C3 shipped 2026-07-19. План закрыт полностью.
 >
 > **North star разбора:** «зеркальная точность» — доля строк главного таба «Прогресса»,
 > подтверждённых реальным действием студента, = 100% (на 2026-07-18 в Emotional Heatmap
@@ -214,6 +214,14 @@
   должен уметь это говорить.
 - **Effort.** волна. **Dependencies.** A2.
 
+- **Runtime progress (2026-07-19).** ✅ C1 shipped:
+  - Empty-state при пустых quiz_results: `st.info(...)` с честным сообщением (различает «таблица пуста» vs «записи не в активном графе»).
+  - `build_forgetting_curve_points` больше не возвращает синтетическую кривую при пустом SM-2.
+  - `total_quiz_results` / `scoped_quiz_results` / `has_quiz_data` в `get_advanced_analytics()`.
+  - Диагностика (Lineage/Archive) за `feature_visible_by_id("panel:expert_controls")`.
+  - `st.stop()` убран — SM-2 кривая удержания рендерится независимо от quiz.
+  - **Write-set:** `app/analytics_service.py`, `app/ui/pages/4_Аналитика.py`, `tests/test_analytics_service.py`. **Тесты:** 7/7.
+
 ### C2. Подграф эмоций — слоем на карту KG
 
 - **Problem.** Третий рендер графа на странице прогресса пуст (canvas 1200×560 без
@@ -224,6 +232,14 @@
   домен не меняется — по образцу слоёв №15/№17).
 - **Effort.** волна. **Dependencies.** A1, A2.
 
+- **Runtime progress (2026-07-19).** ✅ C2 shipped:
+  - `_EMOTION_LEGEND` (5 состояний → эмодзи+лейбл), `_load_emotion_rows_safe()`, `_latest_emotion_by_concept()`.
+  - `emotion_score` / `emotion_state` на каждый узел в `build_kg_payload()` (по образцу worth).
+  - `emotion_legend` в payload; `__EMOTION_LEGEND__` в HTML-рендере.
+  - Emotion-строка в D3-тултипе: `😊 Увлечён`.
+  - Пустой agraph-рендер (1200×560) убран из `_render_extras_section_b`.
+  - **Write-set:** `app/ui/knowledge_graph_d3.py`, `app/ui/assets/knowledge_graph_d3_template.html`, `app/ui/dashboards_progress_home.py`, `tests/test_knowledge_graph_emotion.py`. **Тесты:** 9/9.
+
 ### C3. Реальный user_id вместо "local"
 
 - **Problem.** `pages/3:79` жёстко передаёт `user_id="local"` в PLM при живом
@@ -233,13 +249,20 @@
   тот же паттерн, что в contextvar-гейте `require_ui_auth_or_stop`.
 - **Effort.** часы (но P2: single-user сегодня). **Dependencies.** A1.
 
+- **Runtime progress (2026-07-19).** ✅ C3 shipped:
+  - `query_tutor_context.py`: `user_id="local"` → `get_current_user_id()` с fallback None.
+  - `routers/dashboard.py`: `AdaptiveDailyPlan("local")` → `get_current_user_id()`.
+  - `ui/learner_profile_panel.py`: `get_personalized_learner_profile("local")` → `st.session_state.get("user_id")`.
+  - При `AUTH_ENABLED=true` — профиль вошедшего; при local mode — fallback "local".
+  - **Write-set:** `app/query_tutor_context.py`, `app/routers/dashboard.py`, `app/ui/learner_profile_panel.py`, `tests/test_user_id_fallback.py`. **Тесты:** 7/7.
+
 ---
 
 ## Рекомендованный порядок
 
-✅ A1 → ✅ A2 → ✅ B1 → ✅ B2 → ✅ B3 → C1 → C2 → C3.
+✅ A1 → ✅ A2 → ✅ B1 → ✅ B2 → ✅ B3 → ✅ C1 → ✅ C2 → ✅ C3.
 
-Волны #22 P0 + P1 shipped 2026-07-19. Остались P2-кандидаты C1–C3.
+План #22 Progress Mirror полностью shipped 2026-07-19.
 
 ## Явно НЕ входит в план (вердикты разбора)
 

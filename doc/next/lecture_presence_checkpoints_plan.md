@@ -33,7 +33,7 @@ schema_version 1): 120 разделов, 75 с `t_start/t_end`, 59 semantic-бл
 
 ---
 
-> **Статус:** ✅ P0-1 shipped 2026-07-19; ✅ P0-2 shipped 2026-07-19; ✅ P1 shipped 2026-07-19; P2 — кандидат.
+> **Статус:** ✅ P0-1 shipped 2026-07-19; ✅ P0-2 shipped 2026-07-19; ✅ P1 shipped 2026-07-19; ✅ P2 shipped 2026-07-19. План закрыт полностью.
 
 ## P0-1 «Маршрут лекции»: отрезки + ворота
 
@@ -135,6 +135,13 @@ schema_version 1): 120 разделов, 75 с `t_start/t_end`, 59 semantic-бл
 - **DoD.** Сигнал не требует новых слов от студента; предложение смены формата
   появляется в момент второго провала.
 - **Effort.** волна. **Priority.** P2. **Dependencies.** P0-1, P1.
+
+- **Runtime progress (2026-07-19).** ✅ P2 shipped:
+  - `consecutive_fails` в gate state (session_state, без новой persistence schema).
+  - Два провала подряд → `_render_boredom_format_switch()`: 3 CTA (🃏Карточки / 🎓3D-зал / ☕Пауза) через `PENDING_CURRENT_VIEW_KEY`.
+  - `_render_route_day_context()` — поиск `worth_reason` в `day_route` KG для шапки маршрута.
+  - Без LLM-арбитража, без камер/пауз/silence tracking.
+  - **Write-set:** `app/ui/living_konspekt_lecture_route.py`, `tests/test_lecture_boredom_p2.py`. **Тесты:** 13/13.
 
 ---
 
