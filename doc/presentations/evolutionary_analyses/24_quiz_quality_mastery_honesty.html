@@ -534,9 +534,12 @@
       flex-shrink: 0;
     }
 
-    .fill-optimist { background: linear-gradient(90deg, #3fb950, #56d364); width: 65%; }
-    .fill-pessimist { background: linear-gradient(90deg, #f85149, #ff6b6b); width: 37%; }
-    .fill-proxy    { background: linear-gradient(90deg, #d29922, #f0883e); width: 50%; }
+    .fill-optimist,
+    .fill-pessimist,
+    .fill-proxy {
+      background: repeating-linear-gradient(90deg, var(--border) 0 8px, transparent 8px 12px);
+      width: 0%;
+    }
     .fill-target   { background: linear-gradient(90deg, #58a6ff, #79c0ff); width: 0; }
 
     /* ── PLAN GRID ───────────────────────────────────── */
@@ -890,6 +893,7 @@
     <div class="meta-chip">📝 Коммит: <span>#336</span></div>
     <div class="meta-chip">🛣️ Quiz-путей: <span>5</span></div>
     <div class="meta-chip">📊 VLQR baseline: <span>не измерен</span></div>
+    <div class="meta-chip">🎨 Стиль: <span>исключение зафиксировано</span></div>
   </div>
 </div>
 
@@ -1611,6 +1615,7 @@
           <div class="callout-text">
             Число 75% удалено: без live baseline и анализа цены ошибок это была декларация.
             До измерения действует только строгий guardrail: critical unsupported question не должен обновлять mastery.
+            Пост-аудит 2026-07-19: визуальные бары неизмеренных значений нейтрализованы до width: 0%.
           </div>
         </div>
       </div>
@@ -1783,7 +1788,7 @@
   <div class="footer-text">
     hometutor · Серия №24 · Качество квизов и честность mastery<br/>
     HEAD: <code style="font-family:var(--font-mono); font-size:11px">07c8a2a8a1b4065e394cb0c70c6bca8f3a239156</code> · Коммит #336 · 2026-07-19<br/>
-    <span style="color: var(--text-muted);">Документ сгенерирован для внутреннего использования. Не является публичной документацией.</span>
+    <span style="color: var(--text-muted);">Документ сгенерирован для внутреннего использования. Не является публичной документацией. Стилевое исключение: документ не пересобран под notebook_template.html; отклонение зафиксировано явно.</span>
   </div>
 </footer>
 
