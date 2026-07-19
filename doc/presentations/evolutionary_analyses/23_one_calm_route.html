@@ -1,3 +1,4 @@
+<meta charset="utf-8">
 <title>Разбор №23 — Не меню режимов, а одна учебная нить</title>
 <style>
   /* ============================================================
@@ -198,8 +199,8 @@
   эти способности как равноправные двери. <strong>Студент сообщает намерение;
   система сохраняет нить и выбирает инструмент.</strong></p>
   <div class="meta">
-    <span>hometutor · HEAD <code>1f242b9d7</code> «374»</span>
-    <span>2026-07-18</span>
+    <span>hometutor · HEAD <code>9c4913c1d</code> «330»</span>
+    <span>2026-07-18 · ревизия 2026-07-19</span>
     <span>код + живой read-only прогон активного бандла и user-state</span>
   </div>
 </header>
@@ -239,7 +240,7 @@
       <tr><td>Один hero</td><td>Mission Control показывает SSR первым и прячет сетку под «Ещё режимы» (<code>mission_control.py:1115-1181</code>).</td><td><span class="st st-done">сделано</span> разбор простоты уже реализован</td></tr>
       <tr><td>Smart Study Router</td><td>Собирает due, последний quiz, resume тьютора, Q&amp;A, чтение и слабые понятия; выдаёт primary, reason и alternatives (<code>smart_study_router.py:45-114</code>).</td><td><span class="st st-done">ядро</span> кандидат на единый арбитр</td></tr>
       <tr><td>Приоритет SSR</td><td>Детерминированный каскад: карточки → concept-SM2 → ошибка quiz → план → resume → ответ → слабое место → safe default (<code>smart_study_recommendation.py:337-378</code>).</td><td><span class="st st-silent">локально</span> политика не владеет всеми «сегодня»</td></tr>
-      <tr><td>Намерения</td><td>Уже есть «Объясни проще», «Проверь меня», «Следующий шаг», «Дай задачу» (<code>tutor_chat_header.py:51-79</code>, <code>tutor_chat_render.py:354-392</code>); SSR secondary умеет открыть источники, тьютора, quiz, прогресс и карточки (<code>adaptive_plan_card.py:69-114</code>).</td><td><span class="st st-done">словарь</span> пока живёт внутри отдельных экранов</td></tr>
+      <tr><td>Намерения</td><td>Уже есть «Объясни проще», «Проверь меня», «Следующий шаг», «Дай задачу на применение» (<code>tutor_chat_header.py:51-79</code>, <code>tutor_chat_render.py:354-392</code>); SSR secondary умеет открыть источники, тьютора, quiz, прогресс и карточки (<code>adaptive_plan_card.py:69-114</code>).</td><td><span class="st st-done">словарь</span> пока живёт внутри отдельных экранов</td></tr>
       <tr><td>Дневной план</td><td>Сам показывает свой «Следующий шаг» и отдельно строит SSR с primary block (<code>adaptive_plan_hub_layout.py:91-185</code>).</td><td><span class="st st-silent">советчик №2</span> верная логика, отдельный центр</td></tr>
       <tr><td>Маршрут Мнемополиса</td><td>Ранжирует узлы по due, novelty, decay, frontier и reach; выбирает до шести остановок (<code>knowledge_graph_d3_analysis.py:227-293,386-444</code>).</td><td><span class="st st-silent">советчик №3</span> полезная проекция, не общий маршрут</td></tr>
       <tr><td>ИИ-агент</td><td>Отдельный view «Собрать учебную сессию»; read-only tools для RAG, профиля, mastery, quiz, карточек-черновиков, графа и конспекта (<code>agent/tool_registry.py:1-18,129-144</code>).</td><td><span class="st st-hole">не навигатор</span> дверь выключена по умолчанию</td></tr>
@@ -339,6 +340,14 @@
     <code>multi-agent-systems</code>, <code>hierarchy-topology</code>,
     <code>ai-agent</code>, <code>rag</code>, <code>tools</code>, <code>lamock</code>.
     Агентная дверь при этом: <code>agent_enabled=False</code>.</p>
+    <p><strong>Контрольный прогон «завтра» (ревизия 2026-07-19, HEAD «330»):</strong>
+    все числа воспроизвелись — и пустые очереди показали худшее. Стоит разобрать
+    97 карточек, и главная предложит «вернуться к <code>TopicB</code>»: живой вызов
+    <code>get_weak_concepts()</code> отдаёт <code>['TopicB', 'agent-harness']</code>,
+    где TopicB — не тема студента, а тестовая фикстура соседнего репозитория
+    (диагноз №22). Экран плана в ту же секунду зовёт к реальной мини-практике
+    «agent-harness». Одна память, один момент — два «следующих шага», и один из них
+    ведёт к теме, которой не существует.</p>
     <p><strong>Точная причина в коде:</strong></p>
     <ul>
       <li><code>mission_control.py:267-297</code> собирает SSR для home, но сознательно
@@ -350,13 +359,18 @@
       «Следующий шаг» плана и затем строит собственный SSR;</li>
       <li><code>knowledge_graph_d3_analysis.py:386-444</code> независимо выбирает до
       шести actionable-узлов по worth;</li>
+      <li><code>mission_control.py:288</code> подаёт в SSR первый weak-концепт из
+      <code>quiz_adaptive.get_weak_concepts()</code> как есть — сегодня это фикстура
+      <code>TopicB</code>; каскад без арбитра доносит её до hero, как только очереди
+      пустеют;</li>
       <li><code>config.env:81-82</code> держит <code>AGENT_ENABLED=false</code>, а
       <code>main.py:451-489</code> оформляет агента отдельным режимом с новым вводом.</li>
     </ul>
     <p class="ev">Каждый совет педагогически защитим. Совместно они возвращают
     студенту главный вопрос, который система обещала снять: «кому из вас верить и что
     мне нажать сейчас?» Это не недостаток алгоритмов — это отсутствие арбитража между
-    ними.</p>
+    ними. И арбитр отвечает ещё и за чистоту сигналов: пока изоляция тестов из №22 не
+    отгружена, самый уверенный маршрут может спокойно вести к призраку.</p>
   </div>
 </section>
 
@@ -538,9 +552,11 @@
 </section>
 
 <div class="footer">
-  <p>Разбор №23 · hometutor HEAD <code>1f242b9d7</code> «374» · 2026-07-18 ·
-  живой read-only прогон: 97 due-карточек, plan gap <code>agent-harness</code>,
-  6 frontier-остановок, <code>AGENT_ENABLED=false</code>.</p>
+  <p>Разбор №23 · hometutor HEAD <code>9c4913c1d</code> «330» · 2026-07-18, ревизия
+  2026-07-19 · живой read-only прогон: 97 due-карточек, plan gap
+  <code>agent-harness</code> (0.44), 6 frontier-остановок,
+  <code>AGENT_ENABLED=false</code>; контрольный прогон «завтра»: пустые очереди →
+  главная зовёт к фикстуре <code>TopicB</code>, план — к <code>agent-harness</code>.</p>
   <p>Связи серии: №4 — агент как одна кнопка; №7 — единый контекст плана; №10 —
   видимая петля; №15/17 — route-first карта; реализованный
   <code>learning_loop_simplicity_plan.md</code> — один hero. Правило двух слоёв:

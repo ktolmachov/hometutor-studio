@@ -2,10 +2,14 @@
 
 > **Источник:** эволюционный разбор №23
 > ([`../presentations/evolutionary_analyses/23_one_calm_route.html`](../presentations/evolutionary_analyses/23_one_calm_route.html)),
-> hometutor HEAD `1f242b9d7` «374», 2026-07-18. Боль-якорь подтверждена
-> read-only прогоном на живом user-state и активном бандле: SSR → 97 due-карточек;
-> сохранённый адаптивный план → gap `agent-harness` (mastery 0.44); KG day route →
-> 6 новых frontier-концептов; `AGENT_ENABLED=false`.
+> hometutor HEAD `9c4913c1d` «330», 2026-07-18 (ревизия 2026-07-19). Боль-якорь
+> подтверждена read-only прогоном на живом user-state и активном бандле: SSR → 97
+> due-карточек; сохранённый адаптивный план → gap `agent-harness` (mastery 0.44);
+> KG day route → 6 новых frontier-концептов; `AGENT_ENABLED=false`. Контрольный
+> прогон «завтра» (пустые очереди): home SSR предлагает «вернуться к `TopicB`» —
+> фикстуре тестов studio из `quiz_mastery` (диагноз №22, `get_weak_concepts()` →
+> `['TopicB', 'agent-harness']`), тогда как экран плана в тот же момент предлагает
+> реальную мини-практику `agent-harness`.
 >
 > **Статус:** кандидаты. НЕ записи `backlog_registry.yaml` — промоут только решением
 > владельца.
@@ -42,7 +46,12 @@
     с `plan_primary_block`;
   - `app/ui/knowledge_graph_d3_analysis.py:227-293,386-444` — independent worth и
     `select_day_route(k=6)`;
-  - живой прогон: SSR «Повторить» (97), plan `gap: agent-harness`, KG — 6 новых тем.
+  - `app/ui/mission_control.py:288` — первый weak-концепт из
+    `quiz_adaptive.get_weak_concepts()` попадает в SSR без фильтра по графу/бандлу;
+  - живой прогон: SSR «Повторить» (97), plan `gap: agent-harness`, KG — 6 новых тем;
+  - живой прогон «завтра» (fc=0, sm2=0): home → `mastery_stale` «вернуться к TopicB»
+    (фикстура №22), plan surface → `plan_block_tutor` «Мини-практика: agent-harness» —
+    две поверхности расходятся, одна указывает на несуществующую тему.
 - **Proposed.**
   1. Сохранить публичный `SmartStudyRecommendation` как канонический route-decision
      contract, не вводить параллельный «универсальный режим». Добавить только данные,
@@ -78,7 +87,12 @@
     plan, progress и KG;
   - fixture живой боли: 97 due + plan gap + 6 frontier → primary «Повторить», plan/KG
     показывают тот же active route, остальные кандидаты — не competing hero;
-  - без due, при сохранённом actionable plan → home и plan выбирают один plan step;
+  - без due, при сохранённом actionable plan → home и plan выбирают один plan step
+    (сегодня это ломается живьём: home предлагает фикстуру `TopicB` вместо плана —
+    контрольный прогон 2026-07-19);
+  - weak-концепт, отсутствующий в активном графе/бандле, не может стать primary при
+    наличии более сильного сигнала (сохранённый план, resume) — дешёвый фильтр по
+    известным cid, не новая эвристика;
   - `new_topic` выбирает KG candidate только при отсутствии более сильного recovery
     debt или после явного override;
   - decision строится без LLM и без новых writes; session-tape не содержит текста;
@@ -91,7 +105,10 @@
 - **Kill switch.** Нужна новая persistence-схема или KG payload строится на каждом
   рендере home только ради рекомендации — стоп; KG остаётся проекцией до дешёвого
   кандидата. Переименование всех SSR-модулей/контрактов — стоп: это не цель P0.
-- **Effort.** 2–3 дня. **Priority.** P0. **Dependencies.** нет.
+- **Effort.** 2–3 дня. **Priority.** P0. **Dependencies.** нет жёстких; параллельный
+  трек — изоляция тестов №22 (`progress_mirror_plan.md` P0-2): Route Policy не чинит
+  грязные данные, но пока изоляция не отгружена, фильтр по известным cid (см. DoD) —
+  единственная защита hero от фикстур.
 - **Doc-sync.** `docs/user_guide.md` (единый следующий шаг), `docs/architecture.md`
   или `docs/technical_specification.md` (Route Policy и проекции).
 
