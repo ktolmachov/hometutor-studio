@@ -25,6 +25,7 @@ Workflow
          --learning-stage "1. Первый запуск" \\
          --outcome-signal "время до первого содержательного действия" \\
          --cross-pain "PAIN-03" \\
+         --pain-evidence "E2: воспроизведено живым прогоном" \\
          --different-from "№2: проверяется новый экземпляр боли"
 
 2. Paste the printed prompt into a FRESH agent session — not mixed into an
@@ -56,6 +57,7 @@ TEMPLATE = """\
 - Стадия учебного цикла: {learning_stage}
 - Сигнал результата: {outcome_signal}
 - Сквозная болезнь: {cross_pain}
+- Доказательность боли: {pain_evidence}
 - Отличие от прошлого разбора: {different_from}
 
 До выводов сверь карту покрытия README, реестр cross_cutting_pains.md и прошлые
@@ -79,6 +81,7 @@ TEMPLATE = """\
    к данным, а не только чтением кода.
    Зафиксируй якорь как repo@commit:path::symbol; file:line оставь подсказкой,
    а не идентификатором.
+   Не выводи частоту или тяжесть боли только из устройства кода.
 
 5. ВЕРДИКТЫ. Для каждого элемента — решение: оставить / спрятать глубже /
    объединить / починить / убрать. Не обзор опций — позиция.
@@ -95,6 +98,8 @@ TEMPLATE = """\
 8. ПЛАН. P0–P2 по соотношению «эффект / усилие». P0 — не больше двух ходов.
    North star wired входит в DoD P0: используй существующий сигнал или подключи
    минимальное измерение. Неизмеримый эффект нельзя объявлять доказанным.
+   В DoD включи post-ship replay исходного якоря. Различай shipped-unvalidated,
+   validated, no-effect и regressed.
    Kill switch: условия, при которых P0 останавливается (типовые: потребовалась
    новая схема/хранилище/пайплайн, или LLM там, где хватает арифметики готовых данных).
 
@@ -126,6 +131,7 @@ def build_prompt(
     learning_stage: str,
     outcome_signal: str,
     cross_pain: str,
+    pain_evidence: str,
     different_from: str,
 ) -> str:
     chosen_tensions = tensions or DEFAULT_TENSIONS
@@ -141,6 +147,7 @@ def build_prompt(
         learning_stage=learning_stage,
         outcome_signal=outcome_signal,
         cross_pain=cross_pain,
+        pain_evidence=pain_evidence,
         different_from=different_from,
     )
 
@@ -198,6 +205,11 @@ def main() -> None:
         help="PAIN-NN из cross_cutting_pains.md или обоснованный новый класс",
     )
     parser.add_argument(
+        "--pain-evidence",
+        required=True,
+        help="Уровень E0–E3 и краткая ссылка на доказательство боли",
+    )
+    parser.add_argument(
         "--different-from",
         required=True,
         help='Отличие от пересекающегося разбора №N или "пересечений нет"',
@@ -220,6 +232,7 @@ def main() -> None:
         learning_stage=args.learning_stage,
         outcome_signal=args.outcome_signal,
         cross_pain=args.cross_pain,
+        pain_evidence=args.pain_evidence,
         different_from=args.different_from,
     )
 
