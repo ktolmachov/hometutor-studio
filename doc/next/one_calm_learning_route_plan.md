@@ -2,14 +2,30 @@
 
 > **Источник:** эволюционный разбор №23
 > ([`../presentations/evolutionary_analyses/23_one_calm_route.html`](../presentations/evolutionary_analyses/23_one_calm_route.html)),
-> hometutor HEAD `9c4913c1d` «330», 2026-07-18 (ревизия 2026-07-19). Боль-якорь
-> подтверждена read-only прогоном на живом user-state и активном бандле: SSR → 97
-> due-карточек; сохранённый адаптивный план → gap `agent-harness` (mastery 0.44);
-> KG day route → 6 новых frontier-концептов; `AGENT_ENABLED=false`. Контрольный
-> прогон «завтра» (пустые очереди): home SSR предлагает «вернуться к `TopicB`» —
-> фикстуре тестов studio из `quiz_mastery` (диагноз №22, `get_weak_concepts()` →
-> `['TopicB', 'agent-harness']`), тогда как экран плана в тот же момент предлагает
-> реальную мини-практику `agent-harness`.
+> hometutor HEAD `9c4913c1d` «330», 2026-07-18 (ревизия 2026-07-19, независимый
+> контр-аудит нашёл переоцененную причинность в первом варианте якоря — исправлено
+> ниже). Боль-якорь подтверждена read-only прогоном на живом user-state и активном
+> бандле: SSR → 97 due-карточек; сохранённый адаптивный план → gap `agent-harness`
+> (mastery 0.44); KG day route → 6 новых frontier-концептов; `AGENT_ENABLED=false`.
+>
+> **Уточнение якоря после контр-аудита.** Изолированный прогон с усечённым входом
+> (только `flashcard_due_n=0, sm2_due_n=0` + weak concept) даёт `mastery_stale` →
+> «вернуться к `TopicB`» — фикстуре тестов studio из `quiz_mastery` (диагноз №22).
+> Но прогон с ПОЛНЫМ контекстом, который реально собирает
+> `gather_smart_study_router_session_context()` (`app/ui/resume_cards_smart_study.py:334`),
+> показывает другое: живая база сейчас содержит непустой `tutor_learning_resume`
+> с настоящей темой (`app/user_state_tutor.py:71`), а каскад ставит `tutor_resume`
+> выше `mastery_stale` (`app/smart_study_scoring.py:162-164`) — значит primary
+> сегодня «Продолжить чат», не `TopicB`. Это **два независимых дефекта**, не один:
+> (A) home SSR не получает сохранённый `plan_primary_block` (`mission_control.py:289`);
+> (B) `get_weak_concepts()` подаётся в SSR без фильтра по активному графу
+> (`mission_control.py:288`, `resume_cards_smart_study.py:344,379`), хотя нужный
+> фильтр `weak_concepts_for_kg()` уже существует (`app/learner_state_scope.py:141-152`)
+> и просто не подключён на этом пути. Дефект B реален и воспроизводится
+> детерминированно в изоляции; он становится видимым primary конкретно тогда,
+> когда tutor resume устареет (переиндексация меняет `index_version`,
+> `resume_cards_smart_study.py:296-314`) или в новой сессии без resume/reading —
+> не «через 97 карточек», как утверждала первая версия.
 >
 > **Статус:** кандидаты. НЕ записи `backlog_registry.yaml` — промоут только решением
 > владельца.
@@ -46,12 +62,23 @@
     с `plan_primary_block`;
   - `app/ui/knowledge_graph_d3_analysis.py:227-293,386-444` — independent worth и
     `select_day_route(k=6)`;
-  - `app/ui/mission_control.py:288` — первый weak-концепт из
-    `quiz_adaptive.get_weak_concepts()` попадает в SSR без фильтра по графу/бандлу;
+  - `app/ui/mission_control.py:288` и `app/ui/resume_cards_smart_study.py:344,379` —
+    первый weak-концепт из `quiz_adaptive.get_weak_concepts()` попадает в SSR без
+    фильтра по активному графу (дефект B);
+  - `app/learner_state_scope.py:141-152` — `weak_concepts_for_kg(kg, ...)` уже
+    пересекает weak concepts с `active_concept_ids(kg)`; это готовый фильтр для
+    дефекта B, используемый рядом (mastery levels, due reviews), но не для weak
+    concepts, подаваемых в SSR; честный fallback на пустом активном графе (line 149)
+    — не новый баг, но означает, что фильтр не защищает при пустом графе;
   - живой прогон: SSR «Повторить» (97), plan `gap: agent-harness`, KG — 6 новых тем;
-  - живой прогон «завтра» (fc=0, sm2=0): home → `mastery_stale` «вернуться к TopicB»
-    (фикстура №22), plan surface → `plan_block_tutor` «Мини-практика: agent-harness» —
-    две поверхности расходятся, одна указывает на несуществующую тему.
+  - изолированный прогон weak-concept веткой (fc=0, sm2=0, без tutor/reading resume):
+    home → `mastery_stale` «вернуться к TopicB» — воспроизводит дефект B
+    детерминированно, но требует отсутствия более приоритетных сигналов, что НЕ
+    текущее состояние живой базы (см. уточнение якоря выше);
+  - прогон с полным контекстом на том же снимке: `has_tutor_resume=true` (реальная
+    тема из БД) → primary `tutor_resume` «Продолжить чат», `TopicB` не появляется —
+    подтверждает, что дефект B сегодня замаскирован дефектом-независимым сигналом
+    tutor resume, а не отсутствует.
 - **Proposed.**
   1. Сохранить публичный `SmartStudyRecommendation` как канонический route-decision
      contract, не вводить параллельный «универсальный режим». Добавить только данные,
@@ -78,21 +105,34 @@
   - новый небольшой pure-модуль допустим только если facade разрастается:
     `app/smart_study_route_context.py`;
   - `app/ui/resume_cards.py` / текущие context helpers;
+  - `app/ui/resume_cards_smart_study.py` (переключить оба вызова
+    `get_weak_concepts()` на `weak_concepts_for_kg(kg, ...)` — дефект B);
+  - `app/learner_state_scope.py` (переиспользуется как есть; менять только если
+    fallback на пустом графе окажется недостаточным для home — обсудить отдельно,
+    не расширять втихую);
   - `app/ui/mission_control.py`, `app/ui/adaptive_plan_hub_layout.py`,
     `app/ui/dashboards_progress.py`, KG view/presentation module, использующий
     `day_route`;
   - `app/session_tape.py`.
-- **DoD.**
+- **DoD.** (раздельно по дефектам — не один общий пункт)
   - один snapshot сигналов даёт один `primary_nav`, `topic_hint` и `reason` на home,
     plan, progress и KG;
   - fixture живой боли: 97 due + plan gap + 6 frontier → primary «Повторить», plan/KG
     показывают тот же active route, остальные кандидаты — не competing hero;
-  - без due, при сохранённом actionable plan → home и plan выбирают один plan step
-    (сегодня это ломается живьём: home предлагает фикстуру `TopicB` вместо плана —
-    контрольный прогон 2026-07-19);
-  - weak-концепт, отсутствующий в активном графе/бандле, не может стать primary при
-    наличии более сильного сигнала (сохранённый план, resume) — дешёвый фильтр по
-    известным cid, не новая эвристика;
+  - **Дефект A** (`plan_primary_block=None`): без due, при сохранённом actionable
+    plan → home и plan выбирают один и тот же plan step. Regression test строит
+    ctx с пустыми due-очередями и непустым `plan_primary_block`, ожидает
+    `primary_nav="plan_block_tutor"` на surface `"home"`, а не текущий фактический
+    silent skip;
+  - **Дефект B** (weak concept без фильтра по графу): weak-концепт, отсутствующий
+    в `active_concept_ids(kg)`, никогда не становится `first_weak_concept` для
+    SSR — БЕЗУСЛОВНО, не «при наличии более сильного сигнала» (более сильный
+    сигнал и сегодня обычно выигрывает в каскаде; условие было бы тавтологией).
+    Regression test: fixture concept вне активного графа + пустые due + пустой
+    tutor/reading resume → primary НЕ ссылается на этот concept (либо
+    `safe_default`, либо следующий валидный weak concept из отфильтрованного
+    списка). Реализуется заменой источника на `weak_concepts_for_kg(kg, ...)`,
+    не эвристикой внутри Route Policy;
   - `new_topic` выбирает KG candidate только при отсутствии более сильного recovery
     debt или после явного override;
   - decision строится без LLM и без новых writes; session-tape не содержит текста;
@@ -308,4 +348,31 @@
 - не создавать новую БД/схему ради route state;
 - не пересчитывать тяжёлый KG payload на каждом home render;
 - не считать клик успехом без содержательного учебного события.
+
+---
+
+## Протокол верификации HTML-разбора (ревизия 2026-07-19)
+
+Локальный сервер `python -m http.server` в `evolutionary_analyses/`, проверено
+Browser-панелью на `9c4913c1d` «330»:
+
+- `<meta charset="utf-8">` первой строкой — заголовок таба читается кириллицей
+  (до фикса: `Ð Ð°Ð·Ð±Ð¾Ñ€ â„–23…`);
+- `document.documentElement.scrollWidth === clientWidth` (`hasHScroll: false`) —
+  горизонтального overflow нет на всю высоту документа (`docH≈10163px`);
+- inline SVG-диаграмма (`.figure svg`, 5 `rect` + 14 `text`) растеризована через
+  canvas с подстановкой вычисленных `var()`-цветов: 78331 закрашенных пикселей
+  из 223600 (35%) — SVG рендерится, не пустой `1×1` (урок KG3D);
+- `data-theme="light"` override поверх тёмного `prefers-color-scheme` даёт
+  читаемый light-режим (визуально проверено скриншотом; токены `--paper`/`--ink`
+  переключились);
+- текст страницы (`get_page_text`) не содержит артефактов кодировки/незакрытых
+  тегов в проверенной части документа.
+
+Известное ограничение инструмента: `computer{action:"scroll"}` таймаутится на
+этой странице (тайловый капчер) — обход через `document.body.style.transform`
+для позиционирования нужного участка перед скриншотом. Полный скролл всей
+страницы (все 8 секций подряд) в эту ревизию не переснят — проверены заголовок,
+секция 1, диаграмма секции 2 и light-тема; секции 3–8 проверены текстовым
+дампом (`get_page_text`), не визуально.
 

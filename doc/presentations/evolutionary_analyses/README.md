@@ -45,8 +45,8 @@ guide §9) — начиная с №9 все разборы используют
 
 ## Разборы
 
-| № | Область | Статус анализа | Файл | Detail-plan | Рантайм-прогресс (2026-07-12) |
-|---|---|---|---|---|---|---|
+| № | Область | Статус анализа | Файл | Detail-plan | Рантайм-прогресс (срез 2026-07-19) |
+|---|---|---|---|---|---|
 | 1 | Судьба одного знания (петля памяти) | готово (2026-07-11) | [`01_knowledge_fate.html`](01_knowledge_fate.html) | [`../../next/knowledge_fate_memory_loop_plan.md`](../../next/knowledge_fate_memory_loop_plan.md) | ✅ P0: canonical cid, `sessions_completed`/`interactions` разделены, provenance gate (`test_memory_loop_closure.py`, 11 тестов — 8 по петле + 3 LLM-resilience). B1 (P1, 2026-07-13): кнопка «📥 Сохранить как карточку» из ответа тьютора — замыкает петлю памяти в UI (`_render_save_tutor_answer_as_flashcard`, get-or-create колода «Из ответов тьютора», теги `concept:`/`source:`); тесты `test_tutor_save_card.py` |
 | 2 | Первые 10 минут (онбординг, time-to-first-insight) | готово (2026-07-11) | [`02_first_ten_minutes.html`](02_first_ten_minutes.html) | [`../../next/first_ten_minutes_onboarding_plan.md`](../../next/first_ten_minutes_onboarding_plan.md) | ✅ P0 (2026-07-13, wave-onboarding-closure): A2 честный статус hero — «готовится/собирается» показывается только при реально идущем реиндексе + `enable_first_session_precompute`, иначе нейтральная подписка без ложного обещания (`mission_control_first_session.py`); A1 единый источник кандидатов — `list_course_candidates_from_index` выводит курсы из индексированных путей (demo/uploads/user), а не из жёсткого `data/docs` (`course_cache.py`, `ingestion_support.py`). `enable_first_session_precompute=true` по умолчанию (ранее opt-in=false; gate документирован, артефакт строится после реиндекса) |
 | 3 | Материал как продукт (конспект, граф, таймкоды) | готово (2026-07-11) | [`03_material_as_product.html`](03_material_as_product.html) | [`../../next/material_as_product_quality_plan.md`](../../next/material_as_product_quality_plan.md) | ✅ P0 freshness+audit-tail; ✅ P1 B1/B2 passport+лестница; ✅ P2 C2 learner-language (+MC badge); ✅ P2 C1 «🕰 устарел» по `source_sha256`. Ранее: badges, Mermaid **14** типов |
@@ -64,12 +64,12 @@ guide §9) — начиная с №9 все разборы используют
 | 15 | 3D граф знаний: карта, которая не знает цену своих узлов | готово (2026-07-13) | [`15_knowledge_graph_3d.html`](15_knowledge_graph_3d.html) | [`../../next/knowledge_graph_3d_plan.md`](../../next/knowledge_graph_3d_plan.md) | ✅ P0 A1/A2 worth+маршрут. ✅ P1 B1 offline 3D-зал + audit fixes: script-safe JSON, floors by sorted lesson id + dynamic grid, 2D/3D share server `day_route`, DOM text for stop list |
 | 16 | Учебный курс по продукту (первый разбор типа «обучение»: продукт учит всему, кроме себя) | готово (2026-07-14) | [`16_beginner_course.html`](16_beginner_course.html) | учебный комплект: [`../../courses/hometutor_101/`](../../courses/hometutor_101/) | ✅ P0: 6 лекций + 6 конспектов (рубрика OK×6) + 6 видео-сценариев + слайд-дек + dogfood-README. ✅ P1: 5 экранов в витрине (`scenario_36` маршрут дня · `37` паспорт/статусы/счётчики · `38` Оформление) + 6 MP4 в `videos/` (silent Ken Burns). ⬜ P2 (решение владельца): дверь «Учиться продукту» / HF |
 | 17 | 3D-переориентация: зал без пола (UX-аудит живого экспорта B1) | готово (2026-07-15) | [`17_knowledge_graph_3d_reorientation.html`](17_knowledge_graph_3d_reorientation.html) | [`../../next/knowledge_graph_3d_reorientation_plan.md`](../../next/knowledge_graph_3d_reorientation_plan.md) | ✅ R1/R2 route-first сцена + честная геометрия (`precedes`-этажи, worth = rank/reason), L1/L2 режимы `Маршрут/Локально/Вся карта` + управляемый тур (hometutor `249`–`253`); отчёт: [`../../next/knowledge_graph_3d_done_report_2026-07-16.md`](../../next/knowledge_graph_3d_done_report_2026-07-16.md). ⚠ V1 screenshot-смок opt-in, не в CI; hover-подписи (R1.4/L1.3) не сделаны |
-| 18 | Синтез: граф + Живой конспект + 3D-зал = игра («дверь и вчерашний день») | готово (2026-07-16) | [`18_kg_konspekt_3d_game.html`](18_kg_konspekt_3d_game.html) | [`../../next/knowledge_graph_3d_game_plan.md`](../../next/knowledge_graph_3d_game_plan.md) | ⬜ План отревизирован после критического аудита (2026-07-17, @`37d109fb5`): P0 разбит на **G0 «мост действия»** (embedded 3D → `{concept,action}` через существующий `declare_component`-мост `kg_d3_component`, read-only) + **G1** `start`(навигация)/`collect`(запись через `_collect_concept_sections_to_workbench`), навигация и запись разделены; **V2** обязательный визуальный gate — до iframe C1; G2 «вчера» сужен до снимка прогресса по квизам (`mastery_history`=только quiz) с явной датой; G3 — маркер «в конспекте» только embedded (закрытые в 254/256 долги №17 убраны). Кандидаты, ждут промоута |
-| 19 | Сложное — просто, скучное — не усыпляет («Тьютор, который опаздывает на лекцию») | готово (2026-07-18) | [`19_lecture_presence.html`](19_lecture_presence.html) | [`../../next/lecture_presence_checkpoints_plan.md`](../../next/lecture_presence_checkpoints_plan.md) | ⬜ Кандидаты (hometutor @`b9eee3ef3` «287»): P0-1 «Маршрут лекции» — clipped-отрезки (`st.audio end_time` уже умеет) + ворота-квиз из `generate_scoped_quiz_from_content` по тексту timed-раздела; P0-2 «Проще + переслушать» с адресом отрезка. Боль-якорь: присутствие продукта на 123-мин уроке = 1 бит `mark_listened`; `t_start` не принимает ни один из 9 quiz-модулей. Ждут промоута |
-| 20 | Мнемополис: мир вместо 3D-зала (vision-разбор) | готово (2026-07-17) | [`20_mnemopolis_world.html`](20_mnemopolis_world.html) | [`../../next/knowledge_graph_3d_world_vision.md`](../../next/knowledge_graph_3d_world_vision.md) | ⬜ Волны W0–W6 (закон «мир = честная проекция памяти», Хранитель «Мнемо», 3 антагониста); старт с W0 (аудит-дефекты Q1–Q9); G0–G3 игровой петли №18 отгружены ранее |
-| 21 | Мега-бандл курсов: «Один город без адресов» | готово (2026-07-18) | [`21_mega_bundle_catalog.html`](21_mega_bundle_catalog.html) | [`../../next/mega_bundle_catalog_plan.md`](../../next/mega_bundle_catalog_plan.md) | ⬜ Кандидаты (hometutor @`8623c3476` «291»): мега-бандл уже в данных (единый граф обоих курсов, 8 общих тем слиты, память сквозная по cid), опыт одно-курсовый. Боль-якорь (живой прогон): 13 этажей на 6 уроков — Deep «Модуль 1» ПЕРЕД «урок_1 Введение» (`_lesson_sort_key` + zip precedes сквозь папки, `course_graph_compiler.py:119-125,207-215`), уроки раздвоены `.md`/`.txt`, рабочий-конспект — «урок №9999». P0-1 «Курс — гражданин графа» (границы precedes per-папка + один узел на урок + поле course); P0-2 «Библиотека — один экран» (каталог = проекция готовых резолверов, 0 LLM). Ждут промоута |
-| 22 | Экран «Мой прогресс»: «Зеркало с чужими отпечатками» | готово (2026-07-18) | [`22_progress_mirror.html`](22_progress_mirror.html) | [`../../next/progress_mirror_plan.md`](../../next/progress_mirror_plan.md) | ⬜ Кандидаты (hometutor @`d92b81957` «326»): страница-сирота вне роутера (наследие extraction, `pages/3_Мой_прогресс.py`), без сайдбара (DOM: `hasSidebar:false`) и с мёртвыми CTA (`current_view`+`st.rerun` в никуда — живой клик подтверждён); двойник «Прогресс обучения» в роутере. Боль-якорь (живая БД): память студента заросла фикстурами тестов studio — heatmap 214/216 строк призраки, quiz_mastery 7/7, spaced_repetition 6/6 (интервал 3650 дн.), quiz_results 182/182; канал — editable-install + `config.py:17-18` (абсолютный `.env` → `D:\AI\app`); экран советует «Слабые места: TopicB». P0-1 «Возвращение домой» (view в роутере + табы «Главное/Расширенные»); P0-2 «Чистое зеркало» (изоляция тестов → джойн с графом → чистка по правилу). Ждут промоута |
-| 23 | Синтез режимов: «Не меню режимов, а одна учебная нить» | готово (2026-07-18) | [`23_one_calm_route.html`](23_one_calm_route.html) | [`../../next/one_calm_learning_route_plan.md`](../../next/one_calm_learning_route_plan.md) | ⬜ Кандидаты (hometutor @`9c4913c1d` «330», ревизия 2026-07-19). Боль-якорь подтверждена живым read-only прогоном: SSR зовёт повторить 97 due-карточек; сохранённый план начинает с gap `agent-harness` (mastery 0.44); Мнемополис строит 6 новых frontier-остановок; agent gate выключен. Контрольный прогон «завтра» (пустые очереди): home предлагает фикстуру `TopicB` (№22), план — реальный `agent-harness`. Не повторяет уже реализованный «один hero»: P0-1 делает SSR канонической Route Policy для home/plan/progress/KG; P0-2 даёт один shell решения и закрытую палитру семи намерений при ≤2 видимых альтернативах. North star — Calm Start Rate; агент видим как навигатор, но вызывается как executor только для composition cases. Ждут промоута |
+| 18 | Синтез: граф + Живой конспект + 3D-зал = игра («дверь и вчерашний день») | готово (2026-07-16) | [`18_kg_konspekt_3d_game.html`](18_kg_konspekt_3d_game.html) | [`../../next/knowledge_graph_3d_game_plan.md`](../../next/knowledge_graph_3d_game_plan.md) | ✅ Игровая петля отгружена: G0–G3 (мост embedded 3D → `{concept, action}`, `start`/`collect`, quiz-memory overlay, inventory) 257–263; U0–U4 + V2′ Memory Run UI 264–265; rank+✓ overlay/live DOM gates 269–270; R1–R3 chrome/toast/hall 271–272; W0 Q1–Q9 273–274; G4.1/G4.2 floor tint + history replay @275. Статус G4.3/дальше пересинхронизирован в #20: local PNG shipped, cloud/share out of scope. |
+| 19 | Сложное — просто, скучное — не усыпляет («Тьютор, который опаздывает на лекцию») | готово (2026-07-18) | [`19_lecture_presence.html`](19_lecture_presence.html) | [`../../next/lecture_presence_checkpoints_plan.md`](../../next/lecture_presence_checkpoints_plan.md) | ⬜ Кандидаты остаются открытыми: P0-1 «Маршрут лекции» (8–12 мин clipped-отрезки из `t_start/t_end`, gate quiz через `generate_scoped_quiz_from_content`, честный progress) и P0-2 «Проще + переслушать» с адресом отрезка. Runtime уже умеет media boundaries/listened receipts и scoped quiz helper, но единого lecture-route/quiz-checkpoint потока по timed-разделу ещё нет. |
+| 20 | Мнемополис: мир вместо 3D-зала (vision-разбор) | готово (2026-07-17; doc-sync v3.2 2026-07-18) | [`20_mnemopolis_world.html`](20_mnemopolis_world.html) | [`../../next/knowledge_graph_3d_world_vision.md`](../../next/knowledge_graph_3d_world_vision.md) + [`../../next/knowledge_graph_3d_world_vision_review_report_2026-07-18.md`](../../next/knowledge_graph_3d_world_vision_review_report_2026-07-18.md) | ✅ Shipped в runtime по plan v3.2: W0′ residual, W1 dawn/lanterns, W2a fog+calm, W2b `review`→Flashcards, W3 Keeper infra/guide/threats/quest, W4a–d tab/deep link/return CTA/doors/channels, W5 tutor handoff + scene-DSL/NL safe apply, W6 ghost/rift/chronicle/architect, H voices, G4.3 local PNG. ⬜ Остаток: observational metrics (`time-to-first-action`, `hall_returns`) не wired; live-polish/R1–R3 и SR/full visual acceptance остаются опциональными gates, не core implementation. |
+| 21 | Мега-бандл курсов: «Один город без адресов» | готово (2026-07-18) | [`21_mega_bundle_catalog.html`](21_mega_bundle_catalog.html) | [`../../next/mega_bundle_catalog_plan.md`](../../next/mega_bundle_catalog_plan.md) + [`../../next/mega_bundle_p0_p2_implementation_report.md`](../../next/mega_bundle_p0_p2_implementation_report.md) | ✅ P0–P2 закрыты: P0-1 compiler floors/boundaries/lesson nodes; P0-2a thin library + shared read-model; P1 SourceAddress/badges/agent `catalog.list`; P0-2b schedule UI «Каталог · Пересадки · Маршрут»; P2 course lanes + `course_owner_order`; hotfix size budget. Evidence в runtime: `course_graph_compiler.py`, `library_catalog_read.py`, `library_schedule_read.py`, `source_address.py`, `course_lanes.py`, `course_owner_order.py`, tests `test_course_*`, `test_library_*`, `test_source_address.py`. ⬜ Остаток только manual DoD/полировка владельца: прогнать пользовательский мега-бандл и решить, нужен ли явный UI pin порядка курсов. |
+| 22 | Экран «Мой прогресс»: «Зеркало с чужими отпечатками» | готово (2026-07-18) | [`22_progress_mirror.html`](22_progress_mirror.html) | [`../../next/progress_mirror_plan.md`](../../next/progress_mirror_plan.md) | ⬜ Кандидаты остаются открытыми. Runtime-сверка 2026-07-19 подтверждает боль: `app/ui/pages/3_Мой_прогресс.py` всё ещё существует как отдельная Streamlit page, сайдбар ведёт туда через `st.switch_page`, параллельно есть routed view `Прогресс обучения` (`dashboards_progress`). P0-1 «Возвращение домой» (перенести зеркало в router view + табы «Главное/Расширенные») и P0-2 «Чистое зеркало» (изоляция/джойн/чистка тестовых следов) не закрыты. |
+| 23 | Синтез режимов: «Не меню режимов, а одна учебная нить» | готово (2026-07-18; ревизия плана 2026-07-19; контр-аудит + фикс 2026-07-19) | [`23_one_calm_route.html`](23_one_calm_route.html) | [`../../next/one_calm_learning_route_plan.md`](../../next/one_calm_learning_route_plan.md) | ⬜ Кандидаты, не backlog entries. План актуализирован 2026-07-19: P0 `wave-one-route-core` требует каноническую Route Policy для home/plan/progress/KG и один shell решения с закрытой палитрой намерений. Runtime уже имеет SSR/Mission Control/план/Мнемополис как отдельные сильные поверхности, но единый primary route contract ещё не введён. Независимый контр-аудит нашёл переоцененную причинность в боли-якоре («стоит разобрать 97 карточек — TopicB») — исправлено: это два раздельных дефекта (A: `plan_primary_block=None` на home; B: `get_weak_concepts()` без фильтра `weak_concepts_for_kg()` по активному графу, замаскирован сегодня живым `tutor_learning_resume`). |
 
 Приоритизация и обоснование очерёдности (2026-07-11) сохранены отдельно в
 памяти агента (`evolutionary-series-2026-07`).
@@ -130,54 +130,58 @@ guide §9) — начиная с №9 все разборы используют
 
 ### 3. План остатка (приоритизированный)
 
-> **Срез 2026-07-17 (после критического аудита плана 3D-игры #18).**  
-> Все 🔴 P0 из ранних аудитов **закрыты в коде**. Текущий фокус — запуск игровой петли в 3D-зале (разбор №18).
-> Ниже — реальный остаток и честный backlog. Трекер-таблица выше — SSoT статуса.
+> **Срез 2026-07-19.**  Строки #18–#23 выше пересверены с `hometutor` runtime и
+> актуальными планами из `doc/next/`. #18/#20/#21 больше не считать “ждут промоута”:
+> основная реализация уже закрыта. Реальный кодовый P0 теперь сосредоточен в #19,
+> #22 и #23.
 
-#### 🔴 P0 — кодовый долг и критические шаги
+#### Новые/актуализированные планы разборов в `doc/next/`
 
-| Ход | Статус | Примечание |
+| Разбор | Документ | Статус 2026-07-19 | Следующее решение |
+|---|---|---|---|
+| #18 3D-game | [`knowledge_graph_3d_game_plan.md`](../../next/knowledge_graph_3d_game_plan.md) | ✅ G0–G3, V2′/U0–U4, W0, G4.1/G4.2 закрыты; хвост синхронизирован с #20 | не открывать новый P0; только optional/live polish, если владелец хочет |
+| #20 Мнемополис world | [`knowledge_graph_3d_world_vision.md`](../../next/knowledge_graph_3d_world_vision.md), [`knowledge_graph_3d_world_vision_review_report_2026-07-18.md`](../../next/knowledge_graph_3d_world_vision_review_report_2026-07-18.md) | ✅ v3.2: W0′–W6, Keeper, scene-DSL/NL, local PNG shipped | metrics + live/SR acceptance как отдельный polish, не core |
+| #21 Mega Bundle | [`mega_bundle_catalog_plan.md`](../../next/mega_bundle_catalog_plan.md), [`mega_bundle_p0_p2_implementation_report.md`](../../next/mega_bundle_p0_p2_implementation_report.md) | ✅ P0-1, P0-2a, P1, P0-2b, P2 + owner order закрыты | manual DoD на реальном бандле; UI pin порядка курсов — optional |
+| #22 Progress Mirror | [`progress_mirror_plan.md`](../../next/progress_mirror_plan.md) | ⬜ P0 открыт: orphan page + грязная память | промоутить `wave-progress-home` и `wave-progress-clean-room` |
+| #23 One Calm Route | [`one_calm_learning_route_plan.md`](../../next/one_calm_learning_route_plan.md) | ⬜ P0 открыт: нет единой Route Policy между home/plan/progress/KG | промоутить после/вместе с #22 P0-2 |
+| #19 Lecture Presence | [`lecture_presence_checkpoints_plan.md`](../../next/lecture_presence_checkpoints_plan.md) | ⬜ P0 открыт: lecture route и timed quiz gates не собраны | промоутить `P0-1 → P0-2`, не ждать #22/#23 |
+
+#### 🔴 P0 — оставшиеся кодовые доработки
+
+| Ход | Статус | Почему следующий |
 |---|---|---|
-| #18 G0 Мост действия (3D) | ⬜ | embedded 3D возвращает `{concept_id, action}` через query-param `_kg3d` + nonce |
-| #18 G1 Действия продукта | ⬜ | `start` (переключение в quiz/flashcards) и `collect` (запись в workbench) поверх моста |
+| **#22 P0-2 «Чистое зеркало»** | ⬜ | Без изоляции/джойна/чистки Progress и Route Policy продолжают видеть тестовые следы (`TopicB`, 3650d intervals, fixture mastery). |
+| **#22 P0-1 «Возвращение домой»** | ⬜ | `Мой прогресс` остаётся orphan page через `st.switch_page`, а `Прогресс обучения` — отдельный routed view; CTA и sidebar живут в разных навигационных мирах. |
+| **#23 P0-1 Route Policy** | ⬜ | Home/Plan/Progress/KG выбирают primary next step разными правилами; нужен один read-only contract поверх SSR, без нового pipeline/DB. |
+| **#23 P0-2 One Route Shell** | ⬜ | После policy нужна одна поверхность решения: один primary, reason, максимум две альтернативы, закрытая палитра намерений. |
+| **#19 P0-1 Lecture Route** | ⬜ | Таймкоды уже есть, но нет маршрута 8–12 мин с clipped audio, progress и scoped quiz gate по timed-разделу. |
+| **#19 P0-2 Simpler + Relisten** | ⬜ | Нужна короткая “проще” версия + переслушивание ровно проблемного отрезка, иначе 123-мин лекция остаётся одним битом listened. |
 
-#### 🟡 Док-гигиена (колонки трекера + conventions)
+**Рекомендуемый порядок:** #22 P0-2 → #22 P0-1 → #23 P0-1 → #23 P0-2.
+#19 можно вести параллельно: он опирается на media/scoped-quiz слой, а не на Progress/Route cleanup.
 
-| Что | Статус |
-|---|---|
-| #3 / #11 / #12 / #14 строки трекера | ✅ обновлены 2026-07-15 |
-| #18 строка трекера | ✅ обновлена 2026-07-17 |
-| size budget в `conventions_architecture.md` → 1942 | ✅ |
-| «Темы и шрифты»: system-ui / ui-monospace, без Manrope/Plex | ✅ |
-| flashcard iframe: mono без IBM Plex (N1) | ✅ |
-| compiler/heuristic sidecar paths нормализованы (N4/N5) | ✅ |
-| HTML pain-якоря #5/#6/#8 как исторический снимок | ⚪ допустимо; при rev. — «диагноз устарел» |
-
-#### 🟢 P1/P2 — backlog
+#### 🟡 P1/P2 и контентный остаток
 
 | Приоритет | Ход | Статус |
 |---|---|---|
-| **P1** | **#18 V2** (визуальный gate) | ⬜ обязательный Playwright-смок в CI на 4 viewport'ах, блокирует встраивание iframe в продукт |
-| **P1** | **#18 G2** вчера в зале | ⬜ оверлей снимка прогресса по квизам (`mastery_history`) с честной датой |
-| **P1** | **#18 G3** инвентарь на сцене | ⬜ отображение маркеров собранных концептов на основе live-данных корзины (component args) |
-| **P1 (контент)** | **#11** пересъёмка 06/30 | ⬜ кадры 2026-07-12; stamp честный — переснять перед внешним показом |
-| **P2 (контент)** | **#11** video / daily-use | ⬜ нарезка из YAML narration (жанр daily-use уже есть) |
+| **P1 (контент)** | **#11** пересъёмка 06/30 | ⬜ кадры 2026-07-12; stamp честный, но перед внешним показом нужна свежая витрина |
 | **P2 (решение владельца)** | **#16** дверь продукта | ⬜ «Учиться продукту» / HF-витрина — только по явному go |
-| **P2** | **#18 G4** прогрессия и реплей | ⬜ этажи по mastery/decay, управляемый проигрыватель истории (local/all) |
-| **P1 (код, опц.)** | **#15 B2** | ⬜ worth += audio/rubric signals (план) |
+| **P2 / optional** | **#15 B2** worth += audio/rubric signals | ⬜ плановый слой ценности, не blocker |
+| **P2 / optional** | **#20 metrics** `time-to-first-action`, `hall_returns` | ⬜ observational, не wired |
+| **P2 / optional** | **#20 live-polish/SR acceptance** | ⬜ structural gates есть; full live/SR acceptance отдельно |
+| **P2 / optional** | **#21 manual DoD + course order UI pin** | ⬜ implementation закрыта, остаётся ручная проверка владельца/полировка |
 
-#### ⚪ Закрытый P1/P2 (краткий credit)
+#### ⚪ Закрытый крупный блок (credit)
 
-#1 B1/B2/C1 · #3 A–C, B1/B2, C1/C2 · #5 A2 · #6 B1 · #7 A3 · #8 transient→circuit · #9 C2 · #13 C1–C3 · #14 B1–B3, C1–C3 · #15 A1/A2/B1, B1 (P1 3D-зал) · #16 P0/P1 beginner course.
+#1–#10, #12–#18, #20–#21 имеют закрытые P0/P1 core-волны по runtime-сверке.
+Особенно важно: #18 игровая петля, #20 Мнемополис world и #21 мега-бандл больше не являются текущим P0 backlog.
 
-### Сводка по приоритетам (2026-07-17)
+### Сводка по приоритетам (2026-07-19)
 
 | Категория | Разборы |
 |---|---|
-| **P0 готово** | #1–#10, #12–#16 (вкл. 3D-зал + курс 101) |
-| **В работе (план #18)** | P0 (G0/G1) ‖ P1 (V2/G2/G3) ‖ P2 (G4) |
-| **Остался контент** | #11 пересъёмка 06/30 (перед внешним показом) |
-| **Опционально** | #15 B2 worth×audio/rubric; #16 P2 дверь «Учиться продукту» |
+| **P0 готово / core shipped** | #1–#10, #12–#18, #20–#21 |
+| **P0 открыт** | #19 lecture route, #22 progress mirror, #23 one calm route |
+| **Контент перед внешним показом** | #11 пересъёмка 06/30 |
+| **Опционально / по решению владельца** | #15 B2, #16 P2, #20 metrics/live-polish, #21 manual DoD/UI pin |
 | **Исторические HTML-снимки** | #1–#8 pain-якоря — не чинить код «под HTML» |
-
-**Рекомендуемый порядок дальше:** (1) Реализация игровой петли #18 (P0: G0 → G1, P1: V2 ‖ G2 → G3, P2: G4); (2) #11 пересъёмка 06/30 перед внешним показом; (3) #16 P2 — по решению владельца.
