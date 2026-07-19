@@ -6,7 +6,7 @@
 > UI (клик по CTA, DOM-проверка `hasSidebar:false`, пиксельный замер canvas) и прямыми
 > запросами к живой `D:\AI\app\data\user_state.db`.
 >
-> **Статус:** A1 shipped 2026-07-19; A2 shipped 2026-07-19; B1–B3/C1–C3 — кандидаты. НЕ записи `backlog_registry.yaml` — промоут решением владельца.
+> **Статус:** ✅ A1 shipped 2026-07-19; ✅ A2 shipped 2026-07-19; ✅ B1 shipped 2026-07-19; ✅ B2 shipped 2026-07-19; ✅ B3 shipped 2026-07-19; C1–C3 — кандидаты. НЕ записи `backlog_registry.yaml` — промоут решением владельца.
 >
 > **North star разбора:** «зеркальная точность» — доля строк главного таба «Прогресса»,
 > подтверждённых реальным действием студента, = 100% (на 2026-07-18 в Emotional Heatmap
@@ -158,6 +158,10 @@
 - **DoD.** «Мой след» виден без скролла; каждое число кликом ведёт к источнику
   (Flashcards / Живой конспект). **Effort.** дни. **Dependencies.** A1.
 
+- **Runtime progress (2026-07-19).** ✅ B1 shipped:
+  - `_render_home_my_trail()` — XP-календарь 7 дней (таблица зелёных/серых ячеек), flashcard counters (всего/освоено/к повтору через `get_flashcard_progress_stats`), кнопка «Открыть Flashcards» через PENDING_CURRENT_VIEW_KEY.
+  - Write-set: `app/ui/dashboards_progress_home.py`.
+
 ### B2. «Мой путь»: позиция на маршруте курса
 
 - **Problem.** Вопрос владельца «где я сейчас на маршруте и на пути изучения по плану
@@ -174,6 +178,9 @@
   таба «Главное». **Effort.** дни. **Dependencies.** A1; выигрывает от №21 P0-1,
   но не блокируется им.
 
+- **Runtime progress (2026-07-19).** ✅ B2 shipped:
+  - `_render_home_my_path()` — `get_latest_learning_plan_resume()` (learning_plan), прогресс-бар с clamping, human-readable «Курс · шаг N «label»». Write-set: `app/ui/dashboards_progress_home.py`.
+
 ### B3. Одна правда mastery
 
 - **Problem.** Три соперничающих процента на одном экране: 0.0% (quiz-вектор),
@@ -186,6 +193,9 @@
   подписями «что это и чем отличается» (тексты уже написаны в help'ах — свести).
 - **Files.** `app/ui/dashboards_progress.py`. **DoD.** на первом экране один процент
   mastery. **Effort.** дни. **Dependencies.** A1.
+
+- **Runtime progress (2026-07-19).** ✅ B3 shipped:
+  - `_render_home_mastery_one_number()` — одно число PLM-вектор (`mastery_vector.avg`), подпись источника, ссылка на «Расширенные» для остальных процентов. Write-set: `app/ui/dashboards_progress_home.py`.
 
 ---
 
@@ -227,9 +237,9 @@
 
 ## Рекомендованный порядок
 
-✅ A1 → ✅ A2 → B1 → B2 → B3 → C1 → C2 → C3.
+✅ A1 → ✅ A2 → ✅ B1 → ✅ B2 → ✅ B3 → C1 → C2 → C3.
 
-Обе P0-волны #22 shipped 2026-07-19. Продолжение с #23 P0-1.
+Волны #22 P0 + P1 shipped 2026-07-19. Остались P2-кандидаты C1–C3.
 
 ## Явно НЕ входит в план (вердикты разбора)
 
