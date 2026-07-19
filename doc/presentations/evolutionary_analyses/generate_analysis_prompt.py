@@ -63,7 +63,7 @@ TEMPLATE = """\
 нельзя замалчивать.
 
 1. СУТЬ. Чего по-настоящему хочет {role}, когда {action}?
-   В чём суть {action_short}? (не фичи — первые принципы)
+   В чём суть этого действия? (не фичи — первые принципы)
 
 2. РЕАЛЬНОСТЬ. Посмотри с высоты на всё, что уже есть {reality_domain},
    включая живые данные пользователя (корпуса материалов, сайдкары, активные
@@ -128,7 +128,6 @@ def build_prompt(
     cross_pain: str,
     different_from: str,
 ) -> str:
-    action_short = action.split(",")[0].strip().rstrip(".") or action
     chosen_tensions = tensions or DEFAULT_TENSIONS
     tension_lines = "\n".join(f"   - {t}" for t in chosen_tensions)
     return TEMPLATE.format(
@@ -136,7 +135,6 @@ def build_prompt(
         coverage_area=coverage_area,
         role=role,
         action=action,
-        action_short=action_short,
         reality_domain=reality_domain,
         tensions=tension_lines,
         pain=pain or PAIN_PLACEHOLDER,
