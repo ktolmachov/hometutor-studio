@@ -180,7 +180,7 @@
   <div class="meta">
     <span>hometutor-studio · HEAD <code>545d155</code> «113»</span>
     <span>hometutor · HEAD <code>c5182b9</code> «357»</span>
-    <span>2026-07-19 · ревизия v1.1 после контр-аудита (перенос контура в hometutor)</span>
+    <span>2026-07-19 · ревизия v1.2 после второго контр-аудита (перенос в hometutor отменён)</span>
     <span>E2/E3: 4 живых прогона против production llama.cpp + 98/98 unit-тестов</span>
   </div>
 </header>
@@ -458,13 +458,16 @@
   <div class="card"><span class="v v-fix">починить</span><strong>Trust inversion write-set/tests.</strong>
     Центральный фикс: task write-set/tests становятся authoritative, model-декларация —
     только предложением, которое обязано быть подмножеством.</div>
-  <div class="card"><span class="v v-fix">починить</span><strong>Место жительства контура.</strong>
-    Контур исполнения пакетов переезжает в <code>hometutor/scripts/agent_exec/</code> —
-    туда, где он применяет диффы: cwd корректен by construction, packet-путь выходит
-    из-под studio-SSoT (<code>AGENTS.md:138</code>), Kilo/.venv/pytest уже там. Backlog-машина
-    (workflow.py, cursor/deepseek, orchestrator) остаётся в studio — переносится только
-    контур. Цена признана: корневой <code>package.json</code> в hometutor + урезанный
-    <code>_exec_shared.ts</code> (bounded-дубликация, сведение — P2).</div>
+  <div class="card"><span class="v v-no">не делать</span><strong>Перенос контура в hometutor.</strong>
+    Проверено дважды и отменено: <code>hometutor/AGENTS.md:11-13</code> и
+    <code>CLAUDE.md:39-43</code> явно исключают workflow-тулинг из этого репозитория
+    («backlog... ведутся в отдельном репозитории hometutor-studio»). Настоящий cwd-фикс
+    дешевле — пять функций триггера (<code>applyPatch</code>, <code>runTestCommands</code>,
+    <code>gitChangedFiles</code>, <code>revertPatch</code>, <code>buildReadSetContext</code>)
+    уже принимают <code>repoRoot</code> параметром; жёстко закодирован только
+    <code>process.cwd()</code> в пяти call sites. Решение: один env
+    <code>LLAMACPP_TARGET_REPO_ROOT</code>, а не переезд 910-строчного модуля в другой
+    язык экосистемы.</div>
   <div class="card"><span class="v v-fix">починить</span><strong>Kilo — оставить интерактивным
     рабочим местом и ручным escape hatch,</strong> не контуром принятия решений; production
     alias там уже верный, менять нечего.</div>
@@ -489,19 +492,24 @@
   <div class="table-scroll">
     <table>
       <tr><th>Метрика</th><th>Формула / источник</th><th>Baseline</th><th>Target</th><th>Статус</th></tr>
-      <tr><td><strong>VLCR</strong></td><td>verified ÷ (verified + failed + policy_violation);
-        blocked/reject/transient — вне формулы, отдельными rate;
-        <code>verified_packets.jsonl</code></td><td><strong>0%</strong> — 6 исторических
-        прогонов, все smoke на старом alias, ни одного authoritative</td>
+      <tr><td><strong>Execution VLCR</strong></td><td>verified ÷ (все терминальные исходы
+        change-expected пакетов, отправленных модели — включая <code>blocked_no_changes</code>
+        как отказ, не нейтраль); <code>ledger.jsonl</code></td>
+        <td><strong>N/A</strong> — знаменатель 0, не «0%»: 6 исторических прогонов, все
+        smoke на старом alias, ни одного authoritative</td>
         <td>≥80% на shadow ≥10 пакетов (KPI guide §8)</td><td><span class="st st-silent">wire-in-P0</span></td></tr>
+      <tr><td>Policy precision</td><td>(compiled − preflight_rejected) ÷ compiled</td>
+        <td>N/A</td><td>измеряет качество compiler, не модели</td>
+        <td><span class="st st-silent">wire-in-P0</span></td></tr>
+      <tr><td>Availability</td><td>(eligible-раны − transient_unavailable) ÷ eligible-раны</td>
+        <td>N/A</td><td>инфраструктура сервера, отдельно от качества модели</td>
+        <td><span class="st st-silent">wire-in-P0</span></td></tr>
       <tr><td>Review defect rate</td><td>замечания cloud-reviewer на принятых патчах</td>
         <td>не измерено</td><td>0 критичных на 10 shadow-пакетах</td>
         <td><span class="st st-silent">wire-in-P0</span></td></tr>
       <tr><td>Lead time / packet</td><td>время от компиляции до verified</td>
         <td>не измерено</td><td>сравнить с cloud-only baseline</td>
         <td><span class="st st-silent">wire-in-P1</span></td></tr>
-      <tr><td>Retries / packet</td><td>попытки до PASS</td><td>не измерено</td>
-        <td>снижаться по мере roadmap</td><td><span class="st st-silent">wire-in-P1</span></td></tr>
       <tr><td>Cloud tokens saved</td><td>оценка размера драфта × cloud-цена минус
         компиляция+ревью</td><td>не измерено</td><td>вторичная, после P0</td>
         <td><span class="st st-hole">not-measurable (UNKNOWN)</span></td></tr>
@@ -514,13 +522,15 @@
   <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Путь</span></div>
   <h2>Золотой путь пакета и лестница зрелости</h2>
   <p><strong>Золотой путь одного пакета:</strong> готовый план → облачный Task Compiler режет
-  его на Execution Packet (авторится в studio, <code>doc/packets/</code>) → детерминированный
-  <code>packet_policy</code> в <code>hometutor/scripts/agent_exec/</code> делает pre-flight
-  (path-safety, денилист, risk-пересчёт) и выбирает <code>local-direct</code> → hardened
-  <code>llamacpp_agent_trigger</code> вызывает <code>qwen3-coder-next-q4ks</code> из cwd=hometutor
+  его на Execution Packet (<code>doc/packets/</code>, studio) → детерминированный
+  <code>packet_policy.ts</code> (studio) делает pre-flight (path-safety, денилист,
+  risk-пересчёт) и выбирает <code>local-direct</code> → Runner спавнит hardened
+  <code>llamacpp_agent_trigger</code> с явным <code>LLAMACPP_TARGET_REPO_ROOT=target_repo</code>
+  (вместо переезда кода — один env поверх уже существующего параметра <code>repoRoot</code>)
   → patch/tests проверяются против <em>задачи</em>, не модели → git apply + targeted tests →
-  evidence-only contract + per-run receipt → независимый cloud-reviewer APPROVE → запись
-  <code>packet_id+run_id</code> в <code>verified_packets.jsonl</code>.</p>
+  per-run артефакты (<code>proposed.patch</code>/<code>applied.patch</code>/<code>receipt.json</code>)
+  → событие <code>executed_pending_review</code> → независимый cloud-reviewer APPROVE →
+  терминальное <code>verified</code> в append-only <code>ledger.jsonl</code>.</p>
   <ol class="ladder">
     <li><span class="num">0</span><span><strong>Disposable no-op smoke.</strong> Пройден
       сегодня живьём: 2,9 с, evidence-only contract, 98/98 unit — фундамент есть.</span></li>
@@ -543,20 +553,23 @@
     <table>
       <tr><th></th><th>Ход</th><th>Что делается</th><th>Усилие</th></tr>
       <tr><td><span class="tag tag-p0">P0-1</span></td>
-        <td><strong>Relocation + Authoritative Trigger Hardening.</strong></td>
-        <td>перенос контура в <code>hometutor/scripts/agent_exec/</code> (cwd = repo диффа
-        by construction; studio-копия удаляется после sign-off); alias-дефолт на
-        <code>qwen3-coder-next-q4ks</code>; task-write-set/tests authoritative (model ⊆ task);
-        input hard cap ≤20K (<code>token_safety_registry</code>); response.model/finish_reason/
-        reasoning gates; baseline-snapshot c untracked до apply. Исполнитель: cloud/human —
-        модели нельзя патчить собственный контур доверия.</td><td>часы</td></tr>
+        <td><strong>Authoritative Trigger Hardening + target-repo parametrization.</strong></td>
+        <td>alias-дефолт на <code>qwen3-coder-next-q4ks</code>; task-write-set/tests
+        authoritative (model ⊆ task); input hard cap ≤20K; response.model/finish_reason/
+        reasoning gates; baseline-snapshot c untracked до apply; новый
+        <code>LLAMACPP_TARGET_REPO_ROOT</code> заменяет пять хардкод-вызовов
+        <code>process.cwd()</code> уже существующим параметром <code>repoRoot</code> (без
+        переезда кода); CI-шаг <code>npm run test:trigger</code>. Исполнитель: cloud/human.</td>
+        <td>часы</td></tr>
       <tr><td><span class="tag tag-p0">P0-2</span></td>
-        <td><strong>Execution Packet Runner v0 + ledger + ADR.</strong></td>
-        <td>YAML-схема пакета (read-set c sha256), <code>packet_policy.ts</code> — repo-allowlist,
-        realpath containment, встроенный денилист; per-run receipt + <code>run_id</code>
-        (никакого last-row чтения); post-verify по дельте к baseline в границах write-set;
-        <code>verified_packets.jsonl</code> (North star wired); ADR о сосуществовании
-        с backlog-SSoT studio. Весь контур — только cloud/human, без исключений.</td><td>дни</td></tr>
+        <td><strong>Execution Packet Runner v0 + transactional ledger.</strong></td>
+        <td>YAML-схема пакета (read-set c sha256), <code>packet_policy.ts</code> —
+        repo-allowlist, realpath containment, полный денилист; per-run артефакты
+        (<code>proposed.patch</code>/<code>applied.patch</code>/<code>receipt.json</code>/
+        <code>review.json</code>) + auto-revert при не-успехе; append-only
+        <code>ledger.jsonl</code> с поэтапными событиями
+        (<code>executed_pending_review → verified</code>), North star wired. Весь контур —
+        только cloud/human.</td><td>дни</td></tr>
       <tr><td><span class="tag tag-p1">P1</span></td>
         <td>Shadow-серия и VLCR-отчёт.</td>
         <td>5 реальных low-risk задач (promotion из guide) → затем ≥10 пакетов shadow с

@@ -350,7 +350,7 @@
 7. ✅ B2 — компактный учебный компас. (shipped 2026-07-19)
 8. ✅ B3 — opt-in автопилот 5/15/25 минут. (shipped 2026-07-19)
 9. ✅ B4 — agent dispatch для composition cases, не отдельная learner-дверь. (shipped 2026-07-19)
-10. C1 — калибровка только после накопления baseline и offline replay.
+10. 🔜 C1 — калибровка только после накопления baseline и offline replay.
 
 ## Явно НЕ делать
 
