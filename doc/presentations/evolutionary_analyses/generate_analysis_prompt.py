@@ -15,12 +15,17 @@ Workflow
 
      python generate_analysis_prompt.py \\
          --area "Первые 10 минут" \\
+         --coverage-area "Маршрут, навигация и следующий шаг" \\
          --role "новый студент" \\
          --action "впервые открывает приложение" \\
          --reality-domain "в онбординге (app/ui/mission_control.py, app/ui/onboarding*.py)" \\
          --tension "простота ↔ глубина" \\
          --tension "мощь ↔ фокус" \\
-         --pain "<факт, который сам проверишь по коду перед запуском>"
+         --pain "<факт, который сам проверишь по коду перед запуском>" \\
+         --learning-stage "1. Первый запуск" \\
+         --outcome-signal "время до первого содержательного действия" \\
+         --cross-pain "PAIN-03" \\
+         --different-from "№2: проверяется новый экземпляр боли"
 
 2. Paste the printed prompt into a FRESH agent session — not mixed into an
    ongoing code-editing session (see guide's section "Когда это работает").
@@ -46,6 +51,17 @@ TEMPLATE = """\
 
 Нужен сильный ход.
 
+ПАСПОРТ РАЗБОРА.
+- Область покрытия: {coverage_area}
+- Стадия учебного цикла: {learning_stage}
+- Сигнал результата: {outcome_signal}
+- Сквозная болезнь: {cross_pain}
+- Отличие от прошлого разбора: {different_from}
+
+До выводов сверь карту покрытия README, реестр cross_cutting_pains.md и прошлые
+якоря по repo/path/symbol. Пересечение с прошлым разбором не запрещено, но его
+нельзя замалчивать.
+
 1. СУТЬ. Чего по-настоящему хочет {role}, когда {action}?
    В чём суть {action_short}? (не фичи — первые принципы)
 
@@ -61,6 +77,8 @@ TEMPLATE = """\
    Найди её точную причину в реальности (код/данные), а не в теории.
    Где возможно — подтверди причину живым прогоном или прямым запросом
    к данным, а не только чтением кода.
+   Зафиксируй якорь как repo@commit:path::symbol; file:line оставь подсказкой,
+   а не идентификатором.
 
 5. ВЕРДИКТЫ. Для каждого элемента — решение: оставить / спрятать глубже /
    объединить / починить / убрать. Не обзор опций — позиция.
@@ -68,13 +86,21 @@ TEMPLATE = """\
 
 6. ЦЕННОСТЬ. В чём уникальность — и как её доказать измеримо.
    Одна North star-метрика: какое число изменится, если ход удался.
+   Укажи формулу, источник данных, baseline, target и wiring-status:
+   wired-existing / wire-in-P0 / not-measurable с причиной.
 
 7. ПУТЬ. Один золотой путь пользователя + лестница уровней,
    которые легко достигать и приятно проходить.
 
 8. ПЛАН. P0–P2 по соотношению «эффект / усилие». P0 — не больше двух ходов.
+   North star wired входит в DoD P0: используй существующий сигнал или подключи
+   минимальное измерение. Неизмеримый эффект нельзя объявлять доказанным.
    Kill switch: условия, при которых P0 останавливается (типовые: потребовалась
    новая схема/хранилище/пайплайн, или LLM там, где хватает арифметики готовых данных).
+
+Если вердикт зависит от LLM-выхода, зафиксируй рубрику до генерации и оцени
+полный семпл: минимум 3 входа × 3 повтора; для P0 — 5 входов × 3 повтора.
+Единичный пример — иллюстрация, не доказательство.
 
 Планка: шедевр. Гениальность — в простоте. Ничего не выдумывать:
 каждое утверждение должно опираться на реальное и проверяемое.
@@ -91,23 +117,33 @@ DEFAULT_TENSIONS = ["<простота> ↔ <глубина>", "<мощь> ↔ <
 def build_prompt(
     *,
     area: str,
+    coverage_area: str,
     role: str,
     action: str,
     reality_domain: str,
     tensions: list[str],
     pain: str | None,
+    learning_stage: str,
+    outcome_signal: str,
+    cross_pain: str,
+    different_from: str,
 ) -> str:
     action_short = action.split(",")[0].strip().rstrip(".") or action
     chosen_tensions = tensions or DEFAULT_TENSIONS
     tension_lines = "\n".join(f"   - {t}" for t in chosen_tensions)
     return TEMPLATE.format(
         area=area,
+        coverage_area=coverage_area,
         role=role,
         action=action,
         action_short=action_short,
         reality_domain=reality_domain,
         tensions=tension_lines,
         pain=pain or PAIN_PLACEHOLDER,
+        learning_stage=learning_stage,
+        outcome_signal=outcome_signal,
+        cross_pain=cross_pain,
+        different_from=different_from,
     )
 
 
@@ -120,6 +156,11 @@ def main() -> None:
         ),
     )
     parser.add_argument("--area", required=True, help='Название области, напр. "Первые 10 минут"')
+    parser.add_argument(
+        "--coverage-area",
+        required=True,
+        help="Область из карты покрытия README.md",
+    )
     parser.add_argument("--role", required=True, help='Кто, напр. "новый студент"')
     parser.add_argument(
         "--action",
@@ -144,6 +185,26 @@ def main() -> None:
         help="Конкретный проверяемый факт боли (если не задан — печатается плейсхолдер)",
     )
     parser.add_argument(
+        "--learning-stage",
+        required=True,
+        help="Основная стадия учебного цикла 1–10 из гайда",
+    )
+    parser.add_argument(
+        "--outcome-signal",
+        required=True,
+        help="Наблюдаемый сигнал учебного или пользовательского результата",
+    )
+    parser.add_argument(
+        "--cross-pain",
+        required=True,
+        help="PAIN-NN из cross_cutting_pains.md или обоснованный новый класс",
+    )
+    parser.add_argument(
+        "--different-from",
+        required=True,
+        help='Отличие от пересекающегося разбора №N или "пересечений нет"',
+    )
+    parser.add_argument(
         "--out",
         default=None,
         help="Файл для записи промпта (по умолчанию — печать в stdout)",
@@ -152,11 +213,16 @@ def main() -> None:
 
     prompt = build_prompt(
         area=args.area,
+        coverage_area=args.coverage_area,
         role=args.role,
         action=args.action,
         reality_domain=args.reality_domain,
         tensions=args.tension,
         pain=args.pain,
+        learning_stage=args.learning_stage,
+        outcome_signal=args.outcome_signal,
+        cross_pain=args.cross_pain,
+        different_from=args.different_from,
     )
 
     if args.out:
