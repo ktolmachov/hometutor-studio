@@ -1,0 +1,650 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Разбор №26 — Карта проходит гейт, учитель и экзаменатор — нет</title>
+<style>
+  /* ============================================================
+     HOMETUTOR NOTEBOOK STYLE v1.0 — LOCKED 2026-07-12
+     Скопировано из notebook_template.html. Палитру не менять.
+     ============================================================ */
+  :root {
+    --paper: #f7f3ea;
+    --paper-2: #fffdf7;
+    --ink: #17211b;
+    --muted: #5c6a61;
+    --terra: #b95631;
+    --terra-deep: #7d351f;
+    --forest: #243b2c;
+    --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14);
+    --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+    --done: #1e6e46;
+    --silent: #b98a2d;
+    --hole: #8c2f39;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141a16;
+      --paper-2: #1b231e;
+      --ink: #ece5d4;
+      --muted: #9aa89d;
+      --terra: #d97a52;
+      --terra-deep: #e8a583;
+      --forest: #9dbfa8;
+      --gold: #d9a55e;
+      --line: rgba(236, 229, 212, 0.16);
+      --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(157, 191, 168, 0.10);
+      --verdict-keep: #6fc493;
+      --verdict-fix: #e0a35c;
+      --verdict-no: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+      --done: #6fc493;
+      --silent: #d9b45e;
+      --hole: #e08691;
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+    --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+    --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+    --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+    --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+      radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--terra-deep); }
+  em { color: var(--muted); }
+
+  code {
+    font-family: Consolas, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+
+  blockquote {
+    margin: 0 0 1rem; padding: 0.6rem 1.1rem; border-left: 3px solid var(--gold);
+    background: var(--code-bg); border-radius: 0 8px 8px 0; color: var(--muted);
+    font-size: 0.95rem; max-width: 70ch;
+  }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--terra);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 0.95rem; color: var(--gold);
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .sec-name {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem;
+    font-weight: 700; color: var(--muted);
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.1rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+  }
+  .anchor-card { border-left: 4px solid var(--terra); }
+  .ev { font-size: 0.86rem; color: var(--muted); margin-top: 0.5rem; }
+  .ev code { font-size: 0.8rem; }
+
+  .figure { margin: 1.4rem 0 0.4rem; }
+  .figure svg { width: 100%; height: auto; display: block; }
+  .figcap { font-size: 0.84rem; color: var(--muted); margin-top: 0.5rem; max-width: 70ch; }
+
+  .table-scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  td:first-child { white-space: nowrap; }
+  td { font-variant-numeric: tabular-nums; }
+
+  .st { display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 99px; white-space: nowrap; }
+  .st-done { color: var(--done); border: 1px solid var(--done); }
+  .st-silent { color: var(--silent); border: 1px solid var(--silent); }
+  .st-hole { color: var(--hole); border: 1px solid var(--hole); }
+
+  .v { display: inline-block; font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+       letter-spacing: 0.08em; padding: 0.1rem 0.55rem; border-radius: 99px; margin-right: 0.5rem; }
+  .v-keep { color: var(--verdict-keep); border: 1.5px solid var(--verdict-keep); }
+  .v-fix { color: var(--verdict-fix); border: 1.5px solid var(--verdict-fix); }
+  .v-no { color: var(--verdict-no); border: 1.5px solid var(--verdict-no); }
+
+  .tension { border-left: 4px solid var(--gold); }
+  .tension .t { font-family: Georgia, serif; font-size: 1.05rem; margin-bottom: 0.35rem; }
+  .syn { color: var(--verdict-keep); font-weight: 600; }
+
+  .ladder { list-style: none; padding-left: 0; }
+  .ladder li { display: flex; gap: 0.8rem; align-items: baseline; margin-bottom: 0.55rem; }
+  .ladder .num {
+    flex: none; font-family: Georgia, serif; font-weight: 700; color: var(--gold);
+    width: 1.6rem; text-align: right;
+  }
+
+  .tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.08rem 0.5rem;
+         border-radius: 4px; color: var(--paper-2); }
+  .tag-p0 { background: var(--terra); }
+  .tag-p1 { background: var(--forest); }
+  .tag-p2 { background: var(--gold); }
+  :root[data-theme="dark"] .tag, :root[data-theme="dark"] .tag-p2 { color: #141a16; }
+  @media (prefers-color-scheme: dark) { .tag { color: #141a16; } }
+  :root[data-theme="light"] .tag { color: var(--paper-2); }
+
+  .footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
+            font-size: 0.85rem; color: var(--muted); }
+  .footer code { font-size: 0.8rem; }
+
+  a { color: var(--terra); }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">Эволюционный разбор · №26 · связка №24+№25 · гейт учебного контента</div>
+  <h1>Карта проходит гейт. Учитель и экзаменатор — нет</h1>
+  <p class="lede">Продукт уже умеет отказаться публиковать плохую карту курса — 10 проверок,
+  честное «не прошёл». Но то, что он <em>говорит</em> и <em>спрашивает</em> каждый день —
+  уроки, ответы, квизы из мега-бандла разнокачественных курсов — попадает к студенту и в
+  mastery без единой проверки содержания. Живой прогон на реальном бандле «ИИ Агенты»
+  показал цену: экзаменационный вопрос, рождённый из оговорки в сыром транскрипте.</p>
+  <div class="meta">
+    <span>hometutor · HEAD <code>84b7b5668</code> «343»</span>
+    <span>2026-07-19</span>
+    <span>бандл: <code>reset_home_rag_v2_2026_07_17T21_01</code> · 82 концепта · 8 общих тем</span>
+    <span>E2: 9/9 структурно валидных живых генераций (не «качественных») + снимки kg.sqlite / user_state.db / llm_request_cache.db</span>
+  </div>
+</header>
+
+<!-- ПАСПОРТ -->
+<section id="passport">
+  <div class="table-scroll">
+    <table>
+      <tr><th>Паспорт</th><th></th></tr>
+      <tr><td>Область покрытия</td><td>Материал/качество контента + Качество квизов + Качество retrieval, цитат и ответа (связка №24+№25)</td></tr>
+      <tr><td>Стадии цикла</td><td>2 (импорт и индексация) · 4 (ответ и доверие) · 6 (практика и квиз) · 9 (план и следующий шаг)</td></tr>
+      <tr><td>Сигнал результата</td><td>студент получает короткий проверяемый source-grounded маршрут из лучших фрагментов разных курсов, а не «все материалы подряд»</td></tr>
+      <tr><td>Сквозная болезнь</td><td><code>PAIN-02</code> — закон вне ежедневного цикла: качество контента измеряется (judge, рубрики, паспорта, отчёты гейтов), но не управляет маршрутом, ответами, квизами и mastery</td></tr>
+      <tr><td>Доказательность</td><td><strong>E1</strong> verified на HEAD 343 + <strong>E2</strong>: живой семпл 9 генераций (3 темы × 3 повтора, рубрика v1.0 зафиксирована до генерации) + живые снимки данных бандла</td></tr>
+      <tr><td>Отличие от №21</td><td>№21 дал каталог и адреса («какой фрагмент откуда»); здесь решается, <em>какие фрагменты стоит учить</em></td></tr>
+      <tr><td>Отличие от №24</td><td>№24 проверял качество квизов изолированно; здесь квиз-гейт — звено общего учебного маршрута</td></tr>
+      <tr><td>Отличие от №25</td><td>№25 проверял groundedness одного ответа; здесь groundedness — контракт всего синтеза курса из мега-бандла</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 1. СУТЬ -->
+<section id="essence">
+  <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Суть</span></div>
+  <h2>Чего по-настоящему хочет студент с мега-бандлом</h2>
+  <p>Студент, собравший пять курсов по «ИИ-агентам», не хочет «изучить все материалы».
+  Он хочет быстро построить крепкую базу, понять сложное простыми словами, взять лучшие
+  практики, отсеять воду и устаревшее — и получить собственный путь к экспертности.
+  Каждая минута, потраченная на слабый фрагмент, — украденная минута.</p>
+  <p><strong>Суть продукта здесь — не RAG по папке, а личный учебный редактор и экзаменатор:
+  компилятор доверенного обучения.</strong> Продукт уже содержит прецедент этой роли —
+  <code>course_graph_compiler</code> берёт сырые документы и отказывается публиковать карту,
+  пока она не прошла 10 проверок. Тот же принцип должен работать на уровне контента:
+  хаос разнокачественных материалов → проверенный маршрут, где у каждого шага есть источник,
+  причина выбора, простое объяснение, практика и подтверждённая проверка понимания.
+  Карта — это обещание. Уроки, ответы и квизы — само обучение. Сейчас гейт стоит только
+  на обещании.</p>
+</section>
+
+<!-- 2. РЕАЛЬНОСТЬ -->
+<section id="reality">
+  <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Реальность</span></div>
+  <h2>Что уже есть — и что из этого управляет обучением</h2>
+
+  <div class="figure">
+    <svg viewBox="0 0 700 360" xmlns="http://www.w3.org/2000/svg" role="img"
+         aria-label="Асимметрия контроля качества: карта курса проходит гейт из 10 проверок перед публикацией; уроки, ответы и квизы попадают к студенту и в mastery без контентного гейта, хотя измерительные приборы уже существуют">
+      <!-- левый столбец: карта -->
+      <rect x="15" y="20" width="320" height="92" rx="10" fill="none" stroke="var(--forest)" stroke-width="1.6"/>
+      <text x="175" y="47" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="var(--ink)">Карта курса (граф)</text>
+      <text x="175" y="68" text-anchor="middle" font-size="11.5" fill="var(--muted)">compile → merge → validate</text>
+      <text x="175" y="86" text-anchor="middle" font-size="11.5" fill="var(--muted)">live: 82 концепта · 100% evidence · 0 сирот</text>
+      <rect x="70" y="130" width="210" height="52" rx="26" fill="var(--forest)" opacity="0.92"/>
+      <text x="175" y="152" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--paper-2)">ГЕЙТ · 10 проверок</text>
+      <text x="175" y="170" text-anchor="middle" font-size="11" fill="var(--paper-2)" opacity="0.85">не прошёл — не публикуется</text>
+      <line x1="175" y1="112" x2="175" y2="130" stroke="var(--forest)" stroke-width="1.6"/>
+      <line x1="175" y1="182" x2="175" y2="212" stroke="var(--forest)" stroke-width="1.6"/>
+      <polygon points="175,212 170,202 180,202" fill="var(--forest)"/>
+      <!-- правый столбец: контент -->
+      <rect x="365" y="20" width="320" height="92" rx="10" fill="none" stroke="var(--terra)" stroke-width="1.6"/>
+      <text x="525" y="47" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="var(--ink)">Уроки · ответы · квизы</text>
+      <text x="525" y="68" text-anchor="middle" font-size="11.5" fill="var(--muted)">то, что продукт говорит и спрашивает</text>
+      <text x="525" y="86" text-anchor="middle" font-size="11.5" fill="var(--muted)">live: 54 вопроса — 0 с evidence-полем</text>
+      <rect x="420" y="130" width="210" height="52" rx="8" fill="none" stroke="var(--verdict-no)" stroke-width="1.6" stroke-dasharray="7 5"/>
+      <text x="525" y="152" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--verdict-no)">гейта нет</text>
+      <text x="525" y="170" text-anchor="middle" font-size="11" fill="var(--muted)">формат чинится, смысл не проверяется</text>
+      <line x1="525" y1="112" x2="525" y2="130" stroke="var(--terra)" stroke-width="1.6"/>
+      <line x1="525" y1="182" x2="525" y2="212" stroke="var(--terra)" stroke-width="1.6"/>
+      <polygon points="525,212 520,202 530,202" fill="var(--terra)"/>
+      <!-- приборы, висящие в воздухе -->
+      <rect x="380" y="228" width="290" height="40" rx="8" fill="none" stroke="var(--silent)" stroke-width="1.3"/>
+      <text x="525" y="245" text-anchor="middle" font-size="10.5" fill="var(--silent)">приборы уже есть, но «молчат»: async judge (выкл.) ·</text>
+      <text x="525" y="260" text-anchor="middle" font-size="10.5" fill="var(--silent)">quality_checks → debug · рубрики/staleness → 2 UI-вью</text>
+      <!-- нижний блок: студент -->
+      <rect x="15" y="288" width="670" height="56" rx="10" fill="var(--card)" stroke="var(--line)"/>
+      <text x="350" y="311" text-anchor="middle" font-family="Georgia, serif" font-size="14" fill="var(--ink)">Студент и его mastery</text>
+      <text x="350" y="331" text-anchor="middle" font-size="11" fill="var(--muted)">SM-2 · план · SSR · Route Policy (№23) · worth-маршруты (№15) · Мнемополис (№20)</text>
+      <line x1="175" y1="230" x2="175" y2="288" stroke="var(--forest)" stroke-width="1.6"/>
+      <line x1="525" y1="268" x2="525" y2="288" stroke="var(--terra)" stroke-width="1.6"/>
+    </svg>
+    <p class="figcap">Асимметрия контроля на живом бандле: карта опубликована только после
+    <code>gate_passed=true</code> (снимок <code>graph_quality_report.json</code> генерации
+    2026-07-17), а контент питает mastery напрямую. Измерительные приборы контента существуют,
+    но стоят в стороне от ежедневного цикла — классический PAIN-02.</p>
+  </div>
+
+  <h3>Инвентаризация: 12 элементов, три статуса</h3>
+  <div class="table-scroll">
+    <table>
+      <tr><th>Элемент</th><th>Статус</th><th>Что даёт / чего не делает</th></tr>
+      <tr><td>Гейт графа</td><td><span class="st st-done">эталон</span></td><td><code>course_graph_compiler.py::evaluate_graph_quality_gate</code> — 10 проверок, честный отказ; live-отчёт в бандле генерации. Единственный настоящий контентный гейт продукта</td></tr>
+      <tr><td>Мега-бандл (данные)</td><td><span class="st st-done">сделано</span></td><td>единый граф двух курсов, 8 тем с конкурирующими источниками (live kg.sqlite); №21 P0–P2: адреса «курс · урок», каталог, lanes</td></tr>
+      <tr><td>Адрес шага маршрута</td><td><span class="st st-done">сделано</span></td><td><code>concept_address.py::resolve_concept_address / day_route_addresses</code> — компонент 1 контракта доверенного шага уже существует</td></tr>
+      <tr><td>Паспорт качества конспекта</td><td><span class="st st-silent">молчит</span></td><td><code>konspekt_learning_passport.py</code>: rubric_average, grades, staleness — потребляют ровно два UI-вью; маршрут/квиз/retrieval не видят</td></tr>
+      <tr><td>Async quality judge</td><td><span class="st st-silent">молчит</span></td><td><code>async_quality_judge.py</code>: faithfulness/relevancy по семплу /ask — но <code>enable_async_quality_judge=False</code> по умолчанию, оценки уходят только в metrics_db; ни UI, ни маршрут их не читают</td></tr>
+      <tr><td>Детерминированные проверки ответа</td><td><span class="st st-silent">молчит</span></td><td><code>query_metrics.py::_compute_deterministic_quality_checks</code>: 5 проверок каждого ответа → поле <code>debug</code>, не ярлык для студента и не гейт</td></tr>
+      <tr><td>Grounded answer (№25)</td><td><span class="st st-silent">молчит</span></td><td>структурный citation binding есть; semantic entailment не проверяется; <code>apply_grounded_validation</code> пропускает cache_hit (re-verified на 343); citation_coverage → debug</td></tr>
+      <tr><td>Квиз-парсеры (№24)</td><td><span class="st st-hole">дыра</span></td><td><code>quiz_scoped.py::parse_scoped_quiz_json</code> проверяет только структуру; схема не просит evidence: live 0/54 вопросов с полем источника; fallback micro без origin-маркера пишет mastery</td></tr>
+      <tr><td>Mastery-запись</td><td><span class="st st-hole">дыра</span></td><td>live <code>user_state.db::quiz_results</code>: 189 строк, колонок origin/evidence/question нет — запись физически не может доказать качество вопроса; из 8 строк mastery 0 реальных концептов курса</td></tr>
+      <tr><td>Каталог тем синтеза</td><td><span class="st st-hole">дыра</span></td><td>live <code>get_topics_catalog()</code> → <strong>0 тем</strong>: summary-коллекция бандла пуста → <code>weak_spot_scoped_quiz_params</code> шлёт концепт в мёртвый путь — петля «слабый концепт → квиз» не работает на реальном бандле</td></tr>
+      <tr><td>SSR / worth-маршрут</td><td><span class="st st-hole">дыра</span></td><td><code>node_worth</code> = due/novel/decay/frontier/reach; входы SSR = очереди + weak concepts. Ни одного сигнала качества/свежести источника в выборе следующего шага</td></tr>
+      <tr><td>Offline-гейт ответов</td><td><span class="st st-silent">молчит</span></td><td><code>scripts/home_rag_integration_gate_v1.py</code> (619 строк): ручной, вне CI, фиксированный корпус, relaxed <code>GROUNDED_ANSWER_STRICT_QA=0</code>; кэш LLM (live: request_hash → response_json) не несёт ревизии контракта</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <p><strong>Главный вывод инвентаризации.</strong> Продукту не хватает не измерительных
+    приборов, а <em>проводки приборов в цикл</em>: рубрика, staleness, judge, quality_checks,
+    coverage — всё уже вычисляется или готово вычисляться, но ни одно число не участвует в
+    решениях «что показать», «что спросить», «что записать в mastery», «куда вести дальше».
+    Инфраструктура причин тоже готова: <code>smart_study_evidence.py</code> уже строит
+    типизированный ledger «почему этот шаг» — в него достаточно добавить строки о качестве
+    источника.</p>
+  </div>
+</section>
+
+<!-- 3. ПРОТИВОРЕЧИЯ -->
+<section id="tensions">
+  <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Противоречия</span></div>
+  <h2>Восемь напряжений — и синтез: доверенный слой поверх курсов</h2>
+
+  <div class="card tension">
+    <div class="t">много материалов ↔ мало времени</div>
+    <p>Каталог обязан хранить всё; время студента требует «80/20».
+    <span class="syn">Синтез: компилятор выбирает, но не удаляет.</span> Продукт уже разделил
+    слои в №21: каталог (всё, с адресами) и маршрут (отобранное, по worth). Гейту достаточно
+    дать маршруту quality-вход и причину выбора — полнота каталога не страдает.</p>
+  </div>
+  <div class="card tension">
+    <div class="t">простыми словами ↔ без потери экспертной точности</div>
+    <p>Упрощение без привязки — источник искажений (live-пример: ASR-огрызок «EVO» стал
+    «специализированным сервисом» в кандидат-уроке).
+    <span class="syn">Синтез: simple version привязана к source span.</span> Простое объяснение
+    хранится рядом с фрагментом-основанием (паттерн «факты ↔ интерпретации» уже отработан в №14) —
+    упрощать можно смело, потому что проверить легко.</p>
+  </div>
+  <div class="card tension">
+    <div class="t">source-grounded ↔ синтез выше одного источника</div>
+    <p>Грандинг «весь ответ = один источник» запретил бы главную ценность мега-бандла —
+    сведение взглядов.
+    <span class="syn">Синтез: привязка по-клеймовая, а не по-ответная.</span>
+    <code>grounded_answer</code> уже режет ответ на fact blocks с provenance — синтез разрешён,
+    но каждый существенный claim несёт свой адрес. Осталось добавить semantic-слой offline.</p>
+  </div>
+  <div class="card tension">
+    <div class="t">свежие доклады ↔ крепкая база</div>
+    <p>Свежее ≠ лучшее для новичка; базовое ≠ устаревшее.
+    <span class="syn">Синтез: роли источников вместо одной шкалы.</span> Ярлыки
+    «база / практика / свежий опыт / альтернативная позиция» — метаданные фрагмента, а не
+    фильтр. Маршрут L1 берёт базу, L4 — свежие доклады; ничего не выбрасывается.</p>
+  </div>
+  <div class="card tension">
+    <div class="t">практический опыт ↔ теория и терминология</div>
+    <p>Теория без практики создаёт иллюзию умения; практика без теории — карго-культ.
+    <span class="syn">Синтез: practice-метка на теме, а не выбор стороны.</span> Гейт помечает
+    темы «теория без практики» и наоборот; где практики нет ни в одном курсе — честный
+    gap «нужен собственный опыт» (P2 gap-analysis).</p>
+  </div>
+  <div class="card tension">
+    <div class="t">автоматический маршрут ↔ право студента выбирать глубину</div>
+    <p>Автопилот, прячущий материалы, ломает доверие сильнее, чем плохой материал.
+    <span class="syn">Синтез: гейт меняет ярлыки и порядок, но не запирает двери.</span>
+    Любой источник открываем из каталога; маршрут — рекомендация с reason, глубина — выбор
+    студента (лестница L1–L6 в §7).</p>
+  </div>
+  <div class="card tension">
+    <div class="t">качество контента ↔ разнообразие взглядов преподавателей</div>
+    <p>Жёсткий фильтр съест несогласие — а именно на несогласии двух курсов растёт L3.
+    <span class="syn">Синтез: rejected-with-reason вместо тихого отсева.</span> Проигравший
+    фрагмент остаётся в audit packet с причиной («сырой транскрипт», «дубль», «альтернативная
+    позиция») и виден студенту как второе мнение, а не исчезает.</p>
+  </div>
+  <div class="card tension">
+    <div class="t">быстрый ответ ↔ проверяемый ответ</div>
+    <p>Semantic-проверка каждого ответа в runtime убила бы латентность local-first продукта.
+    <span class="syn">Синтез: детерминированное — online, семантическое — offline.</span>
+    Мгновенно: структурный binding + evidence exact-match + честный ярлык уверенности.
+    После реиндекса: semantic audit packet по темам курса. Кэш несёт ревизию контракта,
+    чтобы скорость не подменяла доверие.</p>
+  </div>
+</section>
+
+<!-- 4. БОЛЬ-ЯКОРЬ -->
+<section id="pain">
+  <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Боль-якорь</span></div>
+  <h2>Живой прогон: экзамен из оговорки</h2>
+
+  <div class="card anchor-card">
+    <p><strong>Проверяемый факт (E2, воспроизведён на реальном бандле).</strong>
+    По теме <code>guardrails</code> у продукта два конкурирующих источника: вычитанный
+    конспект Deep-курса (<code>.md</code>) и сырой ASR-транскрипт «Урок 4» (<code>.txt</code>).
+    Продукт не выбирает между ними и не помечает их роли. Живой прогон production-пути
+    квиза (модель и конфиг продукта, prompt @343, T=0.25) дал структурно-валидный вопрос:</p>
+    <blockquote>«Какой основной риск упоминается в контексте получения системой ответа,
+    за который „присядут"?» — правильный ответ: <strong>«Уголовное наказание для системы»</strong>.</blockquote>
+    <p>Источник этого «факта» — оговорка спикера в транскрипте: «…отдавать ответы, за которые
+    потом… не присядешь. Вот я добился… система мне ответила то, за что вообще… уголовное
+    наказание. Ну, не мне, а системе». Вопрос прошёл бы все существующие проверки, был бы
+    показан студенту, и его результат записался бы в mastery концепта guardrails и в SM-2
+    расписание.</p>
+    <p><strong>Точная причина в коде и данных:</strong></p>
+    <ul>
+      <li><code>hometutor@84b7b5668:app/quiz_scoped.py::parse_scoped_quiz_json</code>
+        (L22–75) — проверяет count/options/correct_index/difficulty; содержание не проверяет,
+        evidence не запрашивается (live: 0/54 вопросов с полем источника);</li>
+      <li><code>hometutor@84b7b5668:app/fact_source_binding.py::apply_quiz_outcome_to_learner_state</code>
+        (L125–153) — обновляет mastery + SR немедленно после любого структурно-валидного исхода;</li>
+      <li><code>D:\AI\app\data\user_state.db::quiz_results</code> — схема без колонок
+        origin/evidence/question: запись about-квиза физически не может доказать качество вопроса;</li>
+      <li><code>hometutor@84b7b5668:app/knowledge_catalog.py::get_topics_catalog</code> —
+        live 0 тем (summary-коллекция пуста) → <code>quiz_scoped.py::weak_spot_scoped_quiz_params</code>
+        отправляет слабый концепт в путь, который всегда отвечает «Слишком мало текста»:
+        петля «mastery → слабое место → квиз» на реальном бандле мертва;</li>
+      <li><code>hometutor@84b7b5668:app/ui/knowledge_graph_d3_analysis.py::node_worth</code>
+        (L234–268) — worth шага = due/novel/decay/frontier/reach; качество и свежесть источника
+        не участвуют: маршрут не может предпочесть вычитанный конспект сырому транскрипту.</li>
+    </ul>
+    <p class="ev">Семпл: <code>eval_data/content_gate_e2_2026-07-19/</code> (9 генераций, 54
+    вопроса, 3 синтеза, рубрика v1.0 зафиксирована до генерации, ничего не отброшено).
+    Итог рубрики: D1 evidence-поле 0/54; D2 слабая лексическая поддержка правильного ответа
+    13/54 (диагностика, не entailment); дублей 0; difficulty 21 recognition / 15 recall /
+    18 transfer. Семпл честный: рядом с искажением есть и полностью корректные вопросы
+    (числовой факт «50 тысяч токенов на тулы MCP» подтверждён контекстом дословно).</p>
+    <p class="ev"><strong>Семантическая аджюдикация выполнена и заархивирована</strong>
+    (<code>semantic_adjudication_2026-07-19.md</code>, Claude — эта сессия, не self-grade;
+    13/13 D2-флагов адъюдицированы построчно против сырого контекста генерации).
+    Итог: 12/13 — легитимные перефразы (низкий D2 — ложное срабатывание диагностики),
+    1 подтверждённое <code>BORDERLINE</code> искажение помимо основного якоря: вопрос
+    «главная проблема классической инфраструктуры» приписывает поведение «200 ОК, но
+    внутри всё плохо» классической инфраструктуре, хотя источник явно приписывает его
+    <em>агентам</em>, противопоставляя классической инфре («там всё видно») — subject
+    substitution при дословно верной фразе. <strong>Методическая находка:</strong>
+    основной якорь («уголовное наказание для системы») имел лексическую поддержку
+    правильного ответа <strong>D2=1.0</strong> — максимальную — потому что фабрикация
+    использует дословные слова источника не в том смысле. Token-overlap не поймал
+    искажение; поймало только ручное чтение. Это эмпирическое подтверждение (не только
+    теоретическое) правила контраудита №25 «token overlap ≠ entailment» и довода в пользу
+    exact-match цитаты, а не overlap-порога, в P0-B.</p>
+  </div>
+
+  <div class="figure">
+    <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" role="img"
+         aria-label="Путь вопроса-искажения: два конкурирующих источника без выбора качества, сырой транскрипт попадает в контекст генерации, структурная проверка пропускает искажённый вопрос, mastery обновляется">
+      <rect x="15" y="18" width="200" height="64" rx="10" fill="none" stroke="var(--forest)" stroke-width="1.4"/>
+      <text x="115" y="43" text-anchor="middle" font-size="12" fill="var(--ink)">Deep-конспект (.md)</text>
+      <text x="115" y="62" text-anchor="middle" font-size="10.5" fill="var(--muted)">вычитанный текст</text>
+      <rect x="15" y="104" width="200" height="64" rx="10" fill="none" stroke="var(--terra)" stroke-width="1.4"/>
+      <text x="115" y="129" text-anchor="middle" font-size="12" fill="var(--ink)">«Урок 4» (.txt)</text>
+      <text x="115" y="148" text-anchor="middle" font-size="10.5" fill="var(--muted)">сырой ASR-транскрипт</text>
+      <rect x="285" y="60" width="170" height="70" rx="10" fill="var(--card)" stroke="var(--line)"/>
+      <text x="370" y="87" text-anchor="middle" font-size="12" fill="var(--ink)">контекст генерации</text>
+      <text x="370" y="106" text-anchor="middle" font-size="10.5" fill="var(--muted)">выбора качества нет</text>
+      <line x1="215" y1="50" x2="285" y2="80" stroke="var(--forest)" stroke-width="1.4"/>
+      <line x1="215" y1="136" x2="285" y2="110" stroke="var(--terra)" stroke-width="1.8"/>
+      <rect x="285" y="176" width="170" height="66" rx="10" fill="none" stroke="var(--verdict-no)" stroke-width="1.5"/>
+      <text x="370" y="200" text-anchor="middle" font-size="11.5" fill="var(--verdict-no)">«Уголовное наказание</text>
+      <text x="370" y="217" text-anchor="middle" font-size="11.5" fill="var(--verdict-no)">для системы» = верный ответ</text>
+      <text x="370" y="234" text-anchor="middle" font-size="10" fill="var(--muted)">структурно валиден ✓</text>
+      <line x1="370" y1="130" x2="370" y2="176" stroke="var(--terra)" stroke-width="1.6"/>
+      <rect x="520" y="88" width="165" height="120" rx="10" fill="var(--card)" stroke="var(--line)"/>
+      <text x="602" y="115" text-anchor="middle" font-size="12" fill="var(--ink)">mastery + SM-2</text>
+      <text x="602" y="135" text-anchor="middle" font-size="10.5" fill="var(--muted)">quiz_results:</text>
+      <text x="602" y="152" text-anchor="middle" font-size="10.5" fill="var(--muted)">origin? evidence? —</text>
+      <text x="602" y="169" text-anchor="middle" font-size="10.5" fill="var(--muted)">таких колонок нет</text>
+      <text x="602" y="193" text-anchor="middle" font-size="10.5" fill="var(--muted)">→ план · SSR · маршрут</text>
+      <line x1="455" y1="209" x2="520" y2="160" stroke="var(--verdict-no)" stroke-width="1.6"/>
+      <polygon points="520,160 509,161 514,170" fill="var(--verdict-no)"/>
+      <text x="350" y="285" text-anchor="middle" font-size="11" fill="var(--muted)" font-style="italic">между вопросом и mastery — ни одной проверки содержания</text>
+    </svg>
+    <p class="figcap">Путь живого вопроса из семпла r1/guardrails#3. Заметьте: проблема двойная —
+    генератор исказил оговорку, но и <em>выбор источника</em> никто не делал: сырой транскрипт
+    вошёл в экзаменационный контекст наравне с вычитанным конспектом.</p>
+  </div>
+</section>
+
+<!-- 5. ВЕРДИКТЫ -->
+<section id="verdicts">
+  <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Вердикты</span></div>
+  <h2>Позиция: где стоит гейт, а где его не должно быть</h2>
+
+  <div class="card"><span class="v v-no">не ставить</span><strong>LLM-гейт перед публикацией каждого ответа.</strong>
+    Runtime-судья на каждый ответ убивает латентность local-first и создаёт вторую самооценку
+    той же модели (запрещено вердиктом №14). Online остаётся детерминированное: структурный
+    binding, evidence exact-match, честный ярлык «не подтверждено» — и это уже наполовину
+    построено.</div>
+  <div class="card"><span class="v v-fix">поставить</span><strong>Детерминированный гейт перед записью mastery.</strong>
+    Правило одно: вопрос без проверяемого evidence binding не обновляет mastery
+    (показывать можно — с ярлыком). Это линия №24 P0a: source_quote exact-match + origin;
+    fallback-вопросы (всегда B) перестают писать mastery. Ноль LLM, ноль латентности.</div>
+  <div class="card"><span class="v v-fix">поставить</span><strong>Гейт-аудит курса после реиндекса — главный ход.</strong>
+    Реиндекс уже заканчивается гейтом графа и кладёт отчёт в бандл генерации. Продолжить хвост:
+    content gate packet по темам — конкурирующие источники, роли, freshness, выбор лучшего
+    с причиной, отклонённые с причиной, evidence spans. Тот же паттерн хранения
+    (файл рядом с <code>graph_quality_report.json</code>), никакой новой схемы.</div>
+  <div class="card"><span class="v v-fix">подключить</span><strong>Quality score источников в план/маршрут — как ярлык и tie-break, не как переворот формулы.</strong>
+    <code>node_worth</code> не трогать до измеренного эффекта; первый шаг — reason-строка
+    качества в уже существующий evidence ledger SSR и предпочтение вычитанного источника
+    сырому при равном worth. Формулы меняются только после E2-каскада на живых метриках.</div>
+  <div class="card"><span class="v v-keep">детерминированно</span><strong>Что проверяется без LLM.</strong>
+    Evidence exact-match; разрешимость citation; сохранность чисел/единиц; freshness по
+    source hash/mtime; роль источника по типу файла и папке курса; шумность транскрипта
+    (плотность междометий/обрывов — «Вот. Вот.» в live-транскрипте выдаёт себя строкой grep);
+    дубли вопросов. Этого хватает на 80% пользы гейта.</div>
+  <div class="card"><span class="v v-keep">llm-judge — только offline</span><strong>Где допустим судья.</strong>
+    Semantic entailment (R3/R5 из №25) и педагогическая валидность — по семплу, после
+    реиндекса или смены модели/промпта, с сохранением raw outputs; той же моделью — только
+    с явной маркировкой proxy; вердикт о частоте — только после независимой аджюдикации.</div>
+  <div class="card"><span class="v v-keep">не выбрасывать</span><strong>Слабые источники получают роль, а не забвение.</strong>
+    «Альтернативная позиция», «устарело», «практический доклад», «теория без практики»,
+    «сырой транскрипт». Отклонённый фрагмент лежит в audit packet с причиной и виден студенту
+    по клику — разнообразие взглядов сохраняется, скрытой цензуры нет.</div>
+  <div class="card"><span class="v v-keep">оставить</span><strong>Существующие приборы — не переделывать, а проводить.</strong>
+    Рубрика паспорта (№14), staleness (№3), async judge, quality_checks, гейт графа,
+    адреса (№21), evidence ledger SSR — всё остаётся как есть; гейт использует их выходы.</div>
+
+  <h3>НЕ делать</h3>
+  <ul>
+    <li>❌ ещё один красивый summary/паспорт без исполняемых проверок — приборов достаточно;</li>
+    <li>❌ доверять self-grade той же модели без маркировки proxy (№14, №24);</li>
+    <li>❌ считать наличие цитаты доказательством semantic groundedness — и token overlap
+        тоже не является entailment (контр-аудит №25);</li>
+    <li>❌ обновлять mastery от неподтверждённого квиза — включая fallback-вопросы;</li>
+    <li>❌ строить план по частоте терминов — роли и freshness из метаданных, порядок из графа;</li>
+    <li>❌ прятать слабые/устаревшие источники без объяснения — только rejected-with-reason;</li>
+    <li>❌ новая БД/схема ради гейта — audit packet = файл в бандле генерации, как отчёт графа;</li>
+    <li>❌ заявлять проценты качества (VLQR/SGAR) без живого измерения — семпл 9/54 даёт
+        механизм и нижнюю границу «≥1 подтверждённое искажение», не частоту.</li>
+  </ul>
+</section>
+
+<!-- 6. ЦЕННОСТЬ -->
+<section id="value">
+  <div class="sec-label"><span class="sec-num">6</span><span class="sec-name">Ценность</span></div>
+  <h2>Учебный редактор мега-бандла — и число, которое это докажет</h2>
+  <p>hometutor становится не «чатом по курсам», а редактором: выбирает лучшее из
+  конкурирующих курсов, объясняет простыми словами с сохранением адресов, проверяет понимание
+  подтверждёнными вопросами и честно показывает, где нужен собственный опыт. Уникальность
+  доказывается не декларацией, а контрактом каждого шага маршрута.</p>
+
+  <div class="figure">
+    <svg viewBox="0 0 700 210" xmlns="http://www.w3.org/2000/svg" role="img"
+         aria-label="Контракт доверенного учебного шага из шести компонент: адрес источника, evidence span, ярлык качества и свежести, grounded объяснение, подтверждённый квиз, причина выбора">
+      <rect x="15" y="20" width="670" height="120" rx="12" fill="var(--card)" stroke="var(--line)"/>
+      <text x="350" y="47" text-anchor="middle" font-family="Georgia, serif" font-size="15" fill="var(--ink)">Верифицированный учебный шаг = 6 компонент</text>
+      <g font-size="10.5" fill="var(--muted)" text-anchor="middle">
+        <rect x="35" y="62" width="95" height="56" rx="8" fill="none" stroke="var(--done)"/>
+        <text x="82" y="85" fill="var(--done)" font-weight="700">адрес</text>
+        <text x="82" y="102">курс · урок ✓ (№21)</text>
+        <rect x="142" y="62" width="95" height="56" rx="8" fill="none" stroke="var(--hole)"/>
+        <text x="189" y="85" fill="var(--hole)" font-weight="700">evidence</text>
+        <text x="189" y="102">span фрагмента</text>
+        <rect x="249" y="62" width="95" height="56" rx="8" fill="none" stroke="var(--hole)"/>
+        <text x="296" y="85" fill="var(--hole)" font-weight="700">ярлык</text>
+        <text x="296" y="102">качество/свежесть</text>
+        <rect x="356" y="62" width="95" height="56" rx="8" fill="none" stroke="var(--hole)"/>
+        <text x="403" y="85" fill="var(--hole)" font-weight="700">объяснение</text>
+        <text x="403" y="102">grounded + просто</text>
+        <rect x="463" y="62" width="95" height="56" rx="8" fill="none" stroke="var(--hole)"/>
+        <text x="510" y="85" fill="var(--hole)" font-weight="700">проверка</text>
+        <text x="510" y="102">quiz с evidence</text>
+        <rect x="570" y="62" width="95" height="56" rx="8" fill="none" stroke="var(--hole)"/>
+        <text x="617" y="85" fill="var(--hole)" font-weight="700">reason</text>
+        <text x="617" y="102">почему этот источник</text>
+      </g>
+      <text x="350" y="170" text-anchor="middle" font-size="11.5" fill="var(--muted)">сегодня полностью выполнена 1 компонента из 6 → North star baseline = 0% доверенных шагов</text>
+    </svg>
+    <p class="figcap">Контракт шага: зелёное уже отгружено (№21), красное — предмет P0.
+    Шаг без всех шести компонент показывается, но помечается и не претендует на слово
+    «проверено».</p>
+  </div>
+
+  <div class="table-scroll">
+    <table>
+      <tr><th>Метрика</th><th>Формула / источник</th><th>Baseline</th><th>Target</th><th>Wiring</th></tr>
+      <tr><td><strong>trusted_learning_route_rate</strong></td><td>доля шагов маршрута дня / SSR primary, где выполнены все 6 компонент контракта; считает детерминированный скрипт по audit packet + route payload</td><td>0% (live: ни один шаг не несёт evidence span, ярлык качества, verified quiz и reason)</td><td>P0-сценарий: ≥1 полный шаг на эталонном бандле; % target назначается после первого замера</td><td><code>wire-in-P0</code></td></tr>
+      <tr><td>verified_quiz_question_rate</td><td>доля вопросов с exact-match evidence binding / все вопросы, влияющие на mastery (детерминированная часть VLQR №24)</td><td>0/54 в E2-семпле (схема не просит evidence)</td><td>рост после P0-B; semantic-часть — не заявлять до offline-аджюдикации</td><td><code>wire-in-P0</code></td></tr>
+      <tr><td>freshness_labeled_step_rate</td><td>доля шагов маршрута с ярлыком свежести/роли источника; из audit packet</td><td>0%</td><td>100% для тем, прошедших gate packet</td><td><code>wire-in-P0</code></td></tr>
+      <tr><td>source_grounded_answer_rate (SGAR, №25)</td><td>semantic entailment по claim → source; независимая разметка</td><td>не измерен (E2 №25: 0/15)</td><td>не назначается до живого semantic baseline</td><td><code>not-measurable</code> до offline E2-разметки</td></tr>
+      <tr><td>practice_backed_topic_rate</td><td>доля тем маршрута с привязанной практикой / заданием</td><td>не считается</td><td>P1–P2</td><td><code>wire-in-P1</code></td></tr>
+      <tr><td>student_time_saved_estimate</td><td>—</td><td>—</td><td>—</td><td><code>not-measurable</code>: честной методики нет; не заявляем</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- 7. ПУТЬ -->
+<section id="path">
+  <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Путь</span></div>
+  <h2>Золотой путь студента и лестница уровней</h2>
+  <p><strong>Золотой путь:</strong> студент добавляет мега-бандл по теме → продукт строит
+  карту тем и видит пересечения курсов (уже работает: 8 общих тем live) → для каждой темы
+  гейт выбирает лучшие фрагменты и раздаёт роли (база / просто / практика / свежее / спорное)
+  → студент получает «маршрут 80/20» с причиной каждого шага → каждый шаг: источник, суть,
+  простое объяснение, практика, подтверждённый вопрос → слабое и устаревшее не молчит, а
+  помечено → mastery растёт только после проверенного понимания → через несколько дней студент
+  видит не «я прошёл курс», а «я разобрался на уровне: база / практика / насмотренность».</p>
+  <ol class="ladder">
+    <li><span class="num">L1</span><span><strong>База простыми словами.</strong> Шаги из фрагментов-«база» с simple version, привязанной к span.</span></li>
+    <li><span class="num">L2</span><span><strong>Типовые задачи.</strong> Practice-шаги; темы «теория без практики» помечены честно.</span></li>
+    <li><span class="num">L3</span><span><strong>Сравнение подходов.</strong> Конкурирующие источники двух курсов рядом, с ролями и несогласиями.</span></li>
+    <li><span class="num">L4</span><span><strong>Свежие практики и ограничения.</strong> Фрагменты-«свежий доклад» поверх устойчивой базы.</span></li>
+    <li><span class="num">L5</span><span><strong>Собственный проект.</strong> Gap-analysis: чего нет ни в одном курсе — план добора опыта.</span></li>
+    <li><span class="num">L6</span><span><strong>Объяснить другому.</strong> Защита выбора подхода; transfer-вопросы с evidence, а не ярлыком.</span></li>
+  </ol>
+</section>
+
+<!-- 8. ПЛАН -->
+<section id="plan">
+  <div class="sec-label"><span class="sec-num">8</span><span class="sec-name">План</span></div>
+  <h2>P0 — два хода, оба без нового хранилища/пайплайна и без runtime-LLM</h2>
+  <div class="table-scroll">
+    <table>
+      <tr><th></th><th>Ход</th><th>Что делается</th><th>Усилие</th></tr>
+      <tr><td><span class="tag tag-p0">P0-A</span></td><td><strong>Course Content Gate Packet.</strong></td><td>Хвост реиндекса (или запуск по теме): для 3–5 тем — конкурирующие источники, детерминированные ярлыки (роль, freshness, шумность), выбор лучшего с причиной, отклонённые с причиной, evidence spans. Файл рядом с <code>graph_quality_report.json</code>; одна поверхность «почему этот фрагмент» в паспорте темы.</td><td>~день</td></tr>
+      <tr><td><span class="tag tag-p0">P0-B</span></td><td><strong>Verified Learning Step Contract.</strong></td><td>Квиз: source_quote exact-match + origin (линия №24 P0a); статус персистентен — аддитивные nullable-колонки origin/evidence_bound на существующей quiz_results (не новая таблица); mastery только от validated вопроса; ответ без groundedness — ярлык «не подтверждено»/abstain; North star считается из БД, а не только из live-прогона.</td><td>1–2 дня</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td><td>Семпл 15 и паспорт выбора.</td><td>5 тем × 3 повтора с независимой аджюдикацией (первые честные VLQR/SGAR-числа); UI-паспорт «почему выбран источник»; сравнение курсов по ролям; replay боль-якоря.</td><td>дни</td></tr>
+      <tr><td><span class="tag tag-p2">P2</span></td><td>Персональные маршруты и gap-analysis.</td><td>Цели «быстро войти / практик / насмотренность»; авто-gap «этого нет ни в одном курсе»; экспорт личной программы.</td><td>волна</td></tr>
+    </table>
+  </div>
+  <p><strong>Kill switch:</strong> потребовалась новая большая БД/схема/пайплайн — стоп,
+  делаем read-only audit packet; LLM там, где хватает детерминированного evidence matching —
+  заменить; метрику нельзя посчитать — не заявлять эффект; живой семпл недоступен — вывод
+  помечается provisional E1 (в этом разборе E2 выполнен: 9/9 структурно валидных
+  генераций, слабые и сильные выходы сохранены, семантически адъюдицированы отдельно).</p>
+  <p><strong>Post-ship replay:</strong> повторить тот же прогон (те же 3 темы, тот же бандл,
+  та же рубрика) после P0 — вопрос-искажение класса «уголовное наказание для системы» обязан
+  либо не пройти в mastery, либо прийти с ярлыком; outcome-status присваивается по правилам
+  серии (<code>shipped-unvalidated → validated / no-effect / regressed</code>).</p>
+</section>
+
+<div class="footer">
+  <p>Разбор №26 · hometutor HEAD <code>84b7b5668</code> «343» · 2026-07-19 ·
+  живой бандл <code>D:\AI\app\data</code>, генерация <code>reset_home_rag_v2_2026_07_17T21_01</code>.</p>
+  <p>E2-семпл: <code>eval_data/content_gate_e2_2026-07-19/</code> — 9 quiz-генераций (54 вопроса),
+  3 синтеза урока, rubric v1.0 fixed-before-generation, скоринг детерминированный +
+  <code>semantic_adjudication_2026-07-19.md</code> (независимая аджюдикация Claude, архивируема);
+  cherry-picking запрещён, все выходы сохранены.</p>
+  <p><strong>Этот разбор доказывает боль и упаковывает её в исполнимый P0 — он не решает
+  её сам по себе.</strong> Implementation: ⬜ не начата. <code>PAIN-02</code>-инстанс в
+  реестре остаётся <code>Status: open</code> до P0-A/P0-B и post-ship replay.</p>
+  <p>Правило двух слоёв: этот HTML — слой анализа; actionable-кандидаты — в
+  <code>doc/next/course_content_gate_compiler_plan.md</code>. Серия:
+  <code>doc/presentations/evolutionary_analyses/</code>.</p>
+</div>
+
+</div>

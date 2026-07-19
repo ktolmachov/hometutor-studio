@@ -61,4 +61,11 @@ Evidence: hometutor@1c9c56961:app/grounded_answer.py::apply_grounded_validation;
 Observed effect: студент может получить ответ с формальными цитатами без измеренной semantic grounding guarantee; cache_hit path может обходить актуальную grounded validation.
 Status: open
 Closure evidence: отсутствует; требуется E2 semantic audit packet and CI/cache parity decision.
+
+Instance: PAIN-02 / Content quality instruments outside the learning route (mega-bundle)
+Analysis: №26
+Evidence: hometutor@84b7b5668:app/async_quality_judge.py::schedule_async_quality_judge_if_sampled (выключен по умолчанию, оценки только в metrics); hometutor@84b7b5668:app/query_metrics.py::_compute_deterministic_quality_checks (→ debug); hometutor@84b7b5668:app/konspekt_learning_passport.py::build_konspekt_learning_passport (рубрика/staleness → 2 UI-вью); hometutor@84b7b5668:app/ui/knowledge_graph_d3_analysis.py::node_worth (без качества/свежести); live E2: quiz_sample r1/guardrails#3 (искажение из ASR-оговорки прошло структурные проверки), user_state.db::quiz_results (нет колонок origin/evidence), get_topics_catalog() → 0 тем (weak-spot→quiz петля мертва).
+Observed effect: измерительные приборы качества существуют, но ни одно их число не участвует в решениях «что показать, что спросить, что записать в mastery, куда вести»; сырой ASR-транскрипт питает экзамен наравне с вычитанным конспектом.
+Status: open
+Closure evidence: отсутствует; требуется P0-A gate packet + P0-B verified step contract (doc/next/course_content_gate_compiler_plan.md) и post-ship replay E2-семпла.
 ```
