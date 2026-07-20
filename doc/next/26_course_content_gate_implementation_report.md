@@ -1,135 +1,123 @@
 # #26 Course Content Gate + Verified Step: Implementation Report
 
-**Волна: #26 P0-A + P0-B · hometutor runtime · 2026-07-20**
+**Волна: #26 P0-A + P0-B · fix-wave после контр-аудита · hometutor runtime · 2026-07-20**
 
 ---
 
-## Статус
+## Статус (честный)
 
 | Параметр | Значение |
 |---|---|
 | Plan | `hometutor-studio/doc/next/course_content_gate_compiler_plan.md` |
-| E2 (живой семпл) | ✅ выполнен до implementation (2026-07-19) |
-| E2 адьюдикация | ✅ `eval_data/content_gate_e2_2026-07-19/semantic_adjudication_2026-07-19.md` |
-| **P0-A Gate Packet** | ✅ shipped |
-| **P0-B Verified Step Contract** | ✅ shipped |
-| Tests | 68/68 PASS |
-| Lint | clean (pre-existing issues not touched) |
+| E2 (живой семпл) | ✅ выполнен **до** implementation (2026-07-19) |
+| **P0-A Gate Packet** | ✅ shipped (labels + best/rejected + **evidence spans** + UI expander) |
+| **P0-B Verified Step** | ✅ partial→fixed: mastery gate + origins; TLRR **plan formula**; answer honesty UI |
+| **Full step 6/6 on live bundle** | ⬜ residual: `grounded_explanation` component still unwired → TLRR full-contract often 0 |
+| Tests | **82/82 PASS** (`test_course_content_gate` + `test_quiz_content_contract` + `test_trusted_route_rate`) |
+| Live reindex on reference bundle | ⬜ not re-run in this session (unit/integration fixtures only) |
 
 ---
 
-## Write-set
+## Write-set (включая fix-wave)
 
-### Новые файлы
+### Новые
 
-| Файл | Строк | Назначение |
-|---|---|---|
-| `app/course_content_gate.py` | 469 | Pure read-only gate packet builder: role/freshness/noise/practice labels, best-source selection with reason, evidence span collection, lookup API for UI |
-| `scripts/run_course_content_gate.py` | 135 | Manual runner: `--bundle-dir`, `--topic`, `--staging` |
-| `scripts/compute_trusted_route_rate.py` | 200 | TLRR calculation from DB + gate report: 6-component contract, verified_quiz_question_rate, fallback_rate |
-| `tests/test_course_content_gate.py` | 492 | 46 tests: role/freshness/noise/practice/selection/rejection/lookup/persistence |
-| `tests/test_quiz_content_contract.py` | 315 | 18 tests: evidence binding, origin, mastery blocking, save/load |
-| `tests/test_trusted_route_rate.py` | 131 | 4 tests: TLRR with mocked DB + gate report |
+| Файл | Назначение |
+|---|---|
+| `app/course_content_gate.py` | Gate packet: role/freshness/noise/practice, best-source, **evidence_spans**, lookup API |
+| `scripts/run_course_content_gate.py` | Manual runner |
+| `scripts/compute_trusted_route_rate.py` | TLRR = **full_contract_steps / competing_topics** (plan formula) |
+| `tests/test_course_content_gate.py` | Gate unit/integration |
+| `tests/test_quiz_content_contract.py` | Evidence binding + mastery isolation + micro fallback E2E |
+| `tests/test_trusted_route_rate.py` | Formula + per-concept verified quiz |
 
-### Изменённые файлы
+### Изменённые
 
-| Файл | Δ | Назначение |
-|---|---|---|
-| `app/user_state_db.py` | +10/-6 | Колонки `origin TEXT`, `evidence_bound INTEGER` в `quiz_results` (CREATE TABLE + migration + whitelist) |
-| `app/user_state_quiz.py` | +25/-6 | Параметры `origin`, `evidence_bound` в `save_quiz_result()` |
-| `app/prompts/_impl.py` | +4/-3 | `QUIZ_SCOPED_PROMPT`: поле `source_quote` + правило дословной цитаты |
-| `app/quiz_scoped.py` | +36/-1 | `_normalize_scoped_questions`: поле `source_quote`; NEW `evidence_bound_for_questions()`; вызов после parsing |
-| `app/quiz_micro.py` | +21/-2 | `origin="fallback"` + `evidence_bound=False` в fallback; `origin="micro_quiz"` в LLM-пути; передача в `process_micro_quiz_outcome` |
-| `app/fact_source_binding.py` | +16/-1 | `apply_quiz_outcome_to_learner_state`: параметр `evidence_bound`; блокирует mastery/SR при `evidence_bound=False` |
-| `app/knowledge_graph_bundle.py` | +33/-0 | Non-fatal хвост `_write_content_gate_sidecar_if_viable()` после `write_graph_quality_report_sidecar` |
-| `app/ui/living_konspekt_reader.py` | +46/-0 | Expander «Почему этот фрагмент — основной источник» с gate-статусом |
-| `app/ui/scoped_quiz.py` | +14/-1 | «Завершить» — передача `origin="scoped_quiz"` и `evidence_bound` |
-
----
-
-## Что сделано — P0-A (Course Content Gate Packet)
-
-1. **`course_content_gate_report.json`** — sidecar рядом с `graph_quality_report.json` в бандле генерации:
-   - Темы с конкурирующими источниками (≥2 документов на концепт)
-   - Детерминированные ярлыки: роль (конспект.md / транскрипт.txt / living-konspekt), freshness (mtime + sha256), шумность ASR, practice-сигналы
-   - Best-source choice **with reason** + rejected/secondary **with reason** (ничего не удаляется)
-   - Приоритет multi-folder topics (≥2 course folders)
-
-2. **Интеграция в reindex хвост** — `_write_content_gate_sidecar_if_viable()` вызывается после `write_graph_quality_report_sidecar` в `write_bundle_via_compiler`. Non-fatal: сбой content gate не блокирует publish графа.
-
-3. **UI-блок** — expander «Почему этот фрагмент» в reader Живого конспекта:
-   - Статус `best`: показывает причину выбора
-   - Статус `rejected`: показывает причину + путь лучшего источника
-   - Нулевое влияние на производительность (lookup — dict search)
-
-4. **`freshness_labeled_step_rate`** — считается для gated-тем (доля тем, где хотя бы один источник имеет свежесть ≠ «неизвестно»)
+| Файл | Назначение |
+|---|---|
+| `app/user_state_db.py` | `quiz_results.origin`, `evidence_bound` (CREATE + migration) |
+| `app/user_state_quiz.py` | `save_quiz_result(origin=, evidence_bound=)` |
+| `app/prompts/_impl.py` | `QUIZ_SCOPED_PROMPT` + `source_quote` |
+| `app/quiz_scoped.py` | normalize `source_quote`; `evidence_bound_for_questions()` exact-match |
+| `app/quiz_micro.py` | fallback + micro_llm `evidence_bound=False`; safe handling when SR=None; skip PLM when blocked |
+| `app/quiz_service.py` | inline quiz → `origin=inline_quiz`, `evidence_bound=False` |
+| `app/fact_source_binding.py` | mastery/SR blocked when `evidence_bound is False` |
+| `app/knowledge_graph_bundle.py` | non-fatal content-gate sidecar after quality report |
+| `app/ui/living_konspekt_reader.py` | expander «Почему этот фрагмент…» |
+| `app/ui/scoped_quiz.py` | all-or-nothing evidence; **warning «не подтверждено»** when mastery blocked |
+| `docs/user_guide.md` | honesty of mastery + content gate |
 
 ---
 
-## Что сделано — P0-B (Verified Learning Step Contract)
+## Fix-wave (после контр-аудита) — что исправлено
 
-1. **Quiz evidence binding:**
-   - `QUIZ_SCOPED_PROMPT` требует поле `source_quote` — дословную цитату из материала
-   - `evidence_bound_for_questions()` — нормализованный exact-match (collapse whitespace, substring) цитаты в generation context
-   - Каждый вопрос получает `evidence_bound`: 1 (цитата найдена) или 0 (не найдена)
-   - Результат: `evidence_bound_count` / `evidence_total` в ответе генерации
-
-2. **Mastery только от validated:**
-   - Аддитивные nullable-колонки `quiz_results.origin TEXT`, `evidence_bound INTEGER`
-   - Миграция backward-compatible: старые строки → `NULL` = «не оценено»
-   - `apply_quiz_outcome_to_learner_state(evidence_bound=False)` → `evidence_blocked=True`, mastery и SR **не** обновляются
-   - `evidence_bound=None` (legacy) → поведение без изменений
-   - Аудит-след: невалидированный исход пишет `quiz_results` с `evidence_bound=0`
-
-3. **Fallback gate:**
-   - `_fallback_micro_quiz` → `origin="fallback"`, `evidence_bound=False`
-   - `process_micro_quiz_outcome` передаёт origin/evidence_bound в `save_quiz_result` и `apply_quiz_outcome_to_learner_state`
-   - Fallback-микро-квиз **не** обновляет mastery и SR
-
-4. **North star wiring:**
-   - `scripts/compute_trusted_route_rate.py` — считает TLRR из DB + gate report
-   - 6 компонент контракта: source address, evidence span, freshness label, grounded explanation (TBD), verified quiz, selection reason
-   - `verified_quiz_question_rate` = evidence_bound / total из `quiz_results`
-   - `fallback_rate` = count(origin='fallback') / total
-   - Replayable из DB без повторной генерации
+| Дефект аудита | Исправление |
+|---|---|
+| TLRR = component share / 6 | **Plan formula:** `full_contract_steps / competing_topics` |
+| verified_quiz = global COUNT | Per-concept: `DISTINCT concept WHERE evidence_bound=1` matched to topic |
+| evidence_span = «есть path» | Real `evidence_spans[].excerpt` from best-source file; missing → component fail |
+| grounded_explanation silent 5/6 | Explicit residual: always false; script notes TLRR may stay 0 |
+| Micro LLM / inline write mastery | `evidence_bound=False` + origin; process path no longer crashes on `sr=None` |
+| process_micro still updated PLM | PLM mastery_gain skipped when evidence_blocked |
+| Scoped UI silent block | `st.warning` «не подтверждено» + journal-only message |
+| Mastery tests hit prod DB | Mocked SR/mastery writers in unit tests |
+| No E2E fallback | `test_process_micro_quiz_fallback_blocks_mastery` |
+| Report overclaim «closed 6/6» | This report: honest residual table |
 
 ---
 
-## Что НЕ сделано (kill switch — соблюдён)
-
-- ❌ Новая БД/схема/пайплайн — только аддитивные nullable-колонки
-- ❌ Runtime LLM-judge
-- ❌ Новые хранилища
-- ❌ Изменение `node_worth` / SSR ranking formulas
-- ❌ Token-overlap как proof of groundedness
-- ❌ Semantic entailment (#25 P2) — остаётся offline
-
----
-
-## DoD verification
+## DoD re-score
 
 | Gate | Статус |
 |---|---|
-| 3–5 тем эталонного бандла (guardrails/agentic-loop/rag) | ✅ (synthetic payload в тестах) |
-| Audit packet воспроизводим, без новой БД/схемы, без LLM | ✅ (read-only JSON sidecar) |
-| Студент видит ≥1 «почему этот фрагмент лучше» с причиной | ✅ (expander в reader) |
-| `freshness_labeled_step_rate` считается для gated-тем | ✅ |
-| Quiz без evidence не обновляет mastery (тест) | ✅ `test_apply_outcome_evidence_bound_false_blocks_mastery` |
-| Fallback не обновляет mastery (тест) | ✅ `test_fallback_micro_quiz_has_origin_and_evidence` |
-| `origin`/`evidence_bound` персистентны; старые строки читаются (NULL) | ✅ `test_save_quiz_result_stores_origin_and_evidence` / `test_save_quiz_result_legacy_no_origin` |
-| TLRR + `verified_quiz_question_rate` + `fallback_rate` считаются | ✅ `test_tlrr_with_data` |
-| Targeted tests зелёные | ✅ 68/68 PASS |
-| Связанные тесты не сломаны | ✅ `test_course_graph_compiler_evidence.py` + `test_graph_publish_status.py` — 14/14 PASS |
+| Packet JSON, no new DB/LLM | ✅ |
+| Reindex sidecar hook | ✅ |
+| Labels + best/rejected reason | ✅ |
+| Evidence spans (excerpt) | ✅ when source file resolvable under data_dir |
+| UI «почему фрагмент» | ✅ code path; live smoke depends on active gate report |
+| Quiz without evidence → no mastery | ✅ scoped all-or-nothing + micro/inline False |
+| Fallback → no mastery | ✅ + E2E process path |
+| origin/evidence_bound persistent | ✅ |
+| TLRR plan formula + rates | ✅ (full-contract often 0 until grounded_explanation) |
+| Answer label «не подтверждено» | ✅ scoped warning + micro retention_line |
+| ≥1 live step 6/6 on reference bundle | ⬜ residual (component 4 unwired) |
+| Live 3–5 topics on real bundle | ⬜ run `scripts/run_course_content_gate.py` after reindex |
 
 ---
 
-## Post-ship
+## Fix-wave 2 (контр-аудит fix-wave, 2026-07-21)
 
-Replay боль-якоря «уголовное наказание…» из E2:
-- Без evidence-статуса **не** должен попасть в mastery — P0-B закрывает отсутствие цитаты/evidence
-- Semantic entailment offline — P1/P2 (#25), не P0
-- TLRR baseline 0% → первый замер после первого реиндекса с новым кодом
+| Замечание аудита | Исправление |
+|---|---|
+| concept_id matching slug vs UI identifier | `concept_aliases` / `expand_concept_keyset`: slugify + hyphen/underscore + alphanumeric compact; tests `test_verified_quiz_matches_via_slug_alias` |
+| E2E test not proving PLM/XP skip | spies on `update_learner_model_after_interaction` + `award_xp_for_block`; assert 0 calls + AssertionError if invoked |
+| selection_reason tautology (always «Роль:») | `best_source.discriminating` + `_is_discriminating_selection`; TLRR uses flag (role-only identical sources → false) |
+| evidence_span weak + unlimited read | read cap 64KB; `match_kind=label_mention\|prose_fallback`; TLRR accepts only `label_mention` |
+| silent zeros on missing columns | PRAGMA check + **stderr WARNING** + `metrics_error` in result JSON |
+
+Tests after fix-wave 2: **82/82 PASS**.
 
 ---
 
-*Создано: 2026-07-20 · #26 P0-A + P0-B closed.*
+## Residual / next (not blockers for partial ship)
+
+1. **grounded_explanation** component for route steps (tutor answer label wiring into TLRR).
+2. Live dry-run: reindex → content gate on 3–5 topics of reference bundle → paste numbers here.
+3. Passport/Library surface beyond living-konspekt reader (scope cut documented).
+4. Per-question persistence of evidence_bound (today: one quiz_results row, all-or-nothing).
+5. Semantic entailment (#25) remains offline/P2.
+6. Evidence span remains a **heuristic excerpt** (label mention), not full graph-evidence / chunk provenance — name is now honest via `match_kind`.
+
+---
+
+## Команды проверки
+
+```text
+.\.venv\Scripts\python.exe -m pytest tests/test_course_content_gate.py tests/test_quiz_content_contract.py tests/test_trusted_route_rate.py -q
+.\.venv\Scripts\python.exe scripts/compute_trusted_route_rate.py --json
+.\.venv\Scripts\python.exe scripts/run_course_content_gate.py
+```
+
+---
+
+*Создано: 2026-07-20 · fix-wave после контр-аудита · status: P0-A shipped, P0-B shipped with honest TLRR residual.*
