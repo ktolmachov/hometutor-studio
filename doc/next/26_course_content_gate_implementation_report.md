@@ -99,14 +99,28 @@ Tests after fix-wave 2: **82/82 PASS**.
 
 ---
 
+## Fix-wave 3 (аудит residual defects, 2026-07-21)
+
+| Замечание | Исправление |
+|---|---|
+| Legacy discriminating text heuristic | Удалён `reason.split(";")`; только recompute via sources или fail-closed |
+| Legacy span без match_kind = pass | **Не** pass; `legacy_evidence_span_steps` + flag на step |
+| Full TLRR структурно 0 | Явно: `tlrr_status=grounded_explanation_not_implemented`; KPI = `tlrr_excluding_grounded` |
+| Single-source selection fail | Vacuous pass при `<2` sources / document_count |
+| Нет теста missing columns | `test_count_quiz_metrics_missing_columns_sets_metrics_error` |
+| Cyrillic needles vs translit | `_concept_match_needles` + slugify в evidence spans |
+| User-facing TLRR | `docs/user_guide.md` — таблица full vs excluding_grounded |
+
+---
+
 ## Residual / next (not blockers for partial ship)
 
-1. **grounded_explanation** component for route steps (tutor answer label wiring into TLRR).
-2. Live dry-run: reindex → content gate on 3–5 topics of reference bundle → paste numbers here.
-3. Passport/Library surface beyond living-konspekt reader (scope cut documented).
-4. Per-question persistence of evidence_bound (today: one quiz_results row, all-or-nothing).
-5. Semantic entailment (#25) remains offline/P2.
-6. Evidence span remains a **heuristic excerpt** (label mention), not full graph-evidence / chunk provenance — name is now honest via `match_kind`.
+1. **grounded_explanation** — wire в маршрут; до этого full TLRR = 0 by design.
+2. Live dry-run: reindex → content gate on 3–5 topics of reference bundle.
+3. Passport/Library surface beyond living-konspekt reader.
+4. Per-question persistence of evidence_bound.
+5. Semantic entailment (#25) offline/P2.
+6. Evidence span = head-of-file heuristic (64KB); long files may FN — `scan_limit_bytes` marked.
 
 ---
 
