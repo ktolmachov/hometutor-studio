@@ -251,11 +251,27 @@ def test_deepseek_config_thinking_and_reasoning_effort_opt_in():
         "KILO_RELAY_UPSTREAM_PRESET": "deepseek",
         "DEEPSEEK_API_KEY": "sk-test",
         "DEEPSEEK_THINKING": "disabled",
-        "DEEPSEEK_REASONING_EFFORT": "low",
+        "DEEPSEEK_REASONING_EFFORT": "max",
     }
     cfg = relay.deepseek_config_from_env(environ)
     assert cfg["thinking"] == "disabled"
-    assert cfg["reasoning_effort"] == "low"
+    assert cfg["reasoning_effort"] == "max"
+
+
+def test_deepseek_config_rejects_low_medium_reasoning_effort():
+    # DeepSeek's only real levels are high/max (it silently maps low/medium up to high) —
+    # offering them here would be a fake illusion of finer control the API doesn't provide.
+    for bogus in ("low", "medium"):
+        environ = {
+            "KILO_RELAY_UPSTREAM_PRESET": "deepseek",
+            "DEEPSEEK_API_KEY": "sk-test",
+            "DEEPSEEK_REASONING_EFFORT": bogus,
+        }
+        try:
+            relay.deepseek_config_from_env(environ)
+            raise AssertionError(f"expected RuntimeError for {bogus!r}")
+        except RuntimeError as exc:
+            assert "DEEPSEEK_REASONING_EFFORT" in str(exc)
 
 
 def test_deepseek_config_rejects_invalid_thinking_value():
@@ -295,6 +311,17 @@ def test_normalize_chat_completions_path_variants():
 def test_normalize_chat_completions_path_leaves_other_paths_alone():
     assert relay.normalize_chat_completions_path("/v1/models") == "/v1/models"
     assert relay.normalize_chat_completions_path("/health") == "/health"
+
+
+def test_log_full_body_defaults_off_when_unset():
+    assert relay.log_full_body_from_env({}) is False
+
+
+def test_log_full_body_opt_in_values():
+    for truthy in ("1", "true", "yes", "on", "TRUE", " 1 "):
+        assert relay.log_full_body_from_env({"KILO_RELAY_FULL_BODY": truthy}) is True
+    for falsy in ("0", "false", "no", "off", ""):
+        assert relay.log_full_body_from_env({"KILO_RELAY_FULL_BODY": falsy}) is False
 
 
 def test_copy_upstream_response_headers_skips_hop_by_hop():

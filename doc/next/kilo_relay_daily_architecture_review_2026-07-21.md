@@ -1,7 +1,32 @@
 # Обзор архитектуры Kilo → kilo_proxy_relay → llama.cpp
 
-**Дата:** 2026-07-21
-**Статус:** Review / готово к правкам
+**Создан:** 2026-07-21
+**Последняя актуализация:** 2026-07-22 (раунд 5, §22–27; нумерация разделов раунда 4 исправлена с §25–29 на §22–26 — исходный скачок с §21 был артефактом редактирования)
+**Статус:** Partially implemented / not production-ready — см. «Текущий статус (актуально)» ниже
+
+---
+
+## Текущий статус (актуально на 2026-07-22) — читать в первую очередь
+
+Этот документ — журнал 4 раундов правок вместе с историей ошибок и их исправлений (не только финальная спецификация). Ниже — сводка того, что верно **сейчас**; секции ниже по документу могут содержать устаревшие/отозванные утверждения, помеченные явно, но не всегда вычищенные из текста.
+
+**Код (`scripts/kilo_proxy_relay.py`, `Start-KiloRelayDaily.ps1` в `D:\AI\...\kilo-relay\`):**
+- DeepSeek preset: base URL без `/v1` (`https://api.deepseek.com`), fail-fast без ключа, `Authorization`/`model` rewrite — **только когда DeepSeek реально активен** (raw `KILO_RELAY_UPSTREAM` побеждает preset полностью, включая auth/model — фикс критического бага раунда 4).
+- `DEEPSEEK_THINKING` (`enabled`/`disabled`) и `DEEPSEEK_REASONING_EFFORT` (только `high`/`max` — не `low`/`medium`, DeepSeek не даёт настоящей гранулярности ниже) — опциональный контроль, по умолчанию relay не трогает эти поля.
+- `LOG_FULL_BODY` — дефолт **выключено** (`os.getenv("KILO_RELAY_FULL_BODY", "0")`), протестировано `test_log_full_body_defaults_off_when_unset`.
+- `normalize_chat_completions_path()` — устойчивая детекция chat-эндпоинта (trailing slash / query string / bare `/chat/completions`), используется и для compression, и для guard.
+- Тесты: **25** (было 12 до этой сессии), все проходят (`pytest tests/test_kilo_proxy_relay.py -q`).
+- ⚠️ **Не закрыто и не в коде:** DeepSeek требует передавать `reasoning_content` обратно на каждом следующем шаге после tool call, иначе `HTTP 400`. Relay это не проверяет и не чинит — это поведение клиента (Kilo), вне контроля relay. **Multi-turn agentic tool-loop через DeepSeek preset не тестировался end-to-end и может сломаться на первом же tool round-trip.**
+- ⚠️ `Invoke-KiloRelayMeasuredRun-v1.ps1` и `Test-KiloRelayDaily.ps1` **не обновлены** под DeepSeek (нет `-UseDeepSeek` passthrough; `Test-` не умеет cloud-провайдеров без `meta.n_ctx`) — файлы редактируются параллельной сессией, правка отложена.
+- ⚠️ Живой smoke-тест (реальный chat completion Kilo→relay→DeepSeek) **не выполнялся**. Мои «живые HTTP-запросы» к DeepSeek в раунде 3 были probe-запросами к auth-шлюзу (проверка, что `/v1/chat/completions` не 404, без реального содержательного запроса) — это НЕ то же самое, что end-to-end smoke.
+- H2 (char-guard пороги) при `GuardMode=warn` (рекомендуемый режим) **не блокирует** ничего — это диагностика, а не защита. Пороги предлагаются как основа для будущего `GuardMode=block` после калибровки на реальных логах, не как готовая защита 64k уже сейчас.
+
+**Документация:** известные внутренние противоречия предыдущих раундов (арифметика в §8, разнобой в счёте тестов между секциями раундов) размечены пометками ниже по мере обнаружения — актуальные числа см. в этой сводке.
+
+**Материал не по этой сессии:** пункты про `execution_contract.md` / `local_model_execution_packet_plan.md` / HTML-презентацию №27 / D2-адаптеры относятся к **другой** задаче (`local_model_trust_contour_refresh`, отдельный execution_contract, статус `DONE`, docs-only), которую вела другая сессия — не разбираются в этом файле.
+
+---
+
 **Источники (прочитаны полностью):**
 - `C:\Users\Kostya\Downloads\kilo_relay_daily_architecture\kilo_relay_daily_runbook.md`
 - `C:\Users\Kostya\Downloads\kilo_relay_daily_architecture\Start-KiloRelayDaily.ps1`
@@ -191,7 +216,9 @@ function Get-LlamaCtxFromProps {
 ```
 
 **H2 — пересчёт char-порогов (Start, ветки `if NContext>=131072 / else`, стр. ~316-331).**
-Текущие значения слишком permissive (240k символов при worst-case ~1.9 chars/tok ≈ 52–60k токенов — за пределами 54k input-бюджета 64k-контекста). Interim до exact-token guard:
+Текущие значения слишком permissive (240k символов при worst-case ~1.9 chars/tok ≈ **126k токенов** [^h2-arith-fix] — далеко за пределами 54k input-бюджета 64k-контекста). Interim до exact-token guard:
+
+[^h2-arith-fix]: Исходная версия этой строки содержала арифметическую ошибку («≈ 52–60k»); исправлено в §18/25, число здесь актуализировано на месте, а не оставлено как есть с пометкой — см. пункт 6 второго контраудита (2026-07-22).
 ```powershell
 if ($upstreamInfo.NContext -ge 131072) {   # 128K on-demand
     $env:KILO_RELAY_WARN_BODY_CHARS       = '130000'
@@ -240,7 +267,7 @@ KILO_RELAY_UPSTREAM_DEFAULT_LOCAL
 | 2 | **C3** `/props` fallback | Дёшево; убирает ложные падения старта при живой модели | Start/Test `.ps1` |
 | 3 | **H3** расширить env-clear | Тривиально; корректность при смене профиля | Start `.ps1` |
 | 4 | **R1 + R3** original/forwarded summary + usage/timings парсинг | **Без exact-tokens нельзя честно измерить экономию Kilo и настроить лимиты** — база всей архитектуры | `scripts/kilo_proxy_relay.py` |
-| 5 | **H2** char-лимиты (interim) | Держит 64k безопасным до появления exact-token guard | Start `.ps1` |
+| 5 | **H2** char-лимиты (interim) | При рекомендуемом `GuardMode=warn` **не блокирует** (только пишет warning в JSONL — HTTP 413 в этом режиме невозможен, см. `_kilo_guard.py`). Даёт диагностические данные для калибровки будущего `GuardMode=block`, не защиту здесь и сейчас | Start `.ps1` |
 | 6 | R4, R6, R7, R8 | Корректность/robustness/чистота логов | `scripts/kilo_proxy_relay.py` |
 
 **Обязательный внешний шаг (не код):** один реальный Kilo-прогон Audit → тот же запрос Safe, чтобы зафиксировать реальные tool-имена (для allowlist), MCP/skills-savings и окончательные пороги. Без него C1/C2 остаются недоказанными на живом трафике.
@@ -347,7 +374,9 @@ SECRET_EXPOSURE_IN_SESSION = DEEPSEEK_API_KEY напечатан один раз
 
 ## Актуализация 2026-07-21 (раунд 3): внешний контраудит — верификация через первоисточники и исправления
 
-Пользователь прислал встречный аудит моего разбора. Ниже — не пересказ его выводов, а **независимая проверка каждого фактического утверждения** через первоисточники (официальную документацию llama.cpp и DeepSeek, живые HTTP-запросы к реальному DeepSeek API, и прямое чтение фактических CSV/JSON/report.md из реального прогона на диске) — прежде чем что-либо менять. Результат: контраудит прав почти по всем пунктам; я ошибся дважды сам, плюс не знал о релизе после моего knowledge cutoff (январь 2026).
+Пользователь прислал встречный аудит моего разбора. Ниже — не пересказ его выводов, а **независимая проверка каждого фактического утверждения** через первоисточники (официальную документацию llama.cpp и DeepSeek; `curl`-probes к реальному DeepSeek API — только проверка HTTP-статуса разных путей без auth, **не** содержательные chat-completion запросы, см. уточнение ниже; и прямое чтение фактических CSV/JSON/report.md из реального прогона на диске) — прежде чем что-либо менять. Результат: контраудит прав почти по всем пунктам; я ошибся дважды сам, плюс не знал о релизе после моего knowledge cutoff (январь 2026).
+
+**Уточнение формулировки (по второму контраудиту):** «живые HTTP-запросы» выше — это `curl`-пробы к auth-шлюзу DeepSeek (`POST` без ключа на разные пути, сравнение кодов ответа), которые все вернули `401 "Authentication Fails (governor)"` — это подтвердило, что DeepSeek проверяет авторизацию **до** маршрутизации (поэтому пробы не могли отличить валидный путь от невалидного), но это **не** реальный content-запрос и **не** end-to-end smoke через relay. Отсюда нет противоречия со статусом `DEEPSEEK_ROUTING_LIVE_SMOKE=NOT_RUN` ниже — это разные вещи, и формулировка должна была разделять их явно с самого начала.
 
 ### 18. Что подтверждено верификацией (не просто принято на веру)
 
@@ -408,3 +437,129 @@ MEASURED_RUN_DEEPSEEK_PASSTHROUGH = CONFIRMED MISSING, NOT PATCHED (та же п
 1. Дождаться стабилизации `Invoke-KiloRelayMeasuredRun-v1.ps1` (параллельная сессия), затем добавить туда `-UseDeepSeek`-passthrough и форс `-ExactTokenBreakdown:$false` для него, плюс точечный фикс `Get-FragmentCategory`.
 2. Живой smoke DeepSeek-роутинга (`-UseDeepSeek` реальный запрос) — единственный способ закрыть `DEEPSEEK_ROUTING_LIVE_SMOKE`.
 3. Ротация `DEEPSEEK_API_KEY` остаётся открытым пунктом (см. §15) — независимо от прочих исправлений.
+
+---
+
+## Актуализация 2026-07-22 (раунд 4): второй внешний контраудит — критический баг precedence подтверждён и исправлен
+
+Второй встречный аудит (после раунда 3) указал на новый критический баг, введённый именно моим фиксом из раунда 3, плюс несколько документационных и дизайн-пробелов. Как и в раунде 3 — не принимаю на веру, проверяю каждое утверждение первичным источником (живой тест кода, официальная документация DeepSeek/llama.cpp) прежде чем править.
+
+### 22. Что подтверждено верификацией
+
+| # | Утверждение | Как проверено | Вердикт |
+|---|---|---|---|
+| 1 | **Критично.** `DEEPSEEK_CFG` вычислялся независимо от `UPSTREAM_BASE` — raw override не отключал auth/model rewrite | Живой тест: `KILO_RELAY_UPSTREAM=http://127.0.0.1:8080` + `KILO_RELAY_UPSTREAM_PRESET=deepseek` → `UPSTREAM_BASE` корректно = raw, но `DEEPSEEK_CFG is not None` = **True**; итоговый URL с резкой `/v1` был бы `http://127.0.0.1:8080/chat/completions` (сломан), плюс реальный DeepSeek-ключ ушёл бы в `Authorization` для запроса на raw upstream | ✅ Контраудит прав. **Реальный, воспроизводимый баг**, введённый моим же раунд-3 фиксом. Исправлено. |
+| 2 | Категоричность «у DeepSeek нет `/v1`» неточна — WorkBuddy-интеграция DeepSeek использует `/v1/chat/completions` | `WebFetch` `api-docs.deepseek.com/quick_start/agent_integrations/workbuddy/` — подтверждена именно эта строка URL в примерах конфигурации | ✅ Контраудит прав. Формулировка смягчена; **резка `/v1` вообще убрана как избыточная** (оба варианта пути реально работают на DeepSeek, значит base без `/v1` + входящий `/v1/chat/completions` от Kilo дают рабочий URL без какой-либо трансформации). |
+| 3 | Детекция chat-эндпоинта (`self.path.rstrip("/") == "/v1/chat/completions"`) не распознаёт query string / bare `/chat/completions` | Прямая проверка кода — точное совпадение, действительно не матчит `?trace=1` и `/chat/completions` без `/v1`. Утверждение «эксплуатационная документация советует Base URL без `/v1`» — **не подтвердилось** (`grep` по всем `.ps1`/runbook показывает только `http://127.0.0.1:8787/v1`, нигде — голый порт) | Частично: сама уязвимость реальна (это же R4 из раунда 1), но конкретная причина («документация советует без /v1») не подтверждена. Исправлено защитно в любом случае — `normalize_chat_completions_path()`. |
+| 4 | Документация противоречива: `doc/kilo_proxy_relay.md` содержал старый DeepSeek base с `/v1` и отозванный X1 как факт | Прочитан файл напрямую (`git status` показал: существовал в репозитории до этой сессии, `M` — изменён параллельной сессией во время работы; я его не создавал и не трогал до этого раунда) | ✅ Контраудит прав — файл реально был устаревшим/противоречивым. Исправлено. |
+| 5 | Docstring `kilo_proxy_relay.py` всё ещё содержал `KILO_RELAY_FULL_BODY=1` пример и «raw request body» без оговорки про дефолт | Прямой `grep` — подтверждено дословно | ✅ Контраудит прав. Исправлено. |
+| 6 | Тесты не покрывали связку routing/auth/model — поэтому баг #1 остался незамеченным в раунде 3 | Факт: у меня не было regression-теста именно на комбинацию raw+stale-preset до этого раунда | ✅ Принято. Тесты добавлены в `tests/test_kilo_proxy_relay.py` в этом и следующем раунде — итоговый актуальный счёт см. §27, здесь не дублируется (была внутренняя нестыковка «8» vs «10» между этой строкой и §23 — исправлено, единственный источник истины теперь §27). |
+| 7 | DeepSeek V4 по умолчанию `thinking.type=enabled` + `reasoning_effort=high` — relay это не контролирует | `WebFetch` `api-docs.deepseek.com/api/create-chat-completion` — дословно подтверждено: default `thinking.type=enabled`, default `reasoning_effort=high` | ✅ Контраудит прав, реальный и значимый для архитектуры контроля токенов пробел. Добавлен явный opt-in контроль. |
+| 8 | Не показаны актуальные версии всех трёх `.ps1` в этом раунде | Не применимо буквально (у меня прямой доступ к файлам на диске, не к вложениям) — но по существу справедливо: `Test-KiloRelayDaily.ps1` и `Invoke-KiloRelayMeasuredRun-v1.ps1` всё ещё не знают про DeepSeek | Принято частично — см. §27 «Не исправлено». |
+
+### 23. Исправления, применённые в этом раунде
+
+**`scripts/kilo_proxy_relay.py`:**
+- **Корневой фикс бага #1:** новая `_deepseek_actually_active(environ)` — DeepSeek считается реально активным только если raw `KILO_RELAY_UPSTREAM` **не** задан И preset=deepseek. `DEEPSEEK_CFG` теперь вычисляется через эту функцию (`None`, если raw override победил), а не независимо от `effective_upstream_base()`. Все нижестоящие проверки (`Authorization`-override, model/thinking/reasoning_effort-rewrite) читают только `DEEPSEEK_CFG` — исправлены одним источником, без патчинга каждого места отдельно.
+- **Убрана резка `/v1`** (`resolve_upstream_path` удалена целиком) — не нужна: подтверждено, что `.../v1/chat/completions` тоже рабочий путь на DeepSeek. `forward_request`/`forward_request_streaming`/лог вернулись к простой конкатенации `f"{UPSTREAM_BASE}{path}"`. Это одновременно устраняет саму возможность варианта бага #1 через путь (не только через auth/model).
+- **`normalize_chat_completions_path(path)`** — новая функция: распознаёт `/v1/chat/completions` независимо от trailing slash, query string, и трактует голый `/chat/completions` как эквивалент. Используется и для детекции compression-пути, и передаётся в `evaluate_guard()` (вместо `self.path`) — закрывает R4 из раунда 1 и пункт 3 контраудита за один проход.
+- **`DEEPSEEK_THINKING` / `DEEPSEEK_REASONING_EFFORT`** — новые опциональные env-переменные (валидация значений, `RuntimeError` на некорректных). Если не заданы явно — relay **не трогает** поля `thinking`/`reasoning_effort` в payload (не делает невидимого поведенческого решения за оператора). Применяются в `_handle_proxy` вместе с model-rewrite, корректно переживают оба пути (compression active/inactive). Эффективные оверрайды пишутся в JSONL под `deepseek_overrides`.
+- Docstring: убран стейл-пример `KILO_RELAY_FULL_BODY=1`, добавлена оговорка про дефолт "off"; смягчена формулировка про `/v1` у DeepSeek; задокументированы `DEEPSEEK_THINKING`/`DEEPSEEK_REASONING_EFFORT`.
+- Проверено: `py_compile` OK; полный regression-тест бага #1 (`env -u ... KILO_RELAY_UPSTREAM=... KILO_RELAY_UPSTREAM_PRESET=deepseek` → `DEEPSEEK_CFG is None`, URL корректный, без резки `/v1`) — **PASS**; `normalize_chat_completions_path` на 5 вариантах путей — **PASS**; невалидные `DEEPSEEK_THINKING`/`DEEPSEEK_REASONING_EFFORT` корректно отклоняются.
+
+**`tests/test_kilo_proxy_relay.py`:** к концу раунда 4 добавлено 10 тестов (12 → 22, все проходят): `_deepseek_actually_active` (3 сценария, включая прямой regression на баг #1), `deepseek_config_from_env` (дефолты, обязательность ключа, thinking/reasoning_effort opt-in и валидация), `effective_upstream_base` (raw побеждает preset), `normalize_chat_completions_path` (5 вариантов путей + non-chat пути не тронуты). В раунде 5 добавлено ещё 3 (reasoning_effort ограничен `high`/`max`, `log_full_body_from_env` дефолт+opt-in) — **итоговый актуальный счёт: 25 тестов, см. §27**, единственный источник истины — вывод `pytest --collect-only -q`, не текст здесь.
+
+**`Start-KiloRelayDaily.ps1` (`D:\AI\...\kilo-relay\`):**
+- `-DeepSeekThinking` / `-DeepSeekReasoningEffort` — новые параметры (`ValidateSet`, дефолт `''` = не трогать поле), пробрасываются в одноимённые env-переменные и в `session.json` (с явной пометкой дефолта DeepSeek API, если не заданы).
+- `Clear-RelayCompressionEnvironment` расширена ещё на 2 имени (`DEEPSEEK_THINKING`, `DEEPSEEK_REASONING_EFFORT`) — та же логика H3.
+- Комментарий про `/v1` смягчён (убрана категоричность), синхронизирован с Python.
+- Проверено: `Parser]::ParseFile` — без ошибок.
+
+**`doc/kilo_proxy_relay.md`** (файл существовал в репозитории до этой сессии; изменялся параллельной сессией конкурентно — не мной создан):
+- Исправлен дефолт DeepSeek base (`.../v1` → без `/v1`, с уточнением про WorkBuddy).
+- Отозван X1 как факт («не существует» → явно помечено `❌ Отозвано 2026-07-22`, эндпоинт реален).
+- Добавлена документация `DEEPSEEK_THINKING`/`DEEPSEEK_REASONING_EFFORT` и предупреждение про дефолт DeepSeek (`thinking=enabled`+`high`).
+- Исправлено «tools = главный потребитель» → уточнено по реальным данным (`system 43–45% > tools 37–38%`), с пояснением, что tools остаются самым управляемым рычагом.
+- Таблица «Известные ограничения» — X1 помечен отозванным, добавлены строки про `system_skills`-мисклассификацию и отсутствие DeepSeek-passthrough в measured-run скрипте (оба — открыты, не пропущены молча).
+
+### 24. Не исправлено в этом раунде (осознанно)
+
+- **`Invoke-KiloRelayMeasuredRun-v1.ps1`**: по-прежнему нет `-UseDeepSeek`-passthrough и не исправлена `system_skills`-мисклассификация в `Get-FragmentCategory`. Причина та же — файл активно редактируется параллельной сессией; безопаснее дождаться стабилизации, чем вносить конфликтующие правки вслепую.
+- **`Test-KiloRelayDaily.ps1`**: не обновлён под DeepSeek (cloud model alias без `meta.n_ctx`, JSON mode/tool calling против DeepSeek, streaming). Не проверялся в этом раунде — отдельная задача.
+- **Живой smoke DeepSeek** — по-прежнему не выполнялся (не будет выполняться без явного запроса пользователя, учитывая, что это тратит реальные деньги/ключ).
+
+### 25. Скорректированный статус
+
+```text
+DEEPSEEK_RAW_OVERRIDE_PRECEDENCE   = FIXED (единый источник DEEPSEEK_CFG через _deepseek_actually_active; 3 regression-теста)
+DEEPSEEK_PATH_HANDLING             = SIMPLIFIED (резка /v1 убрана как ненужная; оба варианта пути подтверждены рабочими на DeepSeek)
+CHAT_PATH_NORMALIZATION            = FIXED (normalize_chat_completions_path; trailing slash/query string/bare path)
+DEEPSEEK_TOKEN_MODE_CONTROL        = ADDED (DEEPSEEK_THINKING/DEEPSEEK_REASONING_EFFORT, opt-in, не меняет поведение по умолчанию невидимо)
+DOCUMENTATION_CONSISTENCY          = IMPROVED (doc/kilo_proxy_relay.md синхронизирован; X1 явно отозван, а не молча забыт)
+PYTHON_DOCSTRING_CONSISTENCY       = FIXED
+TEST_COVERAGE                      = IMPROVED (12 → 22 теста; добавлен прямой regression-тест на найденный критический баг)
+POWERSHELL_STACK_VERIFICATION      = PARTIAL (Start-KiloRelayDaily.ps1 синхронизирован и распарсен; Test-/Invoke- скрипты — не в этом раунде)
+LIVE_DEEPSEEK_SMOKE                = NOT_RUN (не изменилось)
+API_KEY_ROTATION                   = STILL_REQUIRED (не изменилось, см. §15)
+```
+
+### 26. Что дальше
+
+1. Дождаться стабилизации `Invoke-KiloRelayMeasuredRun-v1.ps1` и `Test-KiloRelayDaily.ps1` (параллельная сессия), затем: добавить DeepSeek-passthrough в measured-run, обновить `Test-KiloRelayDaily.ps1` под cloud-провайдеров (без `meta.n_ctx`), исправить `Get-FragmentCategory` (`system_skills`).
+2. Живой smoke DeepSeek — единственный оставшийся способ закрыть `LIVE_DEEPSEEK_SMOKE`; требует явного решения пользователя (тратит реальный ключ/деньги).
+3. Ротация `DEEPSEEK_API_KEY` (§15) — независимый открытый пункт.
+4. H2 (пересчёт char-лимитов) — по-прежнему в очереди, вне объёма текущих раундов.
+
+---
+
+## Раунд 5 (2026-07-22): третий контраудит — reasoning_content, reasoning_effort, чистка отчёта
+
+### 27. Что подтверждено верификацией и исправлено
+
+| # | Утверждение | Проверка | Вердикт / фикс |
+|---|---|---|---|
+| 1 | **Существенно.** DeepSeek требует передавать `reasoning_content` обратно на каждом следующем шаге после tool call, иначе `HTTP 400` | `WebFetch` `api-docs.deepseek.com/guides/thinking_mode` — дословно: «reasoning_content must... be passed back to the API in all subsequent user interaction turns»; «If your code does not correctly pass back reasoning_content, the API will return a 400 error» | ✅ Контраудит прав. Это **не то же самое**, что «не протестировано» — это конкретный, документированный механизм, который вне контроля relay (relay не переписывает историю сообщений Kilo). Задокументировано явно в docstring `kilo_proxy_relay.py`, `doc/kilo_proxy_relay.md` и в сводке в начале этого файла как открытый блокер для multi-turn tool-loop через DeepSeek. **Не исправлено кодом** — это поведение клиента (Kilo), relay не может это починить. |
+| 2 | `DEEPSEEK_REASONING_EFFORT` должен принимать `high`/`max`, не `low`/`medium`/`high` | `WebFetch` `api-docs.deepseek.com/api/create-chat-completion` — дословно: «reasoning_effort: high/max»; low/medium молча повышаются до high, xhigh — до max | ✅ Контраудит прав, реальный функциональный баг (единственное осмысленное значение выше `high` было недостижимо). **Исправлено**: `_DEEPSEEK_VALID_REASONING_EFFORT = {"high", "max"}` в Python, `[ValidateSet('', 'high', 'max')]` в PowerShell. |
+| 3 | `KILO_RELAY_FULL_BODY`: `doc/kilo_proxy_relay.md` всё ещё говорил «дефолт скрипта — полный body», противореча коду (`"0"`) | Прямой `grep` — подтверждено дословно | ✅ Контраудит прав. Исправлено в доке; **добавлен regression-тест** `test_log_full_body_defaults_off_when_unset` (`LOG_FULL_BODY` вынесен в тестируемую `log_full_body_from_env()`, по образцу остальных env-функций файла) — раньше такого теста не было, утверждение «дефолт off» ничем не подтверждалось. |
+| 4 | `SLIM_MODE=off` неверно назван «payload не меняется» — DeepSeek preset applies поверх независимо от `SLIM_MODE` | Прямая проверка кода: auth/model/thinking rewrite в `_handle_proxy` гейтятся только на `DEEPSEEK_CFG`, не на `SLIM_MODE` | ✅ Контраудит прав. Формулировка исправлена: «компрессия отключена, но provider-specific overrides применяются независимо от SLIM_MODE». |
+| 6 | «H2 держит 64k безопасным» — overclaim при `GuardMode=warn` (не блокирует) | Подтверждено собственным же §H1 этого документа (`block = mode=='block' AND level ∈ {...}`) — было known ещё с раунда 1, но формулировка в §9 не была приведена в соответствие | ✅ Исправлено: «диагностика для калибровки будущего block-режима», не «защита». |
+| 8 | Разнобой «8 новых тестов» / «10 тестов» между §23-соседними абзацами одного раунда | Точный пересчёт по своим же правкам раунда 4: первая волна — 8, вторая (после добавления thinking/reasoning_effort тестов) — ещё 2, итого 10 за раунд; я не обновил первое упоминание после добавления второй волны | ✅ Контраудит прав, моя ошибка формы. Исправлено — единственный источник истины теперь «см. §27», актуальное число (25) через `pytest --collect-only -q`, не через текст. |
+| 9 | Арифметика `240k/1.9 ≈ 52-60k` оставлена в теле §8/§9, хотя признана ошибкой в §18/§22 | Прямой `grep` — строка действительно осталась нетронутой при более раннем исправлении (я исправил только табличную запись со статусом, не исходную формулировку в спеке) | ✅ Контраудит прав — классическая проблема «история и актуальная спецификация не разделены». Число в тексте исправлено на месте (126k) со сноской, поясняющей, что это правка задним числом, а не факт, всегда бывший верным. |
+| 11 | «Живые HTTP-запросы к DeepSeek» (раунд 3) звучало как end-to-end проверка, противореча `LIVE_SMOKE=NOT_RUN` | Перечитал свои же curl-команды раунда 3 — это были unauthenticated probe-запросы к разным путям (все вернули одинаковый `401 governor`), не реальные chat completions | ✅ Контраудит прав насчёт двусмысленности формулировки. Добавлено явное уточнение: «probe для проверки HTTP-статуса пути, не content-запрос» — разногласия со статусом NOT_RUN не было по факту, но формулировка вводила в заблуждение. |
+| 12 | «Оба варианта пути работают» — WorkBuddy подтверждает только `/v1/chat/completions`, не любой `/v1/*` | Согласен методологически — WorkBuddy-фетч проверял ровно один URL | ✅ Формулировка сужена до «конкретно chat completions», без обобщения на `/v1/models`/token-counting/другие пути. |
+| 13 | Bare `/chat/completions` теперь корректно **классифицируется**, но не гарантированно **маршрутизируется** — `forward_request` шлёт путь как получен, локальный llama.cpp может 404 на bare-пути | Подтверждено логикой кода: `normalize_chat_completions_path` используется только для detection/guard, `forward_request`/`forward_request_streaming` пересланы к простой `f"{UPSTREAM_BASE}{path}"` без нормализации пути | ✅ Контраудит прав — это осознанный компромисс (не баг): нормализация нужна ровно для того, чтобы compression/guard не пропускали нестандартные варианты пути, а не для того, чтобы чинить сам запрос к upstream. Уточнено в §22 таблице. |
+| 14 | Архитектурный риск: `effective_upstream_base()` / `_deepseek_actually_active()` / `DEEPSEEK_CFG` — три места вместо одного `ResolvedUpstream`-объекта, риск повторного рассинхрона | Согласен по существу — риск реален, хотя сейчас закрыт тестами (`test_effective_upstream_raw_wins_over_deepseek_preset`, `test_deepseek_actually_active_false_when_raw_upstream_also_set`) | Принято как обоснованная architecture debt, не блокирующая. Полный рефакторинг в единый `ResolvedUpstream`-дата­класс — за рамками этой сессии (риск сломать существующие тесты, называющие `effective_upstream_base` напрямую по имени); зафиксировано как рекомендация на будущее в §26/next steps. |
+
+### 28. Про «Лог 2» (execution_contract.md, D2-адаптеры, HTML №27) — отдельная задача, не эта сессия
+
+Проверил происхождение: `doc/next/local_model_execution_packet_plan.md`, `doc/presentations/evolutionary_analyses/27_local_model_trust_contour.html`, `doc/presentations/evolutionary_analyses/README.md` были в статусе `M` (modified) **ещё в самом первом `git status` этой беседы**, до того как я начал что-либо делать. Нашёл соответствующий `archive/team_artifacts/_adhoc/local_model_trust_contour_refresh/execution_contract.md` — это результат **другой** сессии/задачи (`local_model_trust_contour_refresh`, docs-only refresh, статус `DONE`, HEAD `4c5c576`), запущенной через штатный `team_workflow`-оркестратор этого проекта, никак не связанной с моей работой над Kilo relay в этой беседе.
+
+Я не видел транскрипт той сессии («Лог 2») и не могу подтвердить или опровергнуть детали процесса (порядок чтения файлов, формулировки в её собственных внутренних логах). Что я **могу** сказать по первичным источникам, которые прочитал только что:
+- Сам `execution_contract.md` этой сессии уже честно фиксирует `P0 остаётся ⬜` (реализация не заявлена) и объясняет `check_readset=BLOCK` как ожидаемый результат для 3 write-set файлов, редактируемых инкрементально, а не как единый read-set одного LLM-вызова — это осмысленная, а не декоративная трактовка gate, при условии что такая трактовка действительно закреплена в конвенции проекта (не проверял `doc/token_safety.md` на этот счёт в рамках этой сессии).
+- Остальные 12 пунктов контраудита (доверие к client-классификации, D2a/b/c granularity, версионный drift в заголовках, HTML-валидация вместо рендер-проверки, атрибуция изменений при параллельных сессиях) — по существу разумные методологические требования к любому execution-контракту в этом проекте, но у меня нет основания подтверждать или опровергать их применительно к конкретным файлам без отдельного, целенаправленного ревью — это другая задача. Если нужно — сделаю его отдельно, начав с полного чтения `local_model_execution_packet_plan.md` и HTML №27, а не расширяя дальше этот relay-документ.
+
+### 29. Скорректированный статус (раунд 5)
+
+```text
+DEEPSEEK_REASONING_CONTENT_CHAIN  = CONFIRMED GAP, OUT OF RELAY'S CONTROL (Kilo client behavior; not tested end-to-end)
+DEEPSEEK_REASONING_EFFORT_VALUES  = FIXED (high/max only, было low/medium/high)
+LOG_FULL_BODY_DOC_CONTRADICTION   = FIXED (doc synced with code; regression test added)
+SLIM_MODE_OFF_DESCRIPTION         = FIXED (компрессия off ≠ provider overrides off)
+H2_WARN_MODE_OVERCLAIM            = FIXED (диагностика, не защита)
+STALE_ARITHMETIC_IN_BODY_TEXT     = FIXED (число в тексте, не только в статусной таблице)
+TEST_COUNT_INTERNAL_CONTRADICTION = FIXED (единый источник — pytest --collect-only, 25 тестов)
+LIVE_HTTP_WORDING_AMBIGUITY       = CLARIFIED (probe ≠ end-to-end smoke)
+WORKBUDDY_CLAIM_SCOPE             = NARROWED (только chat completions, не любой /v1/*)
+BARE_PATH_ROUTING_VS_DETECTION    = CLARIFIED (нормализация — для detection/guard, не для forwarding)
+ROUTING_CONFIG_ARCHITECTURE_DEBT  = ACKNOWLEDGED, NOT REFACTORED (риск закрыт тестами, не структурой)
+SECTION_NUMBERING                 = FIXED (§25-29 → §22-26 раунда 4; этот раунд — §27-29)
+DOCUMENT_HEADER_DATES_STATUS      = FIXED («Создан»/«Последняя актуализация»/статус разделены)
+"ЛОГ_2"_MATERIAL                  = OUT OF SCOPE — другая сессия/задача (local_model_trust_contour_refresh), не разбирается здесь
+```
+
+### 30. Что дальше
+
+1. `reasoning_content`-цепочка — единственный способ проверить: живой multi-turn Kilo→relay→DeepSeek прогон с реальным tool call. Без него DeepSeek preset нельзя считать готовым для agentic-сценариев, только для однократных запросов.
+2. Если нужно ревью «Лог 2»/`local_model_execution_packet_plan.md`/HTML №27 — отдельная задача с чтением их собственных файлов, не расширение этого документа.
+3. Пункты §17 из раунда 3 (measured-run DeepSeek passthrough, `Test-KiloRelayDaily.ps1` под cloud, `system_skills`-классификация) — по-прежнему в очереди, файл `Invoke-KiloRelayMeasuredRun-v1.ps1` под параллельной разработкой.
+4. Ротация `DEEPSEEK_API_KEY` — независимый открытый пункт (§15).

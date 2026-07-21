@@ -178,9 +178,9 @@
   ставит сам подсудимый, автономность нельзя повышать — можно только измерить,
   в какой именно точке она соврёт первой.</p>
   <div class="meta">
-    <span>hometutor-studio · HEAD <code>545d155</code> «113»</span>
+    <span>hometutor-studio · HEAD <code>545d155</code> «113» (анализ) → <code>4c5c576</code> (refresh 2026-07-21)</span>
     <span>hometutor · HEAD <code>c5182b9</code> «357»</span>
-    <span>2026-07-19 · план v1.4 после четырёх контр-аудитов: перенос отменён, journal/lock/recovery добавлены</span>
+    <span>2026-07-21 · план v1.6 (docs-refresh над v1.5 после четырёх контр-аудитов): перенос отменён, journal/lock/recovery + секция «клиенты контура»</span>
     <span>E2/E3: 4 живых прогона против production llama.cpp + 98/98 unit-тестов</span>
   </div>
 </header>
@@ -364,6 +364,50 @@
     но evidence там остаётся самодекларацией агента: auto-approval режет по инструментам,
     не по diff-путям.</p>
   </div>
+
+  <h3>Три реальных входа к локальной модели — и где живёт инверсия доверия</h3>
+  <p>К одному production-runtime (<code>qwen3-coder-next-q4ks</code>, <code>n_ctx=65536</code>)
+  сегодня ведут <strong>три разных клиента</strong> с <em>разными</em> trust-моделями.
+  Инверсия доверия §4 — свойство <strong>только</strong> primary local-executor path;
+  два клиентских входа A/B её не наследуют, но и не чинят — у них своя.</p>
+  <div class="table-scroll">
+    <table>
+      <tr><th>Вход</th><th>Как вызывается</th><th>Кто держит границы write-set / tests</th></tr>
+      <tr><td><strong>primary</strong> · <code>llamacpp_agent_trigger.ts</code></td>
+        <td>Runner / <code>workflow.py</code> спавнит процесс, <code>cwd=target_repo</code></td>
+        <td><span class="st st-hole">сейчас — сама модель</span> (<code>:748/:804</code>);
+        после P0-1 — задача (<code>model ⊆ task</code>)</td></tr>
+      <tr><td><strong>A</strong> · Cursor SDK trigger <code>cursor_agent_trigger.ts</code></td>
+        <td><code>npx tsx scripts/cursor_agent_trigger.ts &lt;task.md&gt;</code>;
+        <code>CURSOR_API_KEY</code>, <code>CURSOR_MODEL</code> (дефолт <code>composer-2.5</code>),
+        <code>@cursor/sdk Agent.prompt</code> с <code>local:{cwd}</code></td>
+        <td><span class="st st-silent">platform auto-approval по инструментам</span>, не по
+        diff-путям; облачный Agent API, <em>не</em> HTTP в relay</td></tr>
+      <tr><td><strong>B</strong> · Cursor/Kilo IDE → <code>kilo_proxy_relay.py</code></td>
+        <td>OpenAI-compatible base URL → релей; upstream: LM Studio / llama.cpp / DeepSeek
+        preset / cloud_budget</td>
+        <td><span class="st st-hole">никто на этом слое</span> — релей сжимает токены и
+        держит char-guard, diff <em>не валидирует вообще</em></td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <p><strong>A — не HTTP в relay.</strong> <code>cursor_agent_trigger.ts</code> берёт задачу
+    из <code>argv[2] | WORKFLOW_CURRENT_TASK_PATH | doc/current_task.md</code> и шлёт её в
+    <strong>облачный Cursor Agent API</strong> с локальным <code>cwd</code>; это отдельный от
+    llama.cpp и от kilo_relay путь. Пишет <code>execution_contract.md</code>, но
+    <code>requireSubstantiveContract: false</code>, а границы держит платформенный
+    auto-approval. Значит A — <strong>ручной/исследовательский вход</strong> (как Kilo IDE),
+    не P0-executor: он не проходит <code>packet_policy.ts</code> и revert-before-review,
+    поэтому его прогоны нельзя засчитывать в Execution VLCR.</p>
+    <p><strong>B — kilo_relay ортогонален инверсии, а не чинит её.</strong> Релей — токен-
+    компрессор + char-guard, не write-set/test gate. Два footgun'а из review 2026-07-21:
+    <strong>C1</strong> — strip-регэкспы заточены под Cursor-XML, на Kilo (Markdown-секции)
+    <code>strip_actions=[]</code>, экономия ≈ 0; <strong>C2</strong> — дефолт
+    <code>SLIM_MODE=local</code> держит allowlist Cursor-имён (<code>Shell,Read,Write,Grep</code>),
+    а реальные tools Kilo (<code>read_file,write_to_file,execute_command,…</code>) под него
+    не попадают → <code>tools</code> выкидывается, tool-calling ломается. Вывод для контура:
+    write-set/test gate обязан жить в executor/Runner, <em>не</em> в релее.</p>
+  </div>
 </section>
 
 <!-- 3. ПРОТИВОРЕЧИЯ -->
@@ -473,6 +517,14 @@
   <div class="card"><span class="v v-fix">починить</span><strong>Kilo — оставить интерактивным
     рабочим местом и ручным escape hatch,</strong> не контуром принятия решений; production
     alias там уже верный, менять нечего.</div>
+  <div class="card"><span class="v v-no">не делать</span><strong>Cursor SDK trigger и
+    Cursor→kilo_relay как P0-executor.</strong> <code>cursor_agent_trigger.ts</code> —
+    облачный Cursor Agent API с локальным cwd (границы держит platform auto-approval по
+    инструментам, <code>requireSubstantiveContract:false</code>); <code>kilo_proxy_relay.py</code> —
+    токен-компрессор + char-guard, diff не валидирует. Оба — ручные исследовательские входы:
+    их прогоны не проходят <code>packet_policy</code>/revert-before-review и не идут в
+    Execution VLCR. Промотирование во второй adapter — только P2 (D2) и только с
+    <em>внешним</em> Evidence Gate поверх их auto-approval, не вместо него.</div>
   <div class="card"><span class="v v-keep">оставить</span><strong><code>workflow.py</code> —
     перевести в compatibility mode,</strong> не убирать. Backlog-driven работа продолжает
     его использовать; <code>--trigger-cmd</code> уже принимает произвольную команду, значит
@@ -606,8 +658,9 @@
 </section>
 
 <div class="footer">
-  <p>Разбор №27 · hometutor-studio HEAD <code>545d155</code> «113» / hometutor HEAD
-  <code>c5182b9</code> «357» · 2026-07-19.</p>
+  <p>Разбор №27 · hometutor-studio HEAD <code>545d155</code> «113» (анализ) →
+  <code>4c5c576</code> (docs-refresh 2026-07-21) / hometutor HEAD <code>c5182b9</code>
+  «357» · план v1.6.</p>
   <p>Правило двух слоёв: этот HTML — слой анализа; actionable-план — в
   <code>doc/next/local_model_execution_packet_plan.md</code>. Серия:
   <code>doc/presentations/evolutionary_analyses/</code>.</p>

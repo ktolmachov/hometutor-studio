@@ -1,9 +1,11 @@
 # Local Model Trust Contour — Execution Packet Plan
 
-**Версия:** 1.5 (2026-07-20, четвёртый (self-review) аудит: закрыт commit-gap после
-`verified` и противоречие `change_expected`/`NO_CHANGES`) · **База проверки:**
-hometutor-studio HEAD `545d155` «113» · hometutor HEAD `c5182b9` «357» — сверить заново
-перед кодом, т.к. HEAD мог сдвинуться со времени последней проверки
+**Версия:** 1.6 (2026-07-21, docs-refresh: добавлена секция «Клиенты контура» —
+явно разведены пути llamacpp-trigger / Cursor SDK trigger / Cursor→kilo_relay;
+транзакционная модель и P0 v1.5 не изменены, т.к. код ещё не реализован) ·
+**База проверки:** hometutor-studio HEAD на момент refresh `4c5c576` (сдвинулся с
+`545d155` «113»); hometutor HEAD `c5182b9` «357» **не переснимался** этим проходом —
+**обязательно сверить оба HEAD заново перед кодом**
 **Источник:** эволюционный разбор №27 «Протокол суда пишет обвиняемый»
 (`../presentations/evolutionary_analyses/27_local_model_trust_contour.html`,
 артефакт https://claude.ai/code/artifact/4851e86d-8dc1-4b01-9f68-b75d6539138f)
@@ -25,7 +27,15 @@ HEAD, а инвариант «lock снимается только на чист
 и что `change_expected: false` документирован в схеме как «NO_CHANGES — успех», но
 `Prompt B` и ledger знают только один путь `# NO_CHANGES` → `blocked`, без исполнимого
 success-состояния. **v1.5 закрывает оба разрыва явно; implementation разрешён только по
-этой версии.**
+этой версии.** v1.6 — **docs-only refresh** (2026-07-21): транзакционная модель, схема
+пакета, P0-1…P0-3, ledger и метрики v1.5 не тронуты (код всё ещё не реализован —
+`run_execution_packet.ts`/`finalize_execution_packet.ts`/`packet_policy.ts`/
+`execution_state.ts` отсутствуют в дереве, проверено `Glob`). Добавлена только секция
+«Клиенты контура»: развести три реальных входа к локальной/проксируемой модели
+(`llamacpp_agent_trigger.ts` как primary P0-executor; Cursor SDK trigger
+`cursor_agent_trigger.ts`; Cursor/Kilo IDE → `kilo_proxy_relay.py`) и зафиксировать,
+что trust inversion живёт **только** в local-executor path, а два клиентских пути
+имеют иную trust-модель и не входят в знаменатель Execution VLCR без оговорок.
 
 ---
 
@@ -39,6 +49,56 @@ strict no-op smoke против production-сервера прошёл за 2,9 
 причина — **trust inversion**: `validatePatchAgainstWriteSet` (строка 748) сверяет
 diff с декларацией *самой модели*, `extractTestCommands` (строка 804) берёт targeted
 tests из того же ответа. Экземпляр `PAIN-02`.
+
+---
+
+## Клиенты контура (llamacpp-trigger / Cursor SDK / kilo_relay) — v1.6
+
+К локальной/проксируемой модели сегодня физически ведут **три разных входа**. Они
+делят один production-runtime (`qwen3-coder-next-q4ks`, `n_ctx=65536`), но имеют
+**разные trust-модели**, и их нельзя мерить одной метрикой без оговорок.
+
+| # | Путь | Как вызывается | Что валидирует границы (write-set / tests) |
+|---|---|---|---|
+| **primary** | `scripts/llamacpp_agent_trigger.ts` (local OpenAI executor) | Runner/`workflow.py` спавнит процесс, cwd=target_repo | пока — **сама модель** (trust inversion §диагноз); после P0-1 — задача (`model ⊆ task`) |
+| **A** | Cursor SDK trigger `scripts/cursor_agent_trigger.ts` | `npx tsx scripts/cursor_agent_trigger.ts <task.md>`; `CURSOR_API_KEY`, `CURSOR_MODEL` (дефолт `composer-2.5`), `local: { cwd: process.cwd() }` | платформенный агент Cursor + его tools; auto-approval режет **по инструментам, не по diff-путям** |
+| **B** | Cursor/Kilo IDE → `scripts/kilo_proxy_relay.py` → upstream | OpenAI-compatible base URL на релей; upstream = LM Studio / llama.cpp / DeepSeek preset / cloud_budget | релей — **токен-компрессор + char-guard, не write-set/test gate**; diff не проверяет вообще |
+
+**Ключевые факты (проверены кодом 2026-07-21):**
+
+1. **Trust inversion живёт только в local-executor path.** Именно
+   `llamacpp_agent_trigger.ts` сверяет diff с `parsed.writeSetRaw` (строка 748) и берёт
+   tests из `parsed.testsRaw` (804). Пути A и B этой конкретной инверсии *не наследуют* —
+   у них своя (и не лучшая) trust-модель, см. ниже. Метрики VLCR/Local-execution-success
+   определены **только** для packet-контура над local-executor; смешивать их с A/B без
+   явной оговорки — ошибка (искажает знаменатель).
+
+2. **A. Cursor SDK trigger — не HTTP в relay.** `cursor_agent_trigger.ts` использует
+   `@cursor/sdk` `Agent.prompt(...)` с `local: { cwd: process.cwd() }`; задача берётся из
+   `argv[2] | WORKFLOW_CURRENT_TASK_PATH | doc/current_task.md`; нужен `CURSOR_API_KEY`.
+   Это **облачный Agent API** с локальным cwd, а не local llama.cpp и не kilo_relay. Его
+   evidence — `execution_contract.md`, но `requireSubstantiveContract: false`, а границы
+   держит платформенный auto-approval по инструментам, не deterministic packet-policy.
+   Поэтому в терминах плана Cursor SDK trigger — это **ручной/исследовательский вход**
+   (аналог Kilo IDE в разборе), а не P0-executor: он не проходит через `packet_policy.ts`
+   и revert-before-review, значит его нельзя засчитывать в Execution VLCR.
+
+3. **B. kilo_relay не закрывает trust inversion — он ортогонален ей.**
+   `kilo_proxy_relay.py` — OpenAI-compatible прокси, который **сжимает** тело
+   `POST /v1/chat/completions` и применяет char-guard; он не читает и не валидирует diff.
+   Плюс два footgun'а из review 2026-07-21: **C1** — вся strip-компрессия заточена под
+   Cursor-XML, на Kilo (Roo/Cline, Markdown-секции) `strip_actions=[]`, экономия ≈ 0;
+   **C2** — дефолт `SLIM_MODE=local` держит allowlist Cursor-имён (`Shell,Read,Write,Grep`),
+   а реальные tools Kilo (`read_file,write_to_file,execute_command,search_files,apply_diff`)
+   под него не попадают → `out.pop("tools")` ломает tool-calling. Для Kilo daily нужен
+   явный `SLIM_MODE`/allowlist из Audit-лога. Вывод для плана: релей — инфраструктура
+   доставки токенов, **не** элемент trust-контура; P0 write-set/test gate обязан жить в
+   executor/Runner, а не в релее.
+
+**Что это меняет в плане:** ничего в P0-1…P0-3 и транзакционной модели — они и так
+описывают правильный (primary) путь. Секция лишь фиксирует, что A и B — соседние входы
+с иной trust-моделью, чтобы будущий D2 (Kilo/Cursor как второй adapter, P2) не пытался
+переиспользовать их auto-approval как замену Evidence Gate.
 
 ---
 
@@ -519,7 +579,8 @@ finalize_execution_packet.ts. APPROVE → патч применяется зан
 ## wave-autonomy-expansion (P2)
 
 - **D1.** Auto-routing `local-direct` для классов ≥80% VLCR.
-- **D2.** Kilo CLI как второй adapter.
+- **D2.** Второй adapter (Kilo CLI / Cursor SDK trigger / Cursor→kilo_relay) — но только
+  с **внешним** Evidence Gate поверх их auto-approval, не вместо него (см. «Клиенты контура»).
 - **D3.** Two-root через парные пакеты.
 - **D4.** workflow.py — compatibility mode.
 
@@ -535,6 +596,14 @@ finalize_execution_packet.ts. APPROVE → патч применяется зан
 замечание #11 и обновлённую транзакционную модель). Перед новым dispatch Runner
 выполняет recovery scan; обе команды используют один repo lock и per-run journal.
 `workflow.py` и существующий backlog-контур не меняются.
+
+Golden path контура — только primary local-executor path. Cursor SDK trigger
+(`cursor_agent_trigger.ts`) и Cursor/Kilo→`kilo_proxy_relay.py` остаются **ручными
+исследовательскими входами** (см. секцию «Клиенты контура»): они не проходят через
+`packet_policy.ts`/revert-before-review и не пишут в packet-ledger, поэтому их прогоны
+не попадают в Execution VLCR. Их промотирование во второй adapter — задача P2 (D2), и
+только после того, как Evidence Gate станет для них внешним, а не их собственным
+auto-approval.
 
 ---
 
@@ -565,6 +634,14 @@ finalize_execution_packet.ts. APPROVE → патч применяется зан
 - Не поднимать production ctx до 128K по умолчанию.
 - Не считать 95% strict quality Home Coder Benchmark доказательством качества на
   задачах hometutor — вопрос закрывает только shadow-серия.
+- Не засчитывать прогоны Cursor SDK trigger или Cursor/Kilo→kilo_relay в Execution VLCR
+  или Local execution success: у них другая trust-модель (auto-approval по инструментам /
+  голый токен-компрессор), они не проходят packet_policy и revert-before-review.
+- Не считать `kilo_proxy_relay.py` элементом trust-контура: он сжимает токены и держит
+  char-guard, но diff/write-set не валидирует — write-set/test gate обязан жить в
+  executor/Runner, а не в релее.
+- Не запускать relay-путь (B) с дефолтным `SLIM_MODE=local` для Kilo без явного allowlist
+  из Audit-лога — Cursor-имена tools выкинут Kilo-tools (review C2).
 
 ## UNKNOWNs
 
@@ -575,3 +652,5 @@ finalize_execution_packet.ts. APPROVE → патч применяется зан
 | Фактические `--batch/--ubatch/--no-mmap/--prio` работающего процесса | `Get-CimInstance Win32_Process -Filter "name='llama-server.exe'" \| Select CommandLine` |
 | Поведение `finalize_execution_packet.ts` при действительно устаревшем HEAD | disposable rehearsal: сменить HEAD вручную между local-этапом и finalize |
 | Стоимость компиляции пакетов облаком | логировать usage в прогонах промпта A |
+| Можно ли Cursor SDK trigger (path A) обвязать внешним Evidence Gate вместо platform auto-approval | эксперимент D2 (P2): прогнать пакет через `cursor_agent_trigger.ts` и проверить, виден ли diff Runner'у до принятия |
+| Реальные tool-имена Kilo для relay-allowlist (path B) | Audit-сессия на живом Kilo (`SLIM_MODE=off`) → собрать имена из JSONL, review §2 C2 |

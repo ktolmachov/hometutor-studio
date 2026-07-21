@@ -48,8 +48,10 @@ Environment variables:
                                                 # base_url (curl example: POST .../chat/completions).
                                                 # Combined with Kilo's incoming /v1/chat/completions
                                                 # path this yields .../v1/chat/completions, which
-                                                # DeepSeek's own WorkBuddy integration docs also use —
-                                                # both forms work, no path rewriting needed.
+                                                # DeepSeek's own WorkBuddy integration docs also use
+                                                # for that exact endpoint — this does NOT imply every
+                                                # /v1/* path (models, token-counting, ...) is aliased
+                                                # the same way, only chat completions is confirmed.
   DEEPSEEK_MODEL=deepseek-v4-pro   # default if unset; forced into payload["model"]. Context: 1M
                                     # tokens (deepseek-v4-pro/-flash, released 2026-04).
   DEEPSEEK_API_KEY=...                             # required when preset=deepseek; relay fails fast if missing
@@ -57,10 +59,20 @@ Environment variables:
                                      # thinking.type=enabled + reasoning_effort=high when unset —
                                      # can silently inflate output tokens/latency/cost on every
                                      # request. Unset here = relay does not touch the field at all.
-  DEEPSEEK_REASONING_EFFORT=low     # optional: "low"/"medium"/"high"; only meaningful when
-                                     # thinking is enabled. Unset = relay does not touch the field.
+  DEEPSEEK_REASONING_EFFORT=high    # optional: "high"/"max" (DeepSeek's only two real levels; it
+                                     # silently maps low/medium up to high and xhigh up to max, so
+                                     # this relay does not offer the fake illusion of finer control).
+                                     # Only meaningful when thinking is enabled.
   Relay replaces the client's Authorization header with ``Bearer $DEEPSEEK_API_KEY`` for every
   request while the preset is active — Kilo's own dummy relay key is never forwarded to DeepSeek.
+
+  KNOWN GAP (not fixed by this relay): DeepSeek requires the assistant's ``reasoning_content``
+  from a tool-call turn to be threaded back into every subsequent request in that conversation,
+  or the API returns HTTP 400. This relay proxies whatever message history Kilo constructs; it
+  does not verify or repair that history. Kilo was not written against DeepSeek's reasoning_content
+  convention, so a multi-turn agentic tool-calling loop through this preset may fail on the very
+  first tool round-trip until Kilo's own client-side history handling is confirmed compatible —
+  this has NOT been tested end-to-end.
   Effective overrides (model/thinking/reasoning_effort) are recorded per-request under
   ``deepseek_overrides`` in the JSONL log.
 
@@ -220,7 +232,11 @@ DEEPSEEK_DEFAULT_MODEL = "deepseek-v4-pro"
 
 
 _DEEPSEEK_VALID_THINKING = frozenset({"enabled", "disabled"})
-_DEEPSEEK_VALID_REASONING_EFFORT = frozenset({"low", "medium", "high"})
+# DeepSeek V4's actual documented reasoning_effort levels are high/max (its API silently maps
+# low/medium up to high, xhigh up to max) -- offering low/medium here would be a fake illusion
+# of granularity DeepSeek itself doesn't provide, and would silently swallow a genuine request
+# for max effort if someone assumed "high" was the ceiling.
+_DEEPSEEK_VALID_REASONING_EFFORT = frozenset({"high", "max"})
 
 
 def deepseek_config_from_env(environ: dict[str, str]) -> dict[str, str | None] | None:
@@ -305,10 +321,16 @@ _t_raw = os.getenv("KILO_RELAY_UPSTREAM_TIMEOUT", "120").strip()
 UPSTREAM_TIMEOUT = float(_t_raw if _t_raw else "120")
 LOG_PATH = (ROOT / os.getenv("KILO_RELAY_LOG", "logs/kilo_relay.jsonl")).resolve()
 PREVIEW_CHARS = int(os.getenv("KILO_RELAY_PREVIEW_CHARS", "800"))
-# Secure by default: full-body logging OFF unless explicitly opted into. Start-KiloRelayDaily.ps1
-# already sets this explicitly either way; a direct `python kilo_proxy_relay.py` run must not
-# silently dump source/credentials/paths to disk by default.
-LOG_FULL_BODY = os.getenv("KILO_RELAY_FULL_BODY", "0").strip().lower() in {"1", "true", "yes", "on"}
+def log_full_body_from_env(environ: dict[str, str]) -> bool:
+    """Secure by default: full-body logging OFF unless explicitly opted into.
+
+    Start-KiloRelayDaily.ps1 already sets KILO_RELAY_FULL_BODY explicitly either way; a direct
+    `python kilo_proxy_relay.py` run must not silently dump source/credentials/paths to disk.
+    """
+    return (environ.get("KILO_RELAY_FULL_BODY") or "0").strip().lower() in {"1", "true", "yes", "on"}
+
+
+LOG_FULL_BODY = log_full_body_from_env(dict(os.environ))
 
 
 def normalize_chat_completions_path(path: str) -> str:
