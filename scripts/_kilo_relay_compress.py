@@ -413,10 +413,30 @@ def parse_tools_allowlist(raw: str) -> frozenset[str] | None:
 
 _SLIM_OFF = frozenset({"off", "passthrough", "false", "0", "no", "disabled"})
 _SLIM_CLOUD_BUDGET = frozenset({"cloud_budget", "budget_cloud"})
+_SLIM_LOCAL = frozenset({"local"})
+_SLIM_KNOWN = _SLIM_OFF | _SLIM_CLOUD_BUDGET | _SLIM_LOCAL
+
+
+def validate_slim_mode(slim_setting: str) -> str:
+    """Normalize and validate ``KILO_RELAY_SLIM_MODE``; raise on unknown tokens.
+
+    Unknown values used to fall through to the ``local`` pack (Cursor allowlist +
+    system stub) — a silent footgun for typos. Empty / whitespace → ``local``.
+    """
+    token = slim_setting.strip().lower()
+    if not token:
+        return "local"
+    if token not in _SLIM_KNOWN:
+        known = ", ".join(sorted(_SLIM_KNOWN))
+        raise ValueError(
+            f"Unknown KILO_RELAY_SLIM_MODE={slim_setting!r}. "
+            f"Expected one of: {known}."
+        )
+    return token
 
 
 def _slim_mode_flags(slim_setting: str) -> tuple[bool, bool, bool]:
-    """Return (is_off, is_cloud_budget, is_local)."""
+    """Return (is_off, is_cloud_budget, is_local). Caller must validate first."""
     token = slim_setting.strip().lower()
     is_off = token in _SLIM_OFF
     is_cloud_budget = token in _SLIM_CLOUD_BUDGET
@@ -429,8 +449,8 @@ def is_cloud_budget_slim_mode(slim_setting: str) -> bool:
 
 
 def relay_compress_config_from_env(env: dict[str, str]) -> RelayCompressConfig:
-    slim_setting = env.get("KILO_RELAY_SLIM_MODE", "local")
-    slim_raw_display = slim_setting.strip()
+    slim_setting = validate_slim_mode(env.get("KILO_RELAY_SLIM_MODE", "local"))
+    slim_raw_display = slim_setting
     _, is_cloud_budget, is_local = _slim_mode_flags(slim_setting)
     allow = parse_tools_allowlist(env.get("KILO_RELAY_TOOLS_ALLOWLIST", ""))
 

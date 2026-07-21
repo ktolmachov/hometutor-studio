@@ -128,6 +128,7 @@ Guard смотрит уже **forwarded** (после compress) body — для 
 1. Единственный источник истины — код: `LOG_FULL_BODY = os.getenv("KILO_RELAY_FULL_BODY", "0")...` (`scripts/kilo_proxy_relay.py`). **Дефолт — выключено** (opt-in: `"1"`/`"true"`/`"yes"`/`"on"`), проверено regression-тестом на импорт модуля без env. При **`KILO_RELAY_FULL_BODY=1`** в запись попадают тела запроса/ответа — следите за **размером файла** и **PII**. `Start-KiloRelayDaily.ps1` тоже по умолчанию выставляет `0` (флаг `-FullBodyLogging` включает).
 2. `GET /models` и прочий не-chat трафик пишутся тем же форматом (засоряют статистику токенов) — учитывать при разборе.
 3. Стартовый баннер: блок `=== kilo_proxy_relay: режим текущего запуска ===` (`compress.*`, guard thresholds, effective upstream).
+4. После каждого запроса в **stderr** печатается одна строка мини-статистики (`[relay] METHOD path → status …ms body=… msgs=… tools=… guard=… stream=…`), вместо стандартного access-log BaseHTTPServer. Полные поля — в JSONL.
 
 ---
 

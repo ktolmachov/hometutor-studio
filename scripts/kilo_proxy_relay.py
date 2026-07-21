@@ -14,6 +14,8 @@ Logs one JSON object per request to a JSONL file with:
 - per-message char stats
 - response status/body preview
 
+Also prints one mini-stats line per request to stderr (body/msgs/tools/guard/stream/elapsed).
+
 Usage::
 
   python scripts/kilo_proxy_relay.py
@@ -213,6 +215,7 @@ from _kilo_relay_compress import (  # noqa: E402
     is_cloud_budget_slim_mode,
     relay_compress_any_enabled,
     relay_compress_config_from_env,
+    validate_slim_mode,
 )
 
 
@@ -390,8 +393,47 @@ def _format_for_dump(val: Any) -> str:
     return repr(val)
 
 
+def _startup_budget_warnings(environ: dict[str, str] | None = None) -> list[str]:
+    """Non-fatal operator hints (DeepSeek without cloud_budget, default local, …)."""
+    env = dict(os.environ) if environ is None else environ
+    warnings: list[str] = []
+    if not _deepseek_actually_active(env):
+        return warnings
+    slim_raw = env.get("KILO_RELAY_SLIM_MODE")
+    if slim_raw is None or not str(slim_raw).strip():
+        warnings.append(
+            "WARN: DeepSeek preset active but KILO_RELAY_SLIM_MODE unset "
+            "(defaults to local: system stub + Cursor tool allowlist). "
+            "For Cursor→DeepSeek without quality loss set KILO_RELAY_SLIM_MODE=cloud_budget."
+        )
+        return warnings
+    try:
+        slim = validate_slim_mode(str(slim_raw))
+    except ValueError:
+        return warnings
+    if slim in {"off", "passthrough", "false", "0", "no", "disabled"}:
+        warnings.append(
+            "WARN: DeepSeek preset active with SLIM_MODE=off — no input compression. "
+            "For Cursor→DeepSeek prefer KILO_RELAY_SLIM_MODE=cloud_budget."
+        )
+    elif slim == "local":
+        warnings.append(
+            "WARN: DeepSeek preset + SLIM_MODE=local stubs Cursor system and restricts tools. "
+            "For Cursor→DeepSeek without quality loss use KILO_RELAY_SLIM_MODE=cloud_budget."
+        )
+    return warnings
+
+
 def build_startup_modes_report_lines(bound_host: str, bound_port: int) -> list[str]:
     """Human-readable snapshot of relay bind guard compress + env (KILO_RELAY_*)."""
+    env_snapshot = dict(os.environ)
+    deepseek_active = _deepseek_actually_active(env_snapshot)
+    slim_raw = os.environ.get("KILO_RELAY_SLIM_MODE", "<unset → default local>")
+    cloud_budget_default_host = (
+        not (os.environ.get("KILO_RELAY_UPSTREAM") or "").strip()
+        and is_cloud_budget_slim_mode(os.environ.get("KILO_RELAY_SLIM_MODE", "local"))
+        and not deepseek_active
+    )
     lines: list[str] = [
         "=== kilo_proxy_relay: режим текущего запуска ===",
         "[bind]",
@@ -403,8 +445,7 @@ def build_startup_modes_report_lines(bound_host: str, bound_port: int) -> list[s
         f"  UPSTREAM_BASE used={UPSTREAM_BASE!r}"
         + (
             " ← default host for cloud_budget (api.vsegpt.ru; переопределите KILO_RELAY_CLOUD_DEFAULT_UPSTREAM)"
-            if not (os.environ.get("KILO_RELAY_UPSTREAM") or "").strip()
-            and is_cloud_budget_slim_mode(os.environ.get("KILO_RELAY_SLIM_MODE", "local"))
+            if cloud_budget_default_host
             else ""
         ),
         f"  KILO_RELAY_UPSTREAM_TIMEOUT effective={UPSTREAM_TIMEOUT!r}",
@@ -423,27 +464,44 @@ def build_startup_modes_report_lines(bound_host: str, bound_port: int) -> list[s
         f"    max_messages={THRESHOLDS.max_messages}",
         f"    max_largest_message_chars={THRESHOLDS.max_largest_message_chars}",
         f"    max_tools={THRESHOLDS.max_tools}",
+        "    note: warn/soft_block/hard_block are labels; HTTP 413 only when GUARD_MODE=block",
         "[compress / _kilo_relay_compress]",
         f"  RELAY_COMPRESS_ACTIVE={'yes' if RELAY_COMPRESS_ACTIVE else 'no'}",
     ]
-    d = asdict(RELAY_COMPRESS_CFG)
-    for key in sorted(d.keys()):
-        lines.append(f"  compress.{key}={_format_for_dump(d[key])}")
+    if RELAY_COMPRESS_ACTIVE:
+        d = asdict(RELAY_COMPRESS_CFG)
+        for key in sorted(d.keys()):
+            lines.append(f"  compress.{key}={_format_for_dump(d[key])}")
+    else:
+        lines.append(f"  compress inactive (KILO_RELAY_SLIM_MODE={slim_raw!r}; full dump omitted)")
 
-    slim_raw = os.environ.get("KILO_RELAY_SLIM_MODE", "<unset → default local>")
+    lines.append("[deepseek preset]")
+    if DEEPSEEK_CFG is not None:
+        lines.append(f"  active=yes base={DEEPSEEK_CFG['base']!r} model={DEEPSEEK_CFG['model']!r}")
+        lines.append(f"  thinking={DEEPSEEK_CFG.get('thinking')!r} reasoning_effort={DEEPSEEK_CFG.get('reasoning_effort')!r}")
+    elif (os.environ.get("KILO_RELAY_UPSTREAM_PRESET") or "").strip().lower() == "deepseek":
+        lines.append("  active=no (raw KILO_RELAY_UPSTREAM overrides preset; auth/model rewrite off)")
+    else:
+        lines.append("  active=no")
+
     lines.append("[env overrides KILO_RELAY_*]")
     lines.append(f"  KILO_RELAY_SLIM_MODE raw={slim_raw!r}")
     for name in sorted(k for k in os.environ if k.startswith("KILO_RELAY_")):
         if name == "KILO_RELAY_SLIM_MODE":
             continue
         lines.append(f"  {name}={os.environ[name]!r}")
+    for warn in _startup_budget_warnings(env_snapshot):
+        lines.append(warn)
     lines.append("=== конец режимов ===")
     return lines
 
 
 def print_startup_modes(bound_host: str, bound_port: int) -> None:
     for ln in build_startup_modes_report_lines(bound_host, bound_port):
-        _safe_print(ln)
+        if ln.startswith("WARN:"):
+            _safe_print(ln, file=sys.stderr)
+        else:
+            _safe_print(ln)
 
 
 def now_iso() -> str:
@@ -476,6 +534,128 @@ def write_jsonl(record: dict[str, Any]) -> None:
     with LOG_LOCK:
         with LOG_PATH.open("a", encoding="utf-8") as fh:
             fh.write(line)
+
+
+_COMPACT_REQUEST_KEYS = (
+    "json_valid",
+    "model",
+    "messages_count",
+    "tools_count",
+    "body_chars",
+    "estimated_tokens",
+    "total_message_chars",
+    "largest_message_chars",
+    "role_chars",
+)
+
+
+def compact_request_stats(summary: dict[str, Any]) -> dict[str, Any]:
+    """Drop previews from summarize_body for JSONL original/forwarded pair."""
+    return {k: summary[k] for k in _COMPACT_REQUEST_KEYS if k in summary}
+
+
+def normalize_usage_dict(usage: dict[str, Any]) -> dict[str, Any]:
+    out: dict[str, Any] = {}
+    for key in ("prompt_tokens", "completion_tokens", "total_tokens", "prompt_tokens_details", "completion_tokens_details"):
+        if key in usage:
+            out[key] = usage[key]
+    return out
+
+
+def extract_usage_from_response_body(body_text: str) -> dict[str, Any] | None:
+    """Parse OpenAI-style usage from JSON body or last SSE data: event that carries usage."""
+    if not body_text:
+        return None
+    try:
+        payload = json.loads(body_text)
+    except json.JSONDecodeError:
+        payload = None
+    if isinstance(payload, dict) and isinstance(payload.get("usage"), dict):
+        return normalize_usage_dict(payload["usage"])
+
+    last: dict[str, Any] | None = None
+    for line in body_text.splitlines():
+        if not line.startswith("data:"):
+            continue
+        data = line[5:].strip()
+        if not data or data == "[DONE]":
+            continue
+        try:
+            obj = json.loads(data)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(obj, dict) and isinstance(obj.get("usage"), dict):
+            last = normalize_usage_dict(obj["usage"])
+    return last
+
+
+def format_request_mini_stats(
+    *,
+    method: str,
+    path: str,
+    status: int,
+    elapsed_ms: float,
+    request_summary: dict[str, Any],
+    guard_level: str,
+    guard_mode: str,
+    guard_blocked: bool,
+    stream: bool,
+    compress_summary: dict[str, Any] | None = None,
+    request_original: dict[str, Any] | None = None,
+    usage: dict[str, Any] | None = None,
+    response_chars: int | None = None,
+    error: str | None = None,
+) -> str:
+    """One-line console summary after each proxied request (stderr)."""
+    parts: list[str] = [
+        f"[relay] {method} {path} → {status}",
+        f"{elapsed_ms:g}ms",
+    ]
+    fwd_chars = request_summary.get("body_chars")
+    orig_chars = request_original.get("body_chars") if isinstance(request_original, dict) else None
+    if orig_chars is not None and fwd_chars is not None and orig_chars != fwd_chars:
+        parts.append(f"body_orig={orig_chars}")
+        est = request_summary.get("estimated_tokens")
+        if est is not None:
+            parts.append(f"body_fwd={fwd_chars} (~{est} tok)")
+        else:
+            parts.append(f"body_fwd={fwd_chars}")
+    elif fwd_chars is not None:
+        est = request_summary.get("estimated_tokens")
+        label = "body_fwd" if request_original is not None else "body"
+        if est is not None:
+            parts.append(f"{label}={fwd_chars} (~{est} tok)")
+        else:
+            parts.append(f"{label}={fwd_chars}")
+    stats_src = request_summary if request_summary.get("json_valid") else (
+        request_original if isinstance(request_original, dict) and request_original.get("json_valid") else None
+    )
+    if stats_src:
+        parts.append(f"msgs={stats_src.get('messages_count', 0)}")
+        parts.append(f"tools={stats_src.get('tools_count', 0)}")
+        largest = stats_src.get("largest_message_chars")
+        if largest:
+            parts.append(f"max_msg={largest}")
+        model = stats_src.get("model")
+        if model:
+            parts.append(f"model={model}")
+    blocked_txt = "yes" if guard_blocked else "no"
+    parts.append(f"guard={guard_level} mode={guard_mode} blocked={blocked_txt}")
+    parts.append("stream=yes" if stream else "stream=no")
+    if isinstance(compress_summary, dict) and compress_summary.get("enabled"):
+        saved = compress_summary.get("chars_saved_estimate")
+        if saved is not None:
+            parts.append(f"saved={saved}")
+    if isinstance(usage, dict):
+        pin = usage.get("prompt_tokens")
+        pout = usage.get("completion_tokens")
+        if pin is not None or pout is not None:
+            parts.append(f"in={pin if pin is not None else '?'} out={pout if pout is not None else '?'}")
+    if response_chars is not None:
+        parts.append(f"resp={response_chars}")
+    if error:
+        parts.append(f"err={error}")
+    return " ".join(parts)
 
 
 @dataclass
@@ -679,6 +859,10 @@ class RelayHandler(BaseHTTPRequestHandler):
         message = "%s - - [%s] %s\n" % (self.address_string(), self.log_date_time_string(), fmt % args)
         sys.stderr.write(message)
 
+    def log_request(self, code: Any = "-", size: Any = "-") -> None:  # noqa: ANN401
+        # Default access line is replaced by format_request_mini_stats after the request.
+        return
+
     def do_POST(self) -> None:  # noqa: N802
         self._handle_proxy()
 
@@ -697,6 +881,9 @@ class RelayHandler(BaseHTTPRequestHandler):
         forwarded_body_bytes = raw_body
         compress_summary: dict[str, Any] = {"enabled": False}
         stream_source: dict[str, Any] | None = None
+        request_original: dict[str, Any] | None = (
+            compact_request_stats(summarize_body(body_text, PREVIEW_CHARS)) if raw_body else None
+        )
 
         chat_path = normalize_chat_completions_path(self.path)
         deepseek_overrides: dict[str, Any] = {}
@@ -764,6 +951,7 @@ class RelayHandler(BaseHTTPRequestHandler):
         elapsed_ms = round((time.perf_counter() - started) * 1000, 2)
 
         response_body_text = upstream.body.decode("utf-8", errors="replace")
+        usage = extract_usage_from_response_body(response_body_text)
         record: dict[str, Any] = {
             "ts": now_iso(),
             "request_id": request_id,
@@ -771,6 +959,7 @@ class RelayHandler(BaseHTTPRequestHandler):
             "path": self.path,
             "upstream_url": f"{UPSTREAM_BASE}{self.path}",
             "request_headers": redact_headers(request_headers),
+            "request_original": request_original,
             "request": request_summary,
             "relay_compress": compress_summary,
             "deepseek_overrides": deepseek_overrides,
@@ -789,6 +978,7 @@ class RelayHandler(BaseHTTPRequestHandler):
                 "preview_start": preview(response_body_text, PREVIEW_CHARS),
                 "preview_end": suffix_preview(response_body_text, PREVIEW_CHARS),
                 "error": upstream.error,
+                "usage": usage,
             },
             "elapsed_ms": elapsed_ms,
         }
@@ -796,6 +986,25 @@ class RelayHandler(BaseHTTPRequestHandler):
             record["request"]["body_raw"] = body_text
             record["response"]["body_raw"] = response_body_text
         write_jsonl(record)
+        _safe_print(
+            format_request_mini_stats(
+                method=self.command,
+                path=self.path,
+                status=upstream.status,
+                elapsed_ms=elapsed_ms,
+                request_summary=request_summary,
+                guard_level=guard.level,
+                guard_mode=GUARD_MODE,
+                guard_blocked=guard.block,
+                stream=wants_stream,
+                compress_summary=compress_summary,
+                request_original=request_original,
+                usage=usage,
+                response_chars=len(response_body_text),
+                error=upstream.error,
+            ),
+            file=sys.stderr,
+        )
 
         if wants_stream:
             return

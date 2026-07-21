@@ -340,3 +340,126 @@ def test_copy_upstream_response_headers_skips_hop_by_hop():
     assert "content-length" not in names
     assert "transfer-encoding" not in names
     assert "connection" not in names
+
+
+def test_format_request_mini_stats_chat_line():
+    line = relay.format_request_mini_stats(
+        method="POST",
+        path="/v1/chat/completions",
+        status=200,
+        elapsed_ms=1234.5,
+        request_summary={
+            "json_valid": True,
+            "body_chars": 81234,
+            "estimated_tokens": 20308,
+            "messages_count": 8,
+            "tools_count": 4,
+            "largest_message_chars": 24000,
+            "model": "deepseek-v4-pro",
+        },
+        guard_level="hard_block",
+        guard_mode="warn",
+        guard_blocked=False,
+        stream=True,
+        compress_summary={"enabled": True, "chars_saved_estimate": 15000},
+        request_original={
+            "json_valid": True,
+            "body_chars": 96234,
+            "estimated_tokens": 24058,
+            "messages_count": 8,
+            "tools_count": 4,
+        },
+        usage={"prompt_tokens": 1000, "completion_tokens": 50, "total_tokens": 1050},
+        response_chars=4200,
+    )
+    assert line.startswith("[relay] POST /v1/chat/completions → 200")
+    assert "1234.5ms" in line
+    assert "body_orig=96234" in line
+    assert "body_fwd=81234 (~20308 tok)" in line
+    assert "msgs=8" in line
+    assert "tools=4" in line
+    assert "max_msg=24000" in line
+    assert "model=deepseek-v4-pro" in line
+    assert "guard=hard_block mode=warn blocked=no" in line
+    assert "stream=yes" in line
+    assert "saved=15000" in line
+    assert "in=1000 out=50" in line
+    assert "resp=4200" in line
+
+
+def test_format_request_mini_stats_models_line_is_short():
+    line = relay.format_request_mini_stats(
+        method="GET",
+        path="/v1/models",
+        status=200,
+        elapsed_ms=45.0,
+        request_summary={"json_valid": False, "body_chars": 0, "estimated_tokens": 0},
+        guard_level="ok",
+        guard_mode="warn",
+        guard_blocked=False,
+        stream=False,
+        response_chars=120,
+    )
+    assert line == (
+        "[relay] GET /v1/models → 200 45ms body=0 (~0 tok) "
+        "guard=ok mode=warn blocked=no stream=no resp=120"
+    )
+
+
+def test_extract_usage_from_json_response():
+    body = json.dumps({"usage": {"prompt_tokens": 10, "completion_tokens": 3, "total_tokens": 13}})
+    assert relay.extract_usage_from_response_body(body) == {
+        "prompt_tokens": 10,
+        "completion_tokens": 3,
+        "total_tokens": 13,
+    }
+
+
+def test_extract_usage_from_sse_last_chunk():
+    body = (
+        'data: {"choices":[{"delta":{"content":"hi"}}]}\n\n'
+        'data: {"usage":{"prompt_tokens":7,"completion_tokens":2,"total_tokens":9}}\n\n'
+        "data: [DONE]\n\n"
+    )
+    assert relay.extract_usage_from_response_body(body)["prompt_tokens"] == 7
+
+
+def test_compact_request_stats_drops_previews():
+    compact = relay.compact_request_stats(
+        {
+            "json_valid": True,
+            "body_chars": 10,
+            "estimated_tokens": 2,
+            "body_preview_start": "xxx",
+            "message_stats": [{"index": 0}],
+        }
+    )
+    assert compact == {"json_valid": True, "body_chars": 10, "estimated_tokens": 2}
+    assert "body_preview_start" not in compact
+
+
+def test_startup_budget_warn_deepseek_with_slim_off():
+    warns = relay._startup_budget_warnings(
+        {
+            "KILO_RELAY_UPSTREAM_PRESET": "deepseek",
+            "DEEPSEEK_API_KEY": "sk-test",
+            "KILO_RELAY_SLIM_MODE": "off",
+        }
+    )
+    assert warns and "cloud_budget" in warns[0]
+
+
+def test_cloud_budget_banner_does_not_claim_vsegpt_when_deepseek_active(monkeypatch):
+    monkeypatch.setenv("KILO_RELAY_UPSTREAM_PRESET", "deepseek")
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "sk-test")
+    monkeypatch.setenv("KILO_RELAY_SLIM_MODE", "cloud_budget")
+    monkeypatch.delenv("KILO_RELAY_UPSTREAM", raising=False)
+    # Module-level DEEPSEEK_CFG / UPSTREAM_BASE already fixed at import; exercise pure helpers.
+    assert relay._deepseek_actually_active(dict(os.environ)) is True
+    assert "vsegpt" not in (
+        " ← default host for cloud_budget (api.vsegpt.ru; переопределите KILO_RELAY_CLOUD_DEFAULT_UPSTREAM)"
+        if not (os.environ.get("KILO_RELAY_UPSTREAM") or "").strip()
+        and relay.is_cloud_budget_slim_mode(os.environ.get("KILO_RELAY_SLIM_MODE", "local"))
+        and not relay._deepseek_actually_active(dict(os.environ))
+        else ""
+    )

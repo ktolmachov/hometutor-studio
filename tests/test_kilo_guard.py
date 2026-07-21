@@ -43,7 +43,7 @@ def _thresholds(**overrides) -> GuardThresholds:
         warn_body_chars=70000,
         max_body_chars=90000,
         hard_block_body_chars=110000,
-        max_messages=8,
+        max_messages=15,
         max_largest_message_chars=24000,
         max_tools=13,
     )
@@ -130,7 +130,7 @@ class TestRiskFlags:
 
 class TestMessageAndToolThresholds:
     def test_messages_over_limit_soft_blocks(self):
-        v = evaluate_guard(CHAT_PATH, "", _summary(messages_count=9), thresholds=_thresholds(), mode="warn")
+        v = evaluate_guard(CHAT_PATH, "", _summary(messages_count=16), thresholds=_thresholds(), mode="warn")
         assert v.level == "soft_block"
 
     def test_largest_message_over_limit_warns(self):
