@@ -15,11 +15,14 @@
 - `DEEPSEEK_THINKING` (`enabled`/`disabled`) и `DEEPSEEK_REASONING_EFFORT` (только `high`/`max` — не `low`/`medium`, DeepSeek не даёт настоящей гранулярности ниже) — опциональный контроль, по умолчанию relay не трогает эти поля.
 - `LOG_FULL_BODY` — дефолт **выключено** (`os.getenv("KILO_RELAY_FULL_BODY", "0")`), протестировано `test_log_full_body_defaults_off_when_unset`.
 - `normalize_chat_completions_path()` — устойчивая детекция chat-эндпоинта (trailing slash / query string / bare `/chat/completions`), используется и для compression, и для guard.
-- Тесты: **25** (было 12 до этой сессии), все проходят (`pytest tests/test_kilo_proxy_relay.py -q`).
-- ⚠️ **Не закрыто и не в коде:** DeepSeek требует передавать `reasoning_content` обратно на каждом следующем шаге после tool call, иначе `HTTP 400`. Relay это не проверяет и не чинит — это поведение клиента (Kilo), вне контроля relay. **Multi-turn agentic tool-loop через DeepSeek preset не тестировался end-to-end и может сломаться на первом же tool round-trip.**
+- Тесты: `pytest tests/test_kilo_proxy_relay.py tests/test_kilo_guard.py tests/test_kilo_relay_compress.py` (бюджет UX / R1-R3-lite / fail-fast `SLIM_MODE`).
+- ✅ **Live smoke routing (2026-07-22):** Cursor→relay→DeepSeek chat completions с `200` наблюдались в консоли релея (длинная сессия, `msgs≈210`, `guard=hard_block` при `GUARD_MODE=warn` — запросы **не** блокировались). Это не измеренный measured-run и не proof multi-turn `reasoning_content`.
+- ⚠️ **Не закрыто и не в коде:** DeepSeek требует передавать `reasoning_content` обратно на каждом следующем шаге после tool call, иначе `HTTP 400`. Relay это не проверяет и не чинит — это поведение клиента (Kilo/Cursor), вне контроля relay. **Multi-turn agentic tool-loop через DeepSeek preset по-прежнему не закрыт end-to-end.**
 - ⚠️ `Invoke-KiloRelayMeasuredRun-v1.ps1` и `Test-KiloRelayDaily.ps1` **не обновлены** под DeepSeek (нет `-UseDeepSeek` passthrough; `Test-` не умеет cloud-провайдеров без `meta.n_ctx`) — файлы редактируются параллельной сессией, правка отложена.
-- ⚠️ Живой smoke-тест (реальный chat completion Kilo→relay→DeepSeek) **не выполнялся**. Мои «живые HTTP-запросы» к DeepSeek в раунде 3 были probe-запросами к auth-шлюзу (проверка, что `/v1/chat/completions` не 404, без реального содержательного запроса) — это НЕ то же самое, что end-to-end smoke.
-- H2 (char-guard пороги) при `GuardMode=warn` (рекомендуемый режим) **не блокирует** ничего — это диагностика, а не защита. Пороги предлагаются как основа для будущего `GuardMode=block` после калибровки на реальных логах, не как готовая защита 64k уже сейчас.
+- ✅ **R1/R3-lite (2026-07-22):** JSONL `request_original` + `response.usage`; мини-стата `body_orig`/`body_fwd`, `guard=… mode=… blocked=…`, `in=`/`out=`. Полный body hash и llama.cpp `timings.*` — open.
+- ✅ **Баннер/UX:** compress inactive без dump stub; DeepSeek-секция; нет ложной аннотации vsegpt при активном DeepSeek; WARN при DeepSeek+`off`/`local`/unset; unknown `SLIM_MODE` → fail-fast.
+- Канон бюджета Cursor→DeepSeek: `SLIM_MODE=cloud_budget` (не `local`). Char-порог hard SSoT = **110000** в коде (`_kilo_guard` / relay env); строки review про 100k / 150–240k — исторические, не дефолт.
+- H2 (char-guard пороги) при `GuardMode=warn` (рекомендуемый режим) **не блокирует** ничего — это диагностика, а не защита. Пороги — основа для будущего `GuardMode=block` после калибровки, не готовая защита окна модели уже сейчас.
 
 **Документация:** известные внутренние противоречия предыдущих раундов (арифметика в §8, разнобой в счёте тестов между секциями раундов) размечены пометками ниже по мере обнаружения — актуальные числа см. в этой сводке.
 

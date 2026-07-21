@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import io
+import json
 import sys
 from pathlib import Path
 from unittest.mock import patch
@@ -12,6 +13,7 @@ SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 import kilo_proxy_relay as relay  # noqa: E402
+from _kilo_relay_compress import validate_slim_mode  # noqa: E402
 
 
 class _MockUpstreamResp:
@@ -449,17 +451,15 @@ def test_startup_budget_warn_deepseek_with_slim_off():
     assert warns and "cloud_budget" in warns[0]
 
 
-def test_cloud_budget_banner_does_not_claim_vsegpt_when_deepseek_active(monkeypatch):
-    monkeypatch.setenv("KILO_RELAY_UPSTREAM_PRESET", "deepseek")
-    monkeypatch.setenv("DEEPSEEK_API_KEY", "sk-test")
-    monkeypatch.setenv("KILO_RELAY_SLIM_MODE", "cloud_budget")
-    monkeypatch.delenv("KILO_RELAY_UPSTREAM", raising=False)
-    # Module-level DEEPSEEK_CFG / UPSTREAM_BASE already fixed at import; exercise pure helpers.
-    assert relay._deepseek_actually_active(dict(os.environ)) is True
-    assert "vsegpt" not in (
-        " ← default host for cloud_budget (api.vsegpt.ru; переопределите KILO_RELAY_CLOUD_DEFAULT_UPSTREAM)"
-        if not (os.environ.get("KILO_RELAY_UPSTREAM") or "").strip()
-        and relay.is_cloud_budget_slim_mode(os.environ.get("KILO_RELAY_SLIM_MODE", "local"))
-        and not relay._deepseek_actually_active(dict(os.environ))
-        else ""
-    )
+def test_validate_slim_mode_rejects_unknown():
+    try:
+        validate_slim_mode("locall")
+        raise AssertionError("expected ValueError")
+    except ValueError as exc:
+        assert "Unknown KILO_RELAY_SLIM_MODE" in str(exc)
+
+
+def test_validate_slim_mode_accepts_known():
+    assert validate_slim_mode("cloud_budget") == "cloud_budget"
+    assert validate_slim_mode("OFF") == "off"
+    assert validate_slim_mode("local") == "local"

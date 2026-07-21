@@ -89,7 +89,7 @@ class TestBlockModeSemantics:
         assert evaluate_guard(CHAT_PATH, "", s, thresholds=_thresholds(), mode="warn").block is False
         assert evaluate_guard(CHAT_PATH, "", s, thresholds=_thresholds(), mode="block").block is True
 
-    def test_hard_block_blocks_in_both_modes_for_level(self):
+    def test_hard_block_level_does_not_block_in_warn_mode(self):
         v_warn = evaluate_guard(CHAT_PATH, "", _summary(body_chars=120000), thresholds=_thresholds(), mode="warn")
         v_block = evaluate_guard(CHAT_PATH, "", _summary(body_chars=120000), thresholds=_thresholds(), mode="block")
         assert v_warn.level == "hard_block"
