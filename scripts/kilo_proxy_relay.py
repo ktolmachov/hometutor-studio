@@ -41,6 +41,14 @@ Environment variables:
   KILO_RELAY_MAX_TOOLS=13
   KILO_RELAY_GUARD_MODE=warn
 
+  DeepSeek preset (relay → DeepSeek's OpenAI-compatible cloud API instead of llama.cpp):
+  KILO_RELAY_UPSTREAM_PRESET=deepseek   # activates the preset below; KILO_RELAY_UPSTREAM (if set) still wins
+  DEEPSEEK_API_BASE=https://api.deepseek.com/v1   # default if unset
+  DEEPSEEK_MODEL=deepseek-v4-pro                   # default if unset; forced into payload["model"]
+  DEEPSEEK_API_KEY=...                             # required when preset=deepseek; relay fails fast if missing
+  Relay replaces the client's Authorization header with ``Bearer $DEEPSEEK_API_KEY`` for every
+  request while the preset is active — Kilo's own dummy relay key is never forwarded to DeepSeek.
+
   Стриминг ответа (Cursor шлёт stream:true по умолчанию):
   релей **проксирует поток** в клиент: те же байты, что от LM Studio, без HTTP chunked
   (chunked ломал разбор ответа в Cursor). Откат к полной буферизации: KILO_RELAY_BUFFER_STREAM=1
@@ -130,7 +138,9 @@ def _configure_stdio_utf8() -> None:
         reconfigure = getattr(stream, "reconfigure", None)
         if callable(reconfigure):
             try:
-                reconfigure(encoding="utf-8", errors="replace")
+                # line_buffering=True: flush startup diagnostics immediately when
+                # PowerShell redirects relay stdout/stderr to files.
+                reconfigure(encoding="utf-8", errors="replace", line_buffering=True)
             except Exception:  # noqa: BLE001 - best-effort on exotic streams
                 pass
 
@@ -183,19 +193,47 @@ DEFAULT_HOST = os.getenv("KILO_RELAY_HOST", "127.0.0.1")
 DEFAULT_PORT = int(os.getenv("KILO_RELAY_PORT", "8787"))
 # Дефолт для пустого KILO_RELAY_UPSTREAM при SLIM_MODE=cloud_budget (раньше — vsegpt как основной прокси).
 CLOUD_BUDGET_DEFAULT_UPSTREAM = "https://api.vsegpt.ru"
+# DeepSeek preset: KILO_RELAY_UPSTREAM_PRESET=deepseek routes to DeepSeek's OpenAI-compatible API.
+# Model id and context size are user-supplied and NOT verified against DeepSeek's public docs here.
+DEEPSEEK_DEFAULT_API_BASE = "https://api.deepseek.com/v1"
+DEEPSEEK_DEFAULT_MODEL = "deepseek-v4-pro"
+
+
+def deepseek_config_from_env(environ: dict[str, str]) -> dict[str, str] | None:
+    """Return DeepSeek routing config, or None if ``KILO_RELAY_UPSTREAM_PRESET`` != deepseek.
+
+    Fails fast (RuntimeError) if the preset is requested without ``DEEPSEEK_API_KEY`` —
+    forwarding Kilo's dummy relay key to a real cloud provider would silently 401.
+    """
+    preset = (environ.get("KILO_RELAY_UPSTREAM_PRESET") or "").strip().lower()
+    if preset != "deepseek":
+        return None
+    api_key = (environ.get("DEEPSEEK_API_KEY") or "").strip()
+    if not api_key:
+        raise RuntimeError(
+            "KILO_RELAY_UPSTREAM_PRESET=deepseek requires DEEPSEEK_API_KEY in the environment."
+        )
+    return {
+        "base": (environ.get("DEEPSEEK_API_BASE") or DEEPSEEK_DEFAULT_API_BASE).strip().rstrip("/"),
+        "model": (environ.get("DEEPSEEK_MODEL") or DEEPSEEK_DEFAULT_MODEL).strip(),
+        "api_key": api_key,
+    }
 
 
 def effective_upstream_base(environ: dict[str, str]) -> str:
     """База upstream без завершающего слэша.
 
-    Если ``KILO_RELAY_UPSTREAM`` не задан (пусто): при ``SLIM_MODE=cloud_budget``
-    подставляется ``KILO_RELAY_CLOUD_DEFAULT_UPSTREAM`` или VseGPT/OpenAI-совместимый
-    дефолт проекта (``CLOUD_BUDGET_DEFAULT_UPSTREAM``); иначе — LM Studio
-    ``http://127.0.0.1:1234``.
+    Приоритет: явный ``KILO_RELAY_UPSTREAM`` (всегда побеждает) > DeepSeek preset
+    (``KILO_RELAY_UPSTREAM_PRESET=deepseek``) > ``SLIM_MODE=cloud_budget`` дефолт
+    (``CLOUD_BUDGET_DEFAULT_UPSTREAM`` / ``KILO_RELAY_CLOUD_DEFAULT_UPSTREAM``) >
+    LM Studio ``http://127.0.0.1:1234``.
     """
     raw = (environ.get("KILO_RELAY_UPSTREAM") or "").strip().rstrip("/")
     if raw:
         return raw
+    deepseek = deepseek_config_from_env(environ)
+    if deepseek is not None:
+        return deepseek["base"]
     slim = environ.get("KILO_RELAY_SLIM_MODE", "local")
     if is_cloud_budget_slim_mode(slim):
         return (environ.get("KILO_RELAY_CLOUD_DEFAULT_UPSTREAM") or CLOUD_BUDGET_DEFAULT_UPSTREAM).strip().rstrip(
@@ -205,6 +243,7 @@ def effective_upstream_base(environ: dict[str, str]) -> str:
 
 
 UPSTREAM_BASE = effective_upstream_base(dict(os.environ))
+DEEPSEEK_CFG = deepseek_config_from_env(dict(os.environ))
 _t_raw = os.getenv("KILO_RELAY_UPSTREAM_TIMEOUT", "120").strip()
 UPSTREAM_TIMEOUT = float(_t_raw if _t_raw else "120")
 LOG_PATH = (ROOT / os.getenv("KILO_RELAY_LOG", "logs/kilo_relay.jsonl")).resolve()
@@ -327,6 +366,13 @@ def redact_headers(headers: dict[str, str]) -> dict[str, str]:
         else:
             redacted[key] = value
     return redacted
+
+
+def _override_authorization(headers: dict[str, str], bearer_token: str) -> None:
+    """Replace whatever Authorization Kilo sent (its dummy relay key) with the real upstream key."""
+    for key in [k for k in headers if k.lower() == "authorization"]:
+        del headers[key]
+    headers["Authorization"] = f"Bearer {bearer_token}"
 
 
 def write_jsonl(record: dict[str, Any]) -> None:
@@ -551,6 +597,8 @@ class RelayHandler(BaseHTTPRequestHandler):
         raw_body = self.rfile.read(content_length) if content_length > 0 else b""
         body_text = raw_body.decode("utf-8", errors="replace")
         request_headers = {k: v for k, v in self.headers.items()}
+        if DEEPSEEK_CFG is not None:
+            _override_authorization(request_headers, DEEPSEEK_CFG["api_key"])
         forwarded_body_bytes = raw_body
         compress_summary: dict[str, Any] = {"enabled": False}
         stream_source: dict[str, Any] | None = None
@@ -561,6 +609,10 @@ class RelayHandler(BaseHTTPRequestHandler):
             except json.JSONDecodeError:
                 payload_json = None
             if isinstance(payload_json, dict):
+                model_overridden = False
+                if DEEPSEEK_CFG is not None and payload_json.get("model") != DEEPSEEK_CFG["model"]:
+                    payload_json["model"] = DEEPSEEK_CFG["model"]
+                    model_overridden = True
                 if RELAY_COMPRESS_ACTIVE:
                     comp = compress_chat_completion(payload_json, RELAY_COMPRESS_CFG)
                     shrunk_text = json.dumps(comp.payload, ensure_ascii=False)
@@ -570,6 +622,10 @@ class RelayHandler(BaseHTTPRequestHandler):
                     stream_source = comp.payload
                 else:
                     stream_source = payload_json
+                    if model_overridden:
+                        rewritten_text = json.dumps(payload_json, ensure_ascii=False)
+                        forwarded_body_bytes = rewritten_text.encode("utf-8")
+                        body_text = rewritten_text
 
         request_summary = summarize_body(body_text, PREVIEW_CHARS)
         guard = evaluate_guard(
@@ -666,22 +722,6 @@ def _bind_server() -> ThreadingHTTPServer:
 
 
 def main() -> int:
-
-    # BEGIN KILO_RELAY_UTF8_STDIO_V1
-    # Ensure Cyrillic startup diagnostics work when stdout/stderr
-    # are redirected by PowerShell on Windows.
-    import sys as _kilo_relay_sys
-    for _kilo_relay_stream in (
-        _kilo_relay_sys.stdout,
-        _kilo_relay_sys.stderr,
-    ):
-        if hasattr(_kilo_relay_stream, 'reconfigure'):
-            _kilo_relay_stream.reconfigure(
-                encoding='utf-8',
-                errors='backslashreplace',
-                line_buffering=True,
-            )
-    # END KILO_RELAY_UTF8_STDIO_V1
     _configure_stdio_utf8()
     server = _bind_server()
     host, port = server.server_address
