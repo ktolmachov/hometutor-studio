@@ -8,7 +8,7 @@ Listens on http://127.0.0.1:8787 and forwards to ``KILO_RELAY_UPSTREAM``
 Logs one JSON object per request to a JSONL file with:
 - URL/path/method
 - redacted headers
-- raw request body
+- raw request/response body, only when ``KILO_RELAY_FULL_BODY=1`` (default: off)
 - body length
 - rough token estimate
 - per-message char stats
@@ -32,7 +32,7 @@ Environment variables:
   KILO_RELAY_UPSTREAM_TIMEOUT=120
   KILO_RELAY_LOG=logs/kilo_relay.jsonl
   KILO_RELAY_PREVIEW_CHARS=800
-  KILO_RELAY_FULL_BODY=1
+  KILO_RELAY_FULL_BODY=0   # opt-in ("1"/"true"/"yes"/"on"): default is OFF (secure by default)
   KILO_RELAY_WARN_BODY_CHARS=70000
   KILO_RELAY_MAX_BODY_CHARS=90000
   KILO_RELAY_HARD_BLOCK_BODY_CHARS=110000
@@ -42,12 +42,27 @@ Environment variables:
   KILO_RELAY_GUARD_MODE=warn
 
   DeepSeek preset (relay → DeepSeek's OpenAI-compatible cloud API instead of llama.cpp):
-  KILO_RELAY_UPSTREAM_PRESET=deepseek   # activates the preset below; KILO_RELAY_UPSTREAM (if set) still wins
-  DEEPSEEK_API_BASE=https://api.deepseek.com/v1   # default if unset
-  DEEPSEEK_MODEL=deepseek-v4-pro                   # default if unset; forced into payload["model"]
+  KILO_RELAY_UPSTREAM_PRESET=deepseek   # activates the preset below; explicit KILO_RELAY_UPSTREAM
+                                         # still wins (and disables the preset's auth/model rewrite too)
+  DEEPSEEK_API_BASE=https://api.deepseek.com   # default if unset. Canonical DeepSeek quickstart
+                                                # base_url (curl example: POST .../chat/completions).
+                                                # Combined with Kilo's incoming /v1/chat/completions
+                                                # path this yields .../v1/chat/completions, which
+                                                # DeepSeek's own WorkBuddy integration docs also use —
+                                                # both forms work, no path rewriting needed.
+  DEEPSEEK_MODEL=deepseek-v4-pro   # default if unset; forced into payload["model"]. Context: 1M
+                                    # tokens (deepseek-v4-pro/-flash, released 2026-04).
   DEEPSEEK_API_KEY=...                             # required when preset=deepseek; relay fails fast if missing
+  DEEPSEEK_THINKING=disabled        # optional: "enabled"/"disabled". DeepSeek V4 defaults to
+                                     # thinking.type=enabled + reasoning_effort=high when unset —
+                                     # can silently inflate output tokens/latency/cost on every
+                                     # request. Unset here = relay does not touch the field at all.
+  DEEPSEEK_REASONING_EFFORT=low     # optional: "low"/"medium"/"high"; only meaningful when
+                                     # thinking is enabled. Unset = relay does not touch the field.
   Relay replaces the client's Authorization header with ``Bearer $DEEPSEEK_API_KEY`` for every
   request while the preset is active — Kilo's own dummy relay key is never forwarded to DeepSeek.
+  Effective overrides (model/thinking/reasoning_effort) are recorded per-request under
+  ``deepseek_overrides`` in the JSONL log.
 
   Стриминг ответа (Cursor шлёт stream:true по умолчанию):
   релей **проксирует поток** в клиент: те же байты, что от LM Studio, без HTTP chunked
@@ -125,6 +140,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 from urllib.error import HTTPError, URLError
+from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 
 def _configure_stdio_utf8() -> None:
@@ -194,16 +210,30 @@ DEFAULT_PORT = int(os.getenv("KILO_RELAY_PORT", "8787"))
 # Дефолт для пустого KILO_RELAY_UPSTREAM при SLIM_MODE=cloud_budget (раньше — vsegpt как основной прокси).
 CLOUD_BUDGET_DEFAULT_UPSTREAM = "https://api.vsegpt.ru"
 # DeepSeek preset: KILO_RELAY_UPSTREAM_PRESET=deepseek routes to DeepSeek's OpenAI-compatible API.
-# Model id and context size are user-supplied and NOT verified against DeepSeek's public docs here.
-DEEPSEEK_DEFAULT_API_BASE = "https://api.deepseek.com/v1"
+# Canonical base_url per DeepSeek's quickstart docs is https://api.deepseek.com (curl example:
+# POST https://api.deepseek.com/chat/completions). DeepSeek also documents a /v1-suffixed path
+# for some integrations (e.g. the WorkBuddy guide uses https://api.deepseek.com/v1/chat/completions),
+# so both forms work — no path rewriting is needed: this base (without /v1) + Kilo's incoming
+# /v1/chat/completions path already produces a documented-working URL with exactly one /v1.
+DEEPSEEK_DEFAULT_API_BASE = "https://api.deepseek.com"
 DEEPSEEK_DEFAULT_MODEL = "deepseek-v4-pro"
 
 
-def deepseek_config_from_env(environ: dict[str, str]) -> dict[str, str] | None:
+_DEEPSEEK_VALID_THINKING = frozenset({"enabled", "disabled"})
+_DEEPSEEK_VALID_REASONING_EFFORT = frozenset({"low", "medium", "high"})
+
+
+def deepseek_config_from_env(environ: dict[str, str]) -> dict[str, str | None] | None:
     """Return DeepSeek routing config, or None if ``KILO_RELAY_UPSTREAM_PRESET`` != deepseek.
 
     Fails fast (RuntimeError) if the preset is requested without ``DEEPSEEK_API_KEY`` —
     forwarding Kilo's dummy relay key to a real cloud provider would silently 401.
+
+    ``thinking``/``reasoning_effort`` are None unless explicitly set — DeepSeek V4 defaults to
+    thinking.type=enabled + reasoning_effort=high per its own API reference, which can silently
+    inflate output tokens/latency/cost on every daily-coding request. This relay does not
+    override that default on its own (would be an invisible quality/behavior change); it only
+    exposes ``DEEPSEEK_THINKING``/``DEEPSEEK_REASONING_EFFORT`` as an explicit opt-in knob.
     """
     preset = (environ.get("KILO_RELAY_UPSTREAM_PRESET") or "").strip().lower()
     if preset != "deepseek":
@@ -213,10 +243,21 @@ def deepseek_config_from_env(environ: dict[str, str]) -> dict[str, str] | None:
         raise RuntimeError(
             "KILO_RELAY_UPSTREAM_PRESET=deepseek requires DEEPSEEK_API_KEY in the environment."
         )
+    thinking = (environ.get("DEEPSEEK_THINKING") or "").strip().lower() or None
+    if thinking is not None and thinking not in _DEEPSEEK_VALID_THINKING:
+        raise RuntimeError(f"DEEPSEEK_THINKING must be one of {sorted(_DEEPSEEK_VALID_THINKING)}, got {thinking!r}.")
+    reasoning_effort = (environ.get("DEEPSEEK_REASONING_EFFORT") or "").strip().lower() or None
+    if reasoning_effort is not None and reasoning_effort not in _DEEPSEEK_VALID_REASONING_EFFORT:
+        raise RuntimeError(
+            f"DEEPSEEK_REASONING_EFFORT must be one of {sorted(_DEEPSEEK_VALID_REASONING_EFFORT)}, "
+            f"got {reasoning_effort!r}."
+        )
     return {
         "base": (environ.get("DEEPSEEK_API_BASE") or DEEPSEEK_DEFAULT_API_BASE).strip().rstrip("/"),
         "model": (environ.get("DEEPSEEK_MODEL") or DEEPSEEK_DEFAULT_MODEL).strip(),
         "api_key": api_key,
+        "thinking": thinking,
+        "reasoning_effort": reasoning_effort,
     }
 
 
@@ -242,13 +283,45 @@ def effective_upstream_base(environ: dict[str, str]) -> str:
     return (environ.get("KILO_RELAY_UPSTREAM_DEFAULT_LOCAL") or "http://127.0.0.1:1234").strip().rstrip("/")
 
 
+def _deepseek_actually_active(environ: dict[str, str]) -> bool:
+    """Whether DeepSeek is the ACTUAL resolved provider, not merely whether the preset var is set.
+
+    ``effective_upstream_base()`` already gives explicit ``KILO_RELAY_UPSTREAM`` top priority over
+    the DeepSeek preset. DeepSeek-specific behavior (Authorization override, model rewrite) must
+    respect that same precedence — otherwise a stale ``KILO_RELAY_UPSTREAM_PRESET=deepseek`` left
+    over from a previous run, combined with an explicit raw ``KILO_RELAY_UPSTREAM`` override,
+    would route to the raw upstream while still leaking the real DeepSeek API key to it and
+    rewriting the model — confirmed by direct testing, not hypothetical.
+    """
+    raw = (environ.get("KILO_RELAY_UPSTREAM") or "").strip()
+    if raw:
+        return False
+    return (environ.get("KILO_RELAY_UPSTREAM_PRESET") or "").strip().lower() == "deepseek"
+
+
 UPSTREAM_BASE = effective_upstream_base(dict(os.environ))
-DEEPSEEK_CFG = deepseek_config_from_env(dict(os.environ))
+DEEPSEEK_CFG = deepseek_config_from_env(dict(os.environ)) if _deepseek_actually_active(dict(os.environ)) else None
 _t_raw = os.getenv("KILO_RELAY_UPSTREAM_TIMEOUT", "120").strip()
 UPSTREAM_TIMEOUT = float(_t_raw if _t_raw else "120")
 LOG_PATH = (ROOT / os.getenv("KILO_RELAY_LOG", "logs/kilo_relay.jsonl")).resolve()
 PREVIEW_CHARS = int(os.getenv("KILO_RELAY_PREVIEW_CHARS", "800"))
-LOG_FULL_BODY = os.getenv("KILO_RELAY_FULL_BODY", "1").strip().lower() not in {"0", "false", "no"}
+# Secure by default: full-body logging OFF unless explicitly opted into. Start-KiloRelayDaily.ps1
+# already sets this explicitly either way; a direct `python kilo_proxy_relay.py` run must not
+# silently dump source/credentials/paths to disk by default.
+LOG_FULL_BODY = os.getenv("KILO_RELAY_FULL_BODY", "0").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def normalize_chat_completions_path(path: str) -> str:
+    """Recognize /v1/chat/completions regardless of trailing slash or query string.
+
+    Also treats a bare /chat/completions as equivalent (defensive: some OpenAI-compatible
+    clients/providers omit the /v1 prefix) so compression/guard/model-rewrite aren't silently
+    skipped just because of URL shape.
+    """
+    normalized = urlsplit(path).path.rstrip("/")
+    if normalized in ("/v1/chat/completions", "/chat/completions"):
+        return "/v1/chat/completions"
+    return normalized
 WARN_BODY_CHARS = int(os.getenv("KILO_RELAY_WARN_BODY_CHARS", "70000"))
 MAX_BODY_CHARS = int(os.getenv("KILO_RELAY_MAX_BODY_CHARS", "90000"))
 HARD_BLOCK_BODY_CHARS = int(os.getenv("KILO_RELAY_HARD_BLOCK_BODY_CHARS", "110000"))
@@ -603,16 +676,28 @@ class RelayHandler(BaseHTTPRequestHandler):
         compress_summary: dict[str, Any] = {"enabled": False}
         stream_source: dict[str, Any] | None = None
 
-        if self.path.rstrip("/") == "/v1/chat/completions" and raw_body:
+        chat_path = normalize_chat_completions_path(self.path)
+        deepseek_overrides: dict[str, Any] = {}
+        if chat_path == "/v1/chat/completions" and raw_body:
             try:
                 payload_json = json.loads(body_text)
             except json.JSONDecodeError:
                 payload_json = None
             if isinstance(payload_json, dict):
-                model_overridden = False
-                if DEEPSEEK_CFG is not None and payload_json.get("model") != DEEPSEEK_CFG["model"]:
-                    payload_json["model"] = DEEPSEEK_CFG["model"]
-                    model_overridden = True
+                payload_overridden = False
+                if DEEPSEEK_CFG is not None:
+                    if payload_json.get("model") != DEEPSEEK_CFG["model"]:
+                        payload_json["model"] = DEEPSEEK_CFG["model"]
+                        payload_overridden = True
+                        deepseek_overrides["model"] = DEEPSEEK_CFG["model"]
+                    if DEEPSEEK_CFG["thinking"] is not None:
+                        payload_json["thinking"] = {"type": DEEPSEEK_CFG["thinking"]}
+                        payload_overridden = True
+                        deepseek_overrides["thinking"] = DEEPSEEK_CFG["thinking"]
+                    if DEEPSEEK_CFG["reasoning_effort"] is not None:
+                        payload_json["reasoning_effort"] = DEEPSEEK_CFG["reasoning_effort"]
+                        payload_overridden = True
+                        deepseek_overrides["reasoning_effort"] = DEEPSEEK_CFG["reasoning_effort"]
                 if RELAY_COMPRESS_ACTIVE:
                     comp = compress_chat_completion(payload_json, RELAY_COMPRESS_CFG)
                     shrunk_text = json.dumps(comp.payload, ensure_ascii=False)
@@ -622,14 +707,14 @@ class RelayHandler(BaseHTTPRequestHandler):
                     stream_source = comp.payload
                 else:
                     stream_source = payload_json
-                    if model_overridden:
+                    if payload_overridden:
                         rewritten_text = json.dumps(payload_json, ensure_ascii=False)
                         forwarded_body_bytes = rewritten_text.encode("utf-8")
                         body_text = rewritten_text
 
         request_summary = summarize_body(body_text, PREVIEW_CHARS)
         guard = evaluate_guard(
-            self.path,
+            chat_path,
             body_text,
             request_summary,
             thresholds=THRESHOLDS,
@@ -666,6 +751,7 @@ class RelayHandler(BaseHTTPRequestHandler):
             "request_headers": redact_headers(request_headers),
             "request": request_summary,
             "relay_compress": compress_summary,
+            "deepseek_overrides": deepseek_overrides,
             "guard": {
                 "mode": GUARD_MODE,
                 "level": guard.level,

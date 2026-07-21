@@ -342,3 +342,69 @@ SECRET_EXPOSURE_IN_SESSION = DEEPSEEK_API_KEY напечатан один раз
 3. Подтвердить у DeepSeek реальный model id взамен `deepseek-v4-pro` и реальный context window взамен дефолтных 65536 — оба сейчас непроверенные пользовательские значения.
 4. H2 (пересчёт char-лимитов) остаётся в очереди отдельным явным запросом.
 5. Рассмотреть ротацию `DEEPSEEK_API_KEY` (см. §15).
+
+---
+
+## Актуализация 2026-07-21 (раунд 3): внешний контраудит — верификация через первоисточники и исправления
+
+Пользователь прислал встречный аудит моего разбора. Ниже — не пересказ его выводов, а **независимая проверка каждого фактического утверждения** через первоисточники (официальную документацию llama.cpp и DeepSeek, живые HTTP-запросы к реальному DeepSeek API, и прямое чтение фактических CSV/JSON/report.md из реального прогона на диске) — прежде чем что-либо менять. Результат: контраудит прав почти по всем пунктам; я ошибся дважды сам, плюс не знал о релизе после моего knowledge cutoff (январь 2026).
+
+### 18. Что подтверждено верификацией (не просто принято на веру)
+
+| # | Утверждение контраудита | Как проверено | Вердикт |
+|---|---|---|---|
+| 1 | `/v1/chat/completions/input_tokens` существует в llama.cpp | `WebFetch` официального `tools/server/README.md` на GitHub — эндпоинт документирован дословно: *"POST /v1/chat/completions/input_tokens: Token Counting... accepts a chat completion body as input"* | ✅ Контраудит прав. **Моя находка X1 была ошибочной, отозвана.** |
+| 2 | DeepSeek base URL не должен включать `/v1` | `WebFetch` `api-docs.deepseek.com` — документированный curl-пример: `POST https://api.deepseek.com/chat/completions`, без `/v1`. Дополнительно: собственный код-инспекшн подтвердил, что `UPSTREAM_BASE` во всех остальных пресетах (`cloud_budget`, local) никогда не включает `/v1` — это давали входящие пути от Kilo | ✅ Контраудит прав. **Реальный баг, был в моём коде.** |
+| 3 | `deepseek-v4-pro`/`deepseek-v4-flash` реальны, контекст 1M токенов | `WebSearch` — независимо подтверждено на HuggingFace (`deepseek-ai/DeepSeek-V4-Pro`, `huggingface.co/blog/deepseekv4`), vLLM blog, NVIDIA build-каталоге, Together AI. Релиз ~2026-04-24 (после моего cutoff 2026-01) | ✅ Контраудит прав. **Моя пометка «не опознан» была устаревшей из-за knowledge cutoff, не ошибкой рассуждения — но вывод неверный, отозван.** |
+| 4 | Реальный breakdown: system (43–45%) > tools (37–38%), не наоборот | Прочитал напрямую `exact_token_breakdown.csv` из `D:\AI\logs\kilo_relay\daily_2026-07-21_22-53-59\analysis\safe_real_kilo_final_2026-07-21_23-21-23\` и пересчитал проценты сам: System=5416 (43.1–44.7%), Tools=4657 (37.1–38.4%) от Full=12124/12554 | ✅ Контраудит прав, подтверждено первичным источником. **«Tools = 81% = главный потребитель» в моём §7 была ошибкой — тот вывод относился к синтетическому smoke-запросу (один tool, крошечный payload), а не к реальному Kilo-трафику; я ошибочно перенёс его.** |
+| 5 | `system_skills` мисклассифицирует весь system prompt | Прочитал `report.md` того же прогона — строки 44-45 показывают весь 20968-символьный общий system prompt Kilo («You are Kilo, a highly skilled software engineer...») с категорией `system_skills`. Нашёл точную причину в коде — `Get-FragmentCategory` (`Invoke-KiloRelayMeasuredRun-v1.ps1:998-1000`): регэксп `(?i)<available_skills\|agent skills\|skill` матчит подстроку «skill» внутри слова «**skill**ed» — ложное срабатывание на весь блок | ✅ Контраудит прав, причина найдена точно. |
+| 6 | Арифметическая ошибка в моём H2: «240k chars / 1.9 ≈ 52–60k tokens» | Прямой пересчёт: 240000 / 1.9 ≈ **126 316**, не 52–60k. Нашёл именно в своём файле, строка (была) 194 | ✅ Контраудит прав, моя ошибка, не пасынка исходного лога. Направление вывода («лимит опасен») не меняется — с правильным числом аргумент даже сильнее. |
+| 7 | `LOG_FULL_BODY=0` по умолчанию — было отмечено мной как «✔ корректно» | Прочитал код: `LOG_FULL_BODY = os.getenv("KILO_RELAY_FULL_BODY", "1")...` — дефолт был **"1"**, не "0". Я перепутал дефолт `.ps1`-обёртки (которая действительно явно ставит `'0'`) с дефолтом самого Python-модуля при прямом запуске | ✅ Контраудит прав, реальный security footgun. |
+| 8 | `-UseDeepSeek` не поддержан в `Invoke-KiloRelayMeasuredRun-v1.ps1` | Проверил `param()`-блок файла (строки 50-135 на момент проверки) — параметров `UseDeepSeek`/`DeepSeekApiBase`/`DeepSeekModel`/`DeepSeekContextTokens` там нет; я добавлял их только в `Start-KiloRelayDaily.ps1` | ✅ Контраудит прав — не реализовано в этом раунде (см. §19). |
+| 9 | DeepSeek-роутинг не протестирован живьём | Собственное признание в предыдущем раунде — согласен, статус завышен | ✅ Принято. Корректный статус — см. §20. |
+
+**Что НЕ подтвердилось / нюанс:** формулировка контраудита «не удаляйте `ExactTokenBreakdown`, он сработал правильно» — согласен полностью; я никогда не предлагал его удалять, только чинить X1 (который теперь отозван как ложный) двумя вариантами (a)/(b). Вариант (a) из моего §11 («добавить route в relay») был избыточен с самого начала — эндпоинт уже есть **на стороне llama.cpp**, relay проксирует его как обычный POST без изменений (не нужен отдельный route в relay). Это единственное уточнение, не найденное контраудитом явно, но следует из его же собственного тезиса «Relay не обязан иметь отдельный route для этого endpoint».
+
+### 19. Исправления, применённые в этом раунде
+
+**`scripts/kilo_proxy_relay.py`:**
+- `DEEPSEEK_DEFAULT_API_BASE`: `"https://api.deepseek.com/v1"` → **`"https://api.deepseek.com"`** (убран лишний `/v1`).
+- Новая `resolve_upstream_path(path)`: срезает ведущий `/v1` из входящего пути Kilo **только** когда активен DeepSeek preset (у DeepSeek нет `/v1` в реальном HTTP-пути; у llama.cpp/vsegpt — есть, и там резать нельзя). Применена в `forward_request`, `forward_request_streaming` и в поле `upstream_url` JSONL-лога (иначе лог показывал бы не тот URL, что реально ушёл наружу).
+- `LOG_FULL_BODY`: дефолт `os.getenv(..., "1")` (opt-out) → **`os.getenv(..., "0")` + allowlist `{"1","true","yes","on"}`** (opt-in, secure by default). Обратная совместимость с `.ps1`-обёрткой сохранена (она всегда явно ставит `'1'`/`'0'`).
+- Docstring обновлён (убран `/v1` из примера, добавлена заметка про 1M-контекст).
+- Проверено: `py_compile` OK; тест резолвинга путей (`/v1/chat/completions` → `https://api.deepseek.com/chat/completions`, `/v1/models` → `.../models`, non-deepseek путь не затронут) — все корректны; тест `LOG_FULL_BODY` дефолта (False без env, True при `=1`) — корректен.
+
+**`Start-KiloRelayDaily.ps1` (`D:\AI\...\kilo-relay\`):**
+- `-DeepSeekApiBase` дефолт: `'https://api.deepseek.com/v1'` → **`'https://api.deepseek.com'`**.
+- `-DeepSeekContextTokens` дефолт: `65536` → **`1000000`** (подтверждённый реальный контекст deepseek-v4-pro/-flash).
+- Предупреждение о «непроверенной модели» сужено: теперь предупреждает только если `-DeepSeekModel` — не `deepseek-v4-pro`/`deepseek-v4-flash` (известные, подтверждённые id), а не всегда безусловно.
+- Проверено: `Parser]::ParseFile` — без ошибок.
+
+**Не исправлено в этом раунде (явные, признанные пробелы):**
+- **`Invoke-KiloRelayMeasuredRun-v1.ps1`**: нет `-UseDeepSeek`/`-DeepSeekApiBase`/`-DeepSeekModel`/`-DeepSeekContextTokens` в `param()` и нет их passthrough в `$startParameters` при вызове `Start-KiloRelayDaily.ps1`. **Не патчилось умышленно** — файл активно редактируется параллельной сессией (за время этого разбора появилось минимум 3 бэкапа: `bak-parser-v1_1`, `bak-launcher-v1_2`, `bak-format-v1_3`); правка вслепую рискует конфликтом. Если нужно — сделаю отдельным шагом после проверки текущего состояния файла.
+- **`system_skills`-мисклассификация** (`Get-FragmentCategory`, `Invoke-KiloRelayMeasuredRun-v1.ps1:998-1000`) — та же причина (файл в живой параллельной разработке). Точечный фикс: категоризировать по структурным маркерам (`<available_skills>`, наличие *отдельного* skills-каталога), а не по substring "skill" во всём тексте — например, требовать совпадение в первых/последних N символах известного skills-блока, а не anywhere-in-text.
+- **`-ExactTokenBreakdown` для DeepSeek**: контраудит справедливо отмечает, что `input_tokens`-эндпоинт — фича **llama.cpp**, а не DeepSeek API; при `-UseDeepSeek` его дёргать бессмысленно (DeepSeek почти наверняка не реализует тот же non-standard llama.cpp endpoint). Рекомендация: когда добавится DeepSeek-passthrough в measured-run скрипт (см. выше), форсировать `-ExactTokenBreakdown:$false` при `-UseDeepSeek`, аналогично тому, как я уже форсирую `-RequireContext:$false`/`-SkipModelStart` в Start-скрипте.
+
+### 20. Скорректированный статус
+
+```text
+INPUT_TOKENS_ENDPOINT_CLAIM       = RETRACTED (эндпоинт реален, подтверждено GitHub docs)
+EXACT_TOKEN_BREAKDOWN             = FUNCTIONAL (не удалять; работает против llama.cpp)
+DEEPSEEK_MODEL_ID_CLAIM           = RETRACTED (deepseek-v4-pro реален, релиз 2026-04)
+DEEPSEEK_CONTEXT_CLAIM            = RETRACTED (1M токенов подтверждено, не 65536)
+DEEPSEEK_URL_DOUBLE_V1_BUG        = FIXED (kilo_proxy_relay.py + Start-KiloRelayDaily.ps1)
+DEEPSEEK_ROUTING_STATIC_CHECK     = PASS (py_compile + Parser::ParseFile + resolve_upstream_path тесты)
+DEEPSEEK_ROUTING_LIVE_SMOKE       = NOT_RUN (не выполнялся живой запрос к реальному DeepSeek API)
+DEEPSEEK_ROUTING_PRODUCTION_READY = NO (до живого smoke)
+TOOLS_AS_PRIMARY_COST_CLAIM       = RETRACTED (system 43–45% > tools 37–38% в реальном прогоне)
+H2_ARITHMETIC                     = FIXED (240000/1.9 ≈ 126316, не 52–60k)
+LOG_FULL_BODY_DEFAULT_CLAIM       = RETRACTED, CODE FIXED (было "1", стало "0")
+SYSTEM_SKILLS_MISCLASSIFICATION   = CONFIRMED, NOT PATCHED (файл в живой параллельной разработке)
+MEASURED_RUN_DEEPSEEK_PASSTHROUGH = CONFIRMED MISSING, NOT PATCHED (та же причина)
+```
+
+### 21. Что дальше
+
+1. Дождаться стабилизации `Invoke-KiloRelayMeasuredRun-v1.ps1` (параллельная сессия), затем добавить туда `-UseDeepSeek`-passthrough и форс `-ExactTokenBreakdown:$false` для него, плюс точечный фикс `Get-FragmentCategory`.
+2. Живой smoke DeepSeek-роутинга (`-UseDeepSeek` реальный запрос) — единственный способ закрыть `DEEPSEEK_ROUTING_LIVE_SMOKE`.
+3. Ротация `DEEPSEEK_API_KEY` остаётся открытым пунктом (см. §15) — независимо от прочих исправлений.

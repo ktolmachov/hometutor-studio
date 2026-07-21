@@ -205,6 +205,98 @@ def test_forward_request_streaming_survives_upstream_read_error():
     assert handler.wfile.getvalue() == b"aa"
 
 
+def test_deepseek_actually_active_true_when_preset_set_alone():
+    environ = {"KILO_RELAY_UPSTREAM_PRESET": "deepseek"}
+    assert relay._deepseek_actually_active(environ) is True
+
+
+def test_deepseek_actually_active_false_when_raw_upstream_also_set():
+    # Regression: a stale KILO_RELAY_UPSTREAM_PRESET=deepseek left over from a previous run,
+    # combined with an explicit raw KILO_RELAY_UPSTREAM override, must NOT leak the DeepSeek
+    # API key / rewrite the model / route to DeepSeek — the raw override fully disables the preset.
+    environ = {
+        "KILO_RELAY_UPSTREAM": "http://127.0.0.1:8080",
+        "KILO_RELAY_UPSTREAM_PRESET": "deepseek",
+    }
+    assert relay._deepseek_actually_active(environ) is False
+
+
+def test_deepseek_actually_active_false_when_preset_unset():
+    assert relay._deepseek_actually_active({}) is False
+
+
+def test_deepseek_config_requires_api_key():
+    environ = {"KILO_RELAY_UPSTREAM_PRESET": "deepseek"}
+    try:
+        relay.deepseek_config_from_env(environ)
+        raise AssertionError("expected RuntimeError")
+    except RuntimeError as exc:
+        assert "DEEPSEEK_API_KEY" in str(exc)
+
+
+def test_deepseek_config_defaults():
+    environ = {"KILO_RELAY_UPSTREAM_PRESET": "deepseek", "DEEPSEEK_API_KEY": "sk-test"}
+    cfg = relay.deepseek_config_from_env(environ)
+    assert cfg == {
+        "base": "https://api.deepseek.com",
+        "model": "deepseek-v4-pro",
+        "api_key": "sk-test",
+        "thinking": None,
+        "reasoning_effort": None,
+    }
+
+
+def test_deepseek_config_thinking_and_reasoning_effort_opt_in():
+    environ = {
+        "KILO_RELAY_UPSTREAM_PRESET": "deepseek",
+        "DEEPSEEK_API_KEY": "sk-test",
+        "DEEPSEEK_THINKING": "disabled",
+        "DEEPSEEK_REASONING_EFFORT": "low",
+    }
+    cfg = relay.deepseek_config_from_env(environ)
+    assert cfg["thinking"] == "disabled"
+    assert cfg["reasoning_effort"] == "low"
+
+
+def test_deepseek_config_rejects_invalid_thinking_value():
+    environ = {
+        "KILO_RELAY_UPSTREAM_PRESET": "deepseek",
+        "DEEPSEEK_API_KEY": "sk-test",
+        "DEEPSEEK_THINKING": "maybe",
+    }
+    try:
+        relay.deepseek_config_from_env(environ)
+        raise AssertionError("expected RuntimeError")
+    except RuntimeError as exc:
+        assert "DEEPSEEK_THINKING" in str(exc)
+
+
+def test_effective_upstream_raw_wins_over_deepseek_preset():
+    environ = {
+        "KILO_RELAY_UPSTREAM": "http://127.0.0.1:8080",
+        "KILO_RELAY_UPSTREAM_PRESET": "deepseek",
+        "DEEPSEEK_API_KEY": "sk-test",
+    }
+    assert relay.effective_upstream_base(environ) == "http://127.0.0.1:8080"
+
+
+def test_normalize_chat_completions_path_variants():
+    variants = [
+        "/v1/chat/completions",
+        "/v1/chat/completions/",
+        "/v1/chat/completions?trace=1",
+        "/v1/chat/completions/?trace=1",
+        "/chat/completions",
+    ]
+    for path in variants:
+        assert relay.normalize_chat_completions_path(path) == "/v1/chat/completions"
+
+
+def test_normalize_chat_completions_path_leaves_other_paths_alone():
+    assert relay.normalize_chat_completions_path("/v1/models") == "/v1/models"
+    assert relay.normalize_chat_completions_path("/health") == "/health"
+
+
 def test_copy_upstream_response_headers_skips_hop_by_hop():
     handler = _RecordingHandler()
     relay._copy_upstream_response_headers(
