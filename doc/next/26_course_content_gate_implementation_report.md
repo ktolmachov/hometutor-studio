@@ -13,7 +13,9 @@
 | **P0-A Gate Packet** | ✅ shipped (labels + best/rejected + **evidence spans** + UI expander) |
 | **P0-B Verified Step** | ✅ partial→fixed: mastery gate + origins; TLRR **plan formula**; answer honesty UI |
 | **Full step 6/6 on live bundle** | ⬜ residual: `grounded_explanation` component still unwired → TLRR full-contract often 0 |
-| Tests | **82/82 PASS** (`test_course_content_gate` + `test_quiz_content_contract` + `test_trusted_route_rate`) |
+| Tests | **92 collected PASS** (`test_course_content_gate` 55 + `test_quiz_content_contract` 20 + `test_trusted_route_rate` 17) |
+| Outcome | **shipped-unvalidated** — unit/integration green; live reindex + E2 pain-anchor replay open |
+| Full TLRR 6/6 | **structural 0** (`grounded_explanation_not_implemented`); use `tlrr_excluding_grounded` |
 | Live reindex on reference bundle | ⬜ not re-run in this session (unit/integration fixtures only) |
 
 ---

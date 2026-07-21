@@ -14,7 +14,7 @@
 | Семпл-артефакты | `hometutor-studio/eval_data/content_gate_e2_2026-07-19/` — raw outputs целиком, рубрика v1.0 зафиксирована до генерации, cherry-picking запрещён |
 | Семантическая аджюдикация | ✅ выполнена и заархивирована: [`semantic_adjudication_2026-07-19.md`](../../eval_data/content_gate_e2_2026-07-19/semantic_adjudication_2026-07-19.md) — Claude (эта сессия), не self-grade; 13/13 D2-флагов адъюдицированы построчно (12 GROUNDED, 1 BORDERLINE), 2 confirmed findings с цитатами; D3-only флаги (22 доп.) — scope cut, не адъюдицированы |
 | P0 выбран | да: P0-A Gate Packet + P0-B Verified Step Contract |
-| **Implementation** | ⬜ **не начата.** Разбор доказывает и упаковывает боль в исполнимый P0 — он не закрывает её сам по себе. `PAIN-02` instance в реестре остаётся `Status: open` до P0-A/P0-B + post-ship replay. |
+| **Implementation** | ✅ **partial ship / shipped-unvalidated (2026-07-20…21).** P0-A packet + P0-B mastery evidence gate in runtime; dual TLRR KPI (`trusted_learning_route_rate` full 6/6 = structural 0 until `grounded_explanation`; operational `tlrr_excluding_grounded`). Live reindex on reference bundle + post-ship replay of E2 pain-anchor still open. `PAIN-02` stays open until post-ship replay. Detail: [`26_course_content_gate_implementation_report.md`](26_course_content_gate_implementation_report.md). |
 
 **Ограничение честности семпла:** 9 генераций = минимум гайда §4.1 для
 исследовательского вердикта (3×3). Проценты качества (VLQR/SGAR) по нему не

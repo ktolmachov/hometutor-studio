@@ -666,22 +666,6 @@ def _bind_server() -> ThreadingHTTPServer:
 
 
 def main() -> int:
-
-    # BEGIN KILO_RELAY_UTF8_STDIO_V1
-    # Ensure Cyrillic startup diagnostics work when stdout/stderr
-    # are redirected by PowerShell on Windows.
-    import sys as _kilo_relay_sys
-    for _kilo_relay_stream in (
-        _kilo_relay_sys.stdout,
-        _kilo_relay_sys.stderr,
-    ):
-        if hasattr(_kilo_relay_stream, 'reconfigure'):
-            _kilo_relay_stream.reconfigure(
-                encoding='utf-8',
-                errors='backslashreplace',
-                line_buffering=True,
-            )
-    # END KILO_RELAY_UTF8_STDIO_V1
     _configure_stdio_utf8()
     server = _bind_server()
     host, port = server.server_address
