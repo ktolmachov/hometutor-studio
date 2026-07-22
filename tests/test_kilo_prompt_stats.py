@@ -6,6 +6,8 @@ import json
 import sys
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
 sys.path.insert(0, str(SCRIPTS))
@@ -122,3 +124,104 @@ def test_report_main_refuses_empty_json_out(tmp_path: Path):
     rc = report.main(["--log", str(log), "--last", "10", "--json-out", str(out)])
     assert rc == 2
     assert json.loads(out.read_text(encoding="utf-8")) == {"keep": True}
+
+
+def _chat_row(idx: int, chars: int = 100) -> dict:
+    return {
+        "path": "/v1/chat/completions",
+        "content_stats": {
+            "original": {
+                "total_message_chars": chars,
+                "messages_count": idx,
+                "role_chars": {"user": chars},
+            }
+        },
+    }
+
+
+def test_collect_chat_records_filters_non_chat_rows(tmp_path: Path):
+    log = tmp_path / "mixed.jsonl"
+    rows = [_chat_row(1), {"path": "/v1/models"}, _chat_row(2), {"path": "/healthz"}]
+    log.write_text("\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8")
+    total, chat = report.collect_chat_records(log, last=None)
+    assert total == 4
+    assert len(chat) == 2
+    assert all(r["path"] == "/v1/chat/completions" for r in chat)
+
+
+def test_collect_chat_records_last_keeps_tail_chat_only(tmp_path: Path):
+    """Non-chat rows interspersed in the tail window must not shrink the chat
+    sample below N (the exact regression the audit's --last finding covered)."""
+    log = tmp_path / "mixed.jsonl"
+    rows = []
+    for i in range(10):
+        rows.append(_chat_row(i))
+        rows.append({"path": "/v1/models"})
+    log.write_text("\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8")
+    total, chat = report.collect_chat_records(log, last=3)
+    assert total == 20
+    assert len(chat) == 3
+    assert [r["content_stats"]["original"]["messages_count"] for r in chat] == [7, 8, 9]
+
+
+def test_collect_chat_records_last_none_and_zero_return_all(tmp_path: Path):
+    log = tmp_path / "chat.jsonl"
+    rows = [_chat_row(i) for i in range(5)]
+    log.write_text("\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8")
+    _, chat_none = report.collect_chat_records(log, last=None)
+    _, chat_zero = report.collect_chat_records(log, last=0)
+    assert len(chat_none) == 5
+    assert len(chat_zero) == 5
+
+
+def test_collect_chat_records_skips_malformed_json_and_blank_lines(tmp_path: Path):
+    log = tmp_path / "dirty.jsonl"
+    log.write_text(
+        "\n".join(
+            [
+                json.dumps(_chat_row(1)),
+                "",
+                "{not valid json",
+                "[1, 2, 3]",  # valid JSON but not a dict
+                json.dumps(_chat_row(2)),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    total, chat = report.collect_chat_records(log, last=None)
+    assert total == 2  # only the two dict rows count; malformed/blank/non-dict skipped
+    assert len(chat) == 2
+
+
+def test_collect_chat_records_missing_file_returns_empty(tmp_path: Path):
+    total, chat = report.collect_chat_records(tmp_path / "does_not_exist.jsonl", last=10)
+    assert total == 0
+    assert chat == []
+
+
+def test_report_main_rejects_negative_last(tmp_path: Path):
+    log = tmp_path / "empty.jsonl"
+    log.write_text("", encoding="utf-8")
+
+    with pytest.raises(SystemExit) as exc:
+        report.main(["--log", str(log), "--last", "-1"])
+    assert exc.value.code == 2
+
+
+def test_build_report_records_total_vs_chat_with_stats_differ():
+    records = [_chat_row(1), {"path": "/v1/models"}, {"path": "/v1/models"}]
+    out = report.build_report(records, records_total=len(records))
+    assert out["records_total"] == 3
+    assert out["chat_with_content_stats"] == 1
+
+
+def test_per_request_summary_stats_avg_median_min_max():
+    records = [_chat_row(1, chars=100), _chat_row(2, chars=200), _chat_row(3, chars=300)]
+    out = report.build_report(records)
+    pr = out["per_request"]["message_chars"]
+    assert pr["n"] == 3
+    assert pr["avg"] == 200.0
+    assert pr["median"] == 200
+    assert pr["min"] == 100
+    assert pr["max"] == 300

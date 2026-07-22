@@ -19,15 +19,26 @@ Cursor + relay + DeepSeek running).
 | 3 | No test validated the registry | Added `test_registry_structure_no_dropped_keys` + `test_registry_metadata_fresh_for_local_files` |
 | 4 | `CLAUDE.md` contradiction: forbids full-read of `conventions_architecture/reference` but example says "(full)" | Example rewritten to section-only; explicit "this is NOT an exception" note |
 | 5 | Report sums 3 requests but reads like one prompt | Added `per_request` avg/median/min/max + "AGGREGATE sums" labels |
-| 6 | `--last 40` sliced raw rows, not chat rows | `_load_records` no longer truncates; `build_report(records, last)` filters chat **then** slices |
+| 6 | `--last 40` sliced raw rows, not chat rows | `collect_chat_records()` streams the JSONL, filters to chat rows with `content_stats`, and keeps only the last N of *those* via `deque(maxlen=N)`; `main()` calls it then `build_report(chat_records, last=None, records_total=...)` |
 | 9 | Did new always-on rules inflate every prompt? | Now measurable: `rules` fragment ≈ **1.8k tok/request** (see below) |
+| — | (this round) old `_load_records(path, last)` was dead code with a broken contract — declared `last` but ignored it | Removed; nothing called it |
+| — | (this round) `test_check_readset_merges_registry` had an operator-precedence bug: `A and B or C` picked any existing file, not only forbidden ones | Fixed to `A and (B or C)` |
+| — | (this round) negative `--last` silently meant "all" | `argparse` now rejects `--last < 0` with a usage error (exit 2) |
 
-**Provenance of #1 (git-verified, not assumed).** The dropped-key corruption
-entered in **commit 133 (`567e43c`)**; `131 (628841c)` and `132 (9c7b755)` both
-parse valid, `134 (b95abcd)` is the fix. So a single commit dropped the
-`doc/adr.md` key — consistent with an in-place hand-edit, though the exact author
-(manual edit vs. a bad tool run) is not provable from history alone. Either way
-the guard below makes the cause moot.
+**Provenance of #1 (git-verified in THIS repo — reproduce yourself, don't take
+my word).** The dropped-key corruption entered in **commit 133 (`567e43c`)**;
+`131 (628841c)` and `132 (9c7b755)` both parse valid, `134 (b95abcd)` is the fix:
+
+```bash
+git show 567e43c:doc/token_safety_registry.json | python -m json.tool  # -> "Extra data: line 303"
+git show b95abcd:doc/token_safety_registry.json  | python -m json.tool  # -> parses clean
+git show --stat 567e43c   # touched AGENTS.md, CLAUDE.md, doc/token_safety_registry.json (+43/-?), two doc/next reports
+git show --stat b95abcd   # touched CLAUDE.md, doc/token_safety_registry.json, both scripts (the actual fix)
+```
+
+This is one commit dropping the `doc/adr.md` key — consistent with an in-place
+hand-edit, though the exact mechanism (manual edit vs. a bad tool run) isn't
+provable from history alone. Either way the guard below makes the cause moot.
 
 **Fix that removes the whole class of bug.** `scripts/measure_token_registry.py`
 is now **merge-safe** — it re-measures the 33 DOCS_ROOT files and **preserves**
@@ -103,9 +114,11 @@ relay strip.
 
 ## DoD (reproducible in this repo)
 
-- [x] `pytest tests/test_token_registry.py tests/test_kilo_prompt_stats.py tests/test_kilo_proxy_relay.py` — **80 passed** (13 registry + 6 stats + 61 relay)
+- [x] `pytest tests/test_token_registry.py tests/test_kilo_prompt_stats.py tests/test_kilo_proxy_relay.py` — **88 passed** (13 registry + 14 stats + 61 relay)
 - [x] Registry valid JSON, 50 entries, `doc/adr.md` present, no zeroed/CODE_ROOT loss — `python -m json.tool doc/token_safety_registry.json`
-- [x] Freshness/structure guarded by tests — a future dropped key or stale size now fails CI
+- [x] `collect_chat_records()` covered directly: non-chat filtering, `deque(maxlen=N)` tail-only-of-chat behavior, `last=None/0`, malformed JSON / blank lines / non-dict rows, missing file, negative `--last` rejected by argparse
+- [x] `per_request` avg/median/min/max covered directly (`test_per_request_summary_stats_avg_median_min_max`)
+- [x] Freshness/structure caught by `pytest tests/ -q` — that is exactly what [`.github/workflows/test.yml`](../../.github/workflows/test.yml) runs, so a future dropped key or stale size fails that workflow, not "CI" in the abstract
 - [x] `lint_agent_prompts.py` OK
 - [ ] **10× effect** — NOT closed; needs the live A/B above
 
@@ -115,5 +128,7 @@ relay strip.
 .venv/Scripts/python.exe -m pytest tests/test_token_registry.py tests/test_kilo_prompt_stats.py tests/test_kilo_proxy_relay.py -q
 .venv/Scripts/python.exe -m json.tool doc/token_safety_registry.json >/dev/null && echo "registry VALID"
 .venv/Scripts/python.exe scripts/kilo_prompt_content_report.py --last 40   # dry-run, no --json-out
-git log --oneline -4 -- doc/token_safety_registry.json                     # 133 broke it, 134 fixed
+.venv/Scripts/python.exe scripts/kilo_prompt_content_report.py --last -1  # rejected: "--last must be >= 0"
+git show 567e43c:doc/token_safety_registry.json | python -m json.tool     # broken (commit 133)
+git show b95abcd:doc/token_safety_registry.json  | python -m json.tool    # fixed   (commit 134)
 ```

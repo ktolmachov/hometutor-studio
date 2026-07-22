@@ -61,13 +61,6 @@ def collect_chat_records(path: Path, last: int | None = None) -> tuple[int, list
     return total, list(chat)
 
 
-def _load_records(path: Path, last: int | None = None) -> list[dict[str, Any]]:
-    """Back-compat helper: return all dict rows as a list (used by callers/tests
-    that pass an in-memory record list to :func:`build_report`). Prefer
-    :func:`collect_chat_records` for streaming from disk."""
-    return list(_iter_dict_rows(path))
-
-
 def _merge_int_maps(dst: dict[str, int], src: Any) -> None:
     if not isinstance(src, dict):
         return
@@ -249,10 +242,24 @@ def render_text(report: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def _non_negative_int(raw: str) -> int:
+    value = int(raw)
+    if value < 0:
+        raise argparse.ArgumentTypeError(f"--last must be >= 0, got {value}")
+    return value
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--log", type=Path, default=ROOT / "logs" / "kilo_relay.jsonl")
-    parser.add_argument("--last", type=int, default=80, help="Only last N JSONL records (0=all)")
+    parser.add_argument(
+        "--last",
+        type=_non_negative_int,
+        default=80,
+        help="Use the last N instrumented chat-completion records, i.e. rows with "
+        "content_stats (0 = all). Non-chat rows (e.g. /v1/models) are not counted "
+        "toward N.",
+    )
     parser.add_argument("--json-out", type=Path, default=None)
     args = parser.parse_args(argv)
     last = None if args.last == 0 else args.last
