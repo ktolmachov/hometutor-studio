@@ -227,12 +227,13 @@ Cursor шлёт **всю** историю на каждый ход; без Tier 
 Рекомендуемый старт для Cursor→DeepSeek (новая сессия + перезапуск relay):
 
 ```powershell
-# Вариант A — daily launcher (канон):
+# Вариант A — daily launcher (канон; сам clear+set CLOUD_BUDGET_*):
 pwsh -File D:\AI\llama_cpp_server_pack_v1\kilo-relay\Start-KiloRelayDaily.ps1 `
   -UseDeepSeek -RelayProfile CloudBudget -StopExistingRelay `
   -DeepSeekThinking disabled
 
-# Вариант B — ручной env перед scripts/kilo_proxy_relay.py:
+# Вариант B — ручной env перед scripts/kilo_proxy_relay.py
+# (явно перезапишите стейл 24/4000 из прошлой pwsh-сессии):
 $env:KILO_RELAY_UPSTREAM_PRESET = "deepseek"
 $env:KILO_RELAY_SLIM_MODE = "cloud_budget"
 $env:KILO_RELAY_CLOUD_BUDGET_STRIP_CURSOR_RULES = "1"
@@ -246,7 +247,7 @@ $env:KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES = "14"
 $env:KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS = "2000"
 ```
 
-Параметры launcher: `-CloudBudgetKeepLastMessages` / `-CloudBudgetMaxToolResultChars` (дефолт **14 / 2000**; раньше 24/4000 — live log показал in до 26k при активном tool-loop). Окно = count, не char-budget: даже с hist_cut `in=` может превышать 12k/20k — новый чат раньше soft_block. `-UseDeepSeek` + `-RelayProfile Safe` даёт warning (без Tier B).
+Параметры launcher: `-CloudBudgetKeepLastMessages` / `-CloudBudgetMaxToolResultChars` (дефолт **14 / 2000**; раньше 24/4000 — live log показал in до 26k; плато с tools=16 давало ~16–20k). Окно = count, не char-budget: даже с hist_cut `in=` может превышать 12k/20k — новый чат раньше soft_block. В баннере старта проверьте `compress.keep_last_messages=14`. `-UseDeepSeek` + `-RelayProfile Safe` даёт warning (без Tier B).
 В stderr ищите `hist_cut=` / `tr_capped=`; в JSONL — `relay_compress.messages_dropped_history` / `tool_results_capped`. Детали и evidence: [kilo_relay_history_window_tier_b_2026-07-23.md](next/kilo_relay_history_window_tier_b_2026-07-23.md).
 
 ### `KILO_RELAY_SLIM_MODE=local` (дефолт скрипта)

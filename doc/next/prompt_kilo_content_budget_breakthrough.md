@@ -95,10 +95,16 @@ Output
 ## Как пользоваться (оператор)
 
 ```powershell
-# 1) Релей (уже с content_stats)
+# 1) Релей (cloud_budget + Tier B 14/2000). Явно задайте env — стейл 24/4000 в той же pwsh-сессии перебьёт дефолты.
 $env:KILO_RELAY_UPSTREAM_PRESET = "deepseek"
 $env:KILO_RELAY_SLIM_MODE = "cloud_budget"
+$env:KILO_RELAY_CLOUD_BUDGET_STRIP_CURSOR_RULES = "1"
+$env:KILO_RELAY_CLOUD_BUDGET_STRIP_USER_INFO = "1"
+$env:KILO_RELAY_CLOUD_BUDGET_REPLACE_CURSOR_SYSTEM = "1"
+$env:KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES = "14"
+$env:KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS = "2000"
 $env:DEEPSEEK_THINKING = "disabled"
+# Или: Start-KiloRelayDaily.ps1 -UseDeepSeek -RelayProfile CloudBudget -StopExistingRelay
 .\.venv\Scripts\python.exe scripts/kilo_proxy_relay.py
 
 # 2) Новый чат в Cursor → 5–15 ходов (старый JSONL без content_stats не годится)

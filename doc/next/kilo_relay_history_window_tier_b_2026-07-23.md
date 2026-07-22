@@ -146,4 +146,8 @@ Verified against `logs/kilo_relay.jsonl` (not a short post-restart sample):
 
 **Correction to earlier “×15 / goal met” verdict:** that was based on 2 early turns right after restart. Longer tool-heavy traffic shows **24/4000 does not hold ≤12k/≤20k**.
 
-**Default tightened (launcher + docs):** `KEEP_LAST_MESSAGES=14`, `MAX_TOOL_RESULT_CHARS=2000`. Still not a hard char-budget guarantee — start a new chat when `in` climbs past soft/hard rather than waiting for soft_block.
+**Follow-up plateau (same day, tools=16, still 24/4000):** ~15 requests with `in≈15.7–20.3k` (one peak 20311), `msgs≈25`, `hist_cut` 269→305, `saved≈530–650k` chars/turn. Mechanism healthy; budget soft-miss (all >12k), hard almost-ok. Confirms tightening away from 24/4000.
+
+**Default tightened (launcher + docs + docstring examples):** `KEEP_LAST_MESSAGES=14`, `MAX_TOOL_RESULT_CHARS=2000`. Still not a hard char-budget guarantee — start a new chat when `in` climbs past soft/hard rather than waiting for soft_block.
+
+**Ops caveat:** a manual `python scripts/kilo_proxy_relay.py` inherits whatever `KILO_RELAY_CLOUD_BUDGET_*` is already in the shell. If banner shows `keep_last_messages=24`, the process is still on the old knobs — set 14/2000 explicitly or use `-RelayProfile CloudBudget` (clears then sets).

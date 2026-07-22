@@ -130,11 +130,12 @@ Environment variables:
   KILO_RELAY_CLOUD_BUDGET_STRIP_USER_INFO=1
   KILO_RELAY_CLOUD_BUDGET_STRIP_TASK_MANAGEMENT=1
   KILO_RELAY_CLOUD_BUDGET_STRIP_CURSOR_RULES=1
-  KILO_RELAY_CLOUD_BUDGET_REPLACE_CURSOR_SYSTEM=1   # редко: заменить system stub-ом
+  KILO_RELAY_CLOUD_BUDGET_REPLACE_CURSOR_SYSTEM=1   # stub system (CloudBudget launcher включает)
   KILO_RELAY_CLOUD_BUDGET_SIMPLE_CHAT_MAX_USER_CHARS=700  # если задано — снятие tools на короткой реплике
-  KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES=24   # opt-in: system + последние N сообщений (0=выкл)
-  KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS=4000  # opt-in: cap role=tool content (0=выкл)
+  KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES=14   # opt-in Tier B: system + последние N (0=выкл); было 24
+  KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS=2000  # opt-in Tier B: cap role=tool (0=выкл); было 4000
   # В cloud_budget generic KILO_RELAY_KEEP_LAST_MESSAGES / KILO_RELAY_MAX_TOOL_RESULT_CHARS НЕ fallback — только *_CLOUD_BUDGET_*
+  # 14/2000 — канон launcher CloudBudget после live log 2026-07-23 (24/4000 → in до ~26k на tool-heavy).
   KILO_RELAY_KEEP_LAST_MESSAGES=0   # для off/local (не cloud_budget)
   KILO_RELAY_MAX_TOOL_RESULT_CHARS=0
 
