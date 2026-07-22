@@ -92,8 +92,10 @@ def test_check_readset_merges_registry() -> None:
             rel_path
             for rel_path, meta in registry.get("files", {}).items()
             if meta.get("full_read") == "forbidden"
-            and (ROOT / rel_path.replace("/", "\\")).exists()
-            or (ROOT / rel_path).exists()
+            and (
+                (ROOT / rel_path.replace("/", "\\")).exists()
+                or (ROOT / rel_path).exists()
+            )
         ),
         None,
     )

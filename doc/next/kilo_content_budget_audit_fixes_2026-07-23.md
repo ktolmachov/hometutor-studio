@@ -22,14 +22,22 @@ Cursor + relay + DeepSeek running).
 | 6 | `--last 40` sliced raw rows, not chat rows | `_load_records` no longer truncates; `build_report(records, last)` filters chat **then** slices |
 | 9 | Did new always-on rules inflate every prompt? | Now measurable: `rules` fragment ≈ **1.8k tok/request** (see below) |
 
-**Root cause of #1–#3:** the registry was hand-edited. Now
-`scripts/measure_token_registry.py` is **merge-safe** — it re-measures the 33
-DOCS_ROOT files and **preserves** the 17 CODE_ROOT `app/*` / `requirements.txt`
-entries (which cannot be measured from this tree) instead of zeroing them.
-Regenerate with:
+**Provenance of #1 (git-verified, not assumed).** The dropped-key corruption
+entered in **commit 133 (`567e43c`)**; `131 (628841c)` and `132 (9c7b755)` both
+parse valid, `134 (b95abcd)` is the fix. So a single commit dropped the
+`doc/adr.md` key — consistent with an in-place hand-edit, though the exact author
+(manual edit vs. a bad tool run) is not provable from history alone. Either way
+the guard below makes the cause moot.
+
+**Fix that removes the whole class of bug.** `scripts/measure_token_registry.py`
+is now **merge-safe** — it re-measures the 33 DOCS_ROOT files and **preserves**
+the 17 CODE_ROOT `app/*` / `requirements.txt` entries (which cannot be measured
+from this tree) instead of zeroing them. The registry is now *generated*, not
+hand-edited; regenerate + validate with:
 
 ```bash
 .venv/Scripts/python.exe scripts/measure_token_registry.py --write
+.venv/Scripts/python.exe -m json.tool doc/token_safety_registry.json >/dev/null && echo VALID
 ```
 
 ---
@@ -50,36 +58,62 @@ leader; `rules` always-on tax ≈**1.8k tok/req**; `system` ≈1.8k tok/req.
 
 ---
 
-## Order-of-magnitude levers (ranked by savings × 1/quality-risk)
+## Levers toward the 10× *target* (ranked by savings × 1/quality-risk)
 
-1. **New chat when `msgs≫15` / `in` hard.** Dominant lever: a long session was
-   >100k `in`; a fresh chat drops the message tail (~250 msgs) to tens of k.
-   No quality loss. This is where the *order of magnitude* actually comes from.
+> 10× is a **target hypothesis**, not a measured result. It is plausible from the
+> gap between a >100k-token long session and an ~8.6k-token fresh turn, but those
+> are different tasks/lengths/configs — see "Not yet proven" below.
+
+1. **New chat when `msgs≫15` / `in` hard — *with a compact handoff*.** Dominant
+   lever: a long session was >100k `in`; a fresh chat drops the message tail
+   (~250 msgs) to tens of k. **Not free:** a fresh chat loses decision history,
+   prior tool results, task constraints and any open tool-loop. Quality holds
+   **only if** a short handoff-summary (goal, constraints, done-so-far, next step)
+   is carried over. This is where the *order of magnitude* comes from.
 2. **Never full-read heavy SSoT.** Registry now flags the real giants:
    `backlog_registry.yaml` ~123k tok, `changelog.md` ~67k, `closed_iterations.md`
    ~56k, `epochs/e4.md` ~23k, `adr.md` ~22k. One accidental full-read ≈ a whole
    budget. `check_readset.py` + `full_read:"forbidden"` enforce section/grep reads.
-3. **`cloud_budget` strip of operational XML** (`rules`, `available_skills`,
-   `mcp_*`): ~1.8k tok/req always-on, recurring every turn.
+3. **Operational-XML tax vs. actual saving — do not conflate.** Measured:
+   `rules` ≈**1.8k tok/req** constant tax. But current `cloud_budget` only saves
+   ≈**10 tok/req** — it does *not* strip `rules`. Removing `rules` needs a
+   **separate opt-in strip flag**, and that carries a policy-loss risk, so it is
+   **not** a zero-risk lever. Three distinct numbers:
+   - measured tax: `rules` ≈1.8k tok/req
+   - current `cloud_budget` saving: ≈10 tok/req
+   - potential saving *if* `rules` strip is enabled: ≈1.8k tok/req (policy risk)
 4. **Tool-result discipline** — biggest single kind; prune/summarize stale
    `tool_result` history to cap `msgs` growth.
 
-The 10× target = **new chat + no full-read of heavy SSoT**, not any single relay
-strip.
+The target = **new chat (+handoff) + no full-read of heavy SSoT**, not any single
+relay strip.
 
 ---
 
-## Not done here (needs live infra) — follow-ups
+## Not yet proven — follow-ups (needs live infra)
 
-- Real A/B: fresh chat, identical 5–15 tasks, compare `prompt_tokens` before/after
-  policy. Only this can claim "breakthrough."
+- **10× is unproven.** Real A/B required: fresh chat, identical 5–15 tasks, same
+  config, compare real `prompt_tokens` before/after. The 3-request sample uses
+  `chars/4` heuristics and has `prompt_tokens n=0`; it ranks pollution, it does
+  not measure the effect of the policy edits.
 - Re-run report **with usage capture** so `per_request.prompt_tokens` is populated.
 - CODE_ROOT `D:\Projects\hometutor\{AGENTS,CLAUDE}.md`: apply the same full-read
   contradiction fix if those copies are SSoT for agents there (separate repo —
   not edited without sign-off).
 
-## DoD
+## DoD (reproducible in this repo)
 
-- [x] `pytest tests/test_token_registry.py tests/test_kilo_prompt_stats.py tests/test_kilo_proxy_relay.py` — **80 passed**
-- [x] Registry valid JSON, 50 entries, no zeroed/CODE_ROOT loss
+- [x] `pytest tests/test_token_registry.py tests/test_kilo_prompt_stats.py tests/test_kilo_proxy_relay.py` — **80 passed** (13 registry + 6 stats + 61 relay)
+- [x] Registry valid JSON, 50 entries, `doc/adr.md` present, no zeroed/CODE_ROOT loss — `python -m json.tool doc/token_safety_registry.json`
+- [x] Freshness/structure guarded by tests — a future dropped key or stale size now fails CI
 - [x] `lint_agent_prompts.py` OK
+- [ ] **10× effect** — NOT closed; needs the live A/B above
+
+**Reproduce evidence:**
+
+```bash
+.venv/Scripts/python.exe -m pytest tests/test_token_registry.py tests/test_kilo_prompt_stats.py tests/test_kilo_proxy_relay.py -q
+.venv/Scripts/python.exe -m json.tool doc/token_safety_registry.json >/dev/null && echo "registry VALID"
+.venv/Scripts/python.exe scripts/kilo_prompt_content_report.py --last 40   # dry-run, no --json-out
+git log --oneline -4 -- doc/token_safety_registry.json                     # 133 broke it, 134 fixed
+```

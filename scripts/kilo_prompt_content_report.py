@@ -12,21 +12,25 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from collections import defaultdict
+from collections import defaultdict, deque
 from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def _load_records(path: Path, last: int | None = None) -> list[dict[str, Any]]:
-    """Load all JSONL dict rows. ``last`` is applied to *chat* records in
-    :func:`build_report`, never to raw rows — otherwise non-chat routes
-    (/v1/models, health checks) inside the tail window silently shrink the
-    chat sample below the requested N."""
-    rows: list[dict[str, Any]] = []
+def _is_chat_record(obj: Any) -> bool:
+    return (
+        isinstance(obj, dict)
+        and str(obj.get("path") or "").startswith("/v1/chat/completions")
+        and isinstance(obj.get("content_stats"), dict)
+    )
+
+
+def _iter_dict_rows(path: Path) -> Any:
+    """Yield JSONL dict rows one at a time (no full-file materialization)."""
     if not path.is_file():
-        return rows
+        return
     with path.open(encoding="utf-8") as fh:
         for line in fh:
             line = line.strip()
@@ -37,8 +41,31 @@ def _load_records(path: Path, last: int | None = None) -> list[dict[str, Any]]:
             except json.JSONDecodeError:
                 continue
             if isinstance(obj, dict):
-                rows.append(obj)
-    return rows
+                yield obj
+
+
+def collect_chat_records(path: Path, last: int | None = None) -> tuple[int, list[dict[str, Any]]]:
+    """Stream the JSONL and keep only the last N *chat* records.
+
+    Uses a bounded ``deque(maxlen=last)`` so a large/growing log is never fully
+    held in memory, and ``last`` slices the chat sample (not raw rows): non-chat
+    routes in the tail window can no longer shrink the sample below N. Returns
+    ``(records_total, chat_records)``.
+    """
+    total = 0
+    chat: deque[dict[str, Any]] = deque(maxlen=last) if last and last > 0 else deque()
+    for obj in _iter_dict_rows(path):
+        total += 1
+        if _is_chat_record(obj):
+            chat.append(obj)
+    return total, list(chat)
+
+
+def _load_records(path: Path, last: int | None = None) -> list[dict[str, Any]]:
+    """Back-compat helper: return all dict rows as a list (used by callers/tests
+    that pass an in-memory record list to :func:`build_report`). Prefer
+    :func:`collect_chat_records` for streaming from disk."""
+    return list(_iter_dict_rows(path))
 
 
 def _merge_int_maps(dst: dict[str, int], src: Any) -> None:
@@ -83,12 +110,12 @@ def _summary_stats(values: list[int | float]) -> dict[str, Any]:
     }
 
 
-def build_report(records: list[dict[str, Any]], last: int | None = None) -> dict[str, Any]:
-    chat = [
-        r
-        for r in records
-        if str(r.get("path") or "").startswith("/v1/chat/completions") and isinstance(r.get("content_stats"), dict)
-    ]
+def build_report(
+    records: list[dict[str, Any]],
+    last: int | None = None,
+    records_total: int | None = None,
+) -> dict[str, Any]:
+    chat = [r for r in records if _is_chat_record(r)]
     if last is not None and last > 0:
         chat = chat[-last:]
     role: dict[str, int] = defaultdict(int)
@@ -149,7 +176,7 @@ def build_report(records: list[dict[str, Any]], last: int | None = None) -> dict
     agents_hits = [r for r in path_rows if "agents.md" in str(r["path"]).lower() or "claude.md" in str(r["path"]).lower()]
 
     return {
-        "records_total": len(records),
+        "records_total": records_total if records_total is not None else len(records),
         "chat_with_content_stats": len(chat),
         "note": "top_* values are AGGREGATE sums across all chat requests in the "
         "sample, NOT the cost of a single prompt; divide by per_request.*.n or "
@@ -229,8 +256,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--json-out", type=Path, default=None)
     args = parser.parse_args(argv)
     last = None if args.last == 0 else args.last
-    records = _load_records(args.log)
-    report = build_report(records, last)
+    records_total, chat_records = collect_chat_records(args.log, last)
+    # chat_records is already sliced to the last N chat rows by the deque; pass
+    # last=None so build_report does not slice a second time.
+    report = build_report(chat_records, last=None, records_total=records_total)
     text = render_text(report)
     print(text)
     if report["chat_with_content_stats"] == 0:
