@@ -154,8 +154,11 @@ def test_collect_chat_records_filters_non_chat_rows(tmp_path: Path):
     log = tmp_path / "mixed.jsonl"
     rows = [_chat_row(1), {"path": "/v1/models"}, _chat_row(2), {"path": "/healthz"}]
     log.write_text("\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8")
-    total, chat = report.collect_chat_records(log, last=None)
-    assert total == 4
+    counters, chat = report.collect_chat_records(log, last=None)
+    assert counters["dict_records"] == 4
+    assert counters["invalid_json"] == 0
+    assert counters["non_dict_records"] == 0
+    assert counters["chat_with_stats"] == 2
     assert len(chat) == 2
     assert all(r["path"] == "/v1/chat/completions" for r in chat)
 
@@ -169,8 +172,9 @@ def test_collect_chat_records_last_keeps_tail_chat_only(tmp_path: Path):
         rows.append(_chat_row(i))
         rows.append({"path": "/v1/models"})
     log.write_text("\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8")
-    total, chat = report.collect_chat_records(log, last=3)
-    assert total == 20
+    counters, chat = report.collect_chat_records(log, last=3)
+    assert counters["lines_total"] == 20
+    assert counters["dict_records"] == 20
     assert len(chat) == 3
     assert [r["content_stats"]["original"]["messages_count"] for r in chat] == [7, 8, 9]
 
@@ -185,7 +189,9 @@ def test_collect_chat_records_last_none_and_zero_return_all(tmp_path: Path):
     assert len(chat_zero) == 5
 
 
-def test_collect_chat_records_skips_malformed_json_and_blank_lines(tmp_path: Path):
+def test_collect_chat_records_counts_malformed_and_non_dict_lines_without_hiding_them(tmp_path: Path):
+    """A partially corrupted log must not look externally normal: malformed
+    JSON and valid-but-non-dict JSON are counted, not silently discarded."""
     log = tmp_path / "dirty.jsonl"
     log.write_text(
         "\n".join(
@@ -200,14 +206,24 @@ def test_collect_chat_records_skips_malformed_json_and_blank_lines(tmp_path: Pat
         + "\n",
         encoding="utf-8",
     )
-    total, chat = report.collect_chat_records(log, last=None)
-    assert total == 2  # only the two dict rows count; malformed/blank/non-dict skipped
+    counters, chat = report.collect_chat_records(log, last=None)
+    assert counters["lines_total"] == 4  # blank line excluded, 4 non-blank lines
+    assert counters["dict_records"] == 2
+    assert counters["invalid_json"] == 1
+    assert counters["non_dict_records"] == 1
+    assert counters["chat_with_stats"] == 2
     assert len(chat) == 2
 
 
-def test_collect_chat_records_missing_file_returns_empty(tmp_path: Path):
-    total, chat = report.collect_chat_records(tmp_path / "does_not_exist.jsonl", last=10)
-    assert total == 0
+def test_collect_chat_records_missing_file_returns_empty_counters(tmp_path: Path):
+    counters, chat = report.collect_chat_records(tmp_path / "does_not_exist.jsonl", last=10)
+    assert counters == {
+        "lines_total": 0,
+        "dict_records": 0,
+        "invalid_json": 0,
+        "non_dict_records": 0,
+        "chat_with_stats": 0,
+    }
     assert chat == []
 
 
@@ -218,6 +234,32 @@ def test_report_main_rejects_negative_last(tmp_path: Path):
     with pytest.raises(SystemExit) as exc:
         report.main(["--log", str(log), "--last", "-1"])
     assert exc.value.code == 2
+
+
+def test_report_main_missing_log_file_is_a_distinct_error(tmp_path: Path, capsys):
+    """A missing/mistyped --log path must not be reported as 'no content_stats
+    yet — restart relay': that message implies the relay is fine and just hasn't
+    seen chat traffic, which is misleading for a simple path typo."""
+    missing = tmp_path / "does_not_exist.jsonl"
+    rc = report.main(["--log", str(missing)])
+    assert rc == 3
+    err = capsys.readouterr().err
+    assert "not found" in err.lower()
+    assert str(missing) in err
+    assert "restart relay" not in err.lower()
+
+
+def test_report_main_shows_scan_counters_for_partially_corrupted_log(tmp_path: Path, capsys):
+    log = tmp_path / "dirty.jsonl"
+    log.write_text(
+        "\n".join([json.dumps(_chat_row(1)), "{not valid json", json.dumps(_chat_row(2))]) + "\n",
+        encoding="utf-8",
+    )
+    rc = report.main(["--log", str(log)])
+    assert rc == 0
+    out = capsys.readouterr().out
+    assert "invalid_json=1" in out
+    assert "malformed-JSON line" in out
 
 
 def test_build_report_records_total_vs_chat_with_stats_differ():
