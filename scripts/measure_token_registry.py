@@ -90,26 +90,60 @@ MEASURE_PATHS = sorted(
 )
 
 
-def measure(rel: str) -> dict:
+def _load_existing() -> dict:
+    if REGISTRY_OUT.is_file():
+        try:
+            return json.loads(REGISTRY_OUT.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            return {}
+    return {}
+
+
+def measure(rel: str, existing: dict | None = None) -> dict:
+    """Measure ``rel`` if present locally; otherwise preserve the existing entry.
+
+    Two-root aware: ``app/*`` and ``requirements.txt`` live under CODE_ROOT and are
+    NOT present in this working tree, so re-measuring here would zero them. For any
+    file missing locally we return the previously recorded entry unchanged, so a
+    ``--write`` regeneration from DOCS_ROOT never destroys CODE_ROOT numbers.
+
+    Hints: apply the canonical FORBIDDEN_HINTS entry when present; otherwise carry
+    over any ``full_read``/``safe_hint`` already recorded (e.g. adr_021) so extra
+    forbidden entries are not silently downgraded.
+    """
     path = ROOT / rel.replace("/", os.sep)
     if not path.is_file():
+        if existing:
+            return dict(existing)
         return {"lines": 0, "bytes": 0, "est_tokens": 0, "missing": True}
     raw = path.read_bytes()
     text = raw.decode("utf-8", errors="ignore")
-    lines = len(text.splitlines())
     b = len(raw)
-    est = b // CHARS_PER_TOKEN
-    meta: dict = {"lines": lines, "bytes": b, "est_tokens": est}
+    meta: dict = {"lines": len(text.splitlines()), "bytes": b, "est_tokens": b // CHARS_PER_TOKEN}
     if rel in FORBIDDEN_HINTS:
         meta["full_read"] = "forbidden"
         meta["safe_hint"] = FORBIDDEN_HINTS[rel]
+    elif existing and existing.get("full_read") == "forbidden":
+        meta["full_read"] = "forbidden"
+        if existing.get("safe_hint"):
+            meta["safe_hint"] = existing["safe_hint"]
     return meta
 
 
 def build_document() -> dict:
+    existing_files: dict[str, dict] = _load_existing().get("files", {})
+    # Union of curated MEASURE_PATHS and whatever the registry already tracks, so
+    # extra entries (e.g. doc/adr_021_*.md) survive and are re-measured if local.
+    all_paths = sorted(set(MEASURE_PATHS) | set(existing_files.keys()))
     files: dict[str, dict] = {}
-    for rel in MEASURE_PATHS:
-        files[rel.replace("\\", "/")] = measure(rel)
+    for rel in all_paths:
+        key = rel.replace("\\", "/")
+        entry = measure(rel, existing_files.get(key))
+        # Skip curated paths that are neither present locally nor previously
+        # recorded — a zeroed CODE_ROOT stub would pollute the registry.
+        if entry.get("missing") and key not in existing_files:
+            continue
+        files[key] = entry
     return {
         "measured_at": date.today().isoformat(),
         "chars_per_token": CHARS_PER_TOKEN,

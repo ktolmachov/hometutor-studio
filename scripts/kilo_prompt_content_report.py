@@ -19,7 +19,11 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def _load_records(path: Path, last: int | None) -> list[dict[str, Any]]:
+def _load_records(path: Path, last: int | None = None) -> list[dict[str, Any]]:
+    """Load all JSONL dict rows. ``last`` is applied to *chat* records in
+    :func:`build_report`, never to raw rows — otherwise non-chat routes
+    (/v1/models, health checks) inside the tail window silently shrink the
+    chat sample below the requested N."""
     rows: list[dict[str, Any]] = []
     if not path.is_file():
         return rows
@@ -34,8 +38,6 @@ def _load_records(path: Path, last: int | None) -> list[dict[str, Any]]:
                 continue
             if isinstance(obj, dict):
                 rows.append(obj)
-    if last is not None and last > 0:
-        rows = rows[-last:]
     return rows
 
 
@@ -64,12 +66,31 @@ def _merge_path_rows(dst: dict[str, dict[str, int]], rows: Any) -> None:
             continue
 
 
-def build_report(records: list[dict[str, Any]]) -> dict[str, Any]:
+def _summary_stats(values: list[int | float]) -> dict[str, Any]:
+    """avg / median / min / max / n for a per-request metric."""
+    nums = [v for v in values if isinstance(v, (int, float))]
+    if not nums:
+        return {"n": 0, "avg": None, "median": None, "min": None, "max": None}
+    ordered = sorted(nums)
+    mid = len(ordered) // 2
+    median = ordered[mid] if len(ordered) % 2 else (ordered[mid - 1] + ordered[mid]) / 2
+    return {
+        "n": len(nums),
+        "avg": round(sum(nums) / len(nums), 1),
+        "median": round(median, 1),
+        "min": min(nums),
+        "max": max(nums),
+    }
+
+
+def build_report(records: list[dict[str, Any]], last: int | None = None) -> dict[str, Any]:
     chat = [
         r
         for r in records
         if str(r.get("path") or "").startswith("/v1/chat/completions") and isinstance(r.get("content_stats"), dict)
     ]
+    if last is not None and last > 0:
+        chat = chat[-last:]
     role: dict[str, int] = defaultdict(int)
     kind: dict[str, int] = defaultdict(int)
     frag: dict[str, int] = defaultdict(int)
@@ -78,12 +99,21 @@ def build_report(records: list[dict[str, Any]]) -> dict[str, Any]:
     tools_chars: dict[str, int] = defaultdict(int)
     usage_in = 0
     usage_n = 0
+    req_msg_chars: list[int] = []
+    req_msg_counts: list[int] = []
+    req_prompt_tokens: list[int] = []
 
     for rec in chat:
         cs = rec.get("content_stats") or {}
         src = cs.get("original") or cs.get("forwarded") or {}
         if not isinstance(src, dict):
             continue
+        total_chars = src.get("total_message_chars")
+        if not isinstance(total_chars, (int, float)):
+            total_chars = sum(int(v) for v in (src.get("role_chars") or {}).values() if isinstance(v, (int, float)))
+        req_msg_chars.append(int(total_chars))
+        if isinstance(src.get("messages_count"), (int, float)):
+            req_msg_counts.append(int(src["messages_count"]))
         _merge_int_maps(role, src.get("role_chars"))
         _merge_int_maps(kind, src.get("kind_chars"))
         _merge_int_maps(frag, src.get("fragment_chars"))
@@ -99,8 +129,10 @@ def build_report(records: list[dict[str, Any]]) -> dict[str, Any]:
         usage = (rec.get("response") or {}).get("usage") if isinstance(rec.get("response"), dict) else None
         if isinstance(usage, dict) and usage.get("prompt_tokens") is not None:
             try:
-                usage_in += int(usage["prompt_tokens"])
+                pt = int(usage["prompt_tokens"])
+                usage_in += pt
                 usage_n += 1
+                req_prompt_tokens.append(pt)
             except (TypeError, ValueError):
                 pass
 
@@ -119,6 +151,14 @@ def build_report(records: list[dict[str, Any]]) -> dict[str, Any]:
     return {
         "records_total": len(records),
         "chat_with_content_stats": len(chat),
+        "note": "top_* values are AGGREGATE sums across all chat requests in the "
+        "sample, NOT the cost of a single prompt; divide by per_request.*.n or "
+        "read per_request for a one-prompt view.",
+        "per_request": {
+            "message_chars": _summary_stats(req_msg_chars),
+            "messages_count": _summary_stats(req_msg_counts),
+            "prompt_tokens": _summary_stats(req_prompt_tokens),
+        },
         "usage_prompt_tokens_sum": usage_in,
         "usage_prompt_requests": usage_n,
         "usage_prompt_tokens_avg": round(usage_in / usage_n, 1) if usage_n else None,
@@ -133,13 +173,31 @@ def build_report(records: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def render_text(report: dict[str, Any]) -> str:
+    pr = report.get("per_request", {})
+
+    def _fmt(stats: dict[str, Any], unit: str) -> str:
+        if not stats or not stats.get("n"):
+            return "n=0"
+        return (
+            f"n={stats['n']} avg={stats['avg']}{unit} median={stats['median']}{unit} "
+            f"min={stats['min']}{unit} max={stats['max']}{unit}"
+        )
+
     lines = [
         "=== kilo_prompt_content_report ===",
         f"records={report['records_total']} chat_with_stats={report['chat_with_content_stats']}",
         f"usage_in_sum={report['usage_prompt_tokens_sum']} avg={report['usage_prompt_tokens_avg']} "
         f"(n={report['usage_prompt_requests']})",
         "",
-        "-- top kinds --",
+        "-- per request (one-prompt view) --",
+        f"  prompt_tokens : {_fmt(pr.get('prompt_tokens', {}), '')}",
+        f"  message_chars : {_fmt(pr.get('message_chars', {}), '')}",
+        f"  messages_count: {_fmt(pr.get('messages_count', {}), '')}",
+        "",
+        "NOTE: top_* below are AGGREGATE sums across ALL chat requests in the sample,",
+        "      not the cost of one prompt. Use per-request block above for a single turn.",
+        "",
+        "-- top kinds (aggregate sums) --",
     ]
     for row in report["top_kinds"][:15]:
         lines.append(f"  {row['chars']:>10} (~{row['est_tok']} tok)  {row['key']}")
@@ -171,8 +229,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--json-out", type=Path, default=None)
     args = parser.parse_args(argv)
     last = None if args.last == 0 else args.last
-    records = _load_records(args.log, last)
-    report = build_report(records)
+    records = _load_records(args.log)
+    report = build_report(records, last)
     text = render_text(report)
     print(text)
     if report["chat_with_content_stats"] == 0:

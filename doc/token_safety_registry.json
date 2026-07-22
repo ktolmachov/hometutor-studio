@@ -1,11 +1,25 @@
 {
-  "measured_at": "2026-07-22",
+  "measured_at": "2026-07-23",
   "chars_per_token": 4,
   "budgets": {
     "target_input_tokens": 12000,
     "hard_input_tokens": 20000
   },
   "files": {
+    "AGENTS.md": {
+      "lines": 175,
+      "bytes": 10567,
+      "est_tokens": 2641,
+      "full_read": "forbidden",
+      "safe_hint": "rg -n \"^## \" AGENTS.md  # section-only; never Read-tool — already in <rules>"
+    },
+    "CLAUDE.md": {
+      "lines": 387,
+      "bytes": 17810,
+      "est_tokens": 4452,
+      "full_read": "forbidden",
+      "safe_hint": "rg -n \"^## \" CLAUDE.md  # section-only; never Read-tool — duplicates always-on rules"
+    },
     "app/api.py": {
       "lines": 128,
       "bytes": 4560,
@@ -96,121 +110,108 @@
       "bytes": 4160,
       "est_tokens": 1040
     },
-    "AGENTS.md": {
-      "lines": 174,
-      "bytes": 7304,
-      "est_tokens": 1826,
-      "full_read": "forbidden",
-      "safe_hint": "rg -n \"^## \" AGENTS.md  # section-only; never Read-tool — already in <rules>"
-    },
-    "CLAUDE.md": {
-      "lines": 376,
-      "bytes": 15280,
-      "est_tokens": 3820,
-      "full_read": "forbidden",
-      "safe_hint": "rg -n \"^## \" CLAUDE.md  # section-only; never Read-tool — duplicates always-on rules"
-    },
-      "lines": 890,
-      "bytes": 69476,
-      "est_tokens": 17369,
+    "doc/adr.md": {
+      "lines": 1138,
+      "bytes": 87430,
+      "est_tokens": 21857,
       "full_read": "forbidden",
       "safe_hint": "## Status table or single ADR section only"
     },
     "doc/adr_021_smart_router_rag_modes.md": {
       "lines": 552,
-      "bytes": 46557,
-      "est_tokens": 11639,
+      "bytes": 46104,
+      "est_tokens": 11526,
       "full_read": "forbidden",
       "safe_hint": "rg -n \"Phase 4|GlobalAnalyticsJob|global analytics|Global summaries|Phase 5|ADR-021a|architecture lifts\" doc/adr_021_smart_router_rag_modes.md"
     },
     "doc/agent_workflow.md": {
-      "lines": 76,
-      "bytes": 6993,
-      "est_tokens": 1748
+      "lines": 78,
+      "bytes": 7255,
+      "est_tokens": 1813
     },
     "doc/agent_workflow_arch_review.md": {
-      "lines": 522,
-      "bytes": 33138,
-      "est_tokens": 8284
+      "lines": 534,
+      "bytes": 34758,
+      "est_tokens": 8689
     },
     "doc/agent_workflow_cycle.md": {
       "lines": 158,
-      "bytes": 7571,
+      "bytes": 7569,
       "est_tokens": 1892
     },
     "doc/agent_workflow_rules.md": {
       "lines": 110,
-      "bytes": 9096,
-      "est_tokens": 2274
+      "bytes": 9206,
+      "est_tokens": 2301
     },
     "doc/agent_workflow_templates.md": {
-      "lines": 371,
-      "bytes": 21831,
-      "est_tokens": 5457,
+      "lines": 383,
+      "bytes": 23039,
+      "est_tokens": 5759,
       "full_read": "forbidden",
       "safe_hint": "rg -n \"^## \" doc/agent_workflow_templates.md  # one template section only"
     },
     "doc/agent_workflow_test_bundles.md": {
       "lines": 304,
-      "bytes": 12104,
-      "est_tokens": 3026
+      "bytes": 12408,
+      "est_tokens": 3102
     },
     "doc/api_reference.md": {
-      "lines": 256,
-      "bytes": 13416,
-      "est_tokens": 3354
+      "lines": 300,
+      "bytes": 18141,
+      "est_tokens": 4535
     },
     "doc/architecture.md": {
-      "lines": 728,
-      "bytes": 35345,
-      "est_tokens": 8836,
+      "lines": 807,
+      "bytes": 42870,
+      "est_tokens": 10717,
       "full_read": "forbidden",
       "safe_hint": "module list or single ## section only"
     },
     "doc/backlog_registry.yaml": {
-      "lines": 10047,
+      "lines": 10046,
       "bytes": 493962,
       "est_tokens": 123490,
       "full_read": "forbidden",
       "safe_hint": "rg -n \"^  <PACKAGE_ID>:\" doc/backlog_registry.yaml  # one package block only"
     },
     "doc/changelog.md": {
-      "lines": 1790,
-      "bytes": 160080,
-      "est_tokens": 40020,
+      "lines": 2728,
+      "bytes": 267648,
+      "est_tokens": 66912,
       "full_read": "forbidden",
       "safe_hint": "tail / last 2-3 entries or append stub only"
     },
     "doc/cjm.md": {
-      "lines": 331,
-      "bytes": 31257,
-      "est_tokens": 7814,
+      "lines": 338,
+      "bytes": 32808,
+      "est_tokens": 8202,
       "full_read": "forbidden",
       "safe_hint": "single journey / pain-point section only"
     },
     "doc/closed_iterations.md": {
-      "lines": 1572,
-      "bytes": 148595,
-      "est_tokens": 37148,
+      "lines": 2285,
+      "bytes": 223567,
+      "est_tokens": 55891,
       "full_read": "forbidden",
       "safe_hint": "rg -n \"^## \" doc/closed_iterations.md  # one closed package section only"
     },
     "doc/conventions.md": {
       "lines": 50,
-      "bytes": 4266,
-      "est_tokens": 1066
+      "bytes": 4378,
+      "est_tokens": 1094
     },
     "doc/conventions_architecture.md": {
-      "lines": 115,
-      "bytes": 16269,
-      "est_tokens": 4067,
+      "lines": 121,
+      "bytes": 18854,
+      "est_tokens": 4713,
       "full_read": "forbidden",
       "safe_hint": "rg -n \"^## \" doc/conventions_architecture.md  # one section only"
     },
     "doc/conventions_reference.md": {
-      "lines": 75,
-      "bytes": 11542,
-      "est_tokens": 2885,
+      "lines": 76,
+      "bytes": 12030,
+      "est_tokens": 3007,
       "full_read": "forbidden",
       "safe_hint": "rg -n \"^## \" doc/conventions_reference.md  # one section only"
     },
@@ -223,28 +224,28 @@
     },
     "doc/observability_slo.md": {
       "lines": 253,
-      "bytes": 12305,
-      "est_tokens": 3076
+      "bytes": 12558,
+      "est_tokens": 3139
     },
     "doc/tasklist.md": {
-      "lines": 70,
-      "bytes": 4118,
-      "est_tokens": 1029
+      "lines": 104,
+      "bytes": 8282,
+      "est_tokens": 2070
     },
     "doc/technical_specification.md": {
       "lines": 271,
-      "bytes": 7552,
-      "est_tokens": 1888
+      "bytes": 7548,
+      "est_tokens": 1887
     },
     "doc/user_guide.md": {
-      "lines": 299,
-      "bytes": 13096,
-      "est_tokens": 3274
+      "lines": 626,
+      "bytes": 44896,
+      "est_tokens": 11224
     },
     "doc/user_guide_details.md": {
-      "lines": 487,
-      "bytes": 25275,
-      "est_tokens": 6318
+      "lines": 766,
+      "bytes": 46787,
+      "est_tokens": 11696
     },
     "requirements.txt": {
       "lines": 35,
@@ -253,49 +254,49 @@
     },
     "scripts/check_backlog_drift.py": {
       "lines": 409,
-      "bytes": 15537,
-      "est_tokens": 3884
+      "bytes": 15946,
+      "est_tokens": 3986
     },
     "scripts/check_llm_context_gate.py": {
       "lines": 47,
-      "bytes": 1672,
-      "est_tokens": 418
+      "bytes": 1719,
+      "est_tokens": 429
     },
     "scripts/context_cart.py": {
       "lines": 324,
-      "bytes": 10434,
-      "est_tokens": 2608
+      "bytes": 10758,
+      "est_tokens": 2689
     },
     "scripts/generate_orchestration_prompt.py": {
-      "lines": 1024,
-      "bytes": 43588,
-      "est_tokens": 10897,
+      "lines": 1096,
+      "bytes": 46829,
+      "est_tokens": 11707,
       "full_read": "forbidden",
       "safe_hint": "rg -n \"^class|^def \" scripts/generate_orchestration_prompt.py"
     },
     "scripts/run_autonomous.py": {
-      "lines": 2819,
-      "bytes": 128020,
-      "est_tokens": 32005,
+      "lines": 2875,
+      "bytes": 130535,
+      "est_tokens": 32633,
       "full_read": "forbidden",
       "safe_hint": "rg -n \"^class|^def \" scripts/run_autonomous.py"
     },
     "tests/conftest.py": {
-      "lines": 85,
-      "bytes": 3063,
-      "est_tokens": 765
+      "lines": 137,
+      "bytes": 5298,
+      "est_tokens": 1324
     },
     "tests/test_api.py": {
-      "lines": 1672,
-      "bytes": 59235,
-      "est_tokens": 14808,
+      "lines": 1767,
+      "bytes": 64483,
+      "est_tokens": 16120,
       "full_read": "forbidden",
       "safe_hint": "rg -n \"def test_\" tests/test_api.py  # then open one test"
     },
     "tests/test_query_service.py": {
-      "lines": 1089,
-      "bytes": 43921,
-      "est_tokens": 10980,
+      "lines": 1383,
+      "bytes": 54796,
+      "est_tokens": 13699,
       "full_read": "forbidden",
       "safe_hint": "rg -n \"def test_\" tests/test_query_service.py  # one case"
     }

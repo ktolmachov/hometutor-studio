@@ -179,9 +179,14 @@ SKIP:
 
 ```
 Read ONLY (Phase 1 — Conventions Audit):
-- doc/conventions.md (full, 710 tokens)
-- doc/conventions_architecture.md (full, 3k tokens)
-- doc/conventions_reference.md (full, 1.9k tokens)
+- doc/conventions.md (full, ~1k tokens — small, not forbidden)
+- doc/conventions_architecture.md — rg "^## " then ONE target ## section (forbidden full-read)
+- doc/conventions_reference.md — rg "^## " then ONE target ## section (forbidden full-read)
+
+NOTE: conventions_architecture.md / conventions_reference.md are on the Forbidden
+Full-Read list above — the section-only rule is absolute; this example is NOT an
+exception. If a review truly needs the whole file, do it in a dedicated fresh chat
+and budget it explicitly; never full-read it as part of a multi-file phase read-set.
 
 DO NOT yet read:
 - Code modules (use grep instead)
