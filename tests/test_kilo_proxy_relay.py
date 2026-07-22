@@ -7,6 +7,7 @@ import json
 import sys
 from pathlib import Path
 from unittest.mock import patch
+from urllib.request import Request
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
@@ -249,15 +250,31 @@ def test_deepseek_config_defaults():
 
 
 def test_deepseek_config_thinking_and_reasoning_effort_opt_in():
+    # thinking=enabled + reasoning_effort=max is the only self-consistent explicit combination
+    # (reasoning_effort has no effect once thinking is disabled — see the rejection test below).
+    environ = {
+        "KILO_RELAY_UPSTREAM_PRESET": "deepseek",
+        "DEEPSEEK_API_KEY": "sk-test",
+        "DEEPSEEK_THINKING": "enabled",
+        "DEEPSEEK_REASONING_EFFORT": "max",
+    }
+    cfg = relay.deepseek_config_from_env(environ)
+    assert cfg["thinking"] == "enabled"
+    assert cfg["reasoning_effort"] == "max"
+
+
+def test_deepseek_config_rejects_reasoning_effort_with_thinking_disabled():
     environ = {
         "KILO_RELAY_UPSTREAM_PRESET": "deepseek",
         "DEEPSEEK_API_KEY": "sk-test",
         "DEEPSEEK_THINKING": "disabled",
         "DEEPSEEK_REASONING_EFFORT": "max",
     }
-    cfg = relay.deepseek_config_from_env(environ)
-    assert cfg["thinking"] == "disabled"
-    assert cfg["reasoning_effort"] == "max"
+    try:
+        relay.deepseek_config_from_env(environ)
+        raise AssertionError("expected RuntimeError")
+    except RuntimeError as exc:
+        assert "meaningless" in str(exc)
 
 
 def test_deepseek_config_rejects_low_medium_reasoning_effort():
@@ -324,6 +341,85 @@ def test_log_full_body_opt_in_values():
         assert relay.log_full_body_from_env({"KILO_RELAY_FULL_BODY": truthy}) is True
     for falsy in ("0", "false", "no", "off", ""):
         assert relay.log_full_body_from_env({"KILO_RELAY_FULL_BODY": falsy}) is False
+
+
+def test_validate_deepseek_api_base_accepts_canonical_https_host():
+    relay.validate_deepseek_api_base("https://api.deepseek.com", {})  # must not raise
+
+
+def test_validate_deepseek_api_base_rejects_http_scheme():
+    try:
+        relay.validate_deepseek_api_base("http://api.deepseek.com", {})
+        raise AssertionError("expected RuntimeError")
+    except RuntimeError as exc:
+        assert "https" in str(exc)
+
+
+def test_validate_deepseek_api_base_rejects_unexpected_host():
+    try:
+        relay.validate_deepseek_api_base("https://api-deepseek.example", {})
+        raise AssertionError("expected RuntimeError")
+    except RuntimeError as exc:
+        assert "api.deepseek.com" in str(exc)
+
+
+def test_validate_deepseek_api_base_allows_custom_host_with_explicit_opt_out():
+    relay.validate_deepseek_api_base(
+        "https://internal-proxy.example", {"DEEPSEEK_ALLOW_CUSTOM_HOST": "1"}
+    )  # must not raise
+
+
+def test_apply_deepseek_compatibility_developer_role_and_null_tool_content():
+    payload = {
+        "messages": [
+            {"role": "developer", "content": "sys prompt"},
+            {"role": "assistant", "tool_calls": [{"id": "1"}], "content": None},
+        ]
+    }
+    applied = relay.apply_deepseek_compatibility(payload, {"thinking": "disabled"})
+    assert payload["messages"][0]["role"] == "system"
+    assert payload["messages"][1]["content"] == ""
+    assert "developer_role_to_system" in applied
+    assert "null_tool_call_content_to_empty" in applied
+
+
+def test_apply_deepseek_compatibility_max_completion_tokens_renamed():
+    payload = {"max_completion_tokens": 512}
+    applied = relay.apply_deepseek_compatibility(payload, {"thinking": "disabled"})
+    assert payload["max_tokens"] == 512
+    assert "max_completion_tokens" not in payload
+    assert "max_completion_tokens_to_max_tokens" in applied
+
+
+def test_apply_deepseek_compatibility_max_completion_tokens_dropped_when_both_present():
+    payload = {"max_tokens": 256, "max_completion_tokens": 512}
+    applied = relay.apply_deepseek_compatibility(payload, {"thinking": "disabled"})
+    assert payload["max_tokens"] == 256
+    assert "max_completion_tokens" not in payload
+    assert "dropped_redundant_max_completion_tokens" in applied
+
+
+def test_apply_deepseek_compatibility_strips_tool_choice_when_thinking_effective():
+    # thinking unset in cfg -> DeepSeek's own default is enabled -> tool_choice must be stripped.
+    payload = {"tool_choice": "auto"}
+    applied = relay.apply_deepseek_compatibility(payload, {"thinking": None})
+    assert "tool_choice" not in payload
+    assert "stripped_tool_choice_thinking_mode" in applied
+
+
+def test_apply_deepseek_compatibility_keeps_tool_choice_when_thinking_disabled():
+    payload = {"tool_choice": "auto"}
+    applied = relay.apply_deepseek_compatibility(payload, {"thinking": "disabled"})
+    assert payload["tool_choice"] == "auto"
+    assert applied == []
+
+
+def test_prepare_upstream_request_headers_strips_accept_encoding_always():
+    headers = {"Accept-Encoding": "gzip", "Content-Type": "application/json", "Host": "x"}
+    out = relay._prepare_upstream_request_headers(headers)
+    assert "Accept-Encoding" not in out
+    assert "Host" not in out
+    assert out["Content-Type"] == "application/json"
 
 
 def test_copy_upstream_response_headers_skips_hop_by_hop():
@@ -463,3 +559,113 @@ def test_validate_slim_mode_accepts_known():
     assert validate_slim_mode("cloud_budget") == "cloud_budget"
     assert validate_slim_mode("OFF") == "off"
     assert validate_slim_mode("local") == "local"
+
+
+class _FakeRequestHandler:
+    """Minimal stand-in for RelayHandler exercising the real _handle_proxy() code path
+    end-to-end, not just its helper functions in isolation."""
+
+    def __init__(self, path: str, command: str, body: bytes, headers: dict[str, str]) -> None:
+        self.path = path
+        self.command = command
+        self.headers = headers
+        self.rfile = io.BytesIO(body)
+        self.wfile = io.BytesIO()
+        self.status_code: int | None = None
+        self.sent_headers: list[tuple[str, str]] = []
+
+    def send_response(self, code: int, message: str | None = None) -> None:
+        self.status_code = code
+
+    def send_header(self, key: str, value: str) -> None:
+        self.sent_headers.append((key, value))
+
+    def end_headers(self) -> None:
+        pass
+
+
+class _FakeUpstreamCtxResp:
+    status = 200
+    headers = {"Content-Type": "application/json"}
+
+    def read(self) -> bytes:
+        return b'{"choices":[{"message":{"content":"ok"}}],"usage":{"prompt_tokens":1,"completion_tokens":1}}'
+
+    def __enter__(self) -> "_FakeUpstreamCtxResp":
+        return self
+
+    def __exit__(self, *args: object) -> bool:
+        return False
+
+
+def _run_handle_proxy(path: str, body: bytes, headers: dict[str, str]) -> Request:
+    """Drive the real RelayHandler._handle_proxy against a fake handler + mocked urlopen,
+    returning the urllib.request.Request that was actually about to go out over the wire."""
+    handler = _FakeRequestHandler(path, "POST", body, headers)
+    captured: list[Request] = []
+
+    def _fake_urlopen(request: Request, timeout: float | None = None, context: object = None) -> _FakeUpstreamCtxResp:
+        captured.append(request)
+        return _FakeUpstreamCtxResp()
+
+    with (
+        patch.object(relay, "urlopen", _fake_urlopen),
+        patch.object(relay, "write_jsonl", lambda record: None),
+        patch.object(relay, "RELAY_COMPRESS_ACTIVE", False),
+    ):
+        relay.RelayHandler._handle_proxy(handler)  # type: ignore[arg-type]
+
+    assert len(captured) == 1
+    return captured[0]
+
+
+def test_handle_proxy_stale_deepseek_preset_does_not_leak_key_to_raw_upstream():
+    """Integration regression for the confirmed critical bug: a stale
+    KILO_RELAY_UPSTREAM_PRESET=deepseek combined with an explicit raw KILO_RELAY_UPSTREAM must
+    resolve DEEPSEEK_CFG to None (see test_deepseek_actually_active_false_when_raw_upstream_also_set)
+    AND _handle_proxy must then apply zero DeepSeek overrides — exercised here through the real
+    handler code path, not just the helper function in isolation."""
+    body = b'{"model":"qwen3-coder-next-q4ks","messages":[{"role":"user","content":"hi"}]}'
+    headers = {
+        "Content-Length": str(len(body)),
+        "Content-Type": "application/json",
+        "Authorization": "Bearer local-relay",
+    }
+
+    with (
+        patch.object(relay, "DEEPSEEK_CFG", None),
+        patch.object(relay, "UPSTREAM_BASE", "http://127.0.0.1:8080"),
+    ):
+        sent = _run_handle_proxy("/v1/chat/completions", body, headers)
+
+    assert sent.full_url == "http://127.0.0.1:8080/v1/chat/completions"
+    assert sent.get_header("Authorization") == "Bearer local-relay"  # NOT replaced with a DeepSeek key
+    sent_body = json.loads(sent.data)
+    assert sent_body["model"] == "qwen3-coder-next-q4ks"  # NOT rewritten to deepseek-v4-pro
+
+
+def test_handle_proxy_active_deepseek_preset_does_apply_overrides():
+    """Positive control for the test above: proves the harness actually detects overrides when
+    DeepSeek IS the resolved provider, so the negative test isn't trivially always-green."""
+    body = b'{"model":"qwen3-coder-next-q4ks","messages":[{"role":"user","content":"hi"}]}'
+    headers = {
+        "Content-Length": str(len(body)),
+        "Content-Type": "application/json",
+        "Authorization": "Bearer local-relay",
+    }
+
+    with (
+        patch.object(
+            relay,
+            "DEEPSEEK_CFG",
+            {"base": "https://api.deepseek.com", "model": "deepseek-v4-pro", "api_key": "sk-real-secret",
+             "thinking": None, "reasoning_effort": None},
+        ),
+        patch.object(relay, "UPSTREAM_BASE", "https://api.deepseek.com"),
+    ):
+        sent = _run_handle_proxy("/v1/chat/completions", body, headers)
+
+    assert sent.full_url == "https://api.deepseek.com/v1/chat/completions"
+    assert sent.get_header("Authorization") == "Bearer sk-real-secret"
+    sent_body = json.loads(sent.data)
+    assert sent_body["model"] == "deepseek-v4-pro"

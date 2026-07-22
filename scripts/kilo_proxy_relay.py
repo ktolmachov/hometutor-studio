@@ -57,6 +57,11 @@ Environment variables:
   DEEPSEEK_MODEL=deepseek-v4-pro   # default if unset; forced into payload["model"]. Context: 1M
                                     # tokens (deepseek-v4-pro/-flash, released 2026-04).
   DEEPSEEK_API_KEY=...                             # required when preset=deepseek; relay fails fast if missing
+  DEEPSEEK_ALLOW_CUSTOM_HOST=1   # required if DEEPSEEK_API_BASE's host isn't api.deepseek.com
+                                  # (e.g. a corporate proxy in front of DeepSeek) — otherwise the
+                                  # relay refuses to start (a typo'd host would leak the real key
+                                  # there via the unconditional Authorization override). https
+                                  # scheme is required unconditionally, no opt-out.
   DEEPSEEK_THINKING=disabled        # optional: "enabled"/"disabled". DeepSeek V4 defaults to
                                      # thinking.type=enabled + reasoning_effort=high when unset —
                                      # can silently inflate output tokens/latency/cost on every
@@ -64,19 +69,36 @@ Environment variables:
   DEEPSEEK_REASONING_EFFORT=high    # optional: "high"/"max" (DeepSeek's only two real levels; it
                                      # silently maps low/medium up to high and xhigh up to max, so
                                      # this relay does not offer the fake illusion of finer control).
-                                     # Only meaningful when thinking is enabled.
+                                     # Only meaningful when thinking is enabled/unset; rejected at
+                                     # startup if DEEPSEEK_THINKING=disabled is also set (would be
+                                     # a no-op DeepSeek silently ignores).
   Relay replaces the client's Authorization header with ``Bearer $DEEPSEEK_API_KEY`` for every
   request while the preset is active — Kilo's own dummy relay key is never forwarded to DeepSeek.
+  It also strips Cookie/Proxy-Authorization/other client-side auth headers before forwarding to
+  DeepSeek specifically (a real internet host has no legitimate reason to see them), and strips
+  Accept-Encoding from every outgoing request to every upstream (this relay never decompresses
+  responses, so it must not advertise gzip support upstream while stripping Content-Encoding from
+  what it hands back to the client).
 
-  KNOWN GAP (not fixed by this relay): DeepSeek requires the assistant's ``reasoning_content``
-  from a tool-call turn to be threaded back into every subsequent request in that conversation,
-  or the API returns HTTP 400. This relay proxies whatever message history Kilo constructs; it
-  does not verify or repair that history. Kilo was not written against DeepSeek's reasoning_content
-  convention, so a multi-turn agentic tool-calling loop through this preset may fail on the very
-  first tool round-trip until Kilo's own client-side history handling is confirmed compatible —
-  this has NOT been tested end-to-end.
-  Effective overrides (model/thinking/reasoning_effort) are recorded per-request under
-  ``deepseek_overrides`` in the JSONL log.
+  Payload compatibility fixes applied while the DeepSeek preset is active (confirmed via
+  DeepSeek's own oh_my_pi agent-integration guide — all four cause a hard HTTP 400 if left as-is):
+  - ``role: "developer"`` messages are rewritten to ``role: "system"`` (DeepSeek rejects "developer").
+  - ``tool_choice`` is stripped whenever thinking mode is effectively active (DeepSeek's own
+    default when DEEPSEEK_THINKING is unset), since DeepSeek rejects tool_choice in thinking mode.
+  - ``max_completion_tokens`` is renamed to ``max_tokens`` (or dropped if both are present).
+  - An assistant tool-call message with ``content: null`` gets ``content: ""`` (DeepSeek requires
+    non-null content on tool-call messages).
+  Effective overrides (model/thinking/reasoning_effort/compatibility_fixes) are recorded
+  per-request under ``deepseek_overrides`` in the JSONL log.
+
+  KNOWN GAP (not fixed by this relay — stateful, not a single-request payload fact like the fixes
+  above): DeepSeek requires the assistant's ``reasoning_content`` from a tool-call turn to be
+  threaded back into every subsequent request in that conversation, or the API returns HTTP 400.
+  This relay proxies whatever message history Kilo constructs; it does not verify or repair that
+  history across requests. Kilo's compatibility with DeepSeek's reasoning_content replay
+  convention has not been confirmed (no captured multi-turn trace, no Kilo adapter source
+  reviewed) — a multi-turn agentic tool-calling loop through this preset may fail on the second
+  tool round-trip. This has NOT been tested end-to-end.
 
   Стриминг ответа (Cursor шлёт stream:true по умолчанию):
   релей **проксирует поток** в клиент: те же байты, что от LM Studio, без HTTP chunked
@@ -271,13 +293,96 @@ def deepseek_config_from_env(environ: dict[str, str]) -> dict[str, str | None] |
             f"DEEPSEEK_REASONING_EFFORT must be one of {sorted(_DEEPSEEK_VALID_REASONING_EFFORT)}, "
             f"got {reasoning_effort!r}."
         )
+    if reasoning_effort is not None and thinking == "disabled":
+        raise RuntimeError(
+            "DEEPSEEK_REASONING_EFFORT is meaningless with DEEPSEEK_THINKING=disabled — unset "
+            "one of them (reasoning_effort only applies while thinking mode is active)."
+        )
+    base = (environ.get("DEEPSEEK_API_BASE") or DEEPSEEK_DEFAULT_API_BASE).strip().rstrip("/")
+    validate_deepseek_api_base(base, environ)
     return {
-        "base": (environ.get("DEEPSEEK_API_BASE") or DEEPSEEK_DEFAULT_API_BASE).strip().rstrip("/"),
+        "base": base,
         "model": (environ.get("DEEPSEEK_MODEL") or DEEPSEEK_DEFAULT_MODEL).strip(),
         "api_key": api_key,
         "thinking": thinking,
         "reasoning_effort": reasoning_effort,
     }
+
+
+def validate_deepseek_api_base(base: str, environ: dict[str, str]) -> None:
+    """Fail fast on a base URL that would send the real DeepSeek key to the wrong place.
+
+    A typo'd/mis-set DEEPSEEK_API_BASE (http scheme, or an unexpected host) combined with the
+    unconditional Authorization override in _handle_proxy would leak the real key to that host.
+    Requires https + the canonical DeepSeek host unless DEEPSEEK_ALLOW_CUSTOM_HOST=1 is set
+    explicitly (e.g. for a corporate proxy in front of DeepSeek).
+    """
+    parsed = urlsplit(base)
+    allow_custom = (environ.get("DEEPSEEK_ALLOW_CUSTOM_HOST") or "").strip().lower() in {"1", "true", "yes", "on"}
+    if parsed.scheme != "https":
+        raise RuntimeError(
+            f"DEEPSEEK_API_BASE must use https (got {base!r}) — refusing to send the real "
+            "DeepSeek API key over a non-https scheme."
+        )
+    if not allow_custom and parsed.hostname != "api.deepseek.com":
+        raise RuntimeError(
+            f"DEEPSEEK_API_BASE host {parsed.hostname!r} is not api.deepseek.com. Set "
+            "DEEPSEEK_ALLOW_CUSTOM_HOST=1 explicitly if this is intentional (e.g. a proxy in "
+            "front of DeepSeek) — otherwise this looks like a misconfiguration that would send "
+            "the real API key to an unexpected host."
+        )
+
+
+_DEEPSEEK_DEVELOPER_ROLE = "developer_role_to_system"
+_DEEPSEEK_NULL_TOOL_CONTENT = "null_tool_call_content_to_empty"
+_DEEPSEEK_MAX_TOKENS_RENAME = "max_completion_tokens_to_max_tokens"
+_DEEPSEEK_MAX_TOKENS_DROP = "dropped_redundant_max_completion_tokens"
+_DEEPSEEK_TOOL_CHOICE_STRIP = "stripped_tool_choice_thinking_mode"
+
+
+def apply_deepseek_compatibility(payload: dict[str, Any], cfg: dict[str, Any]) -> list[str]:
+    """Normalize known DeepSeek V4 payload incompatibilities; mutates ``payload`` in place.
+
+    All four confirmed via DeepSeek's own oh_my_pi agent-integration guide:
+    - ``role: "developer"`` is rejected -> merged into ``system``.
+    - ``tool_choice`` is rejected while thinking mode is active (DeepSeek's own default when
+      DEEPSEEK_THINKING is unset is thinking=enabled, so this applies unless explicitly disabled).
+    - Token limit must be ``max_tokens``, not ``max_completion_tokens``.
+    - An assistant tool-call message with ``content: null`` is rejected -> set to ``""``.
+
+    These are stateless, single-request payload facts (unlike reasoning_content, which requires
+    cross-turn conversation history the relay does not own) — safe to fix here.
+
+    Returns the list of fix names actually applied (for ``deepseek_overrides`` logging).
+    """
+    applied: list[str] = []
+
+    messages = payload.get("messages")
+    if isinstance(messages, list):
+        for msg in messages:
+            if not isinstance(msg, dict):
+                continue
+            if msg.get("role") == "developer":
+                msg["role"] = "system"
+                applied.append(_DEEPSEEK_DEVELOPER_ROLE)
+            if msg.get("role") == "assistant" and msg.get("tool_calls") and msg.get("content") is None:
+                msg["content"] = ""
+                applied.append(_DEEPSEEK_NULL_TOOL_CONTENT)
+
+    if "max_completion_tokens" in payload:
+        if "max_tokens" not in payload:
+            payload["max_tokens"] = payload.pop("max_completion_tokens")
+            applied.append(_DEEPSEEK_MAX_TOKENS_RENAME)
+        else:
+            payload.pop("max_completion_tokens")
+            applied.append(_DEEPSEEK_MAX_TOKENS_DROP)
+
+    thinking_effective = cfg.get("thinking") or "enabled"  # DeepSeek's own default when unset
+    if thinking_effective == "enabled" and "tool_choice" in payload:
+        payload.pop("tool_choice")
+        applied.append(_DEEPSEEK_TOOL_CHOICE_STRIP)
+
+    return applied
 
 
 def effective_upstream_base(environ: dict[str, str]) -> str:
@@ -720,6 +825,30 @@ def _send_compress_trace_headers(handler: BaseHTTPRequestHandler, compress_summa
     handler.send_header("X-Kilo-Relay-System-Stubbed", "1" if stub else "0")
 
 
+_ALWAYS_STRIP_REQUEST_HEADERS = frozenset({"host", "content-length", "connection", "accept-encoding"})
+# A real cloud host has no legitimate reason to receive these from a local relay client; only
+# stripped for the DeepSeek preset (real internet endpoint + real API key) to keep the blast
+# radius small — local/cloud_budget upstream behavior is unchanged from before this fix.
+_DEEPSEEK_STRIP_ADDITIONAL_HEADERS = frozenset({"cookie", "proxy-authorization", "x-api-key", "x-auth-token"})
+
+
+def _prepare_upstream_request_headers(headers: dict[str, str]) -> dict[str, str]:
+    """Filter client headers before forwarding upstream.
+
+    Always strips hop-by-hop/recomputed headers and Accept-Encoding: this relay never decompresses
+    responses and already strips Content-Encoding from what it forwards back to the client, so
+    advertising gzip support to upstream would hand the client undecodable compressed bytes with
+    no header telling it so. When the DeepSeek preset is active, additionally drops headers a real
+    internet host has no legitimate reason to see from a local relay client (Cookie,
+    Proxy-Authorization, other client-side auth headers) — DeepSeek gets Content-Type plus the
+    already-replaced Authorization, nothing else client-supplied.
+    """
+    strip = set(_ALWAYS_STRIP_REQUEST_HEADERS)
+    if DEEPSEEK_CFG is not None:
+        strip |= _DEEPSEEK_STRIP_ADDITIONAL_HEADERS
+    return {k: v for k, v in headers.items() if k.lower() not in strip}
+
+
 def _copy_upstream_response_headers(handler: BaseHTTPRequestHandler, upstream_headers: dict[str, str]) -> None:
     for key, value in upstream_headers.items():
         if key.lower() in _SKIP_PROXY_RESPONSE_HEADERS:
@@ -751,7 +880,7 @@ def forward_request_streaming(
     HTTP/1.0 + Connection: close — максимально совместимый вариант для потока.
     """
     upstream_url = f"{UPSTREAM_BASE}{path}"
-    req_headers = {k: v for k, v in headers.items() if k.lower() not in {"host", "content-length", "connection"}}
+    req_headers = _prepare_upstream_request_headers(headers)
     request = Request(upstream_url, data=body, headers=req_headers, method=method)
     accumulated = bytearray()
     try:
@@ -813,7 +942,7 @@ def forward_request_streaming(
 
 def forward_request(method: str, path: str, headers: dict[str, str], body: bytes) -> UpstreamResponse:
     upstream_url = f"{UPSTREAM_BASE}{path}"
-    req_headers = {k: v for k, v in headers.items() if k.lower() not in {"host", "content-length", "connection"}}
+    req_headers = _prepare_upstream_request_headers(headers)
     request = Request(upstream_url, data=body, headers=req_headers, method=method)
     try:
         with urlopen(request, timeout=UPSTREAM_TIMEOUT, context=SSL_CONTEXT) as resp:
@@ -907,6 +1036,10 @@ class RelayHandler(BaseHTTPRequestHandler):
                         payload_json["reasoning_effort"] = DEEPSEEK_CFG["reasoning_effort"]
                         payload_overridden = True
                         deepseek_overrides["reasoning_effort"] = DEEPSEEK_CFG["reasoning_effort"]
+                    compat_fixes = apply_deepseek_compatibility(payload_json, DEEPSEEK_CFG)
+                    if compat_fixes:
+                        payload_overridden = True
+                        deepseek_overrides["compatibility_fixes"] = compat_fixes
                 if RELAY_COMPRESS_ACTIVE:
                     comp = compress_chat_completion(payload_json, RELAY_COMPRESS_CFG)
                     shrunk_text = json.dumps(comp.payload, ensure_ascii=False)
