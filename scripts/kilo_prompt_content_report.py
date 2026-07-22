@@ -146,11 +146,14 @@ def render_text(report: dict[str, Any]) -> str:
     lines.append("-- top fragments --")
     for row in report["top_fragments"][:15]:
         lines.append(f"  {row['chars']:>10} (~{row['est_tok']} tok)  {row['key']}")
-    lines.append("-- top paths --")
+    lines.append("-- top paths (window heuristic ±200 chars; relative rank, not file bytes) --")
     for row in report["top_paths"][:25]:
         lines.append(
             f"  {row['chars']:>10} (~{row['est_tok']} tok) hits={row['hits']:<4}  {row['path']}"
         )
+    lines.append("-- top extensions --")
+    for row in report["top_extensions"][:15]:
+        lines.append(f"  {row['chars']:>10} (~{row['est_tok']} tok)  {row['key']}")
     lines.append("-- AGENTS/CLAUDE path hits --")
     for row in report["agents_claude_mentions"][:15]:
         lines.append(f"  {row['chars']:>10} hits={row['hits']:<4}  {row['path']}")
@@ -172,17 +175,18 @@ def main(argv: list[str] | None = None) -> int:
     report = build_report(records)
     text = render_text(report)
     print(text)
+    if report["chat_with_content_stats"] == 0:
+        print(
+            "NOTE: no content_stats yet — restart relay (KILO_RELAY_CONTENT_STATS=1 default) "
+            "and send a few chat requests. Refusing --json-out so an empty report cannot "
+            "overwrite a previous good logs/kilo_content_report.json.",
+            file=sys.stderr,
+        )
+        return 2
     if args.json_out:
         args.json_out.parent.mkdir(parents=True, exist_ok=True)
         args.json_out.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"Wrote {args.json_out}", file=sys.stderr)
-    if report["chat_with_content_stats"] == 0:
-        print(
-            "NOTE: no content_stats yet — restart relay (KILO_RELAY_CONTENT_STATS=1 default) "
-            "and send a few chat requests.",
-            file=sys.stderr,
-        )
-        return 2
     return 0
 
 

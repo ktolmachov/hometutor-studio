@@ -109,3 +109,16 @@ def test_report_aggregates_content_stats():
     assert out["usage_prompt_tokens_sum"] == 1234
     text = report.render_text(out)
     assert "AGENTS.md" in text
+    assert "top extensions" in text
+    assert "relative rank" in text
+    assert out["top_extensions"][0]["key"] == "md"
+
+
+def test_report_main_refuses_empty_json_out(tmp_path: Path):
+    log = tmp_path / "empty.jsonl"
+    log.write_text("{}\n", encoding="utf-8")
+    out = tmp_path / "report.json"
+    out.write_text('{"keep": true}', encoding="utf-8")
+    rc = report.main(["--log", str(log), "--last", "10", "--json-out", str(out)])
+    assert rc == 2
+    assert json.loads(out.read_text(encoding="utf-8")) == {"keep": True}

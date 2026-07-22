@@ -265,6 +265,11 @@ _DEEPSEEK_VALID_THINKING = frozenset({"enabled", "disabled"})
 # of granularity DeepSeek itself doesn't provide, and would silently swallow a genuine request
 # for max effort if someone assumed "high" was the ceiling.
 _DEEPSEEK_VALID_REASONING_EFFORT = frozenset({"high", "max"})
+# "warn" (default): print + log the missing-reasoning_content signal but still forward the
+# request (relay isn't independently certain enough of DeepSeek's exact validation timing to
+# reject real user requests by default). "block": return a local error instead of spending a
+# paid call that official docs say will very likely 400 anyway.
+_DEEPSEEK_VALID_REASONING_CONTENT_GUARD = frozenset({"warn", "block"})
 
 
 def deepseek_config_from_env(environ: dict[str, str]) -> dict[str, str | None] | None:
@@ -301,6 +306,12 @@ def deepseek_config_from_env(environ: dict[str, str]) -> dict[str, str | None] |
             "DEEPSEEK_REASONING_EFFORT is meaningless with DEEPSEEK_THINKING=disabled — unset "
             "one of them (reasoning_effort only applies while thinking mode is active)."
         )
+    reasoning_content_guard = (environ.get("DEEPSEEK_REASONING_CONTENT_GUARD") or "warn").strip().lower()
+    if reasoning_content_guard not in _DEEPSEEK_VALID_REASONING_CONTENT_GUARD:
+        raise RuntimeError(
+            f"DEEPSEEK_REASONING_CONTENT_GUARD must be one of {sorted(_DEEPSEEK_VALID_REASONING_CONTENT_GUARD)}, "
+            f"got {reasoning_content_guard!r}."
+        )
     base = (environ.get("DEEPSEEK_API_BASE") or DEEPSEEK_DEFAULT_API_BASE).strip().rstrip("/")
     validate_deepseek_api_base(base, environ)
     return {
@@ -309,6 +320,7 @@ def deepseek_config_from_env(environ: dict[str, str]) -> dict[str, str | None] |
         "api_key": api_key,
         "thinking": thinking,
         "reasoning_effort": reasoning_effort,
+        "reasoning_content_guard": reasoning_content_guard,
     }
 
 
@@ -343,7 +355,30 @@ _DEEPSEEK_MAX_TOKENS_DROP = "dropped_redundant_max_completion_tokens"
 _DEEPSEEK_TOOL_CHOICE_STRIP = "stripped_tool_choice_thinking_mode"
 
 
-def apply_deepseek_compatibility(payload: dict[str, Any], cfg: dict[str, Any]) -> list[str]:
+def effective_thinking_type(payload: dict[str, Any]) -> str:
+    """Resolve the thinking mode that will actually be sent to DeepSeek for this payload.
+
+    Reads ``payload["thinking"]["type"]`` directly rather than the env-derived ``cfg`` dict.
+    By the point this runs in ``_handle_proxy``, an explicit ``DEEPSEEK_THINKING`` env override
+    has already been written into ``payload["thinking"]`` (see the model/thinking/reasoning_effort
+    rewrite block above) — so reading the payload itself picks up, in the correct order: the env
+    override if one was set, else whatever the client itself sent, else DeepSeek's own default.
+
+    Confirmed bug this replaces: both ``apply_deepseek_compatibility`` and
+    ``detect_missing_reasoning_content`` used to read only the env ``cfg`` dict, so a client that
+    sent ``{"thinking": {"type": "disabled"}}`` with no env override was treated as thinking-enabled
+    (DeepSeek's default) — incorrectly stripping ``tool_choice`` and raising a false
+    missing-reasoning_content warning for a payload that never needed either.
+    """
+    thinking = payload.get("thinking")
+    if isinstance(thinking, dict):
+        declared = thinking.get("type")
+        if declared in _DEEPSEEK_VALID_THINKING:
+            return declared
+    return "enabled"  # DeepSeek's own default when the payload doesn't specify
+
+
+def apply_deepseek_compatibility(payload: dict[str, Any]) -> list[str]:
     """Normalize known DeepSeek V4 payload incompatibilities; mutates ``payload`` in place.
 
     All four confirmed incompatible via DeepSeek's own oh_my_pi agent-integration guide.
@@ -386,8 +421,7 @@ def apply_deepseek_compatibility(payload: dict[str, Any], cfg: dict[str, Any]) -
             payload.pop("max_completion_tokens")
             applied.append(_DEEPSEEK_MAX_TOKENS_DROP)
 
-    thinking_effective = cfg.get("thinking") or "enabled"  # DeepSeek's own default when unset
-    if thinking_effective == "enabled" and "tool_choice" in payload:
+    if effective_thinking_type(payload) == "enabled" and "tool_choice" in payload:
         payload.pop("tool_choice")
         applied.append(_DEEPSEEK_TOOL_CHOICE_STRIP)
 
@@ -397,20 +431,20 @@ def apply_deepseek_compatibility(payload: dict[str, Any], cfg: dict[str, Any]) -
 _DEEPSEEK_MISSING_REASONING_CONTENT_WARNING = "assistant_tool_call_missing_reasoning_content"
 
 
-def detect_missing_reasoning_content(payload: dict[str, Any], cfg: dict[str, Any]) -> list[str]:
-    """Stateless heuristic warning for the one DeepSeek incompatibility this relay cannot fix.
+def detect_missing_reasoning_content(payload: dict[str, Any]) -> list[str]:
+    """Stateless detection for the one DeepSeek incompatibility this relay cannot repair.
 
     DeepSeek requires an assistant tool-call turn's ``reasoning_content`` to be threaded back
     into every subsequent request in that conversation, or the API returns HTTP 400. The relay
     cannot *restore* a reasoning_content that Kilo's own history never carried forward (that
-    requires state across requests this relay does not own) — but it CAN cheaply check THIS
-    request's payload and warn before spending a paid API call that is very likely to 400 anyway.
+    requires state across requests this relay does not own) — it can only detect, in THIS
+    payload, that the pattern DeepSeek's docs say causes 400 is present.
 
-    Non-blocking by design: exact validation timing/scope on DeepSeek's side isn't independently
-    verified end-to-end by this relay, so this only informs (deepseek_overrides / JSONL), never
-    rejects the request itself.
+    Pure detection only — returns the list of warning names found (empty if none). Whether the
+    caller merely logs this or acts on it before forwarding (see ``DEEPSEEK_REASONING_CONTENT_GUARD``
+    in ``_handle_proxy``) is a separate decision; this function makes no I/O and blocks nothing.
     """
-    if (cfg.get("thinking") or "enabled") != "enabled":
+    if effective_thinking_type(payload) != "enabled":
         return []
     messages = payload.get("messages")
     if not isinstance(messages, list):
@@ -892,6 +926,32 @@ def build_guard_response(decision: GuardDecision, request_summary: dict[str, Any
     )
 
 
+def build_reasoning_content_guard_response(warnings: list[str]) -> UpstreamResponse:
+    """Local, free error for DEEPSEEK_REASONING_CONTENT_GUARD=block — used only when an
+    assistant tool-call message is missing reasoning_content while thinking mode is active,
+    which DeepSeek's own docs say causes HTTP 400. Saves the paid upstream call entirely."""
+    payload = {
+        "error": {
+            "message": (
+                "Blocked by local Kilo relay before provider call: an assistant message with "
+                "tool_calls is missing reasoning_content while DeepSeek thinking mode is active. "
+                "DeepSeek's API returns HTTP 400 for this pattern. Set "
+                "DEEPSEEK_REASONING_CONTENT_GUARD=warn to forward anyway, or fix the client's "
+                "history to carry reasoning_content forward."
+            ),
+            "code": "relay_deepseek_reasoning_content_missing",
+            "warnings": warnings,
+        }
+    }
+    body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
+    return UpstreamResponse(
+        status=422,
+        headers={"content-type": "application/json; charset=utf-8"},
+        body=body,
+        error="blocked by local relay: missing reasoning_content",
+    )
+
+
 def _write_wfile_best_effort(wfile: Any, data: bytes) -> None:
     """Write response body; ignore client disconnect (cancel / UI closed socket)."""
     try:
@@ -1141,6 +1201,7 @@ class RelayHandler(BaseHTTPRequestHandler):
             content_stats_original = analyze_body_text(body_text)
 
         deepseek_overrides: dict[str, Any] = {}
+        reasoning_content_blocked = False
         if chat_path == "/v1/chat/completions" and raw_body:
             try:
                 payload_json = json.loads(body_text)
@@ -1161,13 +1222,23 @@ class RelayHandler(BaseHTTPRequestHandler):
                         payload_json["reasoning_effort"] = DEEPSEEK_CFG["reasoning_effort"]
                         payload_overridden = True
                         deepseek_overrides["reasoning_effort"] = DEEPSEEK_CFG["reasoning_effort"]
-                    compat_fixes = apply_deepseek_compatibility(payload_json, DEEPSEEK_CFG)
+                    compat_fixes = apply_deepseek_compatibility(payload_json)
                     if compat_fixes:
                         payload_overridden = True
                         deepseek_overrides["compatibility_fixes"] = compat_fixes
-                    reasoning_warnings = detect_missing_reasoning_content(payload_json, DEEPSEEK_CFG)
+                    reasoning_warnings = detect_missing_reasoning_content(payload_json)
                     if reasoning_warnings:
                         deepseek_overrides["warnings"] = reasoning_warnings
+                        # Surfaced now, before the upstream call — not just written to JSONL
+                        # after the (possibly paid) request already completed.
+                        _safe_print(
+                            f"[relay] WARN DeepSeek reasoning_content: {', '.join(reasoning_warnings)} "
+                            f"(request_id={request_id}; DEEPSEEK_REASONING_CONTENT_GUARD="
+                            f"{DEEPSEEK_CFG['reasoning_content_guard']})",
+                            file=sys.stderr,
+                        )
+                        if DEEPSEEK_CFG["reasoning_content_guard"] == "block":
+                            reasoning_content_blocked = True
                 if RELAY_COMPRESS_ACTIVE:
                     comp = compress_chat_completion(payload_json, RELAY_COMPRESS_CFG)
                     shrunk_text = json.dumps(comp.payload, ensure_ascii=False)

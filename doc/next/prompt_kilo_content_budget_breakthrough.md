@@ -24,23 +24,31 @@ Goal
 к устойчивым ≤12k target / ≤20k hard на типичном ходе в НОВОМ чате + дисциплина read-set).
 
 Scope
-1) Сбор evidence из JSONL (обязательно):
+1) Сбор evidence из JSONL (обязательно), в этом порядке:
    - Перезапустить relay с KILO_RELAY_CONTENT_STATS=1 (дефолт), cloud_budget, DeepSeek.
    - Прогнать 5–15 реальных chat-запросов в НОВОМ Cursor-чате (короткий сценарий + 1–2 tool-heavy).
-   - Запустить:
+   - СНАЧАЛА сухой прогон БЕЗ --json-out:
+     .\.venv\Scripts\python.exe scripts/kilo_prompt_content_report.py --last 40
+     Убедиться, что chat_with_stats > 0 (иначе exit 2 — лог ещё старый).
+   - ТОЛЬКО потом писать JSON (иначе перезапишешь пустым отчётом):
      .\.venv\Scripts\python.exe scripts/kilo_prompt_content_report.py --last 40 --json-out logs/kilo_content_report.json
+     Скрипт сам откажет --json-out при chat_with_stats=0.
 2) Анализ (только по report + выборочно 2–3 JSONL records.content_stats):
    - top_kinds (tool_result vs system vs user_query vs assistant_tool_calls)
    - top_fragments (rules, available_skills, mcp_*, agent_transcripts, …)
    - top_paths / agents_claude_mentions / top_extensions
    - top_tools_schema
    - сравнить content_stats.original vs forwarded (что реально срезает cloud_budget)
+   - ВАЖНО: path_chars / est_tok по путям — эвристика окна ±200 симв. вокруг упоминания
+     пути, НЕ реальные байты файла. Используй ranking (кто выше — приоритетнее запретить
+     full-read), НЕ вписывай эти est_tok как точные лимиты в token_safety_registry.
 3) Рекомендации с приоритетом savings×(1/quality_risk):
    A. Без потери качества агента (IDE + registry + AGENTS rules)
    B. Opt-in cloud_budget strip flags
    C. Чего НЕ делать (trim history в relay, SLIM=local на Cursor→DeepSeek)
 4) Правки write-set (только после evidence):
    - token_safety_registry.json: full_read/forbidden + safe_hint для топ-засорителей
+     (ранжирование по top_paths; без псевдоточных token numbers из path est_tok)
    - AGENTS.md / CLAUDE.md (studio; sync CODE_ROOT copies если они SSoT для агентов там):
      явные лимиты read-set, запрет full-read для топ-файлов, правило «новый чат при msgs/in hard»
 5) DoD verification:
@@ -60,8 +68,8 @@ Files to inspect first
 
 DoD
 - [ ] content_stats присутствует в новых JSONL-записях chat completions
-- [ ] kilo_prompt_content_report.py выдаёт top_paths / top_fragments / top_kinds
-- [ ] Написан ranked list «файл/фрагмент → chars/est_tok → действие»
+- [ ] kilo_prompt_content_report.py выдаёт top_paths / top_fragments / top_kinds / top_extensions
+- [ ] Написан ranked list «файл/фрагмент → relative weight → действие» (без точных лимитов из path est_tok)
 - [ ] Обновлены registry + AGENTS/CLAUDE под топ-засорители (без оверинжиниринга)
 - [ ] Повторный короткий прогон: prompt_tokens заметно ниже (цель: укладываться в 12k/20k на обычном ходе)
 - [ ] pytest по затронутым тестам зелёный
@@ -72,9 +80,10 @@ Do not touch
 - CODE_ROOT app/* (RAG domain A)
 - Внешние Start-KiloRelay*.ps1 вне этого репо
 - Полный pytest suite / full-read запрещённых файлов
+- --json-out logs/kilo_content_report.json пока chat_with_stats=0 (пустой overwrite)
 
 Output
-1. Таблица топ засорителей (kind / fragment / path) с цифрами из report
+1. Таблица топ засорителей (kind / fragment / path) с цифрами из report; path est_tok пометить как relative
 2. Diff-план правок AGENTS/CLAUDE/registry (bullet list)
 3. Фактические правки в write-set
 4. Before/after: 2–3 строки мини-статы (in=, top_kind, top_path)
@@ -92,13 +101,16 @@ $env:KILO_RELAY_SLIM_MODE = "cloud_budget"
 $env:DEEPSEEK_THINKING = "disabled"
 .\.venv\Scripts\python.exe scripts/kilo_proxy_relay.py
 
-# 2) Новый чат в Cursor → 5–15 ходов
+# 2) Новый чат в Cursor → 5–15 ходов (старый JSONL без content_stats не годится)
 
-# 3) Отчёт
+# 3) Сначала сухой отчёт; --json-out только если chat_with_stats > 0
+.\.venv\Scripts\python.exe scripts/kilo_prompt_content_report.py --last 40
 .\.venv\Scripts\python.exe scripts/kilo_prompt_content_report.py --last 40 --json-out logs/kilo_content_report.json
 
 # 4) Вставить Prompt выше в новый агент-чат
 ```
+
+**Напоминание:** `path_chars` в stats — окно ±200 симв. вокруг упоминания пути (`_kilo_prompt_stats.path_char_contributions`). Для registry это **ранг засорения**, не абсолютный бюджет токенов файла.
 
 ## Ожидаемый «прорыв»
 

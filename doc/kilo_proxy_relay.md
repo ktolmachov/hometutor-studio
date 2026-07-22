@@ -151,7 +151,7 @@ Guard смотрит уже **forwarded** (после compress) body. Исход
 2. `GET /models` и прочий не-chat трафик пишутся тем же форматом (засоряют статистику токенов) — учитывать при разборе.
 3. Стартовый баннер: bind/upstream/guard/compress/DeepSeek. При `RELAY_COMPRESS_ACTIVE=no` полный dump `compress.*` **не** печатается. При DeepSeek+`off`/`local`/unset — `WARN:` с рекомендацией `cloud_budget`. Аннотация vsegpt только если DeepSeek **не** активен.
 4. После каждого запроса в **stderr** — мини-стата: `body_orig`/`body_fwd`, `guard=… mode=… blocked=…`, опционально `saved=` / `in=`/`out=`, плюс glance `top_kind` / `top_path` / `top_frag` из `content_stats`.
-5. **`content_stats`** (дефолт ON, `KILO_RELAY_CONTENT_STATS=1`): в JSONL пара `original`/`forwarded` с `role_chars`, `kind_chars`, `fragment_chars` (Cursor XML), `path_chars` (топ путей), `ext_chars`, `tools.by_name`, `top_messages` (без тела). Агрегатор: `scripts/kilo_prompt_content_report.py --last 50`.
+5. **`content_stats`** (дефолт ON, `KILO_RELAY_CONTENT_STATS=1`): в JSONL пара `original`/`forwarded` с `role_chars`, `kind_chars`, `fragment_chars` (Cursor XML), `path_chars` (топ путей; эвристика окна ±200 симв. вокруг упоминания — **относительный ранг**, не байты файла), `ext_chars`, `tools.by_name`, `top_messages` (без тела). Агрегатор: `scripts/kilo_prompt_content_report.py --last 50` (при `chat_with_stats=0` отказывает `--json-out`, чтобы не затереть прежний отчёт).
 6. Тяжёлые `message_stats`/preview в `request` по умолчанию **не** пишутся (`KILO_RELAY_MESSAGE_STATS=1` чтобы вернуть).
 
 ---
