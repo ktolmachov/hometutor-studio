@@ -246,6 +246,7 @@ def test_deepseek_config_defaults():
         "api_key": "sk-test",
         "thinking": None,
         "reasoning_effort": None,
+        "reasoning_content_guard": "warn",
     }
 
 
@@ -371,12 +372,13 @@ def test_validate_deepseek_api_base_allows_custom_host_with_explicit_opt_out():
 
 def test_apply_deepseek_compatibility_developer_role_and_null_tool_content():
     payload = {
+        "thinking": {"type": "disabled"},
         "messages": [
             {"role": "developer", "content": "sys prompt"},
             {"role": "assistant", "tool_calls": [{"id": "1"}], "content": None},
-        ]
+        ],
     }
-    applied = relay.apply_deepseek_compatibility(payload, {"thinking": "disabled"})
+    applied = relay.apply_deepseek_compatibility(payload)
     assert payload["messages"][0]["role"] == "system"
     assert payload["messages"][1]["content"] == ""
     assert "developer_role_to_system" in applied
@@ -384,33 +386,47 @@ def test_apply_deepseek_compatibility_developer_role_and_null_tool_content():
 
 
 def test_apply_deepseek_compatibility_max_completion_tokens_renamed():
-    payload = {"max_completion_tokens": 512}
-    applied = relay.apply_deepseek_compatibility(payload, {"thinking": "disabled"})
+    payload = {"thinking": {"type": "disabled"}, "max_completion_tokens": 512}
+    applied = relay.apply_deepseek_compatibility(payload)
     assert payload["max_tokens"] == 512
     assert "max_completion_tokens" not in payload
     assert "max_completion_tokens_to_max_tokens" in applied
 
 
 def test_apply_deepseek_compatibility_max_completion_tokens_dropped_when_both_present():
-    payload = {"max_tokens": 256, "max_completion_tokens": 512}
-    applied = relay.apply_deepseek_compatibility(payload, {"thinking": "disabled"})
+    payload = {"thinking": {"type": "disabled"}, "max_tokens": 256, "max_completion_tokens": 512}
+    applied = relay.apply_deepseek_compatibility(payload)
     assert payload["max_tokens"] == 256
     assert "max_completion_tokens" not in payload
     assert "dropped_redundant_max_completion_tokens" in applied
 
 
 def test_apply_deepseek_compatibility_strips_tool_choice_when_thinking_effective():
-    # thinking unset in cfg -> DeepSeek's own default is enabled -> tool_choice must be stripped.
+    # payload doesn't declare "thinking" at all -> DeepSeek's own default is enabled -> stripped.
     payload = {"tool_choice": "auto"}
-    applied = relay.apply_deepseek_compatibility(payload, {"thinking": None})
+    applied = relay.apply_deepseek_compatibility(payload)
     assert "tool_choice" not in payload
     assert "stripped_tool_choice_thinking_mode" in applied
 
 
 def test_apply_deepseek_compatibility_keeps_tool_choice_when_thinking_disabled():
-    payload = {"tool_choice": "auto"}
-    applied = relay.apply_deepseek_compatibility(payload, {"thinking": "disabled"})
+    payload = {"thinking": {"type": "disabled"}, "tool_choice": "auto"}
+    applied = relay.apply_deepseek_compatibility(payload)
     assert payload["tool_choice"] == "auto"
+    assert applied == []
+
+
+def test_apply_deepseek_compatibility_reads_client_payload_thinking_not_env_cfg():
+    """Regression for the confirmed bug: both apply_deepseek_compatibility and
+    detect_missing_reasoning_content used to read only an env-derived cfg dict, so a client
+    that itself sent thinking.type=disabled (no env override at all) was still treated as
+    thinking-enabled (DeepSeek's default) -- wrongly stripping tool_choice. effective_thinking_type
+    must read the payload directly, which by _handle_proxy's call order already reflects any env
+    override baked in earlier, or the client's own value if there was none."""
+    payload = {"thinking": {"type": "disabled"}, "tool_choice": "auto"}
+    assert relay.effective_thinking_type(payload) == "disabled"
+    applied = relay.apply_deepseek_compatibility(payload)
+    assert payload["tool_choice"] == "auto"  # NOT stripped -- client explicitly disabled thinking
     assert applied == []
 
 
@@ -421,27 +437,41 @@ def test_detect_missing_reasoning_content_warns_when_thinking_effective():
             {"role": "assistant", "tool_calls": [{"id": "1"}], "content": ""},
         ]
     }
-    warnings = relay.detect_missing_reasoning_content(payload, {"thinking": None})  # unset -> enabled default
+    warnings = relay.detect_missing_reasoning_content(payload)  # no "thinking" key -> enabled default
     assert warnings == ["assistant_tool_call_missing_reasoning_content"]
 
 
 def test_detect_missing_reasoning_content_silent_when_present():
     payload = {
+        "thinking": {"type": "enabled"},
         "messages": [
             {"role": "assistant", "tool_calls": [{"id": "1"}], "content": "", "reasoning_content": "thought..."},
-        ]
+        ],
     }
-    assert relay.detect_missing_reasoning_content(payload, {"thinking": "enabled"}) == []
+    assert relay.detect_missing_reasoning_content(payload) == []
 
 
 def test_detect_missing_reasoning_content_silent_when_thinking_disabled():
-    payload = {"messages": [{"role": "assistant", "tool_calls": [{"id": "1"}], "content": ""}]}
-    assert relay.detect_missing_reasoning_content(payload, {"thinking": "disabled"}) == []
+    payload = {
+        "thinking": {"type": "disabled"},
+        "messages": [{"role": "assistant", "tool_calls": [{"id": "1"}], "content": ""}],
+    }
+    assert relay.detect_missing_reasoning_content(payload) == []
 
 
 def test_detect_missing_reasoning_content_silent_without_tool_calls():
     payload = {"messages": [{"role": "assistant", "content": "just text"}]}
-    assert relay.detect_missing_reasoning_content(payload, {"thinking": None}) == []
+    assert relay.detect_missing_reasoning_content(payload) == []
+
+
+def test_detect_missing_reasoning_content_reads_client_payload_thinking_not_env_cfg():
+    """Same class of regression as apply_deepseek_compatibility above: a client-declared
+    thinking.type=disabled (no env override) must silence the warning."""
+    payload = {
+        "thinking": {"type": "disabled"},
+        "messages": [{"role": "assistant", "tool_calls": [{"id": "1"}], "content": ""}],
+    }
+    assert relay.detect_missing_reasoning_content(payload) == []
 
 
 def test_prepare_upstream_request_headers_strips_accept_encoding_always():
@@ -694,7 +724,7 @@ def test_handle_proxy_active_deepseek_preset_does_apply_overrides():
             relay,
             "DEEPSEEK_CFG",
             {"base": "https://api.deepseek.com", "model": "deepseek-v4-pro", "api_key": "sk-real-secret",
-             "thinking": None, "reasoning_effort": None},
+             "thinking": None, "reasoning_effort": None, "reasoning_content_guard": "warn"},
         ),
         patch.object(relay, "UPSTREAM_BASE", "https://api.deepseek.com"),
     ):
@@ -704,6 +734,79 @@ def test_handle_proxy_active_deepseek_preset_does_apply_overrides():
     assert sent.get_header("Authorization") == "Bearer sk-real-secret"
     sent_body = json.loads(sent.data)
     assert sent_body["model"] == "deepseek-v4-pro"
+
+
+def test_handle_proxy_deepseek_reasoning_content_warn_mode_still_forwards():
+    """Regression for the confirmed bug: the warning used to be computed but never acted on
+    before the (possibly paid) upstream call -- only written to JSONL afterward. In "warn" mode
+    (default) the request must still be forwarded, but the warning must now be visible via
+    deepseek_overrides at the point the decision is made, not just after the call completes."""
+    body = (
+        b'{"model":"qwen3-coder-next-q4ks","messages":['
+        b'{"role":"user","content":"do it"},'
+        b'{"role":"assistant","tool_calls":[{"id":"1"}],"content":""}]}'
+    )
+    headers = {
+        "Content-Length": str(len(body)),
+        "Content-Type": "application/json",
+        "Authorization": "Bearer local-relay",
+    }
+
+    with (
+        patch.object(
+            relay,
+            "DEEPSEEK_CFG",
+            {"base": "https://api.deepseek.com", "model": "deepseek-v4-pro", "api_key": "sk-real-secret",
+             "thinking": None, "reasoning_effort": None, "reasoning_content_guard": "warn"},
+        ),
+        patch.object(relay, "UPSTREAM_BASE", "https://api.deepseek.com"),
+    ):
+        sent, record = _run_handle_proxy("/v1/chat/completions", body, headers)
+
+    # warn mode: request still goes out (upstream call happened -- _run_handle_proxy already
+    # asserts exactly one captured urlopen call), but the warning is recorded.
+    assert sent.full_url == "https://api.deepseek.com/v1/chat/completions"
+    assert record["deepseek_overrides"]["warnings"] == ["assistant_tool_call_missing_reasoning_content"]
+
+
+def test_handle_proxy_deepseek_reasoning_content_block_mode_prevents_upstream_call():
+    """The actual fail-fast fix: DEEPSEEK_REASONING_CONTENT_GUARD=block must reject the request
+    with a local error WITHOUT ever calling urlopen -- proving the paid API call is genuinely
+    saved, not just that a flag gets written to JSONL after the call already happened."""
+    body = (
+        b'{"model":"qwen3-coder-next-q4ks","messages":['
+        b'{"role":"assistant","tool_calls":[{"id":"1"}],"content":""}]}'
+    )
+    headers = {
+        "Content-Length": str(len(body)),
+        "Content-Type": "application/json",
+        "Authorization": "Bearer local-relay",
+    }
+    handler = _FakeRequestHandler("/v1/chat/completions", "POST", body, headers)
+    urlopen_calls: list[Request] = []
+
+    def _fake_urlopen(request: Request, timeout: float | None = None, context: object = None) -> _FakeUpstreamCtxResp:
+        urlopen_calls.append(request)
+        return _FakeUpstreamCtxResp()
+
+    with (
+        patch.object(
+            relay,
+            "DEEPSEEK_CFG",
+            {"base": "https://api.deepseek.com", "model": "deepseek-v4-pro", "api_key": "sk-real-secret",
+             "thinking": None, "reasoning_effort": None, "reasoning_content_guard": "block"},
+        ),
+        patch.object(relay, "UPSTREAM_BASE", "https://api.deepseek.com"),
+        patch.object(relay, "urlopen", _fake_urlopen),
+        patch.object(relay, "write_jsonl", lambda record: None),
+        patch.object(relay, "RELAY_COMPRESS_ACTIVE", False),
+    ):
+        relay.RelayHandler._handle_proxy(handler)  # type: ignore[arg-type]
+
+    assert urlopen_calls == []  # the paid call never happened
+    assert handler.status_code == 422
+    body_sent_to_client = json.loads(handler.wfile.getvalue())
+    assert body_sent_to_client["error"]["code"] == "relay_deepseek_reasoning_content_missing"
 
 
 def test_redact_headers_masks_credential_style_headers():
@@ -722,6 +825,55 @@ def test_redact_headers_masks_credential_style_headers():
     assert redacted["X-Auth-Token"] == "***REDACTED***"
     assert redacted["X-Api-Key"] == "***REDACTED***"
     assert redacted["Content-Type"] == "application/json"  # not touched
+
+
+def test_redact_headers_masks_response_set_cookie():
+    """Regression: redact_headers() is also applied to upstream *response* headers
+    (response.headers in the JSONL record) -- a real Set-Cookie from a cloud provider is just
+    as sensitive as a request-side credential and must not leak to disk."""
+    headers = {"Set-Cookie": "session_id=super-secret; Path=/", "Content-Type": "application/json"}
+    redacted = relay.redact_headers(headers)
+    assert redacted["Set-Cookie"] == "***REDACTED***"
+    assert redacted["Content-Type"] == "application/json"
+
+
+def test_redact_headers_masks_additional_token_variants():
+    headers = {
+        "X-Session-Token": "s1",
+        "X-Refresh-Token": "r1",
+        "X-Bearer-Token": "b1",
+        "X-Amz-Security-Token": "a1",
+        "Authentication-Info": "ai1",
+        "Proxy-Authentication-Info": "pai1",
+        "Cookie2": "c2",
+    }
+    redacted = relay.redact_headers(headers)
+    assert all(v == "***REDACTED***" for v in redacted.values())
+
+
+def test_prepare_upstream_request_headers_strips_transfer_encoding_and_proxy_connection():
+    headers = {
+        "Transfer-Encoding": "chunked",
+        "Proxy-Connection": "keep-alive",
+        "Content-Type": "application/json",
+    }
+    out = relay._prepare_upstream_request_headers(headers)
+    assert "Transfer-Encoding" not in out
+    assert "Proxy-Connection" not in out
+    assert out["Content-Type"] == "application/json"
+
+
+def test_prepare_upstream_request_headers_strips_connection_listed_headers():
+    headers = {
+        "Connection": "X-Internal, X-Debug-Trace",
+        "X-Internal": "secret-internal-value",
+        "X-Debug-Trace": "trace-id-1",
+        "Content-Type": "application/json",
+    }
+    out = relay._prepare_upstream_request_headers(headers)
+    assert "X-Internal" not in out
+    assert "X-Debug-Trace" not in out
+    assert out["Content-Type"] == "application/json"
 
 
 def test_handle_proxy_does_not_write_cookie_or_proxy_auth_to_jsonl_record():
@@ -770,7 +922,7 @@ def test_handle_proxy_deepseek_strips_cookie_and_proxy_auth_from_outbound_reques
             relay,
             "DEEPSEEK_CFG",
             {"base": "https://api.deepseek.com", "model": "deepseek-v4-pro", "api_key": "sk-real-secret",
-             "thinking": None, "reasoning_effort": None},
+             "thinking": None, "reasoning_effort": None, "reasoning_content_guard": "warn"},
         ),
         patch.object(relay, "UPSTREAM_BASE", "https://api.deepseek.com"),
     ):

@@ -974,35 +974,63 @@ def _send_compress_trace_headers(handler: BaseHTTPRequestHandler, compress_summa
     handler.send_header("X-Kilo-Relay-System-Stubbed", "1" if stub else "0")
 
 
-# Hop-by-hop headers (RFC 7230 §6.1) plus Accept-Encoding: this relay never decompresses
-# responses and already strips Content-Encoding from what it hands back to the client, so
-# advertising gzip/deflate/br support to upstream would risk handing the client undecodable
-# compressed bytes with no header telling it so (mitigates the main gzip-corruption scenario;
-# does not itself guarantee upstream never compresses — a belt-and-suspenders fix would decode
-# the response or preserve Content-Encoding instead of stripping it).
+# Hop-by-hop headers (RFC 7230 §6.1 / RFC 9112) plus Accept-Encoding: this relay never
+# decompresses responses and already strips Content-Encoding from what it hands back to the
+# client, so advertising gzip/deflate/br support to upstream would risk handing the client
+# undecodable compressed bytes with no header telling it so (mitigates the main gzip-corruption
+# scenario; does not itself guarantee upstream never compresses — a belt-and-suspenders fix
+# would decode the response or preserve Content-Encoding instead of stripping it).
+# transfer-encoding/proxy-connection were a confirmed gap: this handler has no chunked
+# request-body support (reads only Content-Length), so forwarding a stray
+# Transfer-Encoding: chunked from the client would misrepresent the framing of what's actually
+# being sent — RFC 9112 treats incorrect framing headers as a request-smuggling risk class.
 _ALWAYS_STRIP_REQUEST_HEADERS = frozenset(
-    {"host", "content-length", "connection", "accept-encoding", "te", "trailer", "upgrade", "keep-alive"}
+    {
+        "host", "content-length", "connection", "accept-encoding",
+        "te", "trailer", "upgrade", "keep-alive", "transfer-encoding", "proxy-connection",
+    }
 )
+
+
+def _connection_listed_headers(headers: dict[str, str]) -> set[str]:
+    """RFC 7230 §6.1: Connection may list additional header names that are hop-by-hop for this
+    specific message (e.g. ``Connection: X-Internal`` means X-Internal must not be forwarded)."""
+    listed: set[str] = set()
+    for key, value in headers.items():
+        if key.lower() == "connection":
+            listed.update(part.strip().lower() for part in value.split(",") if part.strip())
+    return listed
+
 
 # Single source of truth for "this header name looks like it carries a credential/session
 # secret" — used both to decide what NOT to forward to a real internet host (DeepSeek) and
-# what MUST be redacted before writing to the JSONL log. Previously these were two separate,
-# inconsistent lists: the forward-filter caught Cookie/Proxy-Authorization/etc., but
-# redact_headers() below only ever matched "Authorization" and names containing "api-key" or
-# ending in "key" — meaning Cookie/Proxy-Authorization/X-Auth-Token/custom session headers were
-# written to disk in plaintext on every single request, unconditionally (not gated by
-# KILO_RELAY_FULL_BODY). Confirmed bug, fixed by unifying both call sites on one classifier.
+# what MUST be redacted before writing to the JSONL log (including *response* headers from
+# upstream, e.g. Set-Cookie — session cookies from a real provider response are just as
+# sensitive as request-side credentials). Previously these were two separate, inconsistent
+# lists: the forward-filter caught Cookie/Proxy-Authorization/etc., but redact_headers() below
+# only ever matched "Authorization" and names containing "api-key" or ending in "key" — meaning
+# Cookie/Proxy-Authorization/X-Auth-Token/custom session headers were written to disk in
+# plaintext on every single request, unconditionally (not gated by KILO_RELAY_FULL_BODY).
+# Confirmed bug, fixed by unifying both call sites on one classifier with deliberately broad
+# substrings (favors over-redaction of a non-secret debug header over missing a real secret).
 _SENSITIVE_HEADER_EXACT_NAMES = frozenset(
-    {"authorization", "cookie", "proxy-authorization", "x-api-key", "x-auth-token", "x-access-token", "x-csrf-token"}
+    {
+        "authorization", "cookie", "cookie2", "set-cookie", "set-cookie2",
+        "proxy-authorization", "authentication-info", "proxy-authentication-info",
+        "x-api-key", "x-auth-token", "x-access-token", "x-csrf-token",
+        "x-session-token", "x-refresh-token", "x-bearer-token", "x-amz-security-token",
+    }
 )
-_SENSITIVE_HEADER_SUBSTRINGS = ("api-key", "auth-token", "access-token", "session-id", "secret")
+_SENSITIVE_HEADER_SUBSTRINGS = ("cookie", "token", "secret", "auth", "session")
 
 
 def is_sensitive_header_name(name: str) -> bool:
     """Whether a header name commonly carries a credential/session value.
 
-    Intentionally broader than a literal name match: custom client headers (session cookies,
-    internal auth tokens) won't all be named exactly "Cookie" or "Authorization".
+    Deliberately broad — substring match on "cookie"/"token"/"secret"/"auth"/"session" catches
+    custom/vendor header naming conventions this relay hasn't seen yet, not just the literal
+    names above. Over-redacting an occasional non-secret debug header (e.g. WWW-Authenticate)
+    is an acceptable cost; missing a real credential is not.
     """
     low = name.lower()
     if low in _SENSITIVE_HEADER_EXACT_NAMES:
@@ -1015,15 +1043,16 @@ def is_sensitive_header_name(name: str) -> bool:
 def _prepare_upstream_request_headers(headers: dict[str, str]) -> dict[str, str]:
     """Filter client headers before forwarding upstream.
 
-    Always strips hop-by-hop/recomputed headers and Accept-Encoding (see comment above). When
-    the DeepSeek preset is active, additionally drops every header ``is_sensitive_header_name``
-    flags except Authorization itself (which was already overwritten with the real DeepSeek key
-    by ``_override_authorization`` and must be forwarded) — a real internet host has no
-    legitimate reason to see the client's own Cookie/Proxy-Authorization/session headers. This
-    is still a blocklist, not an allowlist: unmatched headers (User-Agent, Accept, X-Request-ID,
-    Forwarded, other custom X-* headers) are still forwarded as-is.
+    Always strips hop-by-hop/recomputed headers, Accept-Encoding (see comment above), and any
+    header dynamically listed inside the client's own Connection header. When the DeepSeek
+    preset is active, additionally drops every header ``is_sensitive_header_name`` flags except
+    Authorization itself (already overwritten with the real DeepSeek key by
+    ``_override_authorization`` and must be forwarded) — a real internet host has no legitimate
+    reason to see the client's own Cookie/Proxy-Authorization/session headers. This is still a
+    blocklist, not an allowlist: unmatched headers (User-Agent, Accept, X-Request-ID, Forwarded,
+    other custom X-* headers) are still forwarded as-is.
     """
-    strip = set(_ALWAYS_STRIP_REQUEST_HEADERS)
+    strip = set(_ALWAYS_STRIP_REQUEST_HEADERS) | _connection_listed_headers(headers)
     if DEEPSEEK_CFG is not None:
         strip |= {k.lower() for k in headers if k.lower() != "authorization" and is_sensitive_header_name(k)}
     return {k: v for k, v in headers.items() if k.lower() not in strip}
@@ -1266,11 +1295,14 @@ class RelayHandler(BaseHTTPRequestHandler):
         wants_stream = (
             not BUFFER_STREAM
             and not guard.block
+            and not reasoning_content_blocked
             and stream_source is not None
             and _payload_stream_enabled(stream_source.get("stream"))
         )
         if guard.block:
             upstream = build_guard_response(guard, request_summary)
+        elif reasoning_content_blocked:
+            upstream = build_reasoning_content_guard_response(deepseek_overrides.get("warnings", []))
         elif wants_stream:
             upstream = forward_request_streaming(
                 self.command,
