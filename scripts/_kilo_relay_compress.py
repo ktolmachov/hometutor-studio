@@ -243,6 +243,97 @@ def _qualifies_simple_chat(payload: dict[str, Any], max_user_chars: int) -> bool
     return True
 
 
+def _history_window_bounds(messages: list[Any], keep_last_messages: int) -> tuple[int, int]:
+    """Return ``(lead_end, cut_at)``: the kept window is ``messages[:lead_end] +
+    messages[cut_at:]``.
+
+    ``lead_end`` covers any leading ``system`` messages (always kept — they carry
+    the platform prompt / tool-use rules, not per-turn history).
+
+    ``cut_at`` starts at ``len(messages) - keep_last_messages`` and is walked
+    backward past any leading ``role == "tool"`` message, so the kept tail never
+    opens on a dangling tool-result whose triggering ``assistant`` message (with
+    the matching ``tool_calls`` entry) got cut — that would send an invalid
+    message chain upstream. Tool-result messages always directly follow their
+    triggering assistant message in this format, so walking back one message at
+    a time terminates at that assistant message (or at ``lead_end``).
+    """
+    lead_end = 0
+    while lead_end < len(messages) and isinstance(messages[lead_end], dict) and messages[lead_end].get("role") == "system":
+        lead_end += 1
+
+    if len(messages) - lead_end <= keep_last_messages:
+        return lead_end, lead_end
+
+    cut_at = len(messages) - keep_last_messages
+    while cut_at > lead_end and isinstance(messages[cut_at], dict) and messages[cut_at].get("role") == "tool":
+        cut_at -= 1
+    return lead_end, cut_at
+
+
+def _apply_history_window(payload: dict[str, Any], keep_last_messages: int) -> tuple[bool, int]:
+    """Keep leading ``system`` message(s) + the last ``keep_last_messages`` of
+    the rest, extended as needed to avoid an orphaned tool-result message.
+    Returns ``(changed, messages_dropped)``."""
+    if keep_last_messages <= 0:
+        return False, 0
+    messages = payload.get("messages")
+    if not isinstance(messages, list) or not messages:
+        return False, 0
+    lead_end, cut_at = _history_window_bounds(messages, keep_last_messages)
+    if cut_at <= lead_end:
+        return False, 0
+    dropped = cut_at - lead_end
+    payload["messages"] = messages[:lead_end] + messages[cut_at:]
+    return True, dropped
+
+
+def _cap_text_chars(text: str, max_chars: int) -> tuple[str, bool]:
+    if max_chars <= 0 or len(text) <= max_chars:
+        return text, False
+    dropped = len(text) - max_chars
+    return text[:max_chars] + f"\n…[truncated by relay: {dropped} more chars]", True
+
+
+def _cap_message_content(content: Any, max_chars: int) -> tuple[Any, bool]:
+    """Cap a message's ``content`` (str or list-of-parts) to ``max_chars``,
+    keeping the head — matching ``_truncate_desc``'s head-keep convention — and
+    appending a marker with the dropped char count."""
+    if isinstance(content, str):
+        return _cap_text_chars(content, max_chars)
+    if isinstance(content, list):
+        changed = False
+        new_parts: list[Any] = []
+        for part in content:
+            if isinstance(part, dict) and part.get("type") == "text" and isinstance(part.get("text"), str):
+                new_text, part_changed = _cap_text_chars(part["text"], max_chars)
+                if part_changed:
+                    part = {**part, "text": new_text}
+                    changed = True
+            new_parts.append(part)
+        return new_parts, changed
+    return content, False
+
+
+def _cap_tool_result_chars(payload: dict[str, Any], max_chars: int) -> tuple[bool, int]:
+    """Cap the content of every ``role == "tool"`` message to ``max_chars``.
+    Returns ``(changed, messages_capped)``."""
+    if max_chars <= 0:
+        return False, 0
+    messages = payload.get("messages")
+    if not isinstance(messages, list):
+        return False, 0
+    capped = 0
+    for msg in messages:
+        if not isinstance(msg, dict) or msg.get("role") != "tool":
+            continue
+        new_content, changed = _cap_message_content(msg.get("content"), max_chars)
+        if changed:
+            msg["content"] = new_content
+            capped += 1
+    return capped > 0, capped
+
+
 def _apply_cursor_system_stub(payload: dict[str, Any], stub: str) -> bool:
     """Replace every ``role == system`` message content with ``stub``."""
     messages = payload.get("messages")
@@ -282,6 +373,8 @@ class RelayCompressConfig:
     purge_parameter_descriptions: bool = False
     simple_chat_strip_tools_max_user_chars: int = 0
     slim_mode_label: str = ""
+    keep_last_messages: int = 0
+    max_tool_result_chars: int = 0
 
 
 @dataclass
@@ -298,6 +391,10 @@ class CompressResult:
     tool_choice_forced_none: bool = False
     slim_mode_label: str = ""
     cursor_system_stubbed: bool = False
+    messages_before: int = 0
+    messages_after: int = 0
+    messages_dropped_history: int = 0
+    tool_results_capped: int = 0
 
     def to_log_dict(self) -> dict[str, Any]:
         ct = self.chars_saved_estimate
@@ -315,6 +412,10 @@ class CompressResult:
             "estimated_tokens_saved_approx": max(1, ct // 4) if ct else 0,
             "simple_chat_tools_dropped": self.simple_chat_tools_dropped,
             "tool_choice_forced_none": self.tool_choice_forced_none,
+            "messages_before": self.messages_before,
+            "messages_after": self.messages_after,
+            "messages_dropped_history": self.messages_dropped_history,
+            "tool_results_capped": self.tool_results_capped,
         }
 
 
@@ -331,7 +432,18 @@ def compress_chat_completion(payload: dict[str, Any], cfg: RelayCompressConfig) 
     simple_drop = False
     forced_none = False
 
+    messages_before = len(out["messages"]) if isinstance(out.get("messages"), list) else 0
+    _, messages_dropped_history = _apply_history_window(out, cfg.keep_last_messages)
+    messages_after = len(out["messages"]) if isinstance(out.get("messages"), list) else messages_before
+
     strip_actions = _compress_message_strings(out, cfg)
+
+    _, tool_results_capped = _cap_tool_result_chars(out, cfg.max_tool_result_chars)
+    if tool_results_capped:
+        strip_actions = sorted({*strip_actions, "cap_tool_result_chars"})
+    if messages_dropped_history:
+        strip_actions = sorted({*strip_actions, "history_window"})
+
     stubbed = False
     if cfg.replace_cursor_system_content and _apply_cursor_system_stub(out, cfg.cursor_system_stub_text):
         stubbed = True
@@ -398,6 +510,10 @@ def compress_chat_completion(payload: dict[str, Any], cfg: RelayCompressConfig) 
         tool_choice_forced_none=forced_none,
         slim_mode_label=cfg.slim_mode_label,
         cursor_system_stubbed=stubbed,
+        messages_before=messages_before,
+        messages_after=messages_after,
+        messages_dropped_history=messages_dropped_history,
+        tool_results_capped=tool_results_capped,
     )
 
 
@@ -474,6 +590,8 @@ def relay_compress_config_from_env(env: dict[str, str]) -> RelayCompressConfig:
         max_desc = 80
 
     replace_sys = _env_truthy(env.get("KILO_RELAY_REPLACE_CURSOR_SYSTEM", ""))
+    keep_last_messages = int(env.get("KILO_RELAY_KEEP_LAST_MESSAGES", "0") or "0")
+    max_tool_result_chars = int(env.get("KILO_RELAY_MAX_TOOL_RESULT_CHARS", "0") or "0")
     use_summaries = False
     purge_params = False
     simple_max = int(env.get("KILO_RELAY_SIMPLE_CHAT_MAX_USER_CHARS", "0") or "0")
@@ -503,6 +621,10 @@ def relay_compress_config_from_env(env: dict[str, str]) -> RelayCompressConfig:
         sc = env.get("KILO_RELAY_CLOUD_BUDGET_SIMPLE_CHAT_MAX_USER_CHARS", "").strip()
         if sc:
             simple_max = int(sc)
+        # Tier B (history budget) — opt-in only: unset ⇒ 0 ⇒ no-op, matching
+        # every other KILO_RELAY_CLOUD_BUDGET_* toggle's default-off convention.
+        keep_last_messages = int(env.get("KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES", "0") or "0")
+        max_tool_result_chars = int(env.get("KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS", "0") or "0")
     elif is_local:
         label = slim_raw_display or "local(default)"
         if allow is None:
@@ -555,6 +677,8 @@ def relay_compress_config_from_env(env: dict[str, str]) -> RelayCompressConfig:
         purge_parameter_descriptions=purge_params,
         simple_chat_strip_tools_max_user_chars=simple_max,
         slim_mode_label=label,
+        keep_last_messages=keep_last_messages,
+        max_tool_result_chars=max_tool_result_chars,
     )
 
 
@@ -577,4 +701,6 @@ def relay_compress_any_enabled(cfg: RelayCompressConfig) -> bool:
         or cfg.strip_cursor_rules_xml
         or cfg.replace_cursor_system_content
         or cfg.simple_chat_strip_tools_max_user_chars > 0
+        or cfg.keep_last_messages > 0
+        or cfg.max_tool_result_chars > 0
     )

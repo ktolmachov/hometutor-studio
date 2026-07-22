@@ -886,6 +886,12 @@ def format_request_mini_stats(
         saved = compress_summary.get("chars_saved_estimate")
         if saved is not None:
             parts.append(f"saved={saved}")
+        hist_dropped = compress_summary.get("messages_dropped_history")
+        if hist_dropped:
+            parts.append(f"hist_cut={hist_dropped}")
+        tr_capped = compress_summary.get("tool_results_capped")
+        if tr_capped:
+            parts.append(f"tr_capped={tr_capped}")
     if isinstance(usage, dict):
         pin = usage.get("prompt_tokens")
         pout = usage.get("completion_tokens")

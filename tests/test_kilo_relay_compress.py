@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -266,3 +267,210 @@ def test_default_cursor_stub_covers_model_identity_hint():
     """Stub used when replacing Cursor platform system (doc/kilo_proxy_relay § audit)."""
     assert "model" in DEFAULT_CURSOR_SYSTEM_STUB.lower()
     assert "json" in DEFAULT_CURSOR_SYSTEM_STUB.lower()
+
+
+# --- Tier B: history window + tool_result capping -------------------------
+# Added after the diagnosis "kilo_content_budget_breakthrough" flagged
+# unbounded per-turn growth (tool_result + assistant_tool_calls history never
+# trimmed by the relay). Lifting the earlier "do not touch messages[] history"
+# constraint was an explicit, deliberate decision — not an oversight.
+
+
+def _msg(role: str, content: Any = "x", tool_call_id: str | None = None, tool_calls: list | None = None) -> dict:
+    m: dict[str, Any] = {"role": role, "content": content}
+    if tool_call_id is not None:
+        m["tool_call_id"] = tool_call_id
+    if tool_calls is not None:
+        m["tool_calls"] = tool_calls
+    return m
+
+
+def _parallel_tool_calls_payload() -> dict:
+    """system, then a chain including one single tool_call turn and one
+    *parallel* (2-call) tool_call turn — the case that would orphan a
+    tool-result message if the window cut naively by raw message count."""
+    return {
+        "model": "x",
+        "messages": [
+            _msg("system", "platform prompt"),
+            _msg("user", "u1"),
+            _msg("assistant", None, tool_calls=[{"id": "c1", "type": "function", "function": {"name": "Read"}}]),
+            _msg("tool", "r1", tool_call_id="c1"),
+            _msg("assistant", "a1"),
+            _msg("user", "u2"),
+            _msg(
+                "assistant",
+                None,
+                tool_calls=[
+                    {"id": "c2a", "type": "function", "function": {"name": "Read"}},
+                    {"id": "c2b", "type": "function", "function": {"name": "Grep"}},
+                ],
+            ),
+            _msg("tool", "r2a", tool_call_id="c2a"),
+            _msg("tool", "r2b", tool_call_id="c2b"),
+            _msg("assistant", "a2"),
+            _msg("user", "u3"),
+        ],
+    }
+
+
+def _assert_no_dangling_tool_messages(messages: list) -> None:
+    produced_ids: set[str] = set()
+    for m in messages:
+        if m.get("role") == "assistant" and isinstance(m.get("tool_calls"), list):
+            for tc in m["tool_calls"]:
+                if isinstance(tc, dict) and tc.get("id"):
+                    produced_ids.add(tc["id"])
+    for m in messages:
+        if m.get("role") == "tool":
+            assert m.get("tool_call_id") in produced_ids, f"dangling tool result: {m}"
+
+
+def test_history_window_noop_when_under_limit():
+    cfg = RelayCompressConfig(keep_last_messages=100)
+    payload = _parallel_tool_calls_payload()
+    out = compress_chat_completion(payload, cfg)
+    assert out.messages_dropped_history == 0
+    assert out.messages_after == out.messages_before
+    assert out.payload["messages"] == payload["messages"]
+
+
+def test_history_window_disabled_by_default():
+    cfg = RelayCompressConfig()  # keep_last_messages defaults to 0
+    payload = _parallel_tool_calls_payload()
+    out = compress_chat_completion(payload, cfg)
+    assert out.messages_dropped_history == 0
+    assert len(out.payload["messages"]) == len(payload["messages"])
+
+
+def test_history_window_keeps_leading_system_and_trims_tail():
+    cfg = RelayCompressConfig(keep_last_messages=3)
+    payload = _parallel_tool_calls_payload()
+    out = compress_chat_completion(payload, cfg)
+    kept = out.payload["messages"]
+    assert kept[0] == payload["messages"][0]  # system always kept
+    assert kept[0]["role"] == "system"
+    assert out.messages_dropped_history > 0
+    assert len(kept) < len(payload["messages"])
+    assert kept[-1] == payload["messages"][-1]  # tail end never dropped
+
+
+def test_history_window_never_leaves_dangling_tool_result():
+    """The core correctness requirement: cutting mid-way through a parallel
+    tool_calls/tool_result chain must not send an invalid message list
+    upstream. Try every window size to hit both the single-call and the
+    parallel-call boundary cases."""
+    payload = _parallel_tool_calls_payload()
+    for n in range(1, len(payload["messages"]) + 2):
+        cfg = RelayCompressConfig(keep_last_messages=n)
+        out = compress_chat_completion(payload, cfg)
+        _assert_no_dangling_tool_messages(out.payload["messages"])
+
+
+def test_history_window_keeps_multiple_leading_system_messages():
+    payload = {
+        "messages": [
+            _msg("system", "s1"),
+            _msg("system", "s2"),
+            *[_msg("user", f"u{i}") for i in range(10)],
+        ]
+    }
+    cfg = RelayCompressConfig(keep_last_messages=2)
+    out = compress_chat_completion(payload, cfg)
+    kept = out.payload["messages"]
+    assert kept[0]["content"] == "s1"
+    assert kept[1]["content"] == "s2"
+    assert len(kept) == 4  # 2 system + last 2 user
+
+
+def test_cap_tool_result_chars_truncates_only_tool_role():
+    cfg = RelayCompressConfig(max_tool_result_chars=10)
+    payload = {
+        "messages": [
+            _msg("system", "s" * 50),
+            _msg("assistant", "a" * 50),
+            _msg("tool", "t" * 50, tool_call_id="c1"),
+        ]
+    }
+    out = compress_chat_completion(payload, cfg)
+    assert out.tool_results_capped == 1
+    kept = out.payload["messages"]
+    assert kept[0]["content"] == "s" * 50  # system untouched
+    assert kept[1]["content"] == "a" * 50  # assistant untouched
+    assert len(kept[2]["content"]) < 50
+    assert kept[2]["content"].startswith("t" * 10)
+    assert "truncated by relay" in kept[2]["content"]
+
+
+def test_cap_tool_result_chars_leaves_short_results_untouched():
+    cfg = RelayCompressConfig(max_tool_result_chars=100)
+    payload = {"messages": [_msg("tool", "short", tool_call_id="c1")]}
+    out = compress_chat_completion(payload, cfg)
+    assert out.tool_results_capped == 0
+    assert out.payload["messages"][0]["content"] == "short"
+
+
+def test_cap_tool_result_chars_disabled_by_default():
+    cfg = RelayCompressConfig()
+    payload = {"messages": [_msg("tool", "t" * 5000, tool_call_id="c1")]}
+    out = compress_chat_completion(payload, cfg)
+    assert out.tool_results_capped == 0
+    assert out.payload["messages"][0]["content"] == "t" * 5000
+
+
+def test_cap_tool_result_chars_handles_list_of_parts_content():
+    cfg = RelayCompressConfig(max_tool_result_chars=5)
+    payload = {
+        "messages": [
+            {
+                "role": "tool",
+                "tool_call_id": "c1",
+                "content": [{"type": "text", "text": "x" * 20}],
+            }
+        ]
+    }
+    out = compress_chat_completion(payload, cfg)
+    assert out.tool_results_capped == 1
+    text = out.payload["messages"][0]["content"][0]["text"]
+    assert text.startswith("x" * 5)
+    assert "truncated by relay" in text
+
+
+def test_compress_result_to_log_dict_reports_history_and_cap_counters():
+    cfg = RelayCompressConfig(keep_last_messages=3, max_tool_result_chars=5)
+    payload = _parallel_tool_calls_payload()
+    out = compress_chat_completion(payload, cfg)
+    log = out.to_log_dict()
+    assert log["messages_before"] == len(payload["messages"])
+    assert log["messages_after"] == len(out.payload["messages"])
+    assert log["messages_dropped_history"] == out.messages_dropped_history
+    assert log["tool_results_capped"] == out.tool_results_capped
+
+
+def test_env_keep_last_messages_generic_var_applies_off_mode():
+    cfg = relay_compress_config_from_env(
+        {"KILO_RELAY_SLIM_MODE": "off", "KILO_RELAY_KEEP_LAST_MESSAGES": "5"}
+    )
+    assert cfg.keep_last_messages == 5
+    assert relay_compress_any_enabled(cfg)  # turns compression on even though slim_mode is off
+
+
+def test_env_cloud_budget_keep_last_messages_requires_its_own_var():
+    """The generic KILO_RELAY_KEEP_LAST_MESSAGES is NOT a fallback in
+    cloud_budget mode — mirrors every other KILO_RELAY_CLOUD_BUDGET_* override
+    (e.g. strip_cursor_rules_xml), so this is intentional, not a bug."""
+    cfg = relay_compress_config_from_env(
+        {"KILO_RELAY_SLIM_MODE": "cloud_budget", "KILO_RELAY_KEEP_LAST_MESSAGES": "5"}
+    )
+    assert cfg.keep_last_messages == 0
+
+    cfg2 = relay_compress_config_from_env(
+        {
+            "KILO_RELAY_SLIM_MODE": "cloud_budget",
+            "KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES": "8",
+            "KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS": "500",
+        }
+    )
+    assert cfg2.keep_last_messages == 8
+    assert cfg2.max_tool_result_chars == 500
+    assert relay_compress_any_enabled(cfg2)
