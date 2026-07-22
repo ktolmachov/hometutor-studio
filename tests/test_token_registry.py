@@ -46,6 +46,45 @@ def test_check_backlog_drift_token_safety_registry_entry() -> None:
     assert entry["est_tokens"] > 500
 
 
+_METADATA_FIELD_NAMES = {"lines", "bytes", "est_tokens", "full_read", "safe_hint", "missing"}
+
+
+def test_registry_structure_no_dropped_keys() -> None:
+    """Guard the exact corruption the 2026-07 audit found: a dropped file key made
+    metadata fields (lines/bytes/...) leak as top-level ``files`` keys, which parsed
+    as valid JSON but silently merged one entry into another."""
+    data = json.loads((ROOT / "doc" / "token_safety_registry.json").read_text(encoding="utf-8"))
+    files = data["files"]
+    assert isinstance(files, dict) and files
+    for key, meta in files.items():
+        assert key not in _METADATA_FIELD_NAMES, f"metadata field '{key}' leaked as a file key (dropped-key corruption)"
+        assert isinstance(meta, dict), f"{key}: entry must be an object"
+        for field in ("lines", "bytes", "est_tokens"):
+            assert isinstance(meta.get(field), int), f"{key}: '{field}' must be an int"
+
+
+def test_registry_metadata_fresh_for_local_files() -> None:
+    """Every entry whose file exists in THIS repo must match a fresh measurement.
+
+    Catches stale sizes/token estimates (the audit's second Log-2 finding). CODE_ROOT
+    files (app/*, requirements.txt) are absent here and are skipped — the merge-safe
+    generator preserves their numbers. Regenerate with:
+        python scripts/measure_token_registry.py --write
+    """
+    import scripts.measure_token_registry as measure_mod
+
+    data = json.loads((ROOT / "doc" / "token_safety_registry.json").read_text(encoding="utf-8"))
+    stale: list[str] = []
+    for rel, meta in data["files"].items():
+        if not (ROOT / rel.replace("/", "\\")).is_file() and not (ROOT / rel).is_file():
+            continue  # CODE_ROOT / cross-repo file, not measurable here
+        fresh = measure_mod.measure(rel, meta)
+        for field in ("lines", "bytes", "est_tokens"):
+            if meta.get(field) != fresh.get(field):
+                stale.append(f"{rel}.{field}: registry={meta.get(field)} actual={fresh.get(field)}")
+    assert not stale, "Stale token_safety_registry.json entries (run measure_token_registry.py --write):\n" + "\n".join(stale)
+
+
 def test_check_readset_merges_registry() -> None:
     registry = json.loads((ROOT / "doc" / "token_safety_registry.json").read_text(encoding="utf-8"))
     forbidden_from_registry = next(
