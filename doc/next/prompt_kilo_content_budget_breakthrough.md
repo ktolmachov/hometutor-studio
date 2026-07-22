@@ -45,7 +45,7 @@ Scope
 3) Рекомендации с приоритетом savings×(1/quality_risk):
    A. Без потери качества агента (IDE + registry + AGENTS rules)
    B. Opt-in cloud_budget strip flags
-   C. Чего НЕ делать (trim history в relay, SLIM=local на Cursor→DeepSeek)
+   C. Чего НЕ делать без явного решения (GUARD_MODE=block по умолчанию; SLIM=local на Cursor→DeepSeek). Trim history в relay — **реализован opt-in** (2026-07-23, см. `kilo_relay_history_window_tier_b_2026-07-23.md`).
 4) Правки write-set (только после evidence):
    - token_safety_registry.json: full_read/forbidden + safe_hint для топ-засорителей
      (ранжирование по top_paths; без псевдоточных token numbers из path est_tok)
@@ -74,9 +74,9 @@ DoD
 - [ ] Повторный короткий прогон: prompt_tokens заметно ниже (цель: укладываться в 12k/20k на обычном ходе)
 - [ ] pytest по затронутым тестам зелёный
 
-Do not touch
-- Trim messages[] / history внутри relay
-- Смена GUARD_MODE default на block
+Do not touch (на момент исходного контракта; обновлено 2026-07-23)
+- ~~Trim messages[] / history внутри relay~~ — **снято пользователем**; реализовано opt-in в `_kilo_relay_compress.py` (`KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES`, `KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS`). См. `doc/next/kilo_relay_history_window_tier_b_2026-07-23.md`.
+- Смена GUARD_MODE default на block (по-прежнему не трогать без отдельного решения)
 - CODE_ROOT app/* (RAG domain A)
 - Внешние Start-KiloRelay*.ps1 вне этого репо
 - Полный pytest suite / full-read запрещённых файлов
