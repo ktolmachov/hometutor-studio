@@ -1,6 +1,13 @@
 # Local Model Trust Contour — Execution Packet Plan
 
-**Версия:** 1.6 (2026-07-21, docs-refresh: добавлена секция «Клиенты контура» —
+**Версия:** 1.7 (2026-07-22, docs-refresh: исправлена фактическая неточность в
+«Клиенты контура» — три входа НЕ делят один runtime/модель; актуализировано
+описание пути B по факту доработки `kilo_proxy_relay.py` за 2026-07-22
+(DeepSeek preset: routing-precedence фикс, 4 подтверждённых payload-compatibility
+фикса, защита ключа от утечки на произвольный host, header hardening; открытый
+`reasoning_content` gap для multi-turn tool loop). Транзакционная модель, схема
+пакета и P0-1…P0-3 v1.5 не изменены — implementation по-прежнему не начата) ·
+**Предыдущая:** 1.6 (2026-07-21, docs-refresh: добавлена секция «Клиенты контура» —
 явно разведены пути llamacpp-trigger / Cursor SDK trigger / Cursor→kilo_relay;
 транзакционная модель и P0 v1.5 не изменены, т.к. код ещё не реализован) ·
 **База проверки:** hometutor-studio HEAD на момент refresh `4c5c576` (сдвинулся с
@@ -52,17 +59,24 @@ tests из того же ответа. Экземпляр `PAIN-02`.
 
 ---
 
-## Клиенты контура (llamacpp-trigger / Cursor SDK / kilo_relay) — v1.6
+## Клиенты контура (llamacpp-trigger / Cursor SDK / kilo_relay) — v1.7
 
-К локальной/проксируемой модели сегодня физически ведут **три разных входа**. Они
-делят один production-runtime (`qwen3-coder-next-q4ks`, `n_ctx=65536`), но имеют
-**разные trust-модели**, и их нельзя мерить одной метрикой без оговорок.
+К локальной/проксируемой модели сегодня физически ведут **три разных входа**.
+**Они НЕ делят один runtime/модель** (фактическая неточность v1.6 — исправлена
+2026-07-22, обнаружена самим текстом таблицы двумя строками ниже): primary всегда
+использует `qwen3-coder-next-q4ks` через llama.cpp; A использует облачный
+`CURSOR_MODEL` (дефолт `composer-2.5`) — совсем другую модель, не llama.cpp вообще;
+B маршрутизируется через `kilo_proxy_relay.py` на **выбираемый** upstream (LM Studio /
+llama.cpp / DeepSeek preset / `cloud_budget`) — тот же `qwen3-coder-next-q4ks` только
+при одной конкретной конфигурации релея. Общее у всех трёх — не runtime, а то, что
+все ведут к какой-то модели вне authoritative packet-контура; именно поэтому и нужны
+**разные trust-модели**, которые нельзя мерить одной метрикой без оговорок.
 
-| # | Путь | Как вызывается | Что валидирует границы (write-set / tests) |
-|---|---|---|---|
-| **primary** | `scripts/llamacpp_agent_trigger.ts` (local OpenAI executor) | Runner/`workflow.py` спавнит процесс, cwd=target_repo | пока — **сама модель** (trust inversion §диагноз); после P0-1 — задача (`model ⊆ task`) |
-| **A** | Cursor SDK trigger `scripts/cursor_agent_trigger.ts` | `npx tsx scripts/cursor_agent_trigger.ts <task.md>`; `CURSOR_API_KEY`, `CURSOR_MODEL` (дефолт `composer-2.5`), `local: { cwd: process.cwd() }` | платформенный агент Cursor + его tools; auto-approval режет **по инструментам, не по diff-путям** |
-| **B** | Cursor/Kilo IDE → `scripts/kilo_proxy_relay.py` → upstream | OpenAI-compatible base URL на релей; upstream = LM Studio / llama.cpp / DeepSeek preset / cloud_budget | релей — **токен-компрессор + char-guard, не write-set/test gate**; diff не проверяет вообще |
+| # | Путь | Как вызывается | Модель/runtime | Что валидирует границы (write-set / tests) |
+|---|---|---|---|---|
+| **primary** | `scripts/llamacpp_agent_trigger.ts` (local OpenAI executor) | Runner/`workflow.py` спавнит процесс, cwd=target_repo | `qwen3-coder-next-q4ks` через llama.cpp — фиксированно | пока — **сама модель** (trust inversion §диагноз); после P0-1 — задача (`model ⊆ task`) |
+| **A** | Cursor SDK trigger `scripts/cursor_agent_trigger.ts` | `npx tsx scripts/cursor_agent_trigger.ts <task.md>`; `CURSOR_API_KEY`, `CURSOR_MODEL` (дефолт `composer-2.5`), `local: { cwd: process.cwd() }` | облачная модель Cursor (`composer-2.5` по умолчанию) — **не** llama.cpp, не qwen3-coder-next-q4ks | платформенный агент Cursor + его tools; auto-approval режет **по инструментам, не по diff-путям** |
+| **B** | Cursor/Kilo IDE → `scripts/kilo_proxy_relay.py` → upstream | OpenAI-compatible base URL на релей; upstream = LM Studio / llama.cpp / DeepSeek preset / cloud_budget | зависит от конфигурации релея — `qwen3-coder-next-q4ks` только если upstream=llama.cpp; при DeepSeek preset — `deepseek-v4-pro`/`-flash` (облако, реальный платный ключ) | релей — **токен-компрессор + char-guard, не write-set/test gate**; diff не проверяет вообще |
 
 **Ключевые факты (проверены кодом 2026-07-21):**
 
@@ -92,8 +106,35 @@ tests из того же ответа. Экземпляр `PAIN-02`.
    а реальные tools Kilo (`read_file,write_to_file,execute_command,search_files,apply_diff`)
    под него не попадают → `out.pop("tools")` ломает tool-calling. Для Kilo daily нужен
    явный `SLIM_MODE`/allowlist из Audit-лога. Вывод для плана: релей — инфраструктура
-   доставки токенов, **не** элемент trust-контура; P0 write-set/test gate обязан жить в
-   executor/Runner, а не в релее.
+   доставки токенов, **не** write-set/test-gate элемент trust-контура (тот вывод не
+   меняется); P0 write-set/test gate обязан жить в executor/Runner, а не в релее.
+   Точнее: релей не участвует в trust-контуре **write-set/tests**, но с 2026-07-22 сам
+   держит реальный секрет (`DEEPSEEK_API_KEY`) и переписывает payload — то есть он часть
+   **транспортного/secret-handling** периметра, просто другого, не того, который
+   волнует P0-1…P0-3 (diff/tests). Не путать «не write-set gate» с «вообще не trust
+   boundary» — это разные утверждения.
+
+   **Обновление 2026-07-22 (DeepSeek preset в `kilo_proxy_relay.py`):** путь B теперь
+   умеет маршрутизировать на DeepSeek (`deepseek-v4-pro`/`-flash`, 1M-контекст) вместо
+   локальной llama.cpp. Значимо для контура:
+   - Явный raw-override `KILO_RELAY_UPSTREAM` **всегда** побеждает DeepSeek preset,
+     включая auth/model rewrite — был найден и закрыт баг, где протухший
+     `KILO_RELAY_UPSTREAM_PRESET=deepseek` вместе с raw-override мог отправить
+     реальный DeepSeek-ключ на произвольный (в т.ч. локальный) upstream; фикс закреплён
+     handler-level regression-тестом, не только unit на helper-функцию.
+   - Реализованы 4 подтверждённых через официальный DeepSeek-гайд (oh_my_pi)
+     payload-compatibility фикса (`developer`-роль, `tool_choice` в thinking-режиме,
+     `max_completion_tokens`→`max_tokens`, `content:null` на tool-call) — все stateless,
+     релей их чинит сам.
+   - **Не закрыто:** DeepSeek требует прокидывать `reasoning_content` обратно на
+     каждом следующем шаге разговора после tool call, иначе `HTTP 400` — это состояние
+     между запросами, релей его не хранит и не чинит. Совместимость Kilo с этой
+     конвенцией **не подтверждена**. Практическое следствие для контура: путь B через
+     DeepSeek preset — тем более не годится как замена P0-executor для agentic-задач с
+     tool-calling, пока это не проверено end-to-end (для path B и так уже не в P0 —
+     этот факт лишь усиливает существующий вывод, не меняет его).
+   - Подробности: [`../kilo_proxy_relay.md`](../kilo_proxy_relay.md),
+     [`kilo_relay_daily_architecture_review_2026-07-21.md`](kilo_relay_daily_architecture_review_2026-07-21.md).
 
 **Что это меняет в плане:** ничего в P0-1…P0-3 и транзакционной модели — они и так
 описывают правильный (primary) путь. Секция лишь фиксирует, что A и B — соседние входы
@@ -637,11 +678,17 @@ auto-approval.
 - Не засчитывать прогоны Cursor SDK trigger или Cursor/Kilo→kilo_relay в Execution VLCR
   или Local execution success: у них другая trust-модель (auto-approval по инструментам /
   голый токен-компрессор), они не проходят packet_policy и revert-before-review.
-- Не считать `kilo_proxy_relay.py` элементом trust-контура: он сжимает токены и держит
-  char-guard, но diff/write-set не валидирует — write-set/test gate обязан жить в
-  executor/Runner, а не в релее.
+- Не считать `kilo_proxy_relay.py` элементом write-set/test-gate trust-контура: он сжимает
+  токены и держит char-guard, но diff/write-set не валидирует — write-set/test gate обязан
+  жить в executor/Runner, а не в релее. (Не путать с secret/transport-периметром — с
+  2026-07-22 релей держит реальный `DEEPSEEK_API_KEY` и переписывает payload, это другой,
+  но реальный trust boundary, см. «Клиенты контура» выше.)
 - Не запускать relay-путь (B) с дефолтным `SLIM_MODE=local` для Kilo без явного allowlist
   из Audit-лога — Cursor-имена tools выкинут Kilo-tools (review C2).
+- Не считать relay-путь (B) через DeepSeek preset готовым для agentic tool-calling
+  сценариев: `reasoning_content` между шагами разговора не прокидывается релеем и не
+  проверялся end-to-end (2026-07-22) — усиливает уже существующий запрет засчитывать
+  путь B в Execution VLCR, не создаёт новый.
 
 ## UNKNOWNs
 

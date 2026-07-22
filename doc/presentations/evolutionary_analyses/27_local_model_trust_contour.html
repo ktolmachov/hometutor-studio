@@ -366,26 +366,38 @@
   </div>
 
   <h3>Три реальных входа к локальной модели — и где живёт инверсия доверия</h3>
-  <p>К одному production-runtime (<code>qwen3-coder-next-q4ks</code>, <code>n_ctx=65536</code>)
-  сегодня ведут <strong>три разных клиента</strong> с <em>разными</em> trust-моделями.
-  Инверсия доверия §4 — свойство <strong>только</strong> primary local-executor path;
-  два клиентских входа A/B её не наследуют, но и не чинят — у них своя.</p>
+  <p><strong>Три разных клиента</strong> ведут не к одному общему runtime (правка
+  2026-07-22: исходная формулировка «делят один production-runtime» была неточна —
+  видно уже из таблицы ниже): primary фиксированно использует
+  <code>qwen3-coder-next-q4ks</code> через llama.cpp; A шлёт задачу в облачный
+  <code>CURSOR_MODEL</code> (дефолт <code>composer-2.5</code>) — совсем другую модель;
+  B маршрутизируется через релей на выбираемый upstream и получает
+  <code>qwen3-coder-next-q4ks</code> только при одной конкретной конфигурации. Общее —
+  разные <em>trust-модели</em>, не общий runtime. Инверсия доверия §4 — свойство
+  <strong>только</strong> primary local-executor path; два клиентских входа A/B её не
+  наследуют, но и не чинят — у них своя.</p>
   <div class="table-scroll">
     <table>
-      <tr><th>Вход</th><th>Как вызывается</th><th>Кто держит границы write-set / tests</th></tr>
+      <tr><th>Вход</th><th>Как вызывается</th><th>Модель/runtime</th><th>Кто держит границы write-set / tests</th></tr>
       <tr><td><strong>primary</strong> · <code>llamacpp_agent_trigger.ts</code></td>
         <td>Runner / <code>workflow.py</code> спавнит процесс, <code>cwd=target_repo</code></td>
+        <td><code>qwen3-coder-next-q4ks</code> через llama.cpp — фиксированно</td>
         <td><span class="st st-hole">сейчас — сама модель</span> (<code>:748/:804</code>);
         после P0-1 — задача (<code>model ⊆ task</code>)</td></tr>
       <tr><td><strong>A</strong> · Cursor SDK trigger <code>cursor_agent_trigger.ts</code></td>
         <td><code>npx tsx scripts/cursor_agent_trigger.ts &lt;task.md&gt;</code>;
         <code>CURSOR_API_KEY</code>, <code>CURSOR_MODEL</code> (дефолт <code>composer-2.5</code>),
         <code>@cursor/sdk Agent.prompt</code> с <code>local:{cwd}</code></td>
+        <td>облачная модель Cursor (<code>composer-2.5</code>) — не llama.cpp,
+        не <code>qwen3-coder-next-q4ks</code></td>
         <td><span class="st st-silent">platform auto-approval по инструментам</span>, не по
         diff-путям; облачный Agent API, <em>не</em> HTTP в relay</td></tr>
       <tr><td><strong>B</strong> · Cursor/Kilo IDE → <code>kilo_proxy_relay.py</code></td>
         <td>OpenAI-compatible base URL → релей; upstream: LM Studio / llama.cpp / DeepSeek
         preset / cloud_budget</td>
+        <td>зависит от конфигурации релея — <code>qwen3-coder-next-q4ks</code> только при
+        upstream=llama.cpp; DeepSeek preset → <code>deepseek-v4-pro</code>/<code>-flash</code>
+        (облако, реальный ключ)</td>
         <td><span class="st st-hole">никто на этом слое</span> — релей сжимает токены и
         держит char-guard, diff <em>не валидирует вообще</em></td></tr>
     </table>
@@ -406,7 +418,20 @@
     <code>SLIM_MODE=local</code> держит allowlist Cursor-имён (<code>Shell,Read,Write,Grep</code>),
     а реальные tools Kilo (<code>read_file,write_to_file,execute_command,…</code>) под него
     не попадают → <code>tools</code> выкидывается, tool-calling ломается. Вывод для контура:
-    write-set/test gate обязан жить в executor/Runner, <em>не</em> в релее.</p>
+    write-set/test gate обязан жить в executor/Runner, <em>не</em> в релее — не путать
+    с secret/transport-периметром, который релей всё же держит (ниже).</p>
+    <p><strong>Обновление 2026-07-22 — DeepSeek preset в <code>kilo_proxy_relay.py</code>.</strong>
+    Путь B научился маршрутизировать на облачный DeepSeek вместо локальной llama.cpp.
+    Найден и закрыт критический баг: протухший <code>KILO_RELAY_UPSTREAM_PRESET=deepseek</code>
+    вместе с явным raw-override мог отправить реальный <code>DEEPSEEK_API_KEY</code> на
+    произвольный upstream — закреплено handler-level regression-тестом. Реализованы 4
+    подтверждённых DeepSeek-doc payload-фикса (<code>developer</code>-роль,
+    <code>tool_choice</code> в thinking-режиме, <code>max_completion_tokens</code>,
+    <code>content:null</code> на tool-call). <strong>Не закрыто:</strong> DeepSeek требует
+    прокидывать <code>reasoning_content</code> между шагами разговора после tool call,
+    иначе <code>HTTP 400</code> — состояние между запросами, релей его не хранит; путь B
+    через DeepSeek preset тем более не годится как P0-executor для agentic tool-calling,
+    пока это не проверено end-to-end (усиливает уже сделанный вывод, не меняет его).</p>
   </div>
 </section>
 
@@ -419,9 +444,11 @@
     <div class="t">Удобство IDE ↔ воспроизводимый headless-конвейер</div>
     <p>Kilo незаменим для итеративной, исследовательской работы; headless-Runner незаменим
     для measurable auto-routing. <span class="syn">Синтез:</span> разные плоскости одного
-    контракта — Kilo и Runner используют один production runtime, один alias и один формат
-    packet/evidence contract. Kilo для человека, Runner для машины; артефакты неразличимы
-    для reviewer.</p>
+    контракта — при конкретной конфигурации (релей с upstream=llama.cpp, не DeepSeek/
+    cloud_budget) Kilo и Runner <em>могут</em> использовать один alias/runtime и один формат
+    packet/evidence contract (правка 2026-07-22: не гарантированно «один runtime» —
+    зависит от того, куда указывает upstream релея). Kilo для человека, Runner для машины;
+    артефакты неразличимы для reviewer, когда этот выбор конфигурации сделан.</p>
   </div>
   <div class="card tension">
     <div class="t">Автономность ↔ жёсткая безопасность</div>
