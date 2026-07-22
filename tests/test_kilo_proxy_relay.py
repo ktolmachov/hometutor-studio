@@ -414,6 +414,36 @@ def test_apply_deepseek_compatibility_keeps_tool_choice_when_thinking_disabled()
     assert applied == []
 
 
+def test_detect_missing_reasoning_content_warns_when_thinking_effective():
+    payload = {
+        "messages": [
+            {"role": "user", "content": "do it"},
+            {"role": "assistant", "tool_calls": [{"id": "1"}], "content": ""},
+        ]
+    }
+    warnings = relay.detect_missing_reasoning_content(payload, {"thinking": None})  # unset -> enabled default
+    assert warnings == ["assistant_tool_call_missing_reasoning_content"]
+
+
+def test_detect_missing_reasoning_content_silent_when_present():
+    payload = {
+        "messages": [
+            {"role": "assistant", "tool_calls": [{"id": "1"}], "content": "", "reasoning_content": "thought..."},
+        ]
+    }
+    assert relay.detect_missing_reasoning_content(payload, {"thinking": "enabled"}) == []
+
+
+def test_detect_missing_reasoning_content_silent_when_thinking_disabled():
+    payload = {"messages": [{"role": "assistant", "tool_calls": [{"id": "1"}], "content": ""}]}
+    assert relay.detect_missing_reasoning_content(payload, {"thinking": "disabled"}) == []
+
+
+def test_detect_missing_reasoning_content_silent_without_tool_calls():
+    payload = {"messages": [{"role": "assistant", "content": "just text"}]}
+    assert relay.detect_missing_reasoning_content(payload, {"thinking": None}) == []
+
+
 def test_prepare_upstream_request_headers_strips_accept_encoding_always():
     headers = {"Accept-Encoding": "gzip", "Content-Type": "application/json", "Host": "x"}
     out = relay._prepare_upstream_request_headers(headers)
@@ -598,25 +628,30 @@ class _FakeUpstreamCtxResp:
         return False
 
 
-def _run_handle_proxy(path: str, body: bytes, headers: dict[str, str]) -> Request:
-    """Drive the real RelayHandler._handle_proxy against a fake handler + mocked urlopen,
-    returning the urllib.request.Request that was actually about to go out over the wire."""
+def _run_handle_proxy(path: str, body: bytes, headers: dict[str, str]) -> tuple[Request, dict]:
+    """Drive the real RelayHandler._handle_proxy against a fake handler + mocked urlopen.
+
+    Returns (the urllib.request.Request that was actually about to go out over the wire,
+    the JSONL record that would have been written to disk) — both captured, not mocked away,
+    so tests can assert on outbound request AND on-disk log content in the same run."""
     handler = _FakeRequestHandler(path, "POST", body, headers)
-    captured: list[Request] = []
+    captured_requests: list[Request] = []
+    captured_records: list[dict] = []
 
     def _fake_urlopen(request: Request, timeout: float | None = None, context: object = None) -> _FakeUpstreamCtxResp:
-        captured.append(request)
+        captured_requests.append(request)
         return _FakeUpstreamCtxResp()
 
     with (
         patch.object(relay, "urlopen", _fake_urlopen),
-        patch.object(relay, "write_jsonl", lambda record: None),
+        patch.object(relay, "write_jsonl", captured_records.append),
         patch.object(relay, "RELAY_COMPRESS_ACTIVE", False),
     ):
         relay.RelayHandler._handle_proxy(handler)  # type: ignore[arg-type]
 
-    assert len(captured) == 1
-    return captured[0]
+    assert len(captured_requests) == 1
+    assert len(captured_records) == 1
+    return captured_requests[0], captured_records[0]
 
 
 def test_handle_proxy_stale_deepseek_preset_does_not_leak_key_to_raw_upstream():
@@ -636,7 +671,7 @@ def test_handle_proxy_stale_deepseek_preset_does_not_leak_key_to_raw_upstream():
         patch.object(relay, "DEEPSEEK_CFG", None),
         patch.object(relay, "UPSTREAM_BASE", "http://127.0.0.1:8080"),
     ):
-        sent = _run_handle_proxy("/v1/chat/completions", body, headers)
+        sent, _record = _run_handle_proxy("/v1/chat/completions", body, headers)
 
     assert sent.full_url == "http://127.0.0.1:8080/v1/chat/completions"
     assert sent.get_header("Authorization") == "Bearer local-relay"  # NOT replaced with a DeepSeek key
@@ -663,9 +698,83 @@ def test_handle_proxy_active_deepseek_preset_does_apply_overrides():
         ),
         patch.object(relay, "UPSTREAM_BASE", "https://api.deepseek.com"),
     ):
-        sent = _run_handle_proxy("/v1/chat/completions", body, headers)
+        sent, _record = _run_handle_proxy("/v1/chat/completions", body, headers)
 
     assert sent.full_url == "https://api.deepseek.com/v1/chat/completions"
     assert sent.get_header("Authorization") == "Bearer sk-real-secret"
     sent_body = json.loads(sent.data)
     assert sent_body["model"] == "deepseek-v4-pro"
+
+
+def test_redact_headers_masks_credential_style_headers():
+    headers = {
+        "Authorization": "Bearer sk-real-secret",
+        "Cookie": "session=abc123",
+        "Proxy-Authorization": "Basic xyz",
+        "X-Auth-Token": "tok-secret",
+        "X-Api-Key": "key-secret",
+        "Content-Type": "application/json",
+    }
+    redacted = relay.redact_headers(headers)
+    assert redacted["Authorization"] == "Bearer ***REDACTED***"
+    assert redacted["Cookie"] == "***REDACTED***"
+    assert redacted["Proxy-Authorization"] == "***REDACTED***"
+    assert redacted["X-Auth-Token"] == "***REDACTED***"
+    assert redacted["X-Api-Key"] == "***REDACTED***"
+    assert redacted["Content-Type"] == "application/json"  # not touched
+
+
+def test_handle_proxy_does_not_write_cookie_or_proxy_auth_to_jsonl_record():
+    """Regression for the confirmed bug: request_headers written to the JSONL record were only
+    ever passed through redact_headers(), which previously missed Cookie/Proxy-Authorization/
+    X-Auth-Token entirely — those leaked to disk in plaintext on every request, unconditionally
+    (not gated by KILO_RELAY_FULL_BODY). This drives the real _handle_proxy and inspects the
+    actual record that would be written, not just the redact_headers() helper in isolation."""
+    body = b'{"model":"qwen3-coder-next-q4ks","messages":[{"role":"user","content":"hi"}]}'
+    headers = {
+        "Content-Length": str(len(body)),
+        "Content-Type": "application/json",
+        "Cookie": "session=super-secret-session-id",
+        "Proxy-Authorization": "Basic dXNlcjpwYXNz",
+        "X-Auth-Token": "tok-super-secret",
+    }
+
+    with (
+        patch.object(relay, "DEEPSEEK_CFG", None),
+        patch.object(relay, "UPSTREAM_BASE", "http://127.0.0.1:8080"),
+    ):
+        _sent, record = _run_handle_proxy("/v1/chat/completions", body, headers)
+
+    logged_headers = record["request_headers"]
+    assert logged_headers["Cookie"] == "***REDACTED***"
+    assert logged_headers["Proxy-Authorization"] == "***REDACTED***"
+    assert logged_headers["X-Auth-Token"] == "***REDACTED***"
+    dumped = json.dumps(record)
+    assert "super-secret-session-id" not in dumped
+    assert "dXNlcjpwYXNz" not in dumped
+    assert "tok-super-secret" not in dumped
+
+
+def test_handle_proxy_deepseek_strips_cookie_and_proxy_auth_from_outbound_request():
+    body = b'{"model":"qwen3-coder-next-q4ks","messages":[{"role":"user","content":"hi"}]}'
+    headers = {
+        "Content-Length": str(len(body)),
+        "Content-Type": "application/json",
+        "Authorization": "Bearer local-relay",
+        "Cookie": "session=super-secret-session-id",
+        "Proxy-Authorization": "Basic dXNlcjpwYXNz",
+    }
+
+    with (
+        patch.object(
+            relay,
+            "DEEPSEEK_CFG",
+            {"base": "https://api.deepseek.com", "model": "deepseek-v4-pro", "api_key": "sk-real-secret",
+             "thinking": None, "reasoning_effort": None},
+        ),
+        patch.object(relay, "UPSTREAM_BASE", "https://api.deepseek.com"),
+    ):
+        sent, _record = _run_handle_proxy("/v1/chat/completions", body, headers)
+
+    assert sent.get_header("Cookie") is None
+    assert sent.get_header("Proxy-Authorization") is None

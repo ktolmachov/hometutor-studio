@@ -2,7 +2,7 @@
 
 **Назначение:** HTTP-прокси между OpenAI-compatible клиентом (**Cursor** или **Kilo IDE**) и upstream (LM Studio / `llama.cpp` / облако). Сжимает тело `POST /v1/chat/completions`, пишет JSONL-лог, применяет guard из `scripts/_kilo_guard.py`.
 
-**Актуализация:** 2026-07-22 (DeepSeek+cloud_budget recipe, R1/R3-lite, guard/banner UX, UTF-8 stdio; architecture review §18-27 — начинать с «Текущий статус»).
+**Актуализация:** 2026-07-22 (DeepSeek+cloud_budget recipe, R1/R3-lite, guard/banner UX, UTF-8 stdio, header-redaction fix, reasoning_content detection; architecture review §18-31 — начинать с «Текущий статус», не с номера конкретного раунда).
 
 ---
 
@@ -146,10 +146,13 @@ Guard смотрит уже **forwarded** (после compress) body. Исход
 
 ## Лог релея (`logs/kilo_relay.jsonl`)
 
-1. Единственный источник истины — код: `LOG_FULL_BODY = os.getenv("KILO_RELAY_FULL_BODY", "0")...` (`scripts/kilo_proxy_relay.py`). **Дефолт — выключено** (opt-in: `"1"`/`"true"`/`"yes"`/`"on"`), проверено regression-тестом на импорт модуля без env. При **`KILO_RELAY_FULL_BODY=1`** в запись попадают тела запроса/ответа — следите за **размером файла** и **PII**. `Start-KiloRelayDaily.ps1` тоже по умолчанию выставляет `0` (флаг `-FullBodyLogging` включает).
+1. Единственный источник истины — код: `LOG_FULL_BODY = log_full_body_from_env(dict(os.environ))` (`scripts/kilo_proxy_relay.py`), где `log_full_body_from_env()` читает `KILO_RELAY_FULL_BODY`. **Дефолт — выключено** (opt-in: `"1"`/`"true"`/`"yes"`/`"on"`). Точность формулировки: проверено тестом на саму функцию `log_full_body_from_env({})` (`test_log_full_body_defaults_off_when_unset`), а не тестом полного импорта модуля без env — это разные по силе проверки, вторая не выполнялась отдельно. При **`KILO_RELAY_FULL_BODY=1`** в запись попадают тела запроса/ответа — следите за **размером файла** и **PII**. `Start-KiloRelayDaily.ps1` тоже по умолчанию выставляет `0` (флаг `-FullBodyLogging` включает).
+2. **Заголовки в JSONL (`request_headers`) пишутся всегда, независимо от `KILO_RELAY_FULL_BODY`.** До 2026-07-22 (раунд 7) `redact_headers()` маскировал только `Authorization` и имена, содержащие `api-key`/оканчивающиеся на `key` — `Cookie`, `Proxy-Authorization`, `X-Auth-Token` и подобные писались в лог открытым текстом на **каждом** запросе. Исправлено: `redact_headers()` и `_prepare_upstream_request_headers()` (DeepSeek-preset) используют одну функцию `is_sensitive_header_name()`.
 2. `GET /models` и прочий не-chat трафик пишутся тем же форматом (засоряют статистику токенов) — учитывать при разборе.
 3. Стартовый баннер: bind/upstream/guard/compress/DeepSeek. При `RELAY_COMPRESS_ACTIVE=no` полный dump `compress.*` **не** печатается. При DeepSeek+`off`/`local`/unset — `WARN:` с рекомендацией `cloud_budget`. Аннотация vsegpt только если DeepSeek **не** активен.
-4. После каждого запроса в **stderr** — мини-стата: `body_orig`/`body_fwd`, `guard=… mode=… blocked=…`, опционально `saved=` / `in=`/`out=`. Полные поля — в JSONL (`request_original`, `request`, `response.usage`).
+4. После каждого запроса в **stderr** — мини-стата: `body_orig`/`body_fwd`, `guard=… mode=… blocked=…`, опционально `saved=` / `in=`/`out=`, плюс glance `top_kind` / `top_path` / `top_frag` из `content_stats`.
+5. **`content_stats`** (дефолт ON, `KILO_RELAY_CONTENT_STATS=1`): в JSONL пара `original`/`forwarded` с `role_chars`, `kind_chars`, `fragment_chars` (Cursor XML), `path_chars` (топ путей), `ext_chars`, `tools.by_name`, `top_messages` (без тела). Агрегатор: `scripts/kilo_prompt_content_report.py --last 50`.
+6. Тяжёлые `message_stats`/preview в `request` по умолчанию **не** пишутся (`KILO_RELAY_MESSAGE_STATS=1` чтобы вернуть).
 
 ---
 

@@ -35,6 +35,8 @@ Environment variables:
   KILO_RELAY_LOG=logs/kilo_relay.jsonl
   KILO_RELAY_PREVIEW_CHARS=800
   KILO_RELAY_FULL_BODY=0   # opt-in ("1"/"true"/"yes"/"on"): default is OFF (secure by default)
+  KILO_RELAY_CONTENT_STATS=1  # default ON: JSONL content_stats (fragments/paths/kinds/tools)
+  KILO_RELAY_MESSAGE_STATS=0  # opt-in: keep per-message previews in JSONL (bloated)
   KILO_RELAY_WARN_BODY_CHARS=70000
   KILO_RELAY_MAX_BODY_CHARS=90000
   KILO_RELAY_HARD_BLOCK_BODY_CHARS=110000
@@ -239,6 +241,7 @@ from _kilo_relay_compress import (  # noqa: E402
     relay_compress_config_from_env,
     validate_slim_mode,
 )
+from _kilo_prompt_stats import analyze_body_text  # noqa: E402
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -343,7 +346,13 @@ _DEEPSEEK_TOOL_CHOICE_STRIP = "stripped_tool_choice_thinking_mode"
 def apply_deepseek_compatibility(payload: dict[str, Any], cfg: dict[str, Any]) -> list[str]:
     """Normalize known DeepSeek V4 payload incompatibilities; mutates ``payload`` in place.
 
-    All four confirmed via DeepSeek's own oh_my_pi agent-integration guide:
+    All four confirmed incompatible via DeepSeek's own oh_my_pi agent-integration guide.
+    The guide explicitly ties ``HTTP 400`` to the tool/thinking-mode fields (``tool_choice``
+    in thinking mode, null tool-call ``content``); ``developer`` role and
+    ``max_completion_tokens`` are documented as unsupported/wrong-field there too, but the
+    guide's own wording links the explicit 400 warning to the tool/thinking fields specifically
+    — treat all four as confirmed-incompatible, not all four as independently 400-proven by a
+    live test on this relay's part.
     - ``role: "developer"`` is rejected -> merged into ``system``.
     - ``tool_choice`` is rejected while thinking mode is active (DeepSeek's own default when
       DEEPSEEK_THINKING is unset is thinking=enabled, so this applies unless explicitly disabled).
@@ -383,6 +392,38 @@ def apply_deepseek_compatibility(payload: dict[str, Any], cfg: dict[str, Any]) -
         applied.append(_DEEPSEEK_TOOL_CHOICE_STRIP)
 
     return applied
+
+
+_DEEPSEEK_MISSING_REASONING_CONTENT_WARNING = "assistant_tool_call_missing_reasoning_content"
+
+
+def detect_missing_reasoning_content(payload: dict[str, Any], cfg: dict[str, Any]) -> list[str]:
+    """Stateless heuristic warning for the one DeepSeek incompatibility this relay cannot fix.
+
+    DeepSeek requires an assistant tool-call turn's ``reasoning_content`` to be threaded back
+    into every subsequent request in that conversation, or the API returns HTTP 400. The relay
+    cannot *restore* a reasoning_content that Kilo's own history never carried forward (that
+    requires state across requests this relay does not own) — but it CAN cheaply check THIS
+    request's payload and warn before spending a paid API call that is very likely to 400 anyway.
+
+    Non-blocking by design: exact validation timing/scope on DeepSeek's side isn't independently
+    verified end-to-end by this relay, so this only informs (deepseek_overrides / JSONL), never
+    rejects the request itself.
+    """
+    if (cfg.get("thinking") or "enabled") != "enabled":
+        return []
+    messages = payload.get("messages")
+    if not isinstance(messages, list):
+        return []
+    for msg in messages:
+        if (
+            isinstance(msg, dict)
+            and msg.get("role") == "assistant"
+            and msg.get("tool_calls")
+            and not msg.get("reasoning_content")
+        ):
+            return [_DEEPSEEK_MISSING_REASONING_CONTENT_WARNING]
+    return []
 
 
 def effective_upstream_base(environ: dict[str, str]) -> str:
@@ -472,11 +513,26 @@ LOG_LOCK = threading.Lock()
 RELAY_COMPRESS_CFG = relay_compress_config_from_env(dict(os.environ))
 RELAY_COMPRESS_ACTIVE = relay_compress_any_enabled(RELAY_COMPRESS_CFG)
 BUFFER_STREAM = os.getenv("KILO_RELAY_BUFFER_STREAM", "0").strip().lower() in {"1", "true", "yes", "on"}
+# Compact pollution stats in JSONL (fragment/path/tool breakdown). Default ON.
+CONTENT_STATS = os.getenv("KILO_RELAY_CONTENT_STATS", "1").strip().lower() not in {"0", "false", "no", "off"}
+# Keep per-message previews in JSONL (bloated). Default OFF when content_stats covers audit needs.
+MESSAGE_STATS_IN_LOG = os.getenv("KILO_RELAY_MESSAGE_STATS", "0").strip().lower() in {"1", "true", "yes", "on"}
 # Hop-by-hop / пересчитываемые у прокси — не копируем с upstream на клиент
 _SKIP_PROXY_RESPONSE_HEADERS = frozenset(
     {"content-length", "transfer-encoding", "connection", "content-encoding", "keep-alive"}
 )
 READ_CHUNK = 65536
+
+
+def sanitize_request_summary_for_log(summary: dict[str, Any]) -> dict[str, Any]:
+    """Drop heavy previews/message_stats from JSONL unless explicitly enabled."""
+    out = dict(summary)
+    if MESSAGE_STATS_IN_LOG or LOG_FULL_BODY:
+        return out
+    out.pop("message_stats", None)
+    out.pop("body_preview_start", None)
+    out.pop("body_preview_end", None)
+    return out
 
 
 def _payload_stream_enabled(value: Any) -> bool:
@@ -557,6 +613,8 @@ def build_startup_modes_report_lines(bound_host: str, bound_port: int) -> list[s
         "[logging]",
         f"  KILO_RELAY_LOG → {LOG_PATH}",
         f"  KILO_RELAY_FULL_BODY={'yes' if LOG_FULL_BODY else 'no'} PREVIEW_CHARS={PREVIEW_CHARS}",
+        f"  KILO_RELAY_CONTENT_STATS={'yes' if CONTENT_STATS else 'no'} "
+        f"MESSAGE_STATS_IN_LOG={'yes' if MESSAGE_STATS_IN_LOG else 'no'}",
         "[proxy]",
         f"  KILO_RELAY_BUFFER_STREAM={'yes' if BUFFER_STREAM else 'no'} "
         f"(yes = полный буфер upstream, как до стрим-пути)",
@@ -614,12 +672,17 @@ def now_iso() -> str:
 
 
 def redact_headers(headers: dict[str, str]) -> dict[str, str]:
+    """Redact anything is_sensitive_header_name flags before this ever reaches the JSONL log.
+
+    Confirmed bug (fixed here): previously only matched "Authorization" and names containing
+    "api-key" or ending in "key" — Cookie, Proxy-Authorization, X-Auth-Token and similar
+    credential headers were written to disk in plaintext, unconditionally, on every request.
+    """
     redacted: dict[str, str] = {}
     for key, value in headers.items():
-        low = key.lower()
-        if low == "authorization":
+        if key.lower() == "authorization":
             redacted[key] = "Bearer ***REDACTED***"
-        elif "api-key" in low or low.endswith("key"):
+        elif is_sensitive_header_name(key):
             redacted[key] = "***REDACTED***"
         else:
             redacted[key] = value
@@ -694,6 +757,30 @@ def extract_usage_from_response_body(body_text: str) -> dict[str, Any] | None:
     return last
 
 
+def _content_stats_glance(content_stats: dict[str, Any] | None) -> list[str]:
+    """Short stderr hints: top kind + top path from original content_stats."""
+    if not isinstance(content_stats, dict):
+        return []
+    src = content_stats.get("original") or content_stats.get("forwarded")
+    if not isinstance(src, dict):
+        return []
+    parts: list[str] = []
+    kinds = src.get("kind_chars")
+    if isinstance(kinds, dict) and kinds:
+        top_kind, top_chars = next(iter(kinds.items()))
+        parts.append(f"top_kind={top_kind}:{top_chars}")
+    paths = src.get("path_chars")
+    if isinstance(paths, list) and paths:
+        row0 = paths[0]
+        if isinstance(row0, dict) and row0.get("path") is not None:
+            parts.append(f"top_path={row0['path']}:{row0.get('chars', '?')}")
+    frags = src.get("fragment_chars")
+    if isinstance(frags, dict) and frags:
+        fk, fc = next(iter(frags.items()))
+        parts.append(f"top_frag={fk}:{fc}")
+    return parts
+
+
 def format_request_mini_stats(
     *,
     method: str,
@@ -708,6 +795,7 @@ def format_request_mini_stats(
     compress_summary: dict[str, Any] | None = None,
     request_original: dict[str, Any] | None = None,
     usage: dict[str, Any] | None = None,
+    content_stats: dict[str, Any] | None = None,
     response_chars: int | None = None,
     error: str | None = None,
 ) -> str:
@@ -756,6 +844,7 @@ def format_request_mini_stats(
         pout = usage.get("completion_tokens")
         if pin is not None or pout is not None:
             parts.append(f"in={pin if pin is not None else '?'} out={pout if pout is not None else '?'}")
+    parts.extend(_content_stats_glance(content_stats))
     if response_chars is not None:
         parts.append(f"resp={response_chars}")
     if error:
@@ -825,27 +914,58 @@ def _send_compress_trace_headers(handler: BaseHTTPRequestHandler, compress_summa
     handler.send_header("X-Kilo-Relay-System-Stubbed", "1" if stub else "0")
 
 
-_ALWAYS_STRIP_REQUEST_HEADERS = frozenset({"host", "content-length", "connection", "accept-encoding"})
-# A real cloud host has no legitimate reason to receive these from a local relay client; only
-# stripped for the DeepSeek preset (real internet endpoint + real API key) to keep the blast
-# radius small — local/cloud_budget upstream behavior is unchanged from before this fix.
-_DEEPSEEK_STRIP_ADDITIONAL_HEADERS = frozenset({"cookie", "proxy-authorization", "x-api-key", "x-auth-token"})
+# Hop-by-hop headers (RFC 7230 §6.1) plus Accept-Encoding: this relay never decompresses
+# responses and already strips Content-Encoding from what it hands back to the client, so
+# advertising gzip/deflate/br support to upstream would risk handing the client undecodable
+# compressed bytes with no header telling it so (mitigates the main gzip-corruption scenario;
+# does not itself guarantee upstream never compresses — a belt-and-suspenders fix would decode
+# the response or preserve Content-Encoding instead of stripping it).
+_ALWAYS_STRIP_REQUEST_HEADERS = frozenset(
+    {"host", "content-length", "connection", "accept-encoding", "te", "trailer", "upgrade", "keep-alive"}
+)
+
+# Single source of truth for "this header name looks like it carries a credential/session
+# secret" — used both to decide what NOT to forward to a real internet host (DeepSeek) and
+# what MUST be redacted before writing to the JSONL log. Previously these were two separate,
+# inconsistent lists: the forward-filter caught Cookie/Proxy-Authorization/etc., but
+# redact_headers() below only ever matched "Authorization" and names containing "api-key" or
+# ending in "key" — meaning Cookie/Proxy-Authorization/X-Auth-Token/custom session headers were
+# written to disk in plaintext on every single request, unconditionally (not gated by
+# KILO_RELAY_FULL_BODY). Confirmed bug, fixed by unifying both call sites on one classifier.
+_SENSITIVE_HEADER_EXACT_NAMES = frozenset(
+    {"authorization", "cookie", "proxy-authorization", "x-api-key", "x-auth-token", "x-access-token", "x-csrf-token"}
+)
+_SENSITIVE_HEADER_SUBSTRINGS = ("api-key", "auth-token", "access-token", "session-id", "secret")
+
+
+def is_sensitive_header_name(name: str) -> bool:
+    """Whether a header name commonly carries a credential/session value.
+
+    Intentionally broader than a literal name match: custom client headers (session cookies,
+    internal auth tokens) won't all be named exactly "Cookie" or "Authorization".
+    """
+    low = name.lower()
+    if low in _SENSITIVE_HEADER_EXACT_NAMES:
+        return True
+    if low.endswith("key"):
+        return True
+    return any(s in low for s in _SENSITIVE_HEADER_SUBSTRINGS)
 
 
 def _prepare_upstream_request_headers(headers: dict[str, str]) -> dict[str, str]:
     """Filter client headers before forwarding upstream.
 
-    Always strips hop-by-hop/recomputed headers and Accept-Encoding: this relay never decompresses
-    responses and already strips Content-Encoding from what it forwards back to the client, so
-    advertising gzip support to upstream would hand the client undecodable compressed bytes with
-    no header telling it so. When the DeepSeek preset is active, additionally drops headers a real
-    internet host has no legitimate reason to see from a local relay client (Cookie,
-    Proxy-Authorization, other client-side auth headers) — DeepSeek gets Content-Type plus the
-    already-replaced Authorization, nothing else client-supplied.
+    Always strips hop-by-hop/recomputed headers and Accept-Encoding (see comment above). When
+    the DeepSeek preset is active, additionally drops every header ``is_sensitive_header_name``
+    flags except Authorization itself (which was already overwritten with the real DeepSeek key
+    by ``_override_authorization`` and must be forwarded) — a real internet host has no
+    legitimate reason to see the client's own Cookie/Proxy-Authorization/session headers. This
+    is still a blocklist, not an allowlist: unmatched headers (User-Agent, Accept, X-Request-ID,
+    Forwarded, other custom X-* headers) are still forwarded as-is.
     """
     strip = set(_ALWAYS_STRIP_REQUEST_HEADERS)
     if DEEPSEEK_CFG is not None:
-        strip |= _DEEPSEEK_STRIP_ADDITIONAL_HEADERS
+        strip |= {k.lower() for k in headers if k.lower() != "authorization" and is_sensitive_header_name(k)}
     return {k: v for k, v in headers.items() if k.lower() not in strip}
 
 
@@ -1013,8 +1133,13 @@ class RelayHandler(BaseHTTPRequestHandler):
         request_original: dict[str, Any] | None = (
             compact_request_stats(summarize_body(body_text, PREVIEW_CHARS)) if raw_body else None
         )
+        content_stats_original: dict[str, Any] | None = None
+        content_stats_forwarded: dict[str, Any] | None = None
 
         chat_path = normalize_chat_completions_path(self.path)
+        if CONTENT_STATS and raw_body and chat_path == "/v1/chat/completions":
+            content_stats_original = analyze_body_text(body_text)
+
         deepseek_overrides: dict[str, Any] = {}
         if chat_path == "/v1/chat/completions" and raw_body:
             try:
@@ -1040,6 +1165,9 @@ class RelayHandler(BaseHTTPRequestHandler):
                     if compat_fixes:
                         payload_overridden = True
                         deepseek_overrides["compatibility_fixes"] = compat_fixes
+                    reasoning_warnings = detect_missing_reasoning_content(payload_json, DEEPSEEK_CFG)
+                    if reasoning_warnings:
+                        deepseek_overrides["warnings"] = reasoning_warnings
                 if RELAY_COMPRESS_ACTIVE:
                     comp = compress_chat_completion(payload_json, RELAY_COMPRESS_CFG)
                     shrunk_text = json.dumps(comp.payload, ensure_ascii=False)
@@ -1055,6 +1183,8 @@ class RelayHandler(BaseHTTPRequestHandler):
                         body_text = rewritten_text
 
         request_summary = summarize_body(body_text, PREVIEW_CHARS)
+        if CONTENT_STATS and chat_path == "/v1/chat/completions" and body_text:
+            content_stats_forwarded = analyze_body_text(body_text)
         guard = evaluate_guard(
             chat_path,
             body_text,
@@ -1093,7 +1223,13 @@ class RelayHandler(BaseHTTPRequestHandler):
             "upstream_url": f"{UPSTREAM_BASE}{self.path}",
             "request_headers": redact_headers(request_headers),
             "request_original": request_original,
-            "request": request_summary,
+            "request": sanitize_request_summary_for_log(request_summary),
+            "content_stats": {
+                "original": content_stats_original,
+                "forwarded": content_stats_forwarded,
+            }
+            if CONTENT_STATS
+            else None,
             "relay_compress": compress_summary,
             "deepseek_overrides": deepseek_overrides,
             "guard": {
@@ -1133,6 +1269,7 @@ class RelayHandler(BaseHTTPRequestHandler):
                 compress_summary=compress_summary,
                 request_original=request_original,
                 usage=usage,
+                content_stats=record.get("content_stats"),
                 response_chars=len(response_body_text),
                 error=upstream.error,
             ),
@@ -1179,7 +1316,7 @@ def main() -> int:
     _safe_print(f"KILO_RELAY_UPSTREAM / upstream base: {UPSTREAM_BASE}")
     _safe_print(f"Log file: {LOG_PATH}")
     print_startup_modes(host, port)
-    if RELAY_COMPRESS_ACTIVE:
+    if RELAY_COMPRESS_ACTIVE and DEEPSEEK_CFG is None:
         _safe_print(
             "relay: Если в LM Studio по-прежнему полный список tools → "
             "в Cursor базовый URL OpenAI совместимого API должен быть этот relay, "
