@@ -24,10 +24,9 @@ acting on it:
   `KILO_RELAY_REPLACE_CURSOR_SYSTEM=1` is silently overridden to disabled in
   `cloud_budget` mode by a *different* env var
   (`KILO_RELAY_CLOUD_BUDGET_REPLACE_CURSOR_SYSTEM`) — confirmed at
-  `_kilo_relay_compress.py:476` vs `:498`. Corrected in the usage instructions
-  below; this doc's new Tier B vars follow the **same** cloud_budget-override
-  convention deliberately, with a regression test locking in the (intentional)
-  behavior so it can't be mistaken for a bug again.
+  `_kilo_relay_compress.py:592` vs `:616`. Tier B vars use the same override at
+  `:592-594` vs `:626-627`. Corrected in the usage instructions below; regression
+  tests lock in the (intentional) no-fallback behavior.
 
 ## What changed
 
@@ -77,7 +76,8 @@ $env:KILO_RELAY_SLIM_MODE = "cloud_budget"
 $env:KILO_RELAY_CLOUD_BUDGET_STRIP_CURSOR_RULES = "1"
 $env:KILO_RELAY_CLOUD_BUDGET_STRIP_USER_INFO = "1"
 $env:KILO_RELAY_CLOUD_BUDGET_REPLACE_CURSOR_SYSTEM = "1"   # NOT plain REPLACE_CURSOR_SYSTEM in this mode
-$env:KILO_RELAY_TOOLS_ALLOWLIST = "Shell,Read,Grep,Write,Edit,Delete"
+# Optional: narrow tools (~2k tok). Match is case-insensitive (Cursor sends read/grep lowercase).
+# $env:KILO_RELAY_TOOLS_ALLOWLIST = "Shell,Read,Grep,Write,Edit,Delete"
 $env:KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES = "24"     # new — Tier B
 $env:KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS = "4000" # new — Tier B
 .\.venv\Scripts\python.exe scripts/kilo_proxy_relay.py
@@ -100,15 +100,16 @@ This is a synthetic reproduction of the session's *shape*, not a replay of the
 real `kilo_relay.jsonl` — directionally consistent with the diagnosis's ×10
 estimate, not a claim that the real session saves exactly this much.
 
-**Tests:** `pytest tests/test_kilo_relay_compress.py` — **34 passed** (22
-pre-existing + 12 new: no-op below limit, disabled by default, keeps leading
+**Tests:** `pytest tests/test_kilo_relay_compress.py` — **35 passed** (22
+pre-existing + 13 new: no-op below limit, disabled by default, keeps leading
 system message(s), never leaves a dangling tool result (exhaustive over every
 window size), tool_result cap touches only `tool` role, list-of-parts content
 shape, `to_log_dict()` counters, generic-var-in-off-mode, and the
-cloud_budget-override-doesn't-fall-back behavior explicitly locked in).
+cloud_budget-override-doesn't-fall-back behavior explicitly locked in,
+allowlist case-insensitive match for Cursor lowercase tool names).
 Broader regression: `pytest tests/test_kilo_relay_compress.py
 tests/test_kilo_proxy_relay.py tests/test_kilo_prompt_stats.py
-tests/test_kilo_guard.py` — **136 passed**.
+tests/test_kilo_guard.py` — **137 passed**.
 
 ## Still true from the original diagnosis (unaffected by this change)
 

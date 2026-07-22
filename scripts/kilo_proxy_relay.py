@@ -134,7 +134,7 @@ Environment variables:
   KILO_RELAY_CLOUD_BUDGET_SIMPLE_CHAT_MAX_USER_CHARS=700  # если задано — снятие tools на короткой реплике
   KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES=24   # opt-in: system + последние N сообщений (0=выкл)
   KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS=4000  # opt-in: cap role=tool content (0=выкл)
-  # В cloud_budget generic KILO_RELAY_KEEP_LAST_MESSAGES / MAX_TOOL_RESULT_CHARS НЕ fallback — только *_CLOUD_BUDGET_*
+  # В cloud_budget generic KILO_RELAY_KEEP_LAST_MESSAGES / KILO_RELAY_MAX_TOOL_RESULT_CHARS НЕ fallback — только *_CLOUD_BUDGET_*
   KILO_RELAY_KEEP_LAST_MESSAGES=0   # для off/local (не cloud_budget)
   KILO_RELAY_MAX_TOOL_RESULT_CHARS=0
 

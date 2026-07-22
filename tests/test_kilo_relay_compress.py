@@ -70,6 +70,21 @@ def test_allowlist_drops_removed_tool_names_and_non_function_tools(dense_payload
     assert "CallMcpTool" in out.tool_names_removed
 
 
+def test_allowlist_matches_tool_names_case_insensitively():
+    payload = {
+        "tools": [
+            _sample_tool("read"),
+            _sample_tool("Grep"),
+            _sample_tool("agent_manager"),
+        ]
+    }
+    cfg = RelayCompressConfig(tools_allowlist=frozenset({"Read", "GREP"}))
+    out = compress_chat_completion(payload, cfg)
+    names = [t["function"]["name"] for t in out.payload.get("tools") or []]
+    assert names == ["read", "Grep"]
+    assert out.tool_names_removed == ["agent_manager"]
+
+
 def test_allowlist_when_empty_raises_no_tools_and_records_removals():
     cfg = RelayCompressConfig(tools_allowlist=frozenset())
     payload = {"tools": [_sample_tool("Read")]}

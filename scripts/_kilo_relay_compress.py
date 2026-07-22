@@ -75,6 +75,7 @@ def _truncate_desc(text: str, max_chars: int) -> str:
 def _collect_function_tool_names_removed(tools: list[Any], allowlist: frozenset[str]) -> tuple[list[Any], list[str]]:
     kept: list[Any] = []
     removed: list[str] = []
+    allowlist_ci = {name.casefold() for name in allowlist}
     for item in tools:
         if not isinstance(item, dict) or item.get("type") != "function":
             removed.append("_non_function_drop")
@@ -84,7 +85,7 @@ def _collect_function_tool_names_removed(tools: list[Any], allowlist: frozenset[
         if not isinstance(name, str):
             removed.append("__invalid_tool_name__")
             continue
-        if name in allowlist:
+        if name.casefold() in allowlist_ci:
             kept.append(item)
         else:
             removed.append(name)

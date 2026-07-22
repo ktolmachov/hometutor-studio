@@ -67,12 +67,12 @@ Files to inspect first
 - doc/kilo_proxy_relay.md § лог / content_stats
 
 DoD
-- [ ] content_stats присутствует в новых JSONL-записях chat completions
-- [ ] kilo_prompt_content_report.py выдаёт top_paths / top_fragments / top_kinds / top_extensions
-- [ ] Написан ranked list «файл/фрагмент → relative weight → действие» (без точных лимитов из path est_tok)
-- [ ] Обновлены registry + AGENTS/CLAUDE под топ-засорители (без оверинжиниринга)
-- [ ] Повторный короткий прогон: prompt_tokens заметно ниже (цель: укладываться в 12k/20k на обычном ходе)
-- [ ] pytest по затронутым тестам зелёный
+- [x] content_stats присутствует в новых JSONL-записях chat completions
+- [x] kilo_prompt_content_report.py выдаёт top_paths / top_fragments / top_kinds / top_extensions
+- [x] Написан ranked list «файл/фрагмент → relative weight → действие» (без точных лимитов из path est_tok)
+- [x] Обновлены registry + AGENTS/CLAUDE под топ-засорители (без оверинжиниринга)
+- [x] Повторный короткий прогон: prompt_tokens заметно ниже (Tier B live: in≈5.7k vs ~83k до окна; цель 12k/20k достигнута на обычном ходе)
+- [x] pytest по затронутым тестам зелёный (137 passed: stats + proxy + compress)
 
 Do not touch (на момент исходного контракта; обновлено 2026-07-23)
 - ~~Trim messages[] / history внутри relay~~ — **снято пользователем**; реализовано opt-in в `_kilo_relay_compress.py` (`KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES`, `KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS`). См. `doc/next/kilo_relay_history_window_tier_b_2026-07-23.md`.
