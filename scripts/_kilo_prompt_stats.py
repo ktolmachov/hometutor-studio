@@ -69,13 +69,35 @@ def message_text(content: Any) -> str:
 
 
 def fragment_char_counts(text: str) -> dict[str, int]:
+    """Count XML/Cursor fragment sizes.
+
+    ``mcp_meta`` is residual only: spans already matched by specific ``mcp_*``
+    patterns (e.g. ``mcp_file_system``) are not counted again.
+    """
     counts: dict[str, int] = {}
+    covered_mcp_spans: list[tuple[int, int]] = []
+    mcp_meta_pattern: re.Pattern[str] | None = None
     for name, pattern in _FRAGMENT_PATTERNS:
+        if name == "mcp_meta":
+            mcp_meta_pattern = pattern
+            continue
         total = 0
         for match in pattern.finditer(text):
             total += len(match.group(0))
+            if name.startswith("mcp_"):
+                covered_mcp_spans.append((match.start(), match.end()))
         if total:
             counts[name] = total
+    if mcp_meta_pattern is not None:
+        residual = 0
+        for match in mcp_meta_pattern.finditer(text):
+            if any(start <= match.start() and match.end() <= end for start, end in covered_mcp_spans):
+                continue
+            if any(match.start() < end and match.end() > start for start, end in covered_mcp_spans):
+                continue
+            residual += len(match.group(0))
+        if residual:
+            counts["mcp_meta"] = residual
     return counts
 
 
@@ -107,7 +129,7 @@ def path_char_contributions(text: str) -> dict[str, int]:
             continue
         start = max(0, match.start() - 200)
         end = min(len(text), match.end() + 200)
-        # Prefer larger attribution when path sits inside a big tool dump: use span until next path/gap.
+        # Fixed ±200 char window around the path mention (ranking heuristic, not file bytes).
         contrib[key] += max(len(match.group("p")), end - start)
     return dict(contrib)
 

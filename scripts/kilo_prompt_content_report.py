@@ -27,8 +27,10 @@ def _is_chat_record(obj: Any) -> bool:
     )
 
 
-def _iter_dict_rows(path: Path) -> Any:
-    """Yield JSONL dict rows one at a time (no full-file materialization)."""
+def _scan_jsonl_lines(path: Path) -> Any:
+    """Yield ``(obj, kind)`` for every non-blank line, ``kind`` one of
+    ``"dict"`` / ``"invalid_json"`` / ``"non_dict"``. ``obj`` is ``None`` for
+    ``"invalid_json"``. No full-file materialization."""
     if not path.is_file():
         return
     with path.open(encoding="utf-8") as fh:
@@ -39,26 +41,41 @@ def _iter_dict_rows(path: Path) -> Any:
             try:
                 obj = json.loads(line)
             except json.JSONDecodeError:
+                yield None, "invalid_json"
                 continue
-            if isinstance(obj, dict):
-                yield obj
+            yield obj, ("dict" if isinstance(obj, dict) else "non_dict")
 
 
-def collect_chat_records(path: Path, last: int | None = None) -> tuple[int, list[dict[str, Any]]]:
+def collect_chat_records(path: Path, last: int | None = None) -> tuple[dict[str, int], list[dict[str, Any]]]:
     """Stream the JSONL and keep only the last N *chat* records.
 
     Uses a bounded ``deque(maxlen=last)`` so a large/growing log is never fully
     held in memory, and ``last`` slices the chat sample (not raw rows): non-chat
-    routes in the tail window can no longer shrink the sample below N. Returns
-    ``(records_total, chat_records)``.
+    routes in the tail window can no longer shrink the sample below N.
+
+    A partially corrupted log must not silently look like a clean, smaller one:
+    every non-blank line is classified, so malformed JSON and non-dict JSON
+    (valid but not an object) are counted rather than vanishing without a
+    trace. Returns ``(counters, chat_records)`` where ``counters`` has:
+    ``lines_total`` (all non-blank lines), ``dict_records`` (valid JSON objects,
+    the historical "records_total" meaning), ``invalid_json``, ``non_dict_records``,
+    ``chat_with_stats`` (len of the returned chat sample).
     """
-    total = 0
+    counters = {"lines_total": 0, "dict_records": 0, "invalid_json": 0, "non_dict_records": 0}
     chat: deque[dict[str, Any]] = deque(maxlen=last) if last and last > 0 else deque()
-    for obj in _iter_dict_rows(path):
-        total += 1
+    for obj, kind in _scan_jsonl_lines(path):
+        counters["lines_total"] += 1
+        if kind == "invalid_json":
+            counters["invalid_json"] += 1
+            continue
+        if kind == "non_dict":
+            counters["non_dict_records"] += 1
+            continue
+        counters["dict_records"] += 1
         if _is_chat_record(obj):
             chat.append(obj)
-    return total, list(chat)
+    counters["chat_with_stats"] = len(chat)
+    return counters, list(chat)
 
 
 def _merge_int_maps(dst: dict[str, int], src: Any) -> None:
@@ -203,11 +220,28 @@ def render_text(report: dict[str, Any]) -> str:
             f"min={stats['min']}{unit} max={stats['max']}{unit}"
         )
 
+    scan = report.get("scan")
     lines = [
         "=== kilo_prompt_content_report ===",
         f"records={report['records_total']} chat_with_stats={report['chat_with_content_stats']}",
         f"usage_in_sum={report['usage_prompt_tokens_sum']} avg={report['usage_prompt_tokens_avg']} "
         f"(n={report['usage_prompt_requests']})",
+    ]
+    if scan:
+        lines.append(
+            "-- log scan (lines that vanished are counted, not hidden) --"
+        )
+        lines.append(
+            f"  lines_total={scan['lines_total']} dict_records={scan['dict_records']} "
+            f"invalid_json={scan['invalid_json']} non_dict_records={scan['non_dict_records']}"
+        )
+        if scan["invalid_json"] or scan["non_dict_records"]:
+            lines.append(
+                f"  NOTE: {scan['invalid_json']} malformed-JSON line(s) and "
+                f"{scan['non_dict_records']} non-object JSON line(s) were skipped — "
+                "this report may undercount a partially corrupted log."
+            )
+    lines += [
         "",
         "-- per request (one-prompt view) --",
         f"  prompt_tokens : {_fmt(pr.get('prompt_tokens', {}), '')}",
@@ -262,11 +296,19 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--json-out", type=Path, default=None)
     args = parser.parse_args(argv)
+    if not args.log.is_file():
+        print(
+            f"ERROR: log file not found: {args.log} — check --log / the relay's "
+            "configured log path (this is NOT the same as 'no chat requests yet').",
+            file=sys.stderr,
+        )
+        return 3
     last = None if args.last == 0 else args.last
-    records_total, chat_records = collect_chat_records(args.log, last)
+    counters, chat_records = collect_chat_records(args.log, last)
     # chat_records is already sliced to the last N chat rows by the deque; pass
     # last=None so build_report does not slice a second time.
-    report = build_report(chat_records, last=None, records_total=records_total)
+    report = build_report(chat_records, last=None, records_total=counters["dict_records"])
+    report["scan"] = counters
     text = render_text(report)
     print(text)
     if report["chat_with_content_stats"] == 0:

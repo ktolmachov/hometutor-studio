@@ -50,9 +50,17 @@ _METADATA_FIELD_NAMES = {"lines", "bytes", "est_tokens", "full_read", "safe_hint
 
 
 def test_registry_structure_no_dropped_keys() -> None:
-    """Guard the exact corruption the 2026-07 audit found: a dropped file key made
-    metadata fields (lines/bytes/...) leak as top-level ``files`` keys, which parsed
-    as valid JSON but silently merged one entry into another."""
+    """Guard against the 2026-07 audit corruption: a dropped ``"doc/adr.md":`` key
+    left its metadata object's fields (``lines``, ``bytes``, ...) as orphaned
+    siblings one level up, inside ``files`` itself — e.g. ``"files": {..., "lines":
+    890, "bytes": 69476, ...}``. That produced ``json.JSONDecodeError: Extra data:
+    line 303 column 1`` (the object closed early, so the final ``}`` became
+    unparseable trailing data) — ``json.loads`` below already fails loudly on that
+    exact shape. This test additionally guards a *structurally valid* variant of
+    the same mistake: metadata fields merged into an existing entry instead of
+    breaking the file (e.g. a key collision during a hand-edit), which would parse
+    fine but silently corrupt one entry's data.
+    """
     data = json.loads((ROOT / "doc" / "token_safety_registry.json").read_text(encoding="utf-8"))
     files = data["files"]
     assert isinstance(files, dict) and files
@@ -61,6 +69,38 @@ def test_registry_structure_no_dropped_keys() -> None:
         assert isinstance(meta, dict), f"{key}: entry must be an object"
         for field in ("lines", "bytes", "est_tokens"):
             assert isinstance(meta.get(field), int), f"{key}: '{field}' must be an int"
+
+
+def test_registry_no_zeroed_or_missing_regression_entries() -> None:
+    """Semantic guard beyond ``json.tool`` syntax-validity: ``json.tool`` only
+    proves the file parses — it says nothing about entry count, whether specific
+    keys survived, or whether CODE_ROOT entries got zeroed by a regeneration run
+    from DOCS_ROOT (measure_token_registry.py cannot see app/* from this tree).
+    """
+    data = json.loads((ROOT / "doc" / "token_safety_registry.json").read_text(encoding="utf-8"))
+    files = data["files"]
+
+    # The exact key dropped by the 2026-07 corruption must be present.
+    assert "doc/adr.md" in files
+    assert files["doc/adr.md"]["bytes"] > 0
+
+    # CODE_ROOT entries (not present in this working tree) must survive a
+    # DOCS_ROOT-side regeneration without being zeroed out.
+    code_root_samples = [
+        "app/prompts/_impl.py",
+        "app/knowledge_graph.py",
+        "app/query_service.py",
+        "requirements.txt",
+    ]
+    for rel in code_root_samples:
+        assert rel in files, f"CODE_ROOT entry '{rel}' missing from registry"
+        assert files[rel].get("bytes", 0) > 0, f"CODE_ROOT entry '{rel}' was zeroed"
+        assert not files[rel].get("missing"), f"CODE_ROOT entry '{rel}' flagged missing"
+
+    # No entry anywhere should silently carry zero bytes unless explicitly
+    # flagged — a zero-byte non-flagged entry means a regeneration bug.
+    zeroed = [k for k, meta in files.items() if meta.get("bytes") == 0 and not meta.get("missing")]
+    assert not zeroed, f"Unflagged zero-byte registry entries: {zeroed}"
 
 
 def test_registry_metadata_fresh_for_local_files() -> None:

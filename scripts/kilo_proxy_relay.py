@@ -167,6 +167,7 @@ from __future__ import annotations
 import http.client
 import json
 import os
+import socket
 import ssl
 import sys
 import threading
@@ -180,6 +181,18 @@ from typing import Any
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
+
+
+class ExclusiveThreadingHTTPServer(ThreadingHTTPServer):
+    """Refuse a second listener on the same host:port (Windows SO_REUSEADDR footgun)."""
+
+    allow_reuse_address = False
+
+    def server_bind(self) -> None:
+        if sys.platform == "win32" and hasattr(socket, "SO_EXCLUSIVEADDRUSE"):
+            # Must be set before bind; prevents two kilo_proxy_relay.py on :8787.
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_EXCLUSIVEADDRUSE, 1)
+        super().server_bind()
 
 def _configure_stdio_utf8() -> None:
     """Avoid UnicodeEncodeError on Windows cp1252 consoles / redirected logs.
@@ -1211,6 +1224,11 @@ class RelayHandler(BaseHTTPRequestHandler):
         request_id = str(uuid.uuid4())
         started = time.perf_counter()
         content_length = int(self.headers.get("Content-Length") or "0")
+        # Immediate visibility: long upstream calls otherwise look like "relay is silent".
+        _safe_print(
+            f"[relay] → {self.command} {self.path} bytes={content_length} id={request_id[:8]}",
+            file=sys.stderr,
+        )
         raw_body = self.rfile.read(content_length) if content_length > 0 else b""
         body_text = raw_body.decode("utf-8", errors="replace")
         request_headers = {k: v for k, v in self.headers.items()}
@@ -1400,11 +1418,11 @@ def _candidate_ports(preferred: int) -> list[int]:
     return candidates
 
 
-def _bind_server() -> ThreadingHTTPServer:
+def _bind_server() -> ExclusiveThreadingHTTPServer:
     errors: list[str] = []
     for port in _candidate_ports(DEFAULT_PORT):
         try:
-            return ThreadingHTTPServer((DEFAULT_HOST, port), RelayHandler)
+            return ExclusiveThreadingHTTPServer((DEFAULT_HOST, port), RelayHandler)
         except OSError as exc:
             errors.append(f"{DEFAULT_HOST}:{port} -> {exc}")
     error_text = "; ".join(errors) if errors else "no bind attempts recorded"
@@ -1419,6 +1437,19 @@ def main() -> int:
     _safe_print(f"KILO_RELAY_UPSTREAM / upstream base: {UPSTREAM_BASE}")
     _safe_print(f"Log file: {LOG_PATH}")
     print_startup_modes(host, port)
+    if port != DEFAULT_PORT and DEFAULT_PORT != 0:
+        _safe_print(
+            f"WARN: preferred port {DEFAULT_PORT} busy — listening on {port}. "
+            f"Cursor OpenAI Base URL must use http://{host}:{port}/v1 (not :{DEFAULT_PORT}).",
+            file=sys.stderr,
+        )
+    _safe_print(
+        f"Awaiting HTTP. Cursor OpenAI-compatible Base URL must be "
+        f"http://{host}:{port}/v1 — not api.deepseek.com. "
+        f"Probe: GET http://{host}:{port}/v1/models → expect '[relay] → GET' here. "
+        f"Silence = traffic bypasses this process (wrong Base URL / second relay / Cursor Cloud).",
+        file=sys.stderr,
+    )
     if RELAY_COMPRESS_ACTIVE and DEEPSEEK_CFG is None:
         _safe_print(
             "relay: Если в LM Studio по-прежнему полный список tools → "

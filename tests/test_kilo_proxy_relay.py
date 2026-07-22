@@ -930,3 +930,18 @@ def test_handle_proxy_deepseek_strips_cookie_and_proxy_auth_from_outbound_reques
 
     assert sent.get_header("Cookie") is None
     assert sent.get_header("Proxy-Authorization") is None
+
+
+def test_exclusive_server_rejects_second_bind_on_same_port():
+    assert relay.ExclusiveThreadingHTTPServer.allow_reuse_address is False
+    first = relay.ExclusiveThreadingHTTPServer(("127.0.0.1", 0), relay.RelayHandler)
+    host, port = first.server_address
+    try:
+        raised = False
+        try:
+            relay.ExclusiveThreadingHTTPServer((host, port), relay.RelayHandler)
+        except OSError:
+            raised = True
+        assert raised, "second listener on same host:port must fail"
+    finally:
+        first.server_close()

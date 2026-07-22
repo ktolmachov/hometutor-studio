@@ -33,6 +33,17 @@ def test_fragment_char_counts_detects_skills_and_rules():
     assert counts["rules"] > 5
 
 
+def test_fragment_char_counts_mcp_meta_does_not_double_count():
+    known = "<mcp_file_system>ABCDEFGHIJ</mcp_file_system>"
+    other = "<mcp_custom_block>XYZ</mcp_custom_block>"
+    counts_known = fragment_char_counts(known)
+    assert counts_known["mcp_file_system"] == len(known)
+    assert "mcp_meta" not in counts_known
+    counts_other = fragment_char_counts(other)
+    assert counts_other["mcp_meta"] == len(other)
+    assert "mcp_file_system" not in counts_other
+
+
 def test_normalize_path_key_agents_and_doc_relative():
     assert normalize_path_key(r"D:\Projects\hometutor-studio\AGENTS.md").lower().endswith("agents.md")
     assert normalize_path_key("doc/conventions.md") == "doc/conventions.md"

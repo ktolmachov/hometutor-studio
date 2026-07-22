@@ -109,7 +109,14 @@ Bind по умолчанию: `127.0.0.1:8787` (`KILO_RELAY_HOST` / `KILO_RELAY_
 
 ## Клиент: Cursor / Kilo
 
-Базовый URL OpenAI-compatible API должен указывать **на релей** (`http://127.0.0.1:8787`), а не напрямую на LM Studio / llama.cpp — иначе сжатие и guard на границе не выполняются.
+Базовый URL OpenAI-compatible API должен указывать **на релей** (`http://127.0.0.1:8787` или `http://127.0.0.1:8787/v1`), а не напрямую на DeepSeek / LM Studio / llama.cpp — иначе сжатие, guard и JSONL на границе не выполняются.
+
+**Тишина в консоли релея при «живом» чате Cursor** — почти всегда значит, что трафик идёт мимо процесса:
+
+1. В Cursor → Settings → Models у OpenAI-compatible провайдера Base URL = `http://127.0.0.1:8787/v1` (тот же host:port, что в баннере `LISTEN EFFECTIVE`), **не** `https://api.deepseek.com`.
+2. В чате выбрана модель именно этого провайдера («Local Coder Relay…»). Бейдж имени модели ≠ гарантия маршрута: Agent может ходить в Cursor Cloud / прямой DeepSeek.
+3. Проверка: `Invoke-WebRequest http://127.0.0.1:8787/v1/models` — в консоли релея должна появиться строка `→ GET …`; иначе смотрите другой порт/процесс.
+4. Не запускайте второй релей, пока первый держит 8787: на Windows без exclusive-bind два `python scripts/kilo_proxy_relay.py` могли оба показать `:8787`, а мини-стата шла в «чужой» терминал. Сейчас bind exclusive (`SO_EXCLUSIVEADDRUSE`); проверка: `netstat -ano | findstr :8787` — должен быть **один** LISTENING PID.
 
 ### Kilo vs Cursor (важно)
 
@@ -153,11 +160,11 @@ Guard смотрит уже **forwarded** (после compress) body. Исход
 
 1. Единственный источник истины — код: `LOG_FULL_BODY = log_full_body_from_env(dict(os.environ))` (`scripts/kilo_proxy_relay.py`), где `log_full_body_from_env()` читает `KILO_RELAY_FULL_BODY`. **Дефолт — выключено** (opt-in: `"1"`/`"true"`/`"yes"`/`"on"`). Точность формулировки: проверено тестом на саму функцию `log_full_body_from_env({})` (`test_log_full_body_defaults_off_when_unset`), а не тестом полного импорта модуля без env — это разные по силе проверки, вторая не выполнялась отдельно. При **`KILO_RELAY_FULL_BODY=1`** в запись попадают тела запроса/ответа — следите за **размером файла** и **PII**. `Start-KiloRelayDaily.ps1` тоже по умолчанию выставляет `0` (флаг `-FullBodyLogging` включает).
 2. **Заголовки в JSONL (`request_headers`) пишутся всегда, независимо от `KILO_RELAY_FULL_BODY`.** До 2026-07-22 (раунд 7) `redact_headers()` маскировал только `Authorization` и имена, содержащие `api-key`/оканчивающиеся на `key` — `Cookie`, `Proxy-Authorization`, `X-Auth-Token` и подобные писались в лог открытым текстом на **каждом** запросе. Исправлено: `redact_headers()` и `_prepare_upstream_request_headers()` (DeepSeek-preset) используют одну функцию `is_sensitive_header_name()`.
-2. `GET /models` и прочий не-chat трафик пишутся тем же форматом (засоряют статистику токенов) — учитывать при разборе.
-3. Стартовый баннер: bind/upstream/guard/compress/DeepSeek. При `RELAY_COMPRESS_ACTIVE=no` полный dump `compress.*` **не** печатается. При DeepSeek+`off`/`local`/unset — `WARN:` с рекомендацией `cloud_budget`. Аннотация vsegpt только если DeepSeek **не** активен.
-4. После каждого запроса в **stderr** — мини-стата: `body_orig`/`body_fwd`, `guard=… mode=… blocked=…`, опционально `saved=` / `in=`/`out=`, плюс glance `top_kind` / `top_path` / `top_frag` из `content_stats`.
-5. **`content_stats`** (дефолт ON, `KILO_RELAY_CONTENT_STATS=1`): в JSONL пара `original`/`forwarded` с `role_chars`, `kind_chars`, `fragment_chars` (Cursor XML), `path_chars` (топ путей; эвристика окна ±200 симв. вокруг упоминания — **относительный ранг**, не байты файла), `ext_chars`, `tools.by_name`, `top_messages` (без тела). Агрегатор: `scripts/kilo_prompt_content_report.py --last 50` (при `chat_with_stats=0` отказывает `--json-out`, чтобы не затереть прежний отчёт).
-6. Тяжёлые `message_stats`/preview в `request` по умолчанию **не** пишутся (`KILO_RELAY_MESSAGE_STATS=1` чтобы вернуть).
+3. `GET /models` и прочий не-chat трафик пишутся тем же форматом (засоряют статистику токенов) — учитывать при разборе.
+4. Стартовый баннер: bind/upstream/guard/compress/DeepSeek. При `RELAY_COMPRESS_ACTIVE=no` полный dump `compress.*` **не** печатается. При DeepSeek+`off`/`local`/unset — `WARN:` с рекомендацией `cloud_budget`. Аннотация vsegpt только если DeepSeek **не** активен.
+5. После каждого запроса в **stderr** — строка `→ METHOD path` в начале и мини-стата в конце: `body_orig`/`body_fwd`, `guard=… mode=… blocked=…`, опционально `saved=` / `in=`/`out=`, плюс glance `top_kind` / `top_path` / `top_frag` из `content_stats`. Если после старта тишина — HTTP до этого процесса не доходит (см. § Клиент).
+6. **`content_stats`** (дефолт ON, `KILO_RELAY_CONTENT_STATS=1`): в JSONL пара `original`/`forwarded` с `role_chars`, `kind_chars`, `fragment_chars` (Cursor XML), `path_chars` (топ путей; эвристика окна ±200 симв. вокруг упоминания — **относительный ранг**, не байты файла), `ext_chars`, `tools.by_name`, `top_messages` (без тела). Агрегатор: `scripts/kilo_prompt_content_report.py --last 50` (при `chat_with_stats=0` отказывает `--json-out`, чтобы не затереть прежний отчёт).
+7. Тяжёлые `message_stats`/preview в `request` по умолчанию **не** пишутся (`KILO_RELAY_MESSAGE_STATS=1` чтобы вернуть).
 
 ---
 
