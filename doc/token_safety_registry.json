@@ -1,5 +1,5 @@
 {
-  "measured_at": "2026-05-06",
+  "measured_at": "2026-07-22",
   "chars_per_token": 4,
   "budgets": {
     "target_input_tokens": 12000,
@@ -96,12 +96,20 @@
       "bytes": 4160,
       "est_tokens": 1040
     },
-    "app/ui/main.py": {
-      "lines": 263,
-      "bytes": 10245,
-      "est_tokens": 2561
+    "AGENTS.md": {
+      "lines": 174,
+      "bytes": 7304,
+      "est_tokens": 1826,
+      "full_read": "forbidden",
+      "safe_hint": "rg -n \"^## \" AGENTS.md  # section-only; never Read-tool — already in <rules>"
     },
-    "doc/adr.md": {
+    "CLAUDE.md": {
+      "lines": 376,
+      "bytes": 15280,
+      "est_tokens": 3820,
+      "full_read": "forbidden",
+      "safe_hint": "rg -n \"^## \" CLAUDE.md  # section-only; never Read-tool — duplicates always-on rules"
+    },
       "lines": 890,
       "bytes": 69476,
       "est_tokens": 17369,
@@ -138,7 +146,9 @@
     "doc/agent_workflow_templates.md": {
       "lines": 371,
       "bytes": 21831,
-      "est_tokens": 5457
+      "est_tokens": 5457,
+      "full_read": "forbidden",
+      "safe_hint": "rg -n \"^## \" doc/agent_workflow_templates.md  # one template section only"
     },
     "doc/agent_workflow_test_bundles.md": {
       "lines": 304,
@@ -157,6 +167,13 @@
       "full_read": "forbidden",
       "safe_hint": "module list or single ## section only"
     },
+    "doc/backlog_registry.yaml": {
+      "lines": 10047,
+      "bytes": 493962,
+      "est_tokens": 123490,
+      "full_read": "forbidden",
+      "safe_hint": "rg -n \"^  <PACKAGE_ID>:\" doc/backlog_registry.yaml  # one package block only"
+    },
     "doc/changelog.md": {
       "lines": 1790,
       "bytes": 160080,
@@ -174,7 +191,9 @@
     "doc/closed_iterations.md": {
       "lines": 1572,
       "bytes": 148595,
-      "est_tokens": 37148
+      "est_tokens": 37148,
+      "full_read": "forbidden",
+      "safe_hint": "rg -n \"^## \" doc/closed_iterations.md  # one closed package section only"
     },
     "doc/conventions.md": {
       "lines": 50,
@@ -184,12 +203,16 @@
     "doc/conventions_architecture.md": {
       "lines": 115,
       "bytes": 16269,
-      "est_tokens": 4067
+      "est_tokens": 4067,
+      "full_read": "forbidden",
+      "safe_hint": "rg -n \"^## \" doc/conventions_architecture.md  # one section only"
     },
     "doc/conventions_reference.md": {
       "lines": 75,
       "bytes": 11542,
-      "est_tokens": 2885
+      "est_tokens": 2885,
+      "full_read": "forbidden",
+      "safe_hint": "rg -n \"^## \" doc/conventions_reference.md  # one section only"
     },
     "doc/epochs/e4.md": {
       "lines": 742,

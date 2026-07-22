@@ -1,7 +1,7 @@
 # Обзор архитектуры Kilo → kilo_proxy_relay → llama.cpp
 
 **Создан:** 2026-07-21
-**Последняя актуализация:** 2026-07-22 (раунд 6, §31 — компактный аддендум; полная история раундов 1–5 ниже не переписывалась, см. предупреждение о разделении history/spec в §31)
+**Последняя актуализация:** 2026-07-22 (раунд 7 — см. заголовок «## Раунд 7» внизу документа, не номер параграфа: раунды 6/7 написаны без нумерованных `### NN` подзаголовков, в отличие от раундов 2–5; искать по тексту заголовка, не по «§NN». Полная история раундов 1–5 ниже не переписывалась.)
 **Статус:** Partially implemented / not production-ready — см. «Текущий статус (актуально)» ниже
 
 ---
@@ -20,8 +20,8 @@
 - ⚠️ **Не закрыто и не в коде:** DeepSeek требует передавать `reasoning_content` обратно на каждом следующем шаге после tool call, иначе `HTTP 400`. Relay это не проверяет и не чинит между запросами (это состояние диалога, не факт одного payload) — вне его контроля. Совместимость Kilo с этой конвенцией **не подтверждена** (нет захваченного multi-turn trace/исходников адаптера). **Multi-turn agentic tool-loop через DeepSeek preset по-прежнему не закрыт end-to-end.**
 - ✅ **Payload-совместимость DeepSeek (раунд 6, `apply_deepseek_compatibility()`):** 4 подтверждённых через oh_my_pi guide несовместимости, все stateless и теперь фиксятся — `developer`-роль → `system`, `tool_choice` вырезается при эффективно включённом thinking (в т.ч. дефолт DeepSeek), `max_completion_tokens` → `max_tokens`, `content:null` на tool-call → `""`. Логируется в `deepseek_overrides.compatibility_fixes`.
 - ✅ **Защита ключа (раунд 6):** `validate_deepseek_api_base()` — fail-fast без `https://api.deepseek.com` или явного `DEEPSEEK_ALLOW_CUSTOM_HOST=1`. `_prepare_upstream_request_headers()` — Accept-Encoding убран для всех upstream (снижает риск gzip-порчи, не гарантирует полностью — см. §31 п.3), Cookie/Proxy-Authorization/hop-by-hop — для DeepSeek preset.
-- ✅ **Утечка секретных заголовков в JSONL (раунд 7, критично):** `request_headers` писались в лог **всегда** (не гейтится `FULL_BODY`), а `redact_headers()` маскировал только `Authorization`/`*key` — `Cookie`, `Proxy-Authorization`, `X-Auth-Token` попадали на диск открытым текстом на каждом запросе. Исправлено единой `is_sensitive_header_name()` для redaction и forwarding; закреплено handler-level тестом на реальную JSONL-запись, не только на `redact_headers()` изолированно.
-- ✅ **Стейтлесс-детекция `reasoning_content` (раунд 7):** `detect_missing_reasoning_content()` — не блокирует и не чинит (не может, это состояние между запросами), но предупреждает в `deepseek_overrides.warnings`, если thinking включён и assistant-сообщение с `tool_calls` не несёт `reasoning_content` — fail-fast сигнал до платного запроса, который почти наверняка получит `HTTP 400`.
+- ✅ **Утечка секретных заголовков в JSONL (раунд 7, критично):** `request_headers` писались в лог **всегда** (не гейтится `FULL_BODY`), а `redact_headers()` маскировал только `Authorization`/`*key`. Исправлено единой `is_sensitive_header_name()` (расширена до `Set-Cookie`/`Cookie2`/session-/refresh-/bearer-/security-token вариантов) для redaction (в т.ч. response-заголовков) и forwarding; `Transfer-Encoding`/`Proxy-Connection`/заголовки, перечисленные в `Connection`, тоже теперь стрипаются. Закреплено handler-level тестом на фактически сформированный record (не файловую запись — `write_jsonl` в тестах остаётся моком, честно названо «проверка record», не «проверка записи на диск»).
+- ✅ **`reasoning_content`: реальный fail-fast + опциональный block (раунд 7, было сломано в раунде 6):** прошлая версия `detect_missing_reasoning_content()` вычисляла warning, но не выводила его нигде до JSONL-записи **после** платного upstream-вызова — заявление «fail-fast» было неверным по факту кода. Исправлено: warning печатается в stderr сразу при обнаружении (до вызова `forward_request`), плюс новый `DEEPSEEK_REASONING_CONTENT_GUARD=warn|block` — `block` отклоняет запрос локально (`HTTP 422`) без похода к DeepSeek. Также исправлен более серьёзный сопутствующий баг: и этот детектор, и `apply_deepseek_compatibility` читали эффективный thinking-режим только из env-конфига, игнорируя `payload["thinking"]["type"]` от клиента — теперь единый `effective_thinking_type(payload)` читает сам payload (к этому месту кода env-оверрайд, если был, уже в него применён).
 - ✅ **Handler-level regression-тест (раунд 6, уточнение раунда 7):** `test_handle_proxy_stale_deepseek_preset_does_not_leak_key_to_raw_upstream` гоняет реальный `_handle_proxy` (не только helper `_deepseek_actually_active`), плюс позитивный контроль. Точная граница теста: он подставляет уже разрешённое состояние (`patch.object(relay, "DEEPSEEK_CFG", None)`/`UPSTREAM_BASE`), а не гоняет полную цепочку `env → effective_upstream_base/_deepseek_actually_active → module-level globals → handler`; резолюшн этой цепочки покрыт отдельными unit-тестами на `_deepseek_actually_active`/`effective_upstream_base`. Вместе оба слоя покрывают весь путь, но не одним тестом. Тестов теперь 53 (было 12 до этой сессии) — точное число см. `pytest tests/test_kilo_proxy_relay.py --collect-only -q`, не текст здесь.
 - ⚠️ `Invoke-KiloRelayMeasuredRun-v1.ps1` и `Test-KiloRelayDaily.ps1` **не обновлены** под DeepSeek (нет `-UseDeepSeek` passthrough; `Test-` не умеет cloud-провайдеров без `meta.n_ctx`) — файлы редактируются параллельной сессией, правка отложена.
 - ✅ **R1/R3-lite (2026-07-22):** JSONL `request_original` + `response.usage`; мини-стата `body_orig`/`body_fwd`, `guard=… mode=… blocked=…`, `in=`/`out=`. Полный body hash и llama.cpp `timings.*` — open.
@@ -630,3 +630,39 @@ py_compile scripts/kilo_proxy_relay.py    →  OK
 - Живой `/v1/models` smoke под DeepSeek preset — не выполнялся.
 - `Invoke-KiloRelayMeasuredRun-v1.ps1`/`Test-KiloRelayDaily.ps1` под DeepSeek — по-прежнему в параллельной разработке.
 - Верхний exception boundary в `_handle_proxy`, накопление streaming-ответа в памяти, chunked request body — открыты с более ранних раундов, не тронуты здесь.
+
+---
+
+## Раунд 8 (2026-07-22): пятый контраудит — реальный fail-fast, thinking-precedence, расширение redaction
+
+### Подтверждено верификацией и исправлено
+
+1. **Критично, подтверждено чтением кода.** `reasoning_content`-warning вычислялся в `detect_missing_reasoning_content()` **до** вызова `forward_request`/`forward_request_streaming`, но никак не использовался до этого момента — просто клался в `deepseek_overrides`, который писался в JSONL **после** завершения платного upstream-вызова (`write_jsonl(record)` идёт уже после `elapsed_ms = ...`). Заявление «fail-fast сигнал до платного запроса» было неверным по факту исполнения кода — это была постфактум-диагностика, а не превентивный механизм. **Исправлено:** warning печатается в stderr сразу при обнаружении (до `forward_request`), плюс добавлен `DEEPSEEK_REASONING_CONTENT_GUARD=warn|block` — `block` строит локальный `HTTP 422` и **не вызывает `urlopen` вообще**, закреплено тестом, явно проверяющим `urlopen_calls == []`.
+2. **Реальный баг precedence, тот же класс, что и раунд 4.** И `apply_deepseek_compatibility`, и `detect_missing_reasoning_content` читали эффективный thinking-режим только из env-конфига (`cfg.get("thinking")`) — если клиент сам прислал `payload["thinking"]["type"]="disabled"` без какого-либо env override, обе функции ошибочно считали thinking включённым (дефолт DeepSeek), что могло **вырезать `tool_choice` из payload, явно отключившего thinking**, и выдавать ложный warning. **Исправлено:** новый `effective_thinking_type(payload)` читает состояние из самого payload — корректно, поскольку к моменту вызова этих функций в `_handle_proxy` env-оверрайд (если был) уже применён к `payload["thinking"]`, так что чтение payload напрямую даёт правильный приоритет (env override → клиентское значение → дефолт DeepSeek `enabled`) одним источником истины вместо двух рассинхронизированных. `cfg`-параметр убран из сигнатур обеих функций как более не нужный (был бы вводящим в заблуждение мёртвым параметром).
+3. **Классификатор заголовков пропускал реальные варианты.** `Set-Cookie` (response!), `Cookie2`, `X-Session-Token`, `X-Refresh-Token`, `X-Bearer-Token`, `X-Amz-Security-Token`, `Authentication-Info`, `Proxy-Authentication-Info` не матчились. Особенно важен `Set-Cookie` — `redact_headers()` применяется и к response-заголовкам upstream, значит реальный session cookie от облачного провайдера мог уйти в JSONL. **Исправлено:** расширены `_SENSITIVE_HEADER_EXACT_NAMES` и substring-набор (`cookie`/`token`/`secret`/`auth`/`session` — намеренно широко, over-redaction безопаснее, чем пропуск).
+4. **`Transfer-Encoding` не стрипался.** Обработчик не поддерживает chunked request body (читает только `Content-Length`), поэтому пересылка стороннего `Transfer-Encoding` искажала бы реальный framing — RFC 9112 относит некорректный framing к классу request-smuggling рисков. Также не стрипались `Proxy-Connection` и заголовки, перечисленные в самом `Connection` (RFC 7230 §6.1, например `Connection: X-Internal` → `X-Internal` тоже hop-by-hop). **Исправлено:** добавлены в `_ALWAYS_STRIP_REQUEST_HEADERS` + новая `_connection_listed_headers()`.
+5. **Overclaim «все четыре дают 400» и «relay ничего не проверяет для reasoning_content» остались в `doc/kilo_proxy_relay.md`** несмотря на заявленное исправление в предыдущем раунде — формулировки не были фактически отредактированы в этом документе. Исправлено сейчас: tool/thinking-поля явно связаны с `400` в гайде DeepSeek, `developer`/`max_completion_tokens` — как несовместимость без отдельно подтверждённого живого `400`; раздел `reasoning_content` переписан с описанием `warn`/`block`.
+6. **Тестовое доказательство переописано честнее.** Тесты на JSONL-утечку проверяют сформированный `record` (аргумент, переданный в замоканный `write_jsonl`), не фактическую запись на диск — `write_jsonl` в тестах остаётся мок-функцией, собирающей вызовы, не пишущей файл. Названия тестов и комментарии не переименовывались задним числом (уже были названы `..._to_jsonl_record`, не `..._to_disk`), но формулировка в этом документе теперь говорит то же самое явно.
+7. **Header self-contradiction в шапке документа.** «Последняя актуализация — раунд 6» при уже существующем разделе «Раунд 7» — реальная нестыковка дат/номеров, найденная контраудитом. Исправлено. Ссылка `§31` (не существовавшая как заголовок — раунды 6/7 написаны без нумерованных `### NN`, в отличие от 2–5) заменена на ссылку по названию заголовка.
+
+### Проверено (реальный прогон)
+
+```text
+pytest tests/test_kilo_proxy_relay.py -q  →  61 passed
+pytest tests/ -k kilo -q                  →  139 passed, 3202 deselected
+py_compile scripts/kilo_proxy_relay.py    →  OK
+```
+
+Новые тесты: `test_apply_deepseek_compatibility_reads_client_payload_thinking_not_env_cfg`,
+`test_detect_missing_reasoning_content_reads_client_payload_thinking_not_env_cfg` (прямые
+regression-тесты на баг precedence из п.2), `test_handle_proxy_deepseek_reasoning_content_warn_mode_still_forwards`,
+`test_handle_proxy_deepseek_reasoning_content_block_mode_prevents_upstream_call` (проверяет
+`urlopen_calls == []` — реальный fail-fast, не только флаг в JSONL), `test_redact_headers_masks_response_set_cookie`,
+`test_redact_headers_masks_additional_token_variants`, `test_prepare_upstream_request_headers_strips_transfer_encoding_and_proxy_connection`,
+`test_prepare_upstream_request_headers_strips_connection_listed_headers`.
+
+### Не сделано в этом раунде
+
+- Полный allowlist исходящих заголовков (не только для DeepSeek preset) — по-прежнему blocklist для local/cloud_budget путей.
+- Живой `/v1/models` smoke под DeepSeek preset — не выполнялся.
+- `Invoke-KiloRelayMeasuredRun-v1.ps1`/`Test-KiloRelayDaily.ps1` под DeepSeek, верхний exception boundary в `_handle_proxy`, накопление streaming-ответа в памяти, chunked request body — открыты с более ранних раундов.

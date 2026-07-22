@@ -2,7 +2,7 @@
 
 **Назначение:** HTTP-прокси между OpenAI-compatible клиентом (**Cursor** или **Kilo IDE**) и upstream (LM Studio / `llama.cpp` / облако). Сжимает тело `POST /v1/chat/completions`, пишет JSONL-лог, применяет guard из `scripts/_kilo_guard.py`.
 
-**Актуализация:** 2026-07-22 (DeepSeek+cloud_budget recipe, R1/R3-lite, guard/banner UX, UTF-8 stdio, header-redaction fix, reasoning_content detection; architecture review §18-31 — начинать с «Текущий статус», не с номера конкретного раунда).
+**Актуализация:** 2026-07-22 (DeepSeek+cloud_budget recipe, R1/R3-lite, guard/banner UX, UTF-8 stdio, header-redaction fix, reasoning_content detection + fail-fast/block режим, thinking-precedence фикс; подробности — [architecture review](next/kilo_relay_daily_architecture_review_2026-07-21.md), начинать с блока «Текущий статус», секции «Раунд 6»/«Раунд 7» — не по номеру параграфа).
 
 ---
 
@@ -79,16 +79,21 @@ Bind по умолчанию: `127.0.0.1:8787` (`KILO_RELAY_HOST` / `KILO_RELAY_
 | `DEEPSEEK_MODEL` | Дефолт `deepseek-v4-pro` — подтверждённая реальная модель (релиз 2026-04, есть также `deepseek-v4-flash`), контекст **1M токенов** |
 | `DEEPSEEK_THINKING` | Опционально `enabled`/`disabled`. **DeepSeek V4 по умолчанию `thinking.type=enabled` + `reasoning_effort=high`** — может незаметно раздувать output tokens/задержку/счёт. Не задано = релей не трогает поле |
 | `DEEPSEEK_REASONING_EFFORT` | Опционально `high`/`max` — это единственные реальные уровни DeepSeek (API молча повышает `low`/`medium` до `high`, `xhigh` до `max`); релей намеренно не предлагает `low`/`medium`, чтобы не создавать иллюзию несуществующей гранулярности |
+| `DEEPSEEK_REASONING_CONTENT_GUARD` | `warn` (дефолт) / `block`. `warn` — stderr-предупреждение до upstream-вызова, запрос всё равно уходит; `block` — локальный `HTTP 422` без похода к DeepSeek, если assistant-сообщение с `tool_calls` без `reasoning_content` при включённом thinking |
 
-**Payload compatibility fixes (реализовано, `apply_deepseek_compatibility()`)** — все четыре подтверждены официальным гайдом DeepSeek по agent-интеграциям (oh_my_pi), каждая иначе даёт `HTTP 400`:
+**Payload compatibility fixes (реализовано, `apply_deepseek_compatibility()`)** — все четыре подтверждены официальным гайдом DeepSeek по agent-интеграциям (oh_my_pi) как несовместимые; гайд явно связывает `HTTP 400` с tool/thinking-полями (`tool_choice`, `content:null`), для `developer`-роли и `max_completion_tokens` там же описана несовместимость без отдельно живьём подтверждённого `400` с нашей стороны:
 - `role: "developer"` → переписывается в `role: "system"` (DeepSeek отклоняет `developer`);
 - `tool_choice` вырезается, если thinking-режим эффективно включён (в т.ч. дефолт DeepSeek при не заданном `DEEPSEEK_THINKING`) — DeepSeek отклоняет `tool_choice` в thinking-режиме;
 - `max_completion_tokens` переименовывается в `max_tokens` (или отбрасывается, если оба заданы);
 - `assistant`-сообщение с tool call и `content: null` получает `content: ""` (DeepSeek требует non-null content).
 
-Эти четыре — stateless факты одного запроса, relay может и чинит их сам. Применённые фиксы пишутся в JSONL под `deepseek_overrides.compatibility_fixes`.
+Эти четыре — stateless факты одного запроса, relay может и чинит их сам. Применённые фиксы пишутся в JSONL под `deepseek_overrides.compatibility_fixes`. Эффективный thinking-режим (`effective_thinking_type()`) читается из **самого payload** (`payload["thinking"]["type"]`), а не только из env — так как к этому месту кода env-оверрайд `DEEPSEEK_THINKING` уже применён к payload, если он был задан; это корректно учитывает и явный клиентский `thinking:{"type":"disabled"}` без какого-либо env override (был баг: раньше читался только env, клиентское значение игнорировалось).
 
-⚠ **Не закрыто, вне контроля relay (требует состояния между запросами, не одного payload):** DeepSeek требует, чтобы `reasoning_content` из ответа с tool call был передан обратно в истории сообщений на **каждом** следующем шаге разговора — иначе API вернёт `HTTP 400`. Relay проксирует историю как есть, ничего не проверяет и не чинит между запросами. Совместимость Kilo с этой конвенцией **не подтверждена** (не было ни захваченного multi-turn trace, ни просмотра исходников Kilo-адаптера) — многошаговый agentic tool-loop через DeepSeek preset может сломаться на втором tool round-trip. **Не проверено end-to-end.**
+⚠ **Частично закрыто — детекция есть, восстановление вне контроля relay:** DeepSeek требует, чтобы `reasoning_content` из ответа с tool call был передан обратно в истории сообщений на **каждом** следующем шаге разговора — иначе API вернёт `HTTP 400`. Relay не может восстановить историю между запросами (это состояние диалога, которым relay не владеет), но **может** проверить текущий payload: `detect_missing_reasoning_content()` находит assistant-сообщение с `tool_calls` без `reasoning_content` при эффективно включённом thinking. Поведение управляется `DEEPSEEK_REASONING_CONTENT_GUARD`:
+- `warn` (дефолт) — печатает предупреждение в stderr **до** upstream-вызова и пишет в `deepseek_overrides.warnings`, запрос всё равно уходит;
+- `block` — локально отклоняет запрос (`HTTP 422`, без похода к DeepSeek) **до** какого-либо платного вызова.
+
+Совместимость Kilo с конвенцией `reasoning_content` **не подтверждена** (не было ни захваченного multi-turn trace, ни просмотра исходников Kilo-адаптера) — многошаговый agentic tool-loop через DeepSeek preset может сломаться на втором tool round-trip. **Не проверено end-to-end.**
 
 **Защита от утечки ключа на неверный host:** `DEEPSEEK_API_BASE` обязан быть `https://api.deepseek.com`, иначе релей падает при старте с `RuntimeError` (не молча отправляет реальный ключ куда попало). Другой host — только через явный `DEEPSEEK_ALLOW_CUSTOM_HOST=1`. Заголовки `Cookie`/`Proxy-Authorization`/прочие client-side auth убираются перед отправкой на DeepSeek; `Accept-Encoding` убирается перед отправкой на **любой** upstream (релей не умеет распаковывать gzip, а `Content-Encoding` из ответа уже стрипается — иначе клиент получил бы несжимаемые байты без заголовка, объясняющего почему).
 

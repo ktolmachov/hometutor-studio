@@ -53,6 +53,7 @@ Every path in this document and in prompts must be resolved against the correct 
 - **Never read extra files beyond explicit read-set.** No fishing or "context exploration."
 - **Only include relevant sections or samples**, not entire files, unless explicitly safe per token_safety.md.
 - **Fresh context always:** Ignore prior responses/tools in each new Claude Code call.
+- **Long session:** if estimated input **>20k tokens** or **msgs≫15** in a tool-heavy chat, stop and start a **new chat** (relay does not trim history).
 
 ### 2. Large-File Rules (Non-Negotiable)
 
@@ -88,6 +89,12 @@ Verify current size before reading: `(Get-Content <file>).Count` (PowerShell) or
 app/* files are under **CODE_ROOT** (see § Two-Root Repository Layout), not in this cwd.
 
 ```
+❌ AGENTS.md                   → use: rg "^## " section only; never Read-tool (in <rules>)
+❌ CLAUDE.md                   → use: rg "^## " section only; never Read-tool (duplicate policy)
+❌ doc/backlog_registry.yaml   → use: rg one PACKAGE_ID block only
+❌ doc/closed_iterations.md    → use: one closed-package section via rg
+❌ doc/conventions_architecture.md → use: one ## section via rg
+❌ doc/conventions_reference.md    → use: one ## section via rg
 ❌ app/query_service.py        → use: grep signatures           (CODE_ROOT)
 ❌ app/knowledge_graph.py      → use: grep signatures           (CODE_ROOT)
 ❌ app/prompts/_impl.py        → use: grep signatures           (CODE_ROOT, SSoT промптов)
