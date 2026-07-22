@@ -71,7 +71,7 @@ DoD
 - [x] kilo_prompt_content_report.py выдаёт top_paths / top_fragments / top_kinds / top_extensions
 - [x] Написан ranked list «файл/фрагмент → relative weight → действие» (без точных лимитов из path est_tok)
 - [x] Обновлены registry + AGENTS/CLAUDE под топ-засорители (без оверинжиниринга)
-- [x] Повторный короткий прогон: prompt_tokens заметно ниже (Tier B live: in≈5.7k vs ~83k до окна; цель 12k/20k достигнута на обычном ходе)
+- [x] Повторный короткий прогон: prompt_tokens заметно ниже baseline (~83k → единицы/десятки k). **Уточнение 2026-07-23:** на длинном tool-heavy логе при 24/4000 цель ≤12k/≤20k **не удерживается** (11/20 >12k, 5/20 >20k, peak 26257); дефолт ужесточён до 14/2000 — см. `kilo_relay_history_window_tier_b_2026-07-23.md` § Live budget honesty.
 - [x] pytest по затронутым тестам зелёный (137 passed: stats + proxy + compress)
 
 Do not touch (на момент исходного контракта; обновлено 2026-07-23)

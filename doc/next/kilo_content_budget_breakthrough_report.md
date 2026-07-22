@@ -39,17 +39,16 @@
 
 ### After Tier B (2026-07-23, live Cursor→DeepSeek, `cloud_budget` + history window)
 
-Env: `KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES=24`, `MAX_TOOL_RESULT_CHARS=4000`, system stub + strip rules/user_info; **без** `TOOLS_ALLOWLIST` (schemas ~2k tok).
+Env (early sample): `KEEP_LAST_MESSAGES=24`, `MAX_TOOL_RESULT_CHARS=4000`, system stub + strip rules/user_info; **без** `TOOLS_ALLOWLIST`.
 
-| Метрика | До Tier B (та же сессия) | После Tier B |
-|---------|--------------------------|--------------|
-| `prompt_tokens` (`in=`) | ~83 500 | **~5 500–5 700** |
-| `msgs` forwarded | ~165 | **25** |
-| `tools` forwarded | 16 (или 0 при сломанном allowlist) | **16** |
-| `guard` | hard_block | **soft_block** |
-| stderr | `saved≈32k` | `saved≈430k`, `hist_cut≈240` |
+| Метрика | До Tier B | После (2 ранних POST) | Длинный live (20 req, 2 чата) |
+|---------|-----------|------------------------|-------------------------------|
+| `prompt_tokens` (`in=`) | ~83 500 | **~5 500–5 700** | **1 279–26 257** (11/20 >12k, 5/20 >20k) |
+| `msgs` forwarded | ~165 | **25** | 2→30 (новый чат) / ~25 (окно) |
+| `tools` forwarded | 16 | **16** | 16, затем **6** (Cursor прислал меньше; allowlist=None) |
+| `guard` | hard_block | soft_block | soft_block |
 
-Детали и env: [kilo_relay_history_window_tier_b_2026-07-23.md](kilo_relay_history_window_tier_b_2026-07-23.md), [kilo_proxy_relay.md](../kilo_proxy_relay.md) § Tier B.
+**Вывод:** механизм окна работает; настройка **24/4000 не удерживает** ≤12k/≤20k на tool-heavy. Дефолт launcher ужесточён до **14/2000**. Окно = count сообщений, не char-budget — при росте `in` нужен новый чат раньше. Evidence: [kilo_relay_history_window_tier_b_2026-07-23.md](kilo_relay_history_window_tier_b_2026-07-23.md) § Live budget honesty.
 
 ## 2. Diff-план (выполнено)
 
@@ -69,7 +68,7 @@ Env: `KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES=24`, `MAX_TOOL_RESULT_CHARS=400
 ## 4. Открытые риски
 
 - **reasoning_content:** multi-turn DeepSeek tool-loop может требовать `reasoning_content` в history — relay не чинит между запросами.
-- **msgs growth:** Tier B срезает хвост истории в relay, но длинный чат всё равно растёт в Cursor; при `in`>20k — новый чат + relay guard soft/hard.
+- **msgs growth / window math:** Tier B режет **число** сообщений (`KEEP_LAST`), не суммарный размер. При tool_result ≈cap каждый, `in` легко уходит за 12k/20k даже с активным `hist_cut`. Новый чат раньше soft_block; дефолт launcher **14/2000** (было 24/4000).
 - **Повторная верификация:** для production before/after прогоните 5–15 ходов в **новом** Cursor-чате с перезапущенным relay (`KILO_RELAY_CONTENT_STATS=1`).
 
 ## 5. Команды верификации

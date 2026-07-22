@@ -43,10 +43,10 @@ $env:KILO_RELAY_SLIM_MODE = "cloud_budget"   # не local и не off: strip XML
 Канон для Cursor через релей на DeepSeek:
 
 1. `KILO_RELAY_UPSTREAM_PRESET=deepseek` + `DEEPSEEK_API_KEY` (не задавать raw `KILO_RELAY_UPSTREAM`).
-2. **`KILO_RELAY_SLIM_MODE=cloud_budget`** — strip operational XML + ужим схем tools; **platform system не stub’ится**, список tools не режется. Не использовать `local` (stub + Cursor allowlist) и не оставлять unset (дефолт скрипта = `local`).
+2. **`KILO_RELAY_SLIM_MODE=cloud_budget`** — strip operational XML + ужим схем tools. Список tools не режется (без allowlist). Stub system — **opt-in** через `KILO_RELAY_CLOUD_BUDGET_REPLACE_CURSOR_SYSTEM=1` (профиль launcher `CloudBudget` включает stub). Не использовать `local` и не оставлять unset (дефолт скрипта = `local`).
 3. `KILO_RELAY_GUARD_MODE=warn` — уровни `soft_block`/`hard_block` только в JSONL/мини-стате (`blocked=no`); HTTP 413 нет.
 4. Опционально `DEEPSEEK_THINKING=disabled` — режет output/latency; для тяжёлого reasoning не включать.
-5. **История по умолчанию не обрезается** (`KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES=0`). Для длинных agent-loop — opt-in Tier B (`KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES`, `KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS`; § Tier B ниже). Иначе при `msgs`≫15 / body≫`hard_block_body_chars` (**110000**) — новый чат. Неизвестный `SLIM_MODE` → fail-fast при старте.
+5. **История:** compress default `KEEP_LAST_MESSAGES=0` (не режет). Daily launcher **`CloudBudget`** включает Tier B (`14` / `2000`). Окно режет **число** сообщений, не суммарный размер — при tool-heavy `in=` всё ещё может >12k/20k; тогда новый чат раньше. Ручной env — § Tier B. Неизвестный `SLIM_MODE` → fail-fast при старте.
 
 Канонический daily-оркестратор (Start/Stop/Test/MeasuredRun): `D:\AI\llama_cpp_server_pack_v1\kilo-relay\` (`Start-KiloRelayDaily.ps1`, в т.ч. `-UseDeepSeek`). Python-релей и compress/guard — в этом репозитории: `scripts/kilo_proxy_relay.py`, `_kilo_relay_compress.py`, `_kilo_guard.py`.
 
@@ -227,17 +227,26 @@ Cursor шлёт **всю** историю на каждый ход; без Tier 
 Рекомендуемый старт для Cursor→DeepSeek (новая сессия + перезапуск relay):
 
 ```powershell
+# Вариант A — daily launcher (канон):
+pwsh -File D:\AI\llama_cpp_server_pack_v1\kilo-relay\Start-KiloRelayDaily.ps1 `
+  -UseDeepSeek -RelayProfile CloudBudget -StopExistingRelay `
+  -DeepSeekThinking disabled
+
+# Вариант B — ручной env перед scripts/kilo_proxy_relay.py:
 $env:KILO_RELAY_UPSTREAM_PRESET = "deepseek"
 $env:KILO_RELAY_SLIM_MODE = "cloud_budget"
 $env:KILO_RELAY_CLOUD_BUDGET_STRIP_CURSOR_RULES = "1"
 $env:KILO_RELAY_CLOUD_BUDGET_STRIP_USER_INFO = "1"
 $env:KILO_RELAY_CLOUD_BUDGET_REPLACE_CURSOR_SYSTEM = "1"
-# allowlist опционален (~2k tok); без него tools=16. Сопоставление case-insensitive (Read/read).
-# $env:KILO_RELAY_TOOLS_ALLOWLIST = "Shell,Read,Grep,Write,Edit,Delete"
-$env:KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES = "24"
-$env:KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS = "4000"
+# allowlist опционален (~2k tok savings); без него tools=16. Match case-insensitive.
+# Имена должны совпадать с Cursor tool ids (часто lowercase: bash/read/grep/…).
+# Не используйте Edit — в Cursor это обычно StrReplace/edit; чужое имя silently drop'ает tool.
+# $env:KILO_RELAY_TOOLS_ALLOWLIST = "Shell,Read,Grep,Write,StrReplace"
+$env:KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES = "14"
+$env:KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS = "2000"
 ```
 
+Параметры launcher: `-CloudBudgetKeepLastMessages` / `-CloudBudgetMaxToolResultChars` (дефолт **14 / 2000**; раньше 24/4000 — live log показал in до 26k при активном tool-loop). Окно = count, не char-budget: даже с hist_cut `in=` может превышать 12k/20k — новый чат раньше soft_block. `-UseDeepSeek` + `-RelayProfile Safe` даёт warning (без Tier B).
 В stderr ищите `hist_cut=` / `tr_capped=`; в JSONL — `relay_compress.messages_dropped_history` / `tool_results_capped`. Детали и evidence: [kilo_relay_history_window_tier_b_2026-07-23.md](next/kilo_relay_history_window_tier_b_2026-07-23.md).
 
 ### `KILO_RELAY_SLIM_MODE=local` (дефолт скрипта)

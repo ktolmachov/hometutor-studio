@@ -24,9 +24,11 @@ acting on it:
   `KILO_RELAY_REPLACE_CURSOR_SYSTEM=1` is silently overridden to disabled in
   `cloud_budget` mode by a *different* env var
   (`KILO_RELAY_CLOUD_BUDGET_REPLACE_CURSOR_SYSTEM`) — confirmed at
-  `_kilo_relay_compress.py:592` vs `:616`. Tier B vars use the same override at
-  `:592-594` vs `:626-627`. Corrected in the usage instructions below; regression
-  tests lock in the (intentional) no-fallback behavior.
+  `_kilo_relay_compress.py:593` vs `:617`. Tier B vars use the same override at
+  `:594-595` vs `:627-628`. Corrected in the usage instructions below; regression
+  tests lock in the (intentional) no-fallback behavior. (Line numbers as of the
+  case-insensitive allowlist fix below — they drift by one line per edit above
+  this point in the file; treat as approximate, not a pinned reference.)
 
 ## What changed
 
@@ -76,11 +78,20 @@ $env:KILO_RELAY_SLIM_MODE = "cloud_budget"
 $env:KILO_RELAY_CLOUD_BUDGET_STRIP_CURSOR_RULES = "1"
 $env:KILO_RELAY_CLOUD_BUDGET_STRIP_USER_INFO = "1"
 $env:KILO_RELAY_CLOUD_BUDGET_REPLACE_CURSOR_SYSTEM = "1"   # NOT plain REPLACE_CURSOR_SYSTEM in this mode
-# Optional: narrow tools (~2k tok). Match is case-insensitive (Cursor sends read/grep lowercase).
-# $env:KILO_RELAY_TOOLS_ALLOWLIST = "Shell,Read,Grep,Write,Edit,Delete"
-$env:KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES = "24"     # new — Tier B
-$env:KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS = "4000" # new — Tier B
+# Optional: narrow tools (~2k tok). Match is case-insensitive.
+# Use real Cursor tool ids; avoid Edit (usually StrReplace/edit) — unknown names drop silently.
+# $env:KILO_RELAY_TOOLS_ALLOWLIST = "Shell,Read,Grep,Write,StrReplace"
+$env:KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES = "14"     # tightened 2026-07-23 (was 24)
+$env:KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS = "2000" # tightened (was 4000)
 .\.venv\Scripts\python.exe scripts/kilo_proxy_relay.py
+```
+
+Daily launcher equivalent (sets the same CLOUD_BUDGET_* env, no allowlist):
+
+```powershell
+pwsh -File D:\AI\llama_cpp_server_pack_v1\kilo-relay\Start-KiloRelayDaily.ps1 `
+  -UseDeepSeek -RelayProfile CloudBudget -StopExistingRelay `
+  -DeepSeekThinking disabled
 ```
 
 ## Evidence
@@ -120,3 +131,19 @@ tests/test_kilo_guard.py` — **137 passed**.
 - `GUARD_MODE=block` (Tier C) is a separate, still-untouched decision — this
   round only lifted the "no history trim in relay" constraint, not the guard
   default.
+
+## Live budget honesty (2026-07-23, same JSONL, longer sample)
+
+Verified against `logs/kilo_relay.jsonl` (not a short post-restart sample):
+
+| Claim | Verdict |
+|---|---|
+| Two sessions in one log (`msgs` 25→**2**, `tools` 16→**6**, `allowlist=None`) | **Confirmed**. Split starts at `82b04c53` (in=1279); `0e1c1e4f` is the *second* turn of the new chat. `top_kind` on split is **`user`**, not `system`. |
+| Old session in= 5530…12453; new 1279…19000 (incl. peak **26257**) | **Exact sequences found** in the log |
+| vs baseline ~83519: always better | **Confirmed** |
+| On that 20-request window: 11/20 >12k (55%), 5/20 >20k (25%) | **Confirmed** |
+| `hist_cut` / `tr_capped` grow; window is **message-count**, not char-budget | **Confirmed** — after hist_cut active, `in` still climbs (18k→26k) because ~24×~4000-char tool_results alone ≈24k tok |
+
+**Correction to earlier “×15 / goal met” verdict:** that was based on 2 early turns right after restart. Longer tool-heavy traffic shows **24/4000 does not hold ≤12k/≤20k**.
+
+**Default tightened (launcher + docs):** `KEEP_LAST_MESSAGES=14`, `MAX_TOOL_RESULT_CHARS=2000`. Still not a hard char-budget guarantee — start a new chat when `in` climbs past soft/hard rather than waiting for soft_block.
