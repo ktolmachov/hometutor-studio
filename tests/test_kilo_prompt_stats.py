@@ -222,9 +222,23 @@ def test_collect_chat_records_missing_file_returns_empty_counters(tmp_path: Path
         "dict_records": 0,
         "invalid_json": 0,
         "non_dict_records": 0,
+        "chat_records_seen": 0,
         "chat_with_stats": 0,
     }
     assert chat == []
+
+
+def test_collect_chat_records_seen_counts_full_file_not_just_the_slice(tmp_path: Path):
+    """chat_with_stats is capped at --last (deque maxlen); chat_records_seen must
+    still report how much instrumented traffic exists in the whole file, so a
+    reader can't mistake "sample size" for "total instrumented requests"."""
+    log = tmp_path / "chat.jsonl"
+    rows = [_chat_row(i) for i in range(10)]
+    log.write_text("\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8")
+    counters, chat = report.collect_chat_records(log, last=3)
+    assert counters["chat_records_seen"] == 10
+    assert counters["chat_with_stats"] == 3
+    assert len(chat) == 3
 
 
 def test_report_main_rejects_negative_last(tmp_path: Path):
@@ -260,6 +274,37 @@ def test_report_main_shows_scan_counters_for_partially_corrupted_log(tmp_path: P
     out = capsys.readouterr().out
     assert "invalid_json=1" in out
     assert "malformed-JSON line" in out
+
+
+def test_build_report_path_hits_vs_requests_are_distinct():
+    """hits sums per-message mentions and can outrun the request count on its
+    own (one request naming a path 3x in different messages); requests counts
+    distinct chat requests that mentioned the path at least once. A reader
+    must not read a high aggregate `hits` as "appeared in that many requests"."""
+    one_request_three_mentions = {
+        "path": "/v1/chat/completions",
+        "content_stats": {
+            "original": {
+                "path_chars": [{"path": "AGENTS.md", "chars": 900, "hits": 3}],
+            }
+        },
+    }
+    two_requests_one_mention_each = [
+        {
+            "path": "/v1/chat/completions",
+            "content_stats": {"original": {"path_chars": [{"path": "CLAUDE.md", "chars": 300, "hits": 1}]}},
+        },
+        {
+            "path": "/v1/chat/completions",
+            "content_stats": {"original": {"path_chars": [{"path": "CLAUDE.md", "chars": 300, "hits": 1}]}},
+        },
+    ]
+    out = report.build_report([one_request_three_mentions, *two_requests_one_mention_each])
+    by_path = {row["path"]: row for row in out["top_paths"]}
+    assert by_path["AGENTS.md"]["hits"] == 3
+    assert by_path["AGENTS.md"]["requests"] == 1
+    assert by_path["CLAUDE.md"]["hits"] == 2
+    assert by_path["CLAUDE.md"]["requests"] == 2
 
 
 def test_build_report_records_total_vs_chat_with_stats_differ():

@@ -59,9 +59,19 @@ def collect_chat_records(path: Path, last: int | None = None) -> tuple[dict[str,
     trace. Returns ``(counters, chat_records)`` where ``counters`` has:
     ``lines_total`` (all non-blank lines), ``dict_records`` (valid JSON objects,
     the historical "records_total" meaning), ``invalid_json``, ``non_dict_records``,
-    ``chat_with_stats`` (len of the returned chat sample).
+    ``chat_records_seen`` (every chat-completions row with ``content_stats``,
+    scanned across the *whole* file, before the tail slice), ``chat_with_stats``
+    (len of the returned chat sample — always <= ``last`` when ``last`` is set,
+    so on its own it tells you the sample size, not how much instrumented
+    traffic actually exists).
     """
-    counters = {"lines_total": 0, "dict_records": 0, "invalid_json": 0, "non_dict_records": 0}
+    counters = {
+        "lines_total": 0,
+        "dict_records": 0,
+        "invalid_json": 0,
+        "non_dict_records": 0,
+        "chat_records_seen": 0,
+    }
     chat: deque[dict[str, Any]] = deque(maxlen=last) if last and last > 0 else deque()
     for obj, kind in _scan_jsonl_lines(path):
         counters["lines_total"] += 1
@@ -73,6 +83,7 @@ def collect_chat_records(path: Path, last: int | None = None) -> tuple[dict[str,
             continue
         counters["dict_records"] += 1
         if _is_chat_record(obj):
+            counters["chat_records_seen"] += 1
             chat.append(obj)
     counters["chat_with_stats"] = len(chat)
     return counters, list(chat)
@@ -89,6 +100,14 @@ def _merge_int_maps(dst: dict[str, int], src: Any) -> None:
 
 
 def _merge_path_rows(dst: dict[str, dict[str, int]], rows: Any) -> None:
+    """Merge one request's ``path_chars`` rows into the aggregate.
+
+    ``hits`` sums per-*message* mentions (one request can rack up several hits
+    on its own if a path is named in multiple messages), so a high aggregate
+    ``hits`` does not imply the path appeared in that many distinct requests.
+    Callers that need "how many requests mentioned this path at least once"
+    must count separately (see ``requests_with_path`` in ``build_report``).
+    """
     if not isinstance(rows, list):
         return
     for row in rows:
@@ -133,6 +152,7 @@ def build_report(
     frag: dict[str, int] = defaultdict(int)
     ext: dict[str, int] = defaultdict(int)
     paths: dict[str, dict[str, int]] = {}
+    requests_with_path: dict[str, int] = defaultdict(int)
     tools_chars: dict[str, int] = defaultdict(int)
     usage_in = 0
     usage_n = 0
@@ -156,6 +176,11 @@ def build_report(
         _merge_int_maps(frag, src.get("fragment_chars"))
         _merge_int_maps(ext, src.get("ext_chars"))
         _merge_path_rows(paths, src.get("path_chars"))
+        path_rows_this_record = src.get("path_chars")
+        if isinstance(path_rows_this_record, list):
+            for row in path_rows_this_record:
+                if isinstance(row, dict) and row.get("path"):
+                    requests_with_path[str(row["path"])] += 1
         tools = src.get("tools") if isinstance(src.get("tools"), dict) else {}
         for row in tools.get("by_name") or []:
             if isinstance(row, dict) and row.get("name"):
@@ -178,7 +203,13 @@ def build_report(
         return [{"key": k, "chars": v, "est_tok": v // 4} for k, v in items]
 
     path_rows = [
-        {"path": p, "chars": v["chars"], "hits": v["hits"], "est_tok": v["chars"] // 4}
+        {
+            "path": p,
+            "chars": v["chars"],
+            "hits": v["hits"],
+            "requests": requests_with_path.get(p, 0),
+            "est_tok": v["chars"] // 4,
+        }
         for p, v in paths.items()
     ]
     path_rows.sort(key=lambda r: int(r["chars"]), reverse=True)
@@ -233,8 +264,15 @@ def render_text(report: dict[str, Any]) -> str:
         )
         lines.append(
             f"  lines_total={scan['lines_total']} dict_records={scan['dict_records']} "
-            f"invalid_json={scan['invalid_json']} non_dict_records={scan['non_dict_records']}"
+            f"invalid_json={scan['invalid_json']} non_dict_records={scan['non_dict_records']} "
+            f"chat_records_seen={scan.get('chat_records_seen', '?')}"
         )
+        if scan.get("chat_records_seen", 0) > report["chat_with_content_stats"]:
+            lines.append(
+                f"  NOTE: {scan['chat_records_seen']} instrumented chat requests exist in the "
+                f"full file; this sample is only the last {report['chat_with_content_stats']} "
+                "of those (--last), not every instrumented request."
+            )
         if scan["invalid_json"] or scan["non_dict_records"]:
             lines.append(
                 f"  NOTE: {scan['invalid_json']} malformed-JSON line(s) and "
@@ -258,17 +296,24 @@ def render_text(report: dict[str, Any]) -> str:
     lines.append("-- top fragments --")
     for row in report["top_fragments"][:15]:
         lines.append(f"  {row['chars']:>10} (~{row['est_tok']} tok)  {row['key']}")
-    lines.append("-- top paths (window heuristic ±200 chars; relative rank, not file bytes) --")
+    lines.append(
+        "-- top paths (window heuristic ±200 chars; relative rank, not file bytes; "
+        "hits=message-level mentions, can exceed request count; reqs=distinct requests "
+        "containing >=1 mention) --"
+    )
     for row in report["top_paths"][:25]:
         lines.append(
-            f"  {row['chars']:>10} (~{row['est_tok']} tok) hits={row['hits']:<4}  {row['path']}"
+            f"  {row['chars']:>10} (~{row['est_tok']} tok) hits={row['hits']:<4} "
+            f"reqs={row.get('requests', '?'):<4}  {row['path']}"
         )
     lines.append("-- top extensions --")
     for row in report["top_extensions"][:15]:
         lines.append(f"  {row['chars']:>10} (~{row['est_tok']} tok)  {row['key']}")
-    lines.append("-- AGENTS/CLAUDE path hits --")
+    lines.append("-- AGENTS/CLAUDE path hits (reqs=distinct requests, not message-level hits) --")
     for row in report["agents_claude_mentions"][:15]:
-        lines.append(f"  {row['chars']:>10} hits={row['hits']:<4}  {row['path']}")
+        lines.append(
+            f"  {row['chars']:>10} hits={row['hits']:<4} reqs={row.get('requests', '?'):<4}  {row['path']}"
+        )
     lines.append("-- top tool schemas --")
     for row in report["top_tools_schema"][:15]:
         lines.append(f"  {row['chars']:>10} (~{row['est_tok']} tok)  {row['key']}")
