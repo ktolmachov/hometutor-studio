@@ -1,6 +1,12 @@
 
 # Журнал Изменений
 
+## 2026-07-23 (kilo relay: Kimi / Moonshot upstream preset)
+
+- **Preset `KILO_RELAY_UPSTREAM_PRESET=kimi`:** routing на Moonshot OpenAI-compatible API (`KIMI_BASE_URL` дефолт `https://api.moonshot.ai/v1`, ключ `KIMI_API_KEY`, модель `KIMI_MODEL` дефолт `kimi-k3`, также `kimi-k2.7-code-highspeed`).
+- **URL-join:** trailing `/v1` из SDK base снимается (`strip_openai_compat_v1_suffix`), чтобы не получить `/v1/v1/chat/completions`.
+- **Поведение как у DeepSeek:** fail-fast без ключа, host-check (`api.moonshot.ai` / `KIMI_ALLOW_CUSTOM_HOST`), raw `KILO_RELAY_UPSTREAM` отключает auth/model rewrite, JSONL `kimi_overrides`.
+
 ## 2026-07-23 (kilo relay: New Session live evidence + cloud_budget ops)
 
 - **Live evidence зафиксирован:** при каноне `cloud_budget` + DeepSeek + Tier B `14/1500` + `TRIM_TOOLS=1` + `GUARD_MODE=block` настоящий Cursor **New Session** дал сброс original `body_orig` ~821 КБ→66 КБ и `msgs` 15→2 (первый чистый запрос `id=23aba908`); forwarded остаётся в бюджете (`tools=6`, `guard=ok`, `in` обычно 3–7k).

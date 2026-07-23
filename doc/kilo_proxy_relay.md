@@ -75,12 +75,35 @@ Handoff-промпт для вставки в новый чат: [`doc/prompts/k
 
 Приоритет в `effective_upstream_base()`:
 
-1. Явный **`KILO_RELAY_UPSTREAM`** — всегда побеждает (raw override); при заданном raw override DeepSeek-специфичные подмены (auth/model/thinking) **тоже** отключаются, даже если `KILO_RELAY_UPSTREAM_PRESET=deepseek` остался в окружении (см. `_deepseek_actually_active` — фикс регрессии, найденной живым тестом 2026-07-22).
+1. Явный **`KILO_RELAY_UPSTREAM`** — всегда побеждает (raw override); при заданном raw override DeepSeek/Kimi-специфичные подмены (auth/model/…) **тоже** отключаются, даже если `KILO_RELAY_UPSTREAM_PRESET=deepseek|kimi` остался в окружении (см. `_deepseek_actually_active` / `_kimi_actually_active`).
 2. **`KILO_RELAY_UPSTREAM_PRESET=deepseek`** → `DEEPSEEK_API_BASE` (дефолт `https://api.deepseek.com`, без `/v1` — канонический DeepSeek quickstart base_url).
-3. **`SLIM_MODE=cloud_budget`** → `KILO_RELAY_CLOUD_DEFAULT_UPSTREAM` (дефолт `https://api.vsegpt.ru`).
-4. Иначе LM Studio → `KILO_RELAY_UPSTREAM_DEFAULT_LOCAL` или `http://127.0.0.1:1234`.
+3. **`KILO_RELAY_UPSTREAM_PRESET=kimi`** → `KIMI_BASE_URL` (дефолт `https://api.moonshot.ai/v1`; relay хранит base **без** `/v1`, чтобы join с `/v1/chat/completions` не дал `/v1/v1/...`).
+4. **`SLIM_MODE=cloud_budget`** → `KILO_RELAY_CLOUD_DEFAULT_UPSTREAM` (дефолт `https://api.vsegpt.ru`).
+5. Иначе LM Studio → `KILO_RELAY_UPSTREAM_DEFAULT_LOCAL` или `http://127.0.0.1:1234`.
 
 Bind по умолчанию: `127.0.0.1:8787` (`KILO_RELAY_HOST` / `KILO_RELAY_PORT`).
+
+### Kimi / Moonshot preset
+
+| Env | Смысл |
+|---|---|
+| `KILO_RELAY_UPSTREAM_PRESET=kimi` | Включить preset (только если `KILO_RELAY_UPSTREAM` не задан явно) |
+| `KIMI_API_KEY` | Обязателен; fail-fast `RuntimeError`, если нет |
+| `KIMI_BASE_URL` | Дефолт `https://api.moonshot.ai/v1` (официальный OpenAI-SDK base). Host должен быть `api.moonshot.ai`, иначе `KIMI_ALLOW_CUSTOM_HOST=1` |
+| `KIMI_MODEL` | Дефолт `kimi-k3`; также разрешён `kimi-k2.7-code-highspeed` |
+
+Пока preset реально активен: `Authorization` → `Bearer $KIMI_API_KEY`; в chat completions `model` принудительно = `KIMI_MODEL`; оверрайды в JSONL → `kimi_overrides`. Sensitive client headers (Cookie и т.п.) стрипаются как у DeepSeek. Для Cursor→Kimi предпочтительно `KILO_RELAY_SLIM_MODE=cloud_budget`.
+
+Пример:
+
+```powershell
+$env:KILO_RELAY_UPSTREAM_PRESET = "kimi"
+$env:KIMI_API_KEY = "..."
+$env:KIMI_MODEL = "kimi-k3"   # или kimi-k2.7-code-highspeed
+$env:KILO_RELAY_SLIM_MODE = "cloud_budget"
+# не задавать KILO_RELAY_UPSTREAM
+.\.venv\Scripts\python.exe scripts/kilo_proxy_relay.py
+```
 
 ### DeepSeek preset
 

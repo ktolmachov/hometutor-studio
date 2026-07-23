@@ -67,6 +67,15 @@ Environment variables:
                                   # relay refuses to start (a typo'd host would leak the real key
                                   # there via the unconditional Authorization override). https
                                   # scheme is required unconditionally, no opt-out.
+
+  Kimi / Moonshot preset (OpenAI-compatible cloud API):
+  KILO_RELAY_UPSTREAM_PRESET=kimi   # activates; explicit KILO_RELAY_UPSTREAM still wins (auth/model off)
+  KIMI_API_KEY=...                  # required when preset=kimi; fail-fast if missing
+  KIMI_BASE_URL=https://api.moonshot.ai/v1   # OpenAI-SDK style (with /v1). Relay strips trailing /v1
+                                              # before joining Cursor's /v1/chat/completions path so the
+                                              # upstream URL is .../v1/chat/completions once, not /v1/v1/...
+  KIMI_MODEL=kimi-k3                # default; also allowed: kimi-k2.7-code-highspeed
+  KIMI_ALLOW_CUSTOM_HOST=1          # required if KIMI_BASE_URL host isn't api.moonshot.ai
   DEEPSEEK_THINKING=disabled        # optional: "enabled"/"disabled". DeepSeek V4 defaults to
                                      # thinking.type=enabled + reasoning_effort=high when unset —
                                      # can silently inflate output tokens/latency/cost on every
@@ -284,6 +293,11 @@ CLOUD_BUDGET_DEFAULT_UPSTREAM = "https://api.vsegpt.ru"
 # /v1/chat/completions path already produces a documented-working URL with exactly one /v1.
 DEEPSEEK_DEFAULT_API_BASE = "https://api.deepseek.com"
 DEEPSEEK_DEFAULT_MODEL = "deepseek-v4-pro"
+# Kimi / Moonshot: official OpenAI-SDK base_url includes /v1; see strip_openai_compat_v1_suffix().
+KIMI_DEFAULT_API_BASE = "https://api.moonshot.ai/v1"
+KIMI_DEFAULT_MODEL = "kimi-k3"
+KIMI_ALLOWED_MODELS = frozenset({"kimi-k3", "kimi-k2.7-code-highspeed"})
+KIMI_CANONICAL_HOST = "api.moonshot.ai"
 
 
 _DEEPSEEK_VALID_THINKING = frozenset({"enabled", "disabled"})
@@ -372,6 +386,71 @@ def validate_deepseek_api_base(base: str, environ: dict[str, str]) -> None:
             "DEEPSEEK_ALLOW_CUSTOM_HOST=1 explicitly if this is intentional (e.g. a proxy in "
             "front of DeepSeek) — otherwise this looks like a misconfiguration that would send "
             "the real API key to an unexpected host."
+        )
+
+
+def strip_openai_compat_v1_suffix(base: str) -> str:
+    """Normalize an OpenAI-SDK ``base_url`` (often ends with ``/v1``) for path-join.
+
+    Cursor/Kilo hit the relay as ``/v1/chat/completions``. Upstream URL is
+    ``UPSTREAM_BASE + path``. If ``UPSTREAM_BASE`` already ends with ``/v1``, the result is the
+    broken ``.../v1/v1/chat/completions``. Moonshot documents ``https://api.moonshot.ai/v1`` as
+    the SDK base — strip that suffix here so join yields a single ``/v1``.
+    """
+    cleaned = base.strip().rstrip("/")
+    if cleaned.endswith("/v1"):
+        cleaned = cleaned[:-3].rstrip("/")
+    return cleaned
+
+
+def kimi_config_from_env(environ: dict[str, str]) -> dict[str, str] | None:
+    """Return Kimi/Moonshot routing config, or None if ``KILO_RELAY_UPSTREAM_PRESET`` != kimi.
+
+    Fails fast without ``KIMI_API_KEY``. ``base`` is stored *without* a trailing ``/v1`` so
+    ``UPSTREAM_BASE + /v1/chat/completions`` matches Moonshot's documented HTTP path.
+    """
+    preset = (environ.get("KILO_RELAY_UPSTREAM_PRESET") or "").strip().lower()
+    if preset != "kimi":
+        return None
+    api_key = (environ.get("KIMI_API_KEY") or "").strip()
+    if not api_key:
+        raise RuntimeError(
+            "KILO_RELAY_UPSTREAM_PRESET=kimi requires KIMI_API_KEY in the environment."
+        )
+    model = (environ.get("KIMI_MODEL") or KIMI_DEFAULT_MODEL).strip()
+    if model not in KIMI_ALLOWED_MODELS:
+        raise RuntimeError(
+            f"KIMI_MODEL must be one of {sorted(KIMI_ALLOWED_MODELS)}, got {model!r}."
+        )
+    raw_base = (environ.get("KIMI_BASE_URL") or KIMI_DEFAULT_API_BASE).strip()
+    validate_kimi_api_base(raw_base, environ)
+    return {
+        "base": strip_openai_compat_v1_suffix(raw_base),
+        "model": model,
+        "api_key": api_key,
+    }
+
+
+def validate_kimi_api_base(base: str, environ: dict[str, str]) -> None:
+    """Fail fast on a base URL that would send the real Kimi key to the wrong place."""
+    parsed = urlsplit(base.strip())
+    allow_custom = (environ.get("KIMI_ALLOW_CUSTOM_HOST") or "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+    if parsed.scheme != "https":
+        raise RuntimeError(
+            f"KIMI_BASE_URL must use https (got {base!r}) — refusing to send the real "
+            "Kimi API key over a non-https scheme."
+        )
+    if not allow_custom and parsed.hostname != KIMI_CANONICAL_HOST:
+        raise RuntimeError(
+            f"KIMI_BASE_URL host {parsed.hostname!r} is not {KIMI_CANONICAL_HOST}. Set "
+            "KIMI_ALLOW_CUSTOM_HOST=1 explicitly if this is intentional (e.g. a proxy) — "
+            "otherwise this looks like a misconfiguration that would send the real API key "
+            "to an unexpected host."
         )
 
 
@@ -490,8 +569,8 @@ def detect_missing_reasoning_content(payload: dict[str, Any]) -> list[str]:
 def effective_upstream_base(environ: dict[str, str]) -> str:
     """База upstream без завершающего слэша.
 
-    Приоритет: явный ``KILO_RELAY_UPSTREAM`` (всегда побеждает) > DeepSeek preset
-    (``KILO_RELAY_UPSTREAM_PRESET=deepseek``) > ``SLIM_MODE=cloud_budget`` дефолт
+    Приоритет: явный ``KILO_RELAY_UPSTREAM`` (всегда побеждает) > DeepSeek / Kimi preset
+    (``KILO_RELAY_UPSTREAM_PRESET=deepseek|kimi``) > ``SLIM_MODE=cloud_budget`` дефолт
     (``CLOUD_BUDGET_DEFAULT_UPSTREAM`` / ``KILO_RELAY_CLOUD_DEFAULT_UPSTREAM``) >
     LM Studio ``http://127.0.0.1:1234``.
     """
@@ -501,6 +580,9 @@ def effective_upstream_base(environ: dict[str, str]) -> str:
     deepseek = deepseek_config_from_env(environ)
     if deepseek is not None:
         return deepseek["base"]
+    kimi = kimi_config_from_env(environ)
+    if kimi is not None:
+        return kimi["base"]
     slim = environ.get("KILO_RELAY_SLIM_MODE", "local")
     if is_cloud_budget_slim_mode(slim):
         return (environ.get("KILO_RELAY_CLOUD_DEFAULT_UPSTREAM") or CLOUD_BUDGET_DEFAULT_UPSTREAM).strip().rstrip(
@@ -525,8 +607,17 @@ def _deepseek_actually_active(environ: dict[str, str]) -> bool:
     return (environ.get("KILO_RELAY_UPSTREAM_PRESET") or "").strip().lower() == "deepseek"
 
 
+def _kimi_actually_active(environ: dict[str, str]) -> bool:
+    """Whether Kimi is the ACTUAL resolved provider (same raw-override precedence as DeepSeek)."""
+    raw = (environ.get("KILO_RELAY_UPSTREAM") or "").strip()
+    if raw:
+        return False
+    return (environ.get("KILO_RELAY_UPSTREAM_PRESET") or "").strip().lower() == "kimi"
+
+
 UPSTREAM_BASE = effective_upstream_base(dict(os.environ))
 DEEPSEEK_CFG = deepseek_config_from_env(dict(os.environ)) if _deepseek_actually_active(dict(os.environ)) else None
+KIMI_CFG = kimi_config_from_env(dict(os.environ)) if _kimi_actually_active(dict(os.environ)) else None
 _t_raw = os.getenv("KILO_RELAY_UPSTREAM_TIMEOUT", "120").strip()
 UPSTREAM_TIMEOUT = float(_t_raw if _t_raw else "120")
 LOG_PATH = (ROOT / os.getenv("KILO_RELAY_LOG", "logs/kilo_relay.jsonl")).resolve()
@@ -639,17 +730,21 @@ def _format_for_dump(val: Any) -> str:
 
 
 def _startup_budget_warnings(environ: dict[str, str] | None = None) -> list[str]:
-    """Non-fatal operator hints (DeepSeek without cloud_budget, default local, …)."""
+    """Non-fatal operator hints (cloud preset without cloud_budget, default local, …)."""
     env = dict(os.environ) if environ is None else environ
     warnings: list[str] = []
-    if not _deepseek_actually_active(env):
+    if _deepseek_actually_active(env):
+        provider = "DeepSeek"
+    elif _kimi_actually_active(env):
+        provider = "Kimi"
+    else:
         return warnings
     slim_raw = env.get("KILO_RELAY_SLIM_MODE")
     if slim_raw is None or not str(slim_raw).strip():
         warnings.append(
-            "WARN: DeepSeek preset active but KILO_RELAY_SLIM_MODE unset "
+            f"WARN: {provider} preset active but KILO_RELAY_SLIM_MODE unset "
             "(defaults to local: system stub + Cursor tool allowlist). "
-            "For Cursor→DeepSeek without quality loss set KILO_RELAY_SLIM_MODE=cloud_budget."
+            f"For Cursor→{provider} without quality loss set KILO_RELAY_SLIM_MODE=cloud_budget."
         )
         return warnings
     try:
@@ -658,13 +753,13 @@ def _startup_budget_warnings(environ: dict[str, str] | None = None) -> list[str]
         return warnings
     if slim in {"off", "passthrough", "false", "0", "no", "disabled"}:
         warnings.append(
-            "WARN: DeepSeek preset active with SLIM_MODE=off — no input compression. "
-            "For Cursor→DeepSeek prefer KILO_RELAY_SLIM_MODE=cloud_budget."
+            f"WARN: {provider} preset active with SLIM_MODE=off — no input compression. "
+            f"For Cursor→{provider} prefer KILO_RELAY_SLIM_MODE=cloud_budget."
         )
     elif slim == "local":
         warnings.append(
-            "WARN: DeepSeek preset + SLIM_MODE=local stubs Cursor system and restricts tools. "
-            "For Cursor→DeepSeek without quality loss use KILO_RELAY_SLIM_MODE=cloud_budget."
+            f"WARN: {provider} preset + SLIM_MODE=local stubs Cursor system and restricts tools. "
+            f"For Cursor→{provider} without quality loss use KILO_RELAY_SLIM_MODE=cloud_budget."
         )
     return warnings
 
@@ -673,11 +768,13 @@ def build_startup_modes_report_lines(bound_host: str, bound_port: int) -> list[s
     """Human-readable snapshot of relay bind guard compress + env (KILO_RELAY_*)."""
     env_snapshot = dict(os.environ)
     deepseek_active = _deepseek_actually_active(env_snapshot)
+    kimi_active = _kimi_actually_active(env_snapshot)
     slim_raw = os.environ.get("KILO_RELAY_SLIM_MODE", "<unset → default local>")
     cloud_budget_default_host = (
         not (os.environ.get("KILO_RELAY_UPSTREAM") or "").strip()
         and is_cloud_budget_slim_mode(os.environ.get("KILO_RELAY_SLIM_MODE", "local"))
         and not deepseek_active
+        and not kimi_active
     )
     lines: list[str] = [
         "=== kilo_proxy_relay: режим текущего запуска ===",
@@ -732,6 +829,15 @@ def build_startup_modes_report_lines(bound_host: str, bound_port: int) -> list[s
         lines.append(f"  active=yes base={DEEPSEEK_CFG['base']!r} model={DEEPSEEK_CFG['model']!r}")
         lines.append(f"  thinking={DEEPSEEK_CFG.get('thinking')!r} reasoning_effort={DEEPSEEK_CFG.get('reasoning_effort')!r}")
     elif (os.environ.get("KILO_RELAY_UPSTREAM_PRESET") or "").strip().lower() == "deepseek":
+        lines.append("  active=no (raw KILO_RELAY_UPSTREAM overrides preset; auth/model rewrite off)")
+    else:
+        lines.append("  active=no")
+
+    lines.append("[kimi preset]")
+    if KIMI_CFG is not None:
+        lines.append(f"  active=yes base={KIMI_CFG['base']!r} model={KIMI_CFG['model']!r}")
+        lines.append(f"  allowed_models={sorted(KIMI_ALLOWED_MODELS)!r}")
+    elif (os.environ.get("KILO_RELAY_UPSTREAM_PRESET") or "").strip().lower() == "kimi":
         lines.append("  active=no (raw KILO_RELAY_UPSTREAM overrides preset; auth/model rewrite off)")
     else:
         lines.append("  active=no")
@@ -1123,16 +1229,16 @@ def _prepare_upstream_request_headers(headers: dict[str, str]) -> dict[str, str]
     """Filter client headers before forwarding upstream.
 
     Always strips hop-by-hop/recomputed headers, Accept-Encoding (see comment above), and any
-    header dynamically listed inside the client's own Connection header. When the DeepSeek
-    preset is active, additionally drops every header ``is_sensitive_header_name`` flags except
-    Authorization itself (already overwritten with the real DeepSeek key by
+    header dynamically listed inside the client's own Connection header. When a cloud preset
+    (DeepSeek or Kimi) is active, additionally drops every header ``is_sensitive_header_name``
+    flags except Authorization itself (already overwritten with the real upstream key by
     ``_override_authorization`` and must be forwarded) — a real internet host has no legitimate
     reason to see the client's own Cookie/Proxy-Authorization/session headers. This is still a
     blocklist, not an allowlist: unmatched headers (User-Agent, Accept, X-Request-ID, Forwarded,
     other custom X-* headers) are still forwarded as-is.
     """
     strip = set(_ALWAYS_STRIP_REQUEST_HEADERS) | _connection_listed_headers(headers)
-    if DEEPSEEK_CFG is not None:
+    if DEEPSEEK_CFG is not None or KIMI_CFG is not None:
         strip |= {k.lower() for k in headers if k.lower() != "authorization" and is_sensitive_header_name(k)}
     return {k: v for k, v in headers.items() if k.lower() not in strip}
 
@@ -1300,6 +1406,8 @@ class RelayHandler(BaseHTTPRequestHandler):
         request_headers = {k: v for k, v in self.headers.items()}
         if DEEPSEEK_CFG is not None:
             _override_authorization(request_headers, DEEPSEEK_CFG["api_key"])
+        elif KIMI_CFG is not None:
+            _override_authorization(request_headers, KIMI_CFG["api_key"])
         forwarded_body_bytes = raw_body
         compress_summary: dict[str, Any] = {"enabled": False}
         stream_source: dict[str, Any] | None = None
@@ -1314,6 +1422,7 @@ class RelayHandler(BaseHTTPRequestHandler):
             content_stats_original = analyze_body_text(body_text)
 
         deepseek_overrides: dict[str, Any] = {}
+        kimi_overrides: dict[str, Any] = {}
         reasoning_content_blocked = False
         if chat_path == "/v1/chat/completions" and raw_body:
             try:
@@ -1352,6 +1461,11 @@ class RelayHandler(BaseHTTPRequestHandler):
                         )
                         if DEEPSEEK_CFG["reasoning_content_guard"] == "block":
                             reasoning_content_blocked = True
+                elif KIMI_CFG is not None:
+                    if payload_json.get("model") != KIMI_CFG["model"]:
+                        payload_json["model"] = KIMI_CFG["model"]
+                        payload_overridden = True
+                        kimi_overrides["model"] = KIMI_CFG["model"]
                 if RELAY_COMPRESS_ACTIVE:
                     comp = compress_chat_completion(payload_json, RELAY_COMPRESS_CFG)
                     shrunk_text = json.dumps(comp.payload, ensure_ascii=False)
@@ -1424,6 +1538,7 @@ class RelayHandler(BaseHTTPRequestHandler):
             else None,
             "relay_compress": compress_summary,
             "deepseek_overrides": deepseek_overrides,
+            "kimi_overrides": kimi_overrides,
             "guard": {
                 "mode": GUARD_MODE,
                 "level": guard.level,
@@ -1525,7 +1640,7 @@ def main() -> int:
         )
     _safe_print(
         f"Awaiting HTTP. Cursor OpenAI-compatible Base URL must be "
-        f"http://{host}:{port}/v1 — not api.deepseek.com. "
+        f"http://{host}:{port}/v1 — not api.deepseek.com / api.moonshot.ai. "
         f"Probe: GET http://{host}:{port}/v1/models → expect '[relay] → GET' here. "
         f"Silence = traffic bypasses this process (wrong Base URL / second relay / Cursor Cloud).",
         file=sys.stderr,

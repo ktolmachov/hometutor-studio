@@ -316,6 +316,92 @@ def test_effective_upstream_raw_wins_over_deepseek_preset():
     assert relay.effective_upstream_base(environ) == "http://127.0.0.1:8080"
 
 
+def test_strip_openai_compat_v1_suffix():
+    assert relay.strip_openai_compat_v1_suffix("https://api.moonshot.ai/v1") == "https://api.moonshot.ai"
+    assert relay.strip_openai_compat_v1_suffix("https://api.moonshot.ai/v1/") == "https://api.moonshot.ai"
+    assert relay.strip_openai_compat_v1_suffix("https://api.moonshot.ai") == "https://api.moonshot.ai"
+
+
+def test_kimi_actually_active_true_when_preset_set_alone():
+    assert relay._kimi_actually_active({"KILO_RELAY_UPSTREAM_PRESET": "kimi"}) is True
+
+
+def test_kimi_actually_active_false_when_raw_upstream_also_set():
+    environ = {
+        "KILO_RELAY_UPSTREAM": "http://127.0.0.1:8080",
+        "KILO_RELAY_UPSTREAM_PRESET": "kimi",
+    }
+    assert relay._kimi_actually_active(environ) is False
+
+
+def test_kimi_config_requires_api_key():
+    environ = {"KILO_RELAY_UPSTREAM_PRESET": "kimi"}
+    try:
+        relay.kimi_config_from_env(environ)
+        raise AssertionError("expected RuntimeError")
+    except RuntimeError as exc:
+        assert "KIMI_API_KEY" in str(exc)
+
+
+def test_kimi_config_defaults_strip_v1_from_base():
+    environ = {"KILO_RELAY_UPSTREAM_PRESET": "kimi", "KIMI_API_KEY": "sk-kimi"}
+    cfg = relay.kimi_config_from_env(environ)
+    assert cfg == {
+        "base": "https://api.moonshot.ai",
+        "model": "kimi-k3",
+        "api_key": "sk-kimi",
+    }
+
+
+def test_kimi_config_accepts_highspeed_model():
+    environ = {
+        "KILO_RELAY_UPSTREAM_PRESET": "kimi",
+        "KIMI_API_KEY": "sk-kimi",
+        "KIMI_MODEL": "kimi-k2.7-code-highspeed",
+    }
+    cfg = relay.kimi_config_from_env(environ)
+    assert cfg["model"] == "kimi-k2.7-code-highspeed"
+
+
+def test_kimi_config_rejects_unknown_model():
+    environ = {
+        "KILO_RELAY_UPSTREAM_PRESET": "kimi",
+        "KIMI_API_KEY": "sk-kimi",
+        "KIMI_MODEL": "kimi-k2.6",
+    }
+    try:
+        relay.kimi_config_from_env(environ)
+        raise AssertionError("expected RuntimeError")
+    except RuntimeError as exc:
+        assert "KIMI_MODEL" in str(exc)
+
+
+def test_effective_upstream_kimi_preset():
+    environ = {"KILO_RELAY_UPSTREAM_PRESET": "kimi", "KIMI_API_KEY": "sk-kimi"}
+    assert relay.effective_upstream_base(environ) == "https://api.moonshot.ai"
+
+
+def test_effective_upstream_raw_wins_over_kimi_preset():
+    environ = {
+        "KILO_RELAY_UPSTREAM": "http://127.0.0.1:8080",
+        "KILO_RELAY_UPSTREAM_PRESET": "kimi",
+        "KIMI_API_KEY": "sk-kimi",
+    }
+    assert relay.effective_upstream_base(environ) == "http://127.0.0.1:8080"
+
+
+def test_validate_kimi_api_base_accepts_canonical_https_host():
+    relay.validate_kimi_api_base("https://api.moonshot.ai/v1", {})
+
+
+def test_validate_kimi_api_base_rejects_unexpected_host():
+    try:
+        relay.validate_kimi_api_base("https://api.example.com/v1", {})
+        raise AssertionError("expected RuntimeError")
+    except RuntimeError as exc:
+        assert "api.moonshot.ai" in str(exc)
+
+
 def test_normalize_chat_completions_path_variants():
     variants = [
         "/v1/chat/completions",
@@ -626,6 +712,17 @@ def test_startup_budget_warn_deepseek_with_slim_off():
     assert warns and "cloud_budget" in warns[0]
 
 
+def test_startup_budget_warn_kimi_with_slim_off():
+    warns = relay._startup_budget_warnings(
+        {
+            "KILO_RELAY_UPSTREAM_PRESET": "kimi",
+            "KIMI_API_KEY": "sk-kimi",
+            "KILO_RELAY_SLIM_MODE": "off",
+        }
+    )
+    assert warns and "Kimi" in warns[0] and "cloud_budget" in warns[0]
+
+
 def test_validate_slim_mode_rejects_unknown():
     try:
         validate_slim_mode("locall")
@@ -745,6 +842,7 @@ def test_handle_proxy_active_deepseek_preset_does_apply_overrides():
             {"base": "https://api.deepseek.com", "model": "deepseek-v4-pro", "api_key": "sk-real-secret",
              "thinking": None, "reasoning_effort": None, "reasoning_content_guard": "warn"},
         ),
+        patch.object(relay, "KIMI_CFG", None),
         patch.object(relay, "UPSTREAM_BASE", "https://api.deepseek.com"),
     ):
         sent, _record = _run_handle_proxy("/v1/chat/completions", body, headers)
@@ -753,6 +851,52 @@ def test_handle_proxy_active_deepseek_preset_does_apply_overrides():
     assert sent.get_header("Authorization") == "Bearer sk-real-secret"
     sent_body = json.loads(sent.data)
     assert sent_body["model"] == "deepseek-v4-pro"
+
+
+def test_handle_proxy_active_kimi_preset_does_apply_overrides():
+    body = b'{"model":"cursor-dummy","messages":[{"role":"user","content":"hi"}]}'
+    headers = {
+        "Content-Length": str(len(body)),
+        "Content-Type": "application/json",
+        "Authorization": "Bearer local-relay",
+    }
+
+    with (
+        patch.object(relay, "DEEPSEEK_CFG", None),
+        patch.object(
+            relay,
+            "KIMI_CFG",
+            {"base": "https://api.moonshot.ai", "model": "kimi-k3", "api_key": "sk-kimi-secret"},
+        ),
+        patch.object(relay, "UPSTREAM_BASE", "https://api.moonshot.ai"),
+    ):
+        sent, record = _run_handle_proxy("/v1/chat/completions", body, headers)
+
+    assert sent.full_url == "https://api.moonshot.ai/v1/chat/completions"
+    assert sent.get_header("Authorization") == "Bearer sk-kimi-secret"
+    sent_body = json.loads(sent.data)
+    assert sent_body["model"] == "kimi-k3"
+    assert record["kimi_overrides"]["model"] == "kimi-k3"
+
+
+def test_handle_proxy_stale_kimi_preset_does_not_leak_key_to_raw_upstream():
+    body = b'{"model":"qwen3-coder-next-q4ks","messages":[{"role":"user","content":"hi"}]}'
+    headers = {
+        "Content-Length": str(len(body)),
+        "Content-Type": "application/json",
+        "Authorization": "Bearer local-relay",
+    }
+
+    with (
+        patch.object(relay, "DEEPSEEK_CFG", None),
+        patch.object(relay, "KIMI_CFG", None),
+        patch.object(relay, "UPSTREAM_BASE", "http://127.0.0.1:8080"),
+    ):
+        sent, _record = _run_handle_proxy("/v1/chat/completions", body, headers)
+
+    assert sent.full_url == "http://127.0.0.1:8080/v1/chat/completions"
+    assert sent.get_header("Authorization") == "Bearer local-relay"
+    assert json.loads(sent.data)["model"] == "qwen3-coder-next-q4ks"
 
 
 def test_handle_proxy_deepseek_reasoning_content_warn_mode_still_forwards():
