@@ -18,7 +18,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from _kilo_prompt_stats import is_plausible_path_key  # noqa: E402
+from _kilo_prompt_stats import is_plausible_path_key, normalize_path_key  # noqa: E402
 
 
 def _is_chat_record(obj: Any) -> bool:
@@ -115,7 +115,18 @@ def _merge_path_rows(dst: dict[str, dict[str, int]], rows: Any) -> None:
     for row in rows:
         if not isinstance(row, dict) or not row.get("path"):
             continue
-        key = str(row["path"])
+        # Re-normalize before validating: stored `path` values come from
+        # whatever version of normalize_path_key() was active when that
+        # record was logged. An older version didn't collapse repeated
+        # slashes (e.g. "D:////Projects////hometutor" from backslash ->
+        # "/" replacement with no multi-slash collapse), and that raw form
+        # contains a literal "://" substring — is_plausible_path_key()
+        # would reject it as drive+doubled-slash junk even though it's a
+        # real path once normalized. Normalizing first (idempotent for
+        # already-normalized keys from newer records) also merges historical
+        # duplicate-slash variants of the same path into one aggregate key
+        # instead of leaving them as separate rows.
+        key = normalize_path_key(str(row["path"]))
         if not is_plausible_path_key(key):
             continue
         slot = dst.setdefault(key, {"chars": 0, "hits": 0})
@@ -192,11 +203,13 @@ def build_report(
         if fwd and isinstance(fwd.get("estimated_tokens"), (int, float)):
             fwd_est_tokens.append(int(fwd["estimated_tokens"]))
         sh = rec.get("session_health") if isinstance(rec.get("session_health"), dict) else None
-        if sh is not None:
-            # Records logged before session_health existed have no such key —
-            # count only records where it's actually present, so the rate
-            # below isn't silently diluted by pre-upgrade rows sharing a
-            # `--last N` window with post-upgrade ones.
+        if sh is not None and sh.get("level") != "unknown":
+            # Records logged before session_health existed have no such key,
+            # and records where KILO_RELAY_CONTENT_STATS was off (or the route
+            # wasn't chat-completions) carry level="unknown" — both must be
+            # excluded from the denominator, not just the missing-key case,
+            # or a batch of "not measured" requests would silently count as
+            # "measured and healthy" and pull the rate down for no reason.
             session_health_seen += 1
             if sh.get("recommend_new_chat"):
                 session_new_chat += 1
@@ -227,7 +240,10 @@ def build_report(
             seen_this_record: set[str] = set()
             for row in path_rows_this_record:
                 if isinstance(row, dict) and row.get("path"):
-                    key = str(row["path"])
+                    # Same normalize-before-validate ordering as _merge_path_rows
+                    # above, and for the same reason: raw historical keys can
+                    # contain un-collapsed slash noise that trips the junk check.
+                    key = normalize_path_key(str(row["path"]))
                     if not is_plausible_path_key(key):
                         continue
                     if key not in seen_this_record:
@@ -368,7 +384,7 @@ def render_text(report: dict[str, Any]) -> str:
         "records logged before this field existed don't count either way)"
     )
     lines += [
-        "  NOTE: if original >> 15 msgs / >20k est.tok while forwarded is small — start a new chat",
+        "  NOTE: if original >> 40 msgs / >20k est.tok while forwarded is small — start a new chat",
         "        with a short handoff; do not only tighten keep_last.",
         "",
         "NOTE: top_* below are AGGREGATE sums across ALL chat requests in the sample,",

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import inspect
+import io
 import json
 import re
 import sys
@@ -72,9 +73,39 @@ def test_path_char_contributions_ignores_single_backslash_escape_stubs():
 
 
 def test_path_char_contributions_still_finds_real_windows_paths_with_single_backslashes():
-    text = "read " + "D:" + chr(92) + "Projects" + chr(92) + "hometutor-studio" + chr(92) + "AGENTS.md" + " please"
+    """Uses a generic module filename, not AGENTS.md: AGENTS.md/CLAUDE.md/etc.
+    also match via a separate basename-only alternative in _PATH_RE, so a test
+    that only checks for those names could pass even if the Windows-abs
+    branch itself were completely broken. module.py has no such shortcut."""
+    bs = chr(92)
+    text = "read " + "D:" + bs + "Projects" + bs + "hometutor-studio" + bs + "module.py" + " please"
     contrib = path_char_contributions(text)
-    assert any("agents.md" in k.lower() for k in contrib)
+    assert list(contrib.keys()) == ["D:/Projects/hometutor-studio/module.py"]
+
+
+def test_path_char_contributions_finds_single_segment_drive_root_path():
+    """Regression: an earlier version of _PATH_RE required >=2 directory
+    segments or a file extension (to reject 'y:\\n'-style escape stubs),
+    which also rejected genuine single-segment drive-root paths like
+    C:\\Windows. Rejecting junk is now is_plausible_path_key()'s job, not the
+    regex's, so single-segment real paths are found again."""
+    bs = chr(92)
+    text = "look in " + "C:" + bs + "Windows" + " for files"
+    contrib = path_char_contributions(text)
+    assert list(contrib.keys()) == ["C:/Windows"]
+
+
+def test_path_char_contributions_finds_json_re_escaped_windows_path():
+    """A path shown as JSON-re-escaped text (each backslash doubled, as when a
+    JSON blob containing a Windows path is itself embedded as a string and
+    re-serialized) must still be found and normalized to a clean single-slash
+    key, not rejected the way pure escape-stub doubling ('y:\\n' -> 'y://n')
+    is rejected. normalize_path_key's multi-slash collapse turns the doubled
+    separators into single '/' the same as for any other match."""
+    bs = chr(92)
+    text = "path is " + "D:" + bs + bs + "Projects" + bs + bs + "report.txt" + " ok"
+    contrib = path_char_contributions(text)
+    assert list(contrib.keys()) == ["D:/Projects/report.txt"]
 
 
 def test_normalize_path_key_collapses_multi_slash():
@@ -203,6 +234,28 @@ def test_session_health_rate_not_diluted_by_records_missing_the_field():
     assert sh["records_with_session_health"] == 2
     assert sh["recommend_new_chat_count"] == 1
     assert sh["recommend_new_chat_rate"] == 0.5  # not 1/3
+
+
+def test_session_health_rate_not_diluted_by_unknown_level_records():
+    """session_health with level="unknown" (KILO_RELAY_CONTENT_STATS was off,
+    or a non-chat route) has the *field* present but recommend_new_chat is
+    always False by construction — must be excluded from the denominator the
+    same way a missing field is, not counted as "measured and healthy"."""
+    measured_bloated = {
+        "path": "/v1/chat/completions",
+        "content_stats": {"original": {"role_chars": {"user": 10}}},
+        "session_health": {"level": "warn", "recommend_new_chat": True},
+    }
+    not_measured = {
+        "path": "/v1/chat/completions",
+        "content_stats": {"original": {"role_chars": {"user": 10}}},
+        "session_health": {"level": "unknown", "recommend_new_chat": False},
+    }
+    out = report.build_report([measured_bloated, not_measured])
+    sh = out["session_health"]
+    assert sh["records_with_session_health"] == 1
+    assert sh["recommend_new_chat_count"] == 1
+    assert sh["recommend_new_chat_rate"] == 1.0  # not 0.5
 
 
 def test_report_main_refuses_empty_json_out(tmp_path: Path):
@@ -341,6 +394,56 @@ def test_report_main_missing_log_file_is_a_distinct_error(tmp_path: Path, capsys
     assert "restart relay" not in err.lower()
 
 
+class _NarrowEncodingStdout:
+    """Stands in for a real Windows console on a narrow codepage (cp1252):
+    writing a character outside that codepage's repertoire raises
+    UnicodeEncodeError, same as the real crash this test guards against."""
+
+    def __init__(self):
+        self.encoding = "cp1252"
+        self.buffer = io.BytesIO()
+
+    def write(self, s: str) -> int:
+        encoded = s.encode(self.encoding)  # raises UnicodeEncodeError, matching a real cp1252 stream
+        self.buffer.write(encoded)  # mirrors a real text stream's underlying byte buffer
+        return len(s)
+
+    def flush(self) -> None:
+        pass
+
+
+def test_print_safe_does_not_crash_on_narrow_console_encoding(monkeypatch):
+    """Regression for the 2026-07-23 P0: a printed report containing a
+    character outside cp1252's repertoire (e.g. U+226B '>>' math symbol, or
+    any non-ASCII byte surfacing from real log/path content) must degrade
+    gracefully on a narrow-encoding console, not raise UnicodeEncodeError and
+    kill the whole CLI run."""
+    fake_stdout = _NarrowEncodingStdout()
+    monkeypatch.setattr(sys, "stdout", fake_stdout)
+    text_with_unencodable_char = "top paths: original ≫ threshold"  # U+226B, not in cp1252
+    report._print_safe(text_with_unencodable_char)  # must not raise
+    written = fake_stdout.buffer.getvalue().decode("cp1252", errors="replace")
+    assert "top paths" in written
+    assert "threshold" in written
+
+
+def test_report_main_runs_end_to_end_on_narrow_console_encoding(tmp_path: Path, monkeypatch):
+    """End-to-end: main() over a real chat log, with stdout forced to the
+    same narrow encoding that crashed the CLI in production, must complete
+    and return the normal exit code — not just the isolated _print_safe unit."""
+    log = tmp_path / "chat.jsonl"
+    log.write_text(
+        "\n".join(json.dumps(_chat_row(i)) for i in range(3)) + "\n",
+        encoding="utf-8",
+    )
+    fake_stdout = _NarrowEncodingStdout()
+    monkeypatch.setattr(sys, "stdout", fake_stdout)
+    rc = report.main(["--log", str(log)])
+    assert rc == 0
+    written = fake_stdout.buffer.getvalue().decode("cp1252", errors="replace")
+    assert "kilo_prompt_content_report" in written
+
+
 def test_report_main_shows_scan_counters_for_partially_corrupted_log(tmp_path: Path, capsys):
     log = tmp_path / "dirty.jsonl"
     log.write_text(
@@ -420,6 +523,38 @@ def test_build_report_requests_not_inflated_by_duplicate_path_row_within_one_rec
     out = report.build_report([rec])
     by_path = {r["path"]: r for r in out["top_paths"]}
     assert by_path["AGENTS.md"]["requests"] == 1
+
+
+def test_build_report_normalizes_historical_path_keys_before_validating():
+    """Regression: an old record logged before normalize_path_key() collapsed
+    repeated slashes can store "path" as e.g. "D:////Projects////hometutor"
+    (backslash -> "/" replacement with no multi-slash collapse, from an older
+    _kilo_prompt_stats.py). That raw string contains a literal "://"
+    substring purely as slash-doubling noise, which is_plausible_path_key()
+    would reject as drive+doubled-slash junk if checked before normalizing.
+    build_report() must normalize first so this legitimate historical path
+    survives — under its clean normalized key, not the raw one."""
+    historical_unnormalized_record = {
+        "path": "/v1/chat/completions",
+        "content_stats": {
+            "original": {
+                "path_chars": [{"path": "D:////Projects////hometutor", "chars": 400, "hits": 2}],
+            }
+        },
+    }
+    duplicate_but_already_normalized = {
+        "path": "/v1/chat/completions",
+        "content_stats": {
+            "original": {
+                "path_chars": [{"path": "D:/Projects/hometutor", "chars": 100, "hits": 1}],
+            }
+        },
+    }
+    out = report.build_report([historical_unnormalized_record, duplicate_but_already_normalized])
+    by_path = {r["path"]: r for r in out["top_paths"]}
+    assert "D:////Projects////hometutor" not in by_path
+    assert by_path["D:/Projects/hometutor"]["chars"] == 500  # merged, not two separate rows
+    assert by_path["D:/Projects/hometutor"]["requests"] == 2
 
 
 def test_scan_jsonl_lines_is_a_generator_not_a_full_materialization():

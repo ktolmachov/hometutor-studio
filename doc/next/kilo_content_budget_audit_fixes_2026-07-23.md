@@ -102,35 +102,40 @@ top paths, as actually ranked, top 3 (NOT cherry-picked — see caveat below):
  (CLAUDE.md, further down): hits=14 reqs=14 (~7.2k tok)
 ```
 
-**`top_paths` false positives — found by this round's audit, root-caused, fixed
-going forward, but still visible in this live sample (caveat, not
-overclaimed).** The previous round's doc quoted only the AGENTS.md/CLAUDE.md
-rows from `top_paths`, which reads as if those were the top entries; they
-were not — `y://n` and `e://n` ranked above them. Root cause: `_PATH_RE`'s
-Windows-path branch in `_kilo_prompt_stats.py` allowed backslash inside its
-own path-segment character class, so text containing a single letter + `:` +
-**two literal backslash characters** + `n` (e.g. a tool_result echoing source
-code that shows a raw `\n` escape sequence as two literal characters, not an
-actual newline) satisfied the whole "one-letter Windows drive path"
-alternative; `normalize_path_key()` then turned both backslashes into `/`,
-producing `y://n` / `e://n`. Verified in isolation (`chr(92)`-built test
-strings, no reliance on raw log bodies since those aren't stored by default):
-the old regex matched the doubled-backslash case and a genuine
-`D:\Projects\...\AGENTS.md` path equally; the fixed regex (backslash excluded
-from the segment classes) matches only the genuine path. Fixed in
-`_kilo_prompt_stats._PATH_RE`, 2 regression tests added
-(`test_path_char_contributions_ignores_doubled_escape_sequences`,
-`test_path_char_contributions_still_finds_real_windows_paths_with_single_backslashes`).
-**What this fix does not do:** `content_stats.path_chars` is computed once,
-by the relay, at the moment each request is logged, and stored as-is in
-`logs/kilo_relay.jsonl` — `kilo_prompt_content_report.py` only aggregates that
-stored data, it never re-runs the path analyzer over historical rows. So the
-regex fix applies to requests logged *after* the relay process is restarted
-with the fixed module; it does not and cannot retroactively clean the rows
-already in the log, which is exactly why `y://n`/`e://n` still show up in the
-capture above, taken *after* the fix landed. That capture is left in this doc
-deliberately, not touched up, to avoid claiming a fix "worked" against
-evidence that shows it hasn't propagated to stored history yet.
+**`top_paths` false positives — found, root-caused, and fixed at the
+aggregator level, so it also cleans historical rows (correction to an
+earlier, now-outdated claim in this doc).** The previous round's doc quoted
+only the AGENTS.md/CLAUDE.md rows from `top_paths`; `y://n` and `e://n`
+actually ranked above them. Root cause: a single letter + `:` + doubled
+literal backslash characters + `n` (e.g. a tool_result echoing source code
+that shows a raw `\n` escape sequence as two literal characters, not an
+actual newline) satisfied the Windows-path regex's "one-letter drive path"
+shape; `normalize_path_key()` then turned the backslashes into `/`,
+producing `y://n` / `e://n`.
+
+This went through two fix attempts, worth recording because the first one
+overcorrected: (1) excluding backslash from `_PATH_RE`'s own segment classes
+stopped the false positive but also stopped matching genuine single-segment
+paths (`C:\Windows`) and genuine doubled-backslash paths (JSON-re-escaped
+text like `D:\\Projects\\report.txt`) — a real regression an audit caught by
+testing those cases directly. (2) The regex was reverted to its original,
+permissive form; disambiguating junk from real paths is now entirely
+`is_plausible_path_key()`'s job, applied to the *normalized* key (so `y:\\n`
+normalizes to `y://n` and gets rejected by shape, while `C:\Windows` and the
+JSON-re-escaped path normalize to clean multi-segment keys and pass).
+
+**This fix is NOT only forward-looking, correcting the earlier claim in this
+doc that it was.** `kilo_prompt_content_report.py`'s aggregator (`build_report`
+/ `_merge_path_rows`) now normalizes-then-validates every stored `path_chars`
+row it reads from `logs/kilo_relay.jsonl`, including rows logged long before
+this fix existed — so regenerating the report cleans historical junk keys
+too, it does not require a relay restart or fresh traffic. Verified live
+against the actual growing log (not a synthetic case): a `--last 40` capture
+taken after this fix shows no `y://n`/`e://n` in `top_paths`. The earlier
+version of this section claimed the opposite (that a relay restart was
+required) based on how the fix was scoped at the time — that scoping changed
+in a later round and this section was not updated until now, which is itself
+the kind of staleness this document keeps needing to correct.
 
 `chat_records_seen=266` vs. `chat_with_stats=40` (audit fix, was previously
 ambiguous): `chat_with_stats` is the size of the `--last N` tail slice, capped

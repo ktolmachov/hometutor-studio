@@ -35,23 +35,30 @@ _FRAGMENT_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
 
 # Paths that typically bloat agent context when read in full.
 #
-# The Windows-abs branch used to allow backslash inside its own segment
-# chars (`[^\s"'<>|]`), so doubled escape sequences shown as literal text
-# (e.g. a tool_result echoing source that contains `\n` as two raw chars,
-# backslash + n, rather than an actual newline) could false-positive: a
-# single letter + ":" + two literal backslashes + "n" satisfied the whole
-# alternative and was misread as a one-letter drive path (normalize_path_key
-# then turns each backslash into "/", producing junk keys like "y://n" that
-# outrank real paths in the aggregate report). Excluding backslash from the
-# segment classes below closes that without affecting genuine single-escaped
-# Windows paths (each segment between real backslashes never contains one).
-#
-# Additionally require either ≥1 directory segment or a file extension so
-# escape-like stubs such as ``y:\n`` / ``e:\t`` (single backslash) never rank.
+# A doubled-backslash escape sequence shown as literal text (e.g. a
+# tool_result echoing source that contains `\n` as two raw chars, backslash +
+# n, rather than an actual newline, or a JSON-in-JSON re-escaped path like
+# `D:\\Projects\\report.txt`) can satisfy the Windows-abs alternative below —
+# a single letter + ":" + backslash-separated segments is not enough on its
+# own to distinguish a real one-letter-adjacent escape stub ("y:\\n" -> "y://n"
+# after backslash->slash normalization) from a genuine multi-segment or
+# doubled-escaped real path. An earlier fix tried to solve this by excluding
+# backslash from the regex's own segment character class and requiring >=2
+# segments or a file extension — that closed the false positive but also lost
+# real matches it shouldn't have: single-segment drive-root paths like
+# `C:\Windows` (no extension, one segment) and JSON-re-escaped multi-segment
+# paths (each "segment" boundary is a doubled backslash, which the excluded
+# character class also rejected). The regex below is back to the original,
+# permissive matching (backslash allowed inside segments, single segment
+# allowed); disambiguating junk from real paths is left entirely to
+# `is_plausible_path_key()` below, which operates on the *normalized* key
+# (after backslash->slash and multi-slash collapse) and rejects short
+# escape-stub shapes like `y:/n` / `y://n` specifically — verified to still
+# reject the escape-stub cases while recovering `C:\Windows` and
+# `D:\\Projects\\report.txt`.
 _PATH_RE = re.compile(
     r"(?P<p>"
-    r"[A-Za-z]:\\(?:[^\s\"'<>|\\]+\\)+[^\s\"'<>|\\]+"  # Windows abs: ≥1 directory
-    r"|[A-Za-z]:\\[^\s\"'<>|\\]+\.[A-Za-z0-9]{1,12}"  # Windows abs: drive\file.ext
+    r"[A-Za-z]:\\(?:[^\s\"'<>|]+\\)*[^\s\"'<>|]+"  # Windows abs
     r"|/(?:Users|home|var|tmp|opt)/[^\s\"'<>|]+"  # Unix abs (common roots)
     r"|(?:(?:doc|scripts|app|tests|archive|\.cursor)/[^\s\"'<>|]+)"  # repo-relative
     r"|(?:AGENTS\.md|CLAUDE\.md|README\.md|conventions(?:_architecture|_reference)?\.md|"

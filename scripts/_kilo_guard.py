@@ -97,7 +97,7 @@ class SessionHealthThresholds:
 
 @dataclass(frozen=True)
 class SessionHealth:
-    level: str  # ok | warn
+    level: str  # unknown | ok | warn
     recommend_new_chat: bool
     reasons: list[str]
     original_messages: int
@@ -115,8 +115,23 @@ def evaluate_session_health(
     When original stays huge while forwarded is small, the relay is masking a
     bloated agent loop — recommend a fresh chat + handoff rather than more trim.
     Never blocks HTTP; callers attach the verdict to JSONL / stderr only.
+
+    ``original_stats is None`` means "not measured" (either the route isn't a
+    chat-completions request, or ``KILO_RELAY_CONTENT_STATS`` is off) and must
+    be reported as ``level="unknown"``, not folded into "ok" — an all-zero
+    ``stats`` dict from `analyze_body_text` and a genuinely-not-measured `None`
+    are different situations that would otherwise both silently claim "healthy".
     """
     thr = thresholds or SessionHealthThresholds()
+    if original_stats is None:
+        return SessionHealth(
+            level="unknown",
+            recommend_new_chat=False,
+            reasons=[],
+            original_messages=0,
+            original_estimated_tokens=0,
+            original_body_chars=0,
+        )
     stats = original_stats if isinstance(original_stats, dict) else {}
     messages = int(stats.get("messages_count") or 0)
     est_tok = int(stats.get("estimated_tokens") or 0)

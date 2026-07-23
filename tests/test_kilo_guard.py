@@ -249,3 +249,14 @@ class TestSessionHealth:
         )
         assert h.recommend_new_chat is True
         assert any("original_body_chars>" in r for r in h.reasons)
+
+    def test_unmeasured_session_reports_unknown_not_ok(self):
+        """original_stats=None (KILO_RELAY_CONTENT_STATS off, or a non-chat
+        route) must report level="unknown", distinct from "ok" — a session
+        that was never measured is not the same claim as one measured and
+        found healthy, and treating them the same silently tells the operator
+        everything is fine when nothing was actually checked."""
+        h = evaluate_session_health(None)
+        assert h.level == "unknown"
+        assert h.recommend_new_chat is False
+        assert h.reasons == []
