@@ -34,9 +34,20 @@ _FRAGMENT_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
 )
 
 # Paths that typically bloat agent context when read in full.
+#
+# The Windows-abs branch used to allow backslash inside its own segment
+# chars (`[^\s"'<>|]`), so doubled escape sequences shown as literal text
+# (e.g. a tool_result echoing source that contains `\n` as two raw chars,
+# backslash + n, rather than an actual newline) could false-positive: a
+# single letter + ":" + two literal backslashes + "n" satisfied the whole
+# alternative and was misread as a one-letter drive path (normalize_path_key
+# then turns each backslash into "/", producing junk keys like "y://n" that
+# outrank real paths in the aggregate report). Excluding backslash from the
+# segment classes below closes that without affecting genuine single-escaped
+# Windows paths (each segment between real backslashes never contains one).
 _PATH_RE = re.compile(
     r"(?P<p>"
-    r"[A-Za-z]:\\(?:[^\s\"'<>|]+\\)*[^\s\"'<>|]+"  # Windows abs
+    r"[A-Za-z]:\\(?:[^\s\"'<>|\\]+\\)*[^\s\"'<>|\\]+"  # Windows abs
     r"|/(?:Users|home|var|tmp|opt)/[^\s\"'<>|]+"  # Unix abs (common roots)
     r"|(?:(?:doc|scripts|app|tests|archive|\.cursor)/[^\s\"'<>|]+)"  # repo-relative
     r"|(?:AGENTS\.md|CLAUDE\.md|README\.md|conventions(?:_architecture|_reference)?\.md|"

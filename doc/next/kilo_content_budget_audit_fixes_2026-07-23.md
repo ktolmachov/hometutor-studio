@@ -35,6 +35,9 @@ Cursor + relay + DeepSeek running).
 | — | **(audit round)** `chat_with_stats` conflated "size of the `--last N` slice" with "how much instrumented traffic exists" | Added `chat_records_seen` — counts every chat row with `content_stats` across the whole file, before slicing |
 | — | **(audit round)** aggregate path `hits=40` was read as "present in every one of 40 requests," but `hits` sums per-message mentions and can exceed the request count | Added `requests` (distinct chat requests with >=1 mention) to `top_paths` / `agents_claude_mentions`; `render_text` labels both explicitly |
 | — | **(audit round)** `rules`-absent explanation was left as an unresolved "cloud_budget strip vs. absent" open question | Resolved via code: the aggregator reads `content_stats.original` (pre-compression), which rules out `cloud_budget` as the cause — see § Instrumentation sample |
+| — | **(audit round 3)** `_PATH_RE`'s Windows-path branch allowed backslash inside its own segment class, so a single letter + `:` + two literal backslash characters + `n` (e.g. source text showing a raw `\n` escape sequence as two literal characters, not an actual newline) false-positived as a one-letter drive path; `normalize_path_key` then turned the doubled backslashes into `y://n` / `e://n`, which **outranked AGENTS.md** in a real `top_paths` run | Excluded backslash from the segment character classes in `_kilo_prompt_stats._PATH_RE` (verified: still matches genuine `D:\Projects\...\AGENTS.md`, no longer matches the doubled-escape case); 2 regression tests added. **Known limitation, not silently glossed over:** `content_stats.path_chars` is computed once per request by the relay and stored in the JSONL — this fix only affects requests logged *after* a relay restart. The historical rows already in `logs/kilo_relay.jsonl` were analyzed by the old regex and still show `y://n`/`e://n` in `top_paths` until fresh traffic ages the bad rows out of any `--last N` window; see § Instrumentation sample for the current (still-affected) live output |
+| — | **(audit round 3)** the "Levers toward 10×" section quoted `avg ≈36.6k/req` and `tool_result ~698k tok / 40 ≈17.5k tok/req`, both leftovers from an earlier capture, while § Instrumentation sample above them had already been refreshed to different numbers twice — same doc, two disagreeing numbers | Removed the duplicated hardcoded figures; that section now cross-references § Instrumentation sample instead of repeating numbers that can drift out of sync with it (this had already happened twice by the time it was caught) |
+| — | **(audit round 3)** "lint/type tooling: none configured" was checked only against the local `.venv`, not against `.github/workflows/ci.yml`, which does install and run `ruff check app tests` | Corrected below to state both facts: not installed locally, configured in CI — and that CI's `ruff` target (`app tests`) does not include `scripts/`, so this round's `scripts/` edits are not covered by that CI check either |
 
 **Provenance of #1 (git-verified in THIS repo — reproduce yourself, don't take
 my word).** The dropped-key corruption entered in **commit 133 (`567e43c`)**;
@@ -86,19 +89,55 @@ reintroduce a different kind of corruption. Regenerate + validate with:
 ```
 
 ```
-records=367  chat_records_seen=248  chat_with_stats=40
-per request:  prompt_tokens  n=40 avg=7,230  median=6,632  min=5,217  max=10,663  (REAL usage.prompt_tokens)
-top kinds (AGGREGATE over 40 req):  tool_result ~5.78M tok   assistant_tool_calls ~2.05M tok   system ~227k tok
+records=385  chat_records_seen=266  chat_with_stats=40
+per request:  prompt_tokens  n=40 avg=5,997  median=6,436  min=3,800  max=7,685  (REAL usage.prompt_tokens)
+top kinds (AGGREGATE over 40 req):  tool_result ~6.64M tok   assistant_tool_calls ~2.11M tok   system ~227k tok
 top fragments (AGGREGATE over 40 req): available_skills only — `rules` absent from this sample
-top paths (AGGREGATE, ±200-char window heuristic): AGENTS.md hits=40 reqs=40 (~61.6k tok)  CLAUDE.md hits=32 reqs=32 (~16.4k tok)
+top paths, as actually ranked, top 3 (NOT cherry-picked — see caveat below):
+  1. y://n              hits=240  reqs=40  (~201.8k tok) — KNOWN FALSE POSITIVE, see caveat
+  2. scripts/compute_trusted_route_rate.py  hits=1560 reqs=40  (~144.1k tok)
+  3. e://n              hits=320  reqs=40  (~125.6k tok) — KNOWN FALSE POSITIVE, see caveat
+  ...
+  9. AGENTS.md          hits=40   reqs=40  (~61.6k tok)
+ (CLAUDE.md, further down): hits=14 reqs=14 (~7.2k tok)
 ```
 
-`chat_records_seen=248` vs. `chat_with_stats=40` (audit fix, was previously
+**`top_paths` false positives — found by this round's audit, root-caused, fixed
+going forward, but still visible in this live sample (caveat, not
+overclaimed).** The previous round's doc quoted only the AGENTS.md/CLAUDE.md
+rows from `top_paths`, which reads as if those were the top entries; they
+were not — `y://n` and `e://n` ranked above them. Root cause: `_PATH_RE`'s
+Windows-path branch in `_kilo_prompt_stats.py` allowed backslash inside its
+own path-segment character class, so text containing a single letter + `:` +
+**two literal backslash characters** + `n` (e.g. a tool_result echoing source
+code that shows a raw `\n` escape sequence as two literal characters, not an
+actual newline) satisfied the whole "one-letter Windows drive path"
+alternative; `normalize_path_key()` then turned both backslashes into `/`,
+producing `y://n` / `e://n`. Verified in isolation (`chr(92)`-built test
+strings, no reliance on raw log bodies since those aren't stored by default):
+the old regex matched the doubled-backslash case and a genuine
+`D:\Projects\...\AGENTS.md` path equally; the fixed regex (backslash excluded
+from the segment classes) matches only the genuine path. Fixed in
+`_kilo_prompt_stats._PATH_RE`, 2 regression tests added
+(`test_path_char_contributions_ignores_doubled_escape_sequences`,
+`test_path_char_contributions_still_finds_real_windows_paths_with_single_backslashes`).
+**What this fix does not do:** `content_stats.path_chars` is computed once,
+by the relay, at the moment each request is logged, and stored as-is in
+`logs/kilo_relay.jsonl` — `kilo_prompt_content_report.py` only aggregates that
+stored data, it never re-runs the path analyzer over historical rows. So the
+regex fix applies to requests logged *after* the relay process is restarted
+with the fixed module; it does not and cannot retroactively clean the rows
+already in the log, which is exactly why `y://n`/`e://n` still show up in the
+capture above, taken *after* the fix landed. That capture is left in this doc
+deliberately, not touched up, to avoid claiming a fix "worked" against
+evidence that shows it hasn't propagated to stored history yet.
+
+`chat_records_seen=266` vs. `chat_with_stats=40` (audit fix, was previously
 ambiguous): `chat_with_stats` is the size of the `--last N` tail slice, capped
 at `N` by construction — on its own it told a reader nothing about how much
 instrumented traffic actually exists. `chat_records_seen` now counts every
 chat-completions row with `content_stats` across the **whole** file before
-slicing, so it's clear this sample covers the most recent 40 of 248
+slicing, so it's clear this sample covers the most recent 40 of 266
 instrumented requests, not "all instrumented traffic."
 
 **`rules` absence — precisely scoped, not an open question, but not
@@ -108,10 +147,12 @@ overstated either (audit round 2 correction).** `content_stats` in
 and `forwarded` (captured after). `kilo_prompt_content_report.build_report()`
 uses `cs.get("original") or cs.get("forwarded")` — i.e. it prefers the
 **pre-compression** payload whenever present. Checked directly against the
-live log rather than assumed: **248/248** chat rows in the current
-`logs/kilo_relay.jsonl` have both `content_stats.original` and `.forwarded`
-present (script: iterate the file, count rows where either key is missing —
-both counts were 0), so the `forwarded`-only fallback path in `build_report()`
+live log rather than assumed, re-verified this round at the log's current
+size: **266/266** chat rows in `logs/kilo_relay.jsonl` have both
+`content_stats.original` and `.forwarded` present (script: iterate the file,
+count rows where either key is missing — both counts were 0 both times this
+was checked, at 248 and again at 266 rows), so the `forwarded`-only fallback
+path in `build_report()`
 was never exercised in this data. The precise claim is: **for every record in
 this log, `cloud_budget` stripping is not the explanation, because the
 aggregator reads the pre-strip `original` payload for all of them** — not the
@@ -140,20 +181,28 @@ containing >=1 mention; see the loop comment in `build_report()` for the exact
 definition — it counts elements of the sliced `chat` list, not unique
 `request_id` values). In *this* sample AGENTS.md shows `hits=40 reqs=40` (one
 mention per request, every request), but **CLAUDE.md in the same sample shows
-`hits=32 reqs=32`** — mentioned in only 32 of the 40 requests, not "every
-request" as the previous round's AGENTS.md-only sample implied by extension.
-`reqs` is the field that answers "how many requests mentioned this"; `hits`
-answers "how many mentions total," and the two only coincide when the
-mention-per-request rate happens to be exactly 1.
+`hits=14 reqs=14`** — mentioned in only 14 of the 40 requests, not "every
+request" as an AGENTS.md-only sample would imply by extension. (An earlier
+capture in this same doc showed CLAUDE.md at `hits=32 reqs=32` — the point
+isn't the specific number, which drifts with every capture like everything
+else in this section, but that it is *not* 40/40 and a reader must not assume
+it is just because AGENTS.md's happens to be.) `reqs` is the field that
+answers "how many requests mentioned this"; `hits` answers "how many mentions
+total," and the two only coincide when the mention-per-request rate happens
+to be exactly 1.
 
 ---
 
 ## Levers toward the 10× *target* (ranked by savings × 1/quality-risk)
 
 > 10× is a **target hypothesis**, not a measured result. This round's real
-> `prompt_tokens` (avg ≈36.6k/req across 40 requests) sit well under the
-> historical >100k-token long-session figure, which is encouraging, but a
-> single session's running average is not a controlled before/after — see
+> `prompt_tokens` average (see § Instrumentation sample above for the current
+> number — deliberately not repeated here, since an earlier draft of this
+> section quoted a hardcoded `avg` that fell out of sync with that section
+> after two later re-captures, which is exactly the kind of stale-number
+> problem an audit round had to catch and fix) sits well under the historical
+> >100k-token long-session figure, which is encouraging, but a single
+> session's running average is not a controlled before/after — see
 > "Not yet proven" below.
 
 1. **New chat when `msgs≫15` / `in` hard — *with a compact handoff*.** Dominant
@@ -174,9 +223,13 @@ mention-per-request rate happens to be exactly 1.
    target these fragments. A dedicated strip needs a **separate opt-in flag**
    and carries a policy-loss risk, so treat it as a candidate to measure per
    session, not a settled ≈1.8k tok/req constant.
-4. **Tool-result discipline** — biggest single kind (~698k tok aggregate / 40
-   req ≈ 17.5k tok/req average in this sample); prune/summarize stale
-   `tool_result` history to cap `msgs` growth.
+4. **Tool-result discipline** — consistently the biggest single kind by a wide
+   margin (see § Instrumentation sample's `top kinds` line above for the
+   current aggregate; not re-quoted here for the same reason as the
+   `prompt_tokens` figure above — this exact number was previously
+   inconsistent with § Instrumentation sample after that section got
+   refreshed and this one didn't); prune/summarize stale `tool_result`
+   history to cap `msgs` growth.
 
 The target = **new chat (+handoff) + no full-read of heavy SSoT**, not any single
 relay strip.
@@ -201,15 +254,16 @@ relay strip.
 
 ## DoD (reproducible in this repo — verify by running the commands, not by reading this table)
 
-- [x] Targeted: `pytest tests/test_token_registry.py tests/test_kilo_prompt_stats.py tests/test_kilo_proxy_relay.py -q` — **100 passed** (14 registry + 24 stats + 62 relay)
-- [x] Full kilo suite: `pytest tests/test_token_registry.py tests/test_kilo_prompt_stats.py tests/test_kilo_proxy_relay.py tests/test_kilo_relay_compress.py tests/test_kilo_guard.py -q` — **159 passed** (adds 36 compress + 23 guard; the extra 59 vs. targeted is these two files, not a discrepancy — see § Reproduce evidence for both exact commands run back to back)
+- [x] Targeted: `pytest tests/test_token_registry.py tests/test_kilo_prompt_stats.py tests/test_kilo_proxy_relay.py -q` — **102 passed** (14 registry + 26 stats + 62 relay; stats went 17 → 24 → 26 across this doc's three audit rounds — don't extrapolate a trend from that, it's just "tests were added each time a real gap was found")
+- [x] Full kilo suite: `pytest tests/test_token_registry.py tests/test_kilo_prompt_stats.py tests/test_kilo_proxy_relay.py tests/test_kilo_relay_compress.py tests/test_kilo_guard.py -q` — **161 passed** (adds 36 compress + 23 guard, from an unrelated concurrent round of work on those two files, not this audit round; see § Reproduce evidence for both exact commands run back to back)
 - [x] Registry: syntactic validity (`json.tool`) **and** semantic checks — entry count, `doc/adr.md` presence, CODE_ROOT non-zero — via `test_registry_no_zeroed_or_missing_regression_entries`
 - [x] `collect_chat_records()` covered directly: non-chat filtering, `deque(maxlen=N)` tail-only-of-chat behavior, `last=None/0`, malformed JSON / blank lines / non-dict rows counted via `lines_total`/`invalid_json`/`non_dict_records`, `chat_records_seen` vs. sliced `chat_with_stats`, missing-file distinct CLI error (exit 3), negative `--last` rejected by argparse, and — added in response to audit round 2 — correctness at 5000-row scale (`test_collect_chat_records_correct_on_large_synthetic_log`) and generator-based streaming asserted structurally (`test_scan_jsonl_lines_is_a_generator_not_a_full_materialization`)
 - [x] `build_report()`'s `hits` vs. `requests` distinction covered directly, including the two gaps audit round 2 asked for: `requests` counts JSONL rows, not unique `request_id` (`test_build_report_requests_counts_rows_not_unique_request_ids`), and a malformed record naming one path twice doesn't inflate `requests` (`test_build_report_requests_not_inflated_by_duplicate_path_row_within_one_record`)
 - [x] Output determinism: `test_build_report_top_lists_are_deterministic_across_repeated_calls` — same input, same `top_kinds`/`top_paths` order on repeat calls
+- [x] `_PATH_RE` doubled-escape false positive (`y://n`/`e://n` outranking AGENTS.md in a real report — found by audit round 3) fixed and regression-tested; **not** claimed fixed in the live sample, since historical `content_stats` is stored, not recomputed — see the caveat in § Instrumentation sample
 - [x] `per_request` avg/median/min/max covered directly (`test_per_request_summary_stats_avg_median_min_max`)
 - [x] `lint_agent_prompts.py` OK
-- [x] Lint/type tooling: **none configured in this repo** — checked `requirements-dev.txt` (no `ruff`/`mypy`/`black`/`flake8` entry) and confirmed `python -m ruff` / `python -m mypy` both fail with `No module named …` in `.venv`; nothing to run, not silently skipped
+- [x] Lint/type tooling — corrected this round, previous claim was too broad: `mypy`/`black`/`flake8` are not configured anywhere in this repo. `ruff` **is** configured in CI (`.github/workflows/ci.yml`: `pip install ruff` then `python -m ruff check app tests`) but is **not installed in the local `.venv`** (`python -m ruff` fails with `No module named ruff`) and, more importantly, **CI's ruff target is `app tests` — it does not include `scripts/`**, so this round's edits to `scripts/kilo_prompt_content_report.py` and `scripts/_kilo_prompt_stats.py` are not linted by CI either. `tests/test_kilo_prompt_stats.py` (also touched this round) is covered by CI's `ruff check … tests`. Net: this round's script changes have no lint coverage, local or CI; that's a gap in the repo's CI config, not something this round's PR can fix without expanding scope
 - [x] Schema compatibility: `grep -rn` across `scripts/ tests/ doc/` for `kilo_content_report.json`, `top_paths`, `"hits"` found no code that parses this report's JSON back in (only prose references in `doc/next/*.md` and unrelated per-payload fields in `_kilo_prompt_stats.py`); `requests`/`chat_records_seen` are additive keys, no existing key was renamed or removed, and `test_build_report_path_hits_vs_requests_are_distinct` / the existing aggregation tests exercise both the `render_text()` and dict-return paths
 - [ ] **10× effect** — NOT closed; needs the live A/B above
 
@@ -217,17 +271,15 @@ relay strip.
 
 ```bash
 .venv/Scripts/python.exe -m pytest tests/test_token_registry.py tests/test_kilo_prompt_stats.py tests/test_kilo_proxy_relay.py -q
-# ........................................................................ [ 72%]
-# ............................                                             [100%]
-# 100 passed in 0.59s
+# ........................................................................ [ 70%]
+# ..............................                                           [100%]
+# 102 passed in 0.57s
 
 .venv/Scripts/python.exe -m pytest tests/test_token_registry.py tests/test_kilo_prompt_stats.py tests/test_kilo_proxy_relay.py tests/test_kilo_relay_compress.py tests/test_kilo_guard.py -q
-# ........................................................................ [ 45%]
-# ........................................................................ [ 90%]
-# ...............                                                          [100%]
-# 159 passed in 0.71s
-
-git diff --stat   # this audit round's edit, uncommitted at time of writing: this doc + kilo_prompt_content_report.py + test_kilo_prompt_stats.py
+# ........................................................................ [ 44%]
+# ........................................................................ [ 89%]
+# .................                                                        [100%]
+# 161 passed in 0.66s
 
 .venv/Scripts/python.exe -m json.tool doc/token_safety_registry.json >/dev/null && echo "registry VALID"
 .venv/Scripts/python.exe scripts/kilo_prompt_content_report.py --log logs/kilo_relay.jsonl --last 40   # dry-run, no --json-out
@@ -239,13 +291,27 @@ git show 567e43c:doc/token_safety_registry.json | python -m json.tool  # 133 bro
 git show b95abcd:doc/token_safety_registry.json  | python -m json.tool  # 134 fixed
 ```
 
+**Files this audit round actually touched:** `scripts/_kilo_prompt_stats.py`
+(the `_PATH_RE` fix), `scripts/kilo_prompt_content_report.py` (the `+/-200`
+ASCII fix), `tests/test_kilo_prompt_stats.py` (new tests), this doc. Stated
+explicitly rather than via a hardcoded `git diff --stat`/`git status` snapshot:
+across this doc's three audit rounds so far, every committed/uncommitted
+claim written into this file went stale by the next round (the doc itself got
+committed between rounds at least twice, and the working tree has also
+carried unrelated concurrent edits to other files at times). Whether these
+four files are committed, and what else is in the working tree, is whatever
+`git status --short` / `git diff --stat` / `git log -- <path>` say **when you
+run them** — this doc stops asserting that state as a written fact for the
+same reason § Instrumentation sample stopped hardcoding `prompt_tokens`
+numbers into § Levers: a snapshot copied into prose is a snapshot that goes
+wrong.
+
 *Note on dates:* this document's filename/header date (2026-07-23) is this
-session's system clock at write time. Unlike the previous round, this file is
-now committed (`git log -- doc/next/kilo_content_budget_audit_fixes_2026-07-23.md`
-resolves it), so its commit timestamp is the authoritative record for *this
-document's* edit history. That is separate from the instrumentation sample's
-own freshness: `logs/kilo_relay.jsonl` is a live, growing file, so the sample
-numbers in § Instrumentation sample reflect whatever `chat_records_seen` was
-at the moment that command last ran (248 when this section was last
-regenerated) — re-run the command shown there for a current number, don't
-infer it from either date.
+session's system clock at write time, nothing more — it is not a claim about
+commit status, and has been wrong as a proxy for "is this file committed"
+before. `git log -- doc/next/kilo_content_budget_audit_fixes_2026-07-23.md`
+is the authoritative source for this document's own edit history. The
+instrumentation sample's freshness is separate again: `logs/kilo_relay.jsonl`
+is a live, growing file, so § Instrumentation sample's numbers reflect
+whatever `chat_records_seen` was at the moment that section's command last
+ran — re-run it for a current number.

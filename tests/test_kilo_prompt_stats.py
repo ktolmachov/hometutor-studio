@@ -50,6 +50,24 @@ def test_normalize_path_key_agents_and_doc_relative():
     assert normalize_path_key("doc/conventions.md") == "doc/conventions.md"
 
 
+def test_path_char_contributions_ignores_doubled_escape_sequences():
+    """Regression for the 'y://n' / 'e://n' false positives an audit found
+    outranking AGENTS.md in a real report: a single letter + ':' + two literal
+    backslash characters + 'n' (source code showing a raw `\\n` escape as text,
+    not an actual newline) used to satisfy the Windows-path branch and got
+    normalized (backslash -> '/') into junk keys that polluted top_paths."""
+    bs = chr(92)
+    text = "some code shows y:" + bs + bs + "n and e:" + bs + bs + "n as literal escapes, not paths"
+    contrib = path_char_contributions(text)
+    assert not any(k.lower() in {"y://n", "e://n", "y:/n", "e:/n"} for k in contrib)
+
+
+def test_path_char_contributions_still_finds_real_windows_paths_with_single_backslashes():
+    text = "read " + "D:" + chr(92) + "Projects" + chr(92) + "hometutor-studio" + chr(92) + "AGENTS.md" + " please"
+    contrib = path_char_contributions(text)
+    assert any("agents.md" in k.lower() for k in contrib)
+
+
 def test_analyze_chat_payload_roles_tools_paths():
     payload = {
         "model": "x",

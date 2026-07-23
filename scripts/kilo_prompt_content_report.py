@@ -318,7 +318,7 @@ def render_text(report: dict[str, Any]) -> str:
     for row in report["top_fragments"][:15]:
         lines.append(f"  {row['chars']:>10} (~{row['est_tok']} tok)  {row['key']}")
     lines.append(
-        "-- top paths (window heuristic ±200 chars; relative rank, not file bytes; "
+        "-- top paths (window heuristic +/-200 chars; relative rank, not file bytes; "
         "hits=message-level mentions, can exceed request count; reqs=distinct requests "
         "containing >=1 mention) --"
     )
