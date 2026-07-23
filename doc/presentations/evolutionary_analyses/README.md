@@ -237,11 +237,13 @@ rev. 1, и сейчас. Кандидаты названы по теме, без
 |---|---|---|
 | **#26 outcome gap «real evidence-bound scoped quiz»** | ⬜ structural residual закрыт; full TLRR всё ещё 0% из-за `verified_quiz=0` | После alias-fix метрика измерима, но live rows пока не содержат evidence-bound scoped quiz; нужен реальный прогон, который даёт `source_quote` exact-match и `evidence_bound=1`. |
 | **#27 P0-1…P0-3 «Execution Packet trust contour»** | ⬜ implementation не начата; файлы runner/policy/finalize отсутствуют | Следующий engineering-P0 после #26 outcome: убрать trust inversion локального coding-executor через task-authored policy, runner, ledger и исполнимый finalize-review. |
+| **#25 semantic groundedness** | ⬜ P1-кандидат, не стартовать без отдельного решения | Semantic eval нужен для качества ответов, но его нельзя смешивать с уже закрытым deterministic evidence-gate #26. |
 | **#11 пересъёмка 06/30** | ⬜ content-only | Перед внешним показом витрину лучше переснять на актуальном UI; runtime-код не блокирует. |
 
 **Рекомендуемый порядок:** сначала #26 `verified_quiz` как ближайший product/outcome
-блокер TLRR, затем #27 P0-1…P0-3; #11 переснимать перед внешним показом. #22 C1-C3,
-#19 P2 и #23 C1-C2 — закрыты 2026-07-19.
+блокер TLRR, затем #27 P0-1…P0-3; #25 — только после отдельного решения по
+semantic eval; #11 переснимать перед внешним показом. #22 C1-C3, #19 P2 и
+#23 C1-C2 — закрыты 2026-07-19.
 
 #### 🟡 P2 и контентный остаток
 
@@ -268,33 +270,34 @@ rev. 1, и сейчас. Кандидаты названы по теме, без
 
 | Категория | Разборы |
 |---|---|
-| **P0 готово / core shipped** | #1–#23; #26 (структурный core закрыт, outcome gap открыт). №24/№25 остаются provisional analyses; их runnable safety/evidence часть частично закрыта через №26, но сами P0-кандидаты не объявлены shipped. |
-| **P1 открыт** | **#26 outcome gap** — real scoped quiz with exact-match `source_quote` → `evidence_bound=1`; **#27 P0-1…P0-3** — Execution Packet trust contour; #11 пересъёмка скриншотов (content-only, вне runtime scope) |
+| **P0 готово / structural core shipped** | #1–#23; #26 (структурный core закрыт, outcome gap открыт). №24/№25 остаются provisional analyses; их runnable safety/evidence часть частично закрыта через №26, но сами P0-кандидаты не объявлены shipped. |
+| **P1 открыт** | **#26 outcome gap** — real scoped quiz with exact-match `source_quote` → `evidence_bound=1`; **#27 P0-1…P0-3** — Execution Packet trust contour; **#25 semantic groundedness** — не стартовать без отдельного решения по semantic eval; #11 пересъёмка скриншотов (content-only, вне runtime scope) |
 | **P2 открыт** | нет — все закрыты |
-| **Deferred (P2/P3, не блокеры)** | #26: scoped concept identity ≠ gate concept_id; label_mention min-length; UI evidence status до Finish; optional independent `grounded_explanation` predicate only if a future semantic judge is explicitly accepted |
+| **Deferred (P2/P3, не блокеры)** | #24 standalone quiz-quality P0 candidates — не стартовать без owner go, частично закрыто через #26; #26: scoped concept identity ≠ gate concept_id; label_mention min-length; UI evidence status до Finish; optional independent `grounded_explanation` predicate only if a future semantic judge is explicitly accepted |
 | **Контент перед внешним показом** | #11 пересъёмка 06/30 |
 | **Опционально / по решению владельца** | #15 B2, #16 P2, #17 hover/screenshot smoke, #20 metrics/live-polish, #21 manual DoD/UI pin, #26 surface-polish |
 | **Исторические HTML-снимки** | #1–#8 pain-якоря — не чинить код «под HTML» |
 
 ### Статистика готовности (срез 2026-07-23)
 
-Проценты ниже — управленческая оценка готовности, а не счётчик строк кода:
-анализ + core implementation + outcome/verification. `100%` означает, что
-обязательный core закрыт; `90–95%` — core закрыт, но остался контентный или
-optional-хвост; `60–85%` — анализ/часть механики есть, но outcome ещё не доказан;
-`35%` — анализ и план готовы, implementation не начата.
+Проценты ниже — manual scoring by per-analysis readiness table (не auto-generated
+метрика и не счётчик строк кода): анализ + structural core implementation +
+outcome/verification. `100%` означает, что обязательный core закрыт; `90–95%` —
+core закрыт, но остался контентный или optional-хвост; `60–85%` —
+анализ/часть механики есть, но outcome ещё не доказан; `35%` — анализ и план
+готовы, implementation не начата.
 
 | Метрика | Значение |
 |---|---:|
 | Всего разборов | 27 |
 | Анализ / HTML подготовлены | 27/27 = **100%** |
-| Core shipped (structural core закрыт) | 24/27 = **88.9%** |
+| Structural core shipped | 24/27 = **88.9%** |
 | — из них с открытым outcome gap | 1 (#26: `verified_quiz=0`) — подмножество, не отдельное слагаемое |
 | Implementation не начата (только анализ/план) | 3/27 = **11.1%** (#24, #25, #27) |
 | Средняя готовность по всем разборам | **92.6%** |
-| Взвешенная готовность с учётом важности | **~91.6%** (оценочно; критические #25/#26/#27 тянут вниз) |
+| Взвешенная готовность с учётом важности | **~91.6%** (оценочно, без опубликованной весовой формулы; критические #25/#26/#27 тянут вниз) |
 
-Категории **Core shipped (24)** и **Implementation не начата (3)** взаимоисключающие и
+Категории **Structural core shipped (24)** и **Implementation не начата (3)** взаимоисключающие и
 дают 27. Outcome gap #26 — подмножество core shipped, а не третье слагаемое (иначе
 24+1+3=28, а проценты дают 103.7% — прежняя ошибка).
 
@@ -340,6 +343,7 @@ alias `evidence_span`), `verified_quiz` = 0/18, live quiz rows = 0/225
 | P0 | **#27 Execution Packet trust contour** | Engineering trust / automation | Критическая | Реализованы P0-1…P0-3: `packet_policy.ts`, `run_execution_packet.ts`, `finalize_execution_packet.ts`, locks/ledger/revert-before-review/finalize-review; smoke: REJECT оставляет target repo clean, APPROVE создаёт commit |
 | P1 | **#25 semantic groundedness** | Answer quality / eval | Критическая | Проведён gated E2/SGAR baseline; выбран и реализован semantic groundedness path без proxy-метрик вроде token-overlap |
 | P1 content | **#11 пересъёмка 06/30** | Витрина / demo evidence | Средняя | Свежие screenshots/demo assets соответствуют текущему UI перед внешним показом |
+| Deferred | **#24 standalone quiz-quality P0 candidates** | Quiz quality / owner decision | Высокая | Не стартовать без owner go; перед стартом отделить standalone quiz-quality от уже закрытого deterministic evidence-gate #26 |
 | Optional | **#15 worth += audio/rubric signals** | Product polish | Средняя | Worth/route учитывают дополнительные audio/rubric сигналы, если owner подтвердит ценность |
 | Optional | **#16 дверь «Учиться продукту»** | Product onboarding | Низкая/средняя | В UI появляется явная дверь к курсу продукта / HF-витрине, если owner даст go |
 | Optional | **#17 hover-подписи / screenshot smoke** | UX polish / test | Средняя | Реализованы hover-подписи (R1.4/L1.3) и/или screenshot-смок включён в CI (сейчас opt-in) |
