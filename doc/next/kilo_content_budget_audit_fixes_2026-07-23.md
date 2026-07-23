@@ -35,7 +35,10 @@ Cursor + relay + DeepSeek running).
 | — | **(audit round)** `chat_with_stats` conflated "size of the `--last N` slice" with "how much instrumented traffic exists" | Added `chat_records_seen` — counts every chat row with `content_stats` across the whole file, before slicing |
 | — | **(audit round)** aggregate path `hits=40` was read as "present in every one of 40 requests," but `hits` sums per-message mentions and can exceed the request count | Added `requests` (distinct chat requests with >=1 mention) to `top_paths` / `agents_claude_mentions`; `render_text` labels both explicitly |
 | — | **(audit round)** `rules`-absent explanation was left as an unresolved "cloud_budget strip vs. absent" open question | Resolved via code: the aggregator reads `content_stats.original` (pre-compression), which rules out `cloud_budget` as the cause — see § Instrumentation sample |
-| — | **(audit round 3)** `_PATH_RE`'s Windows-path branch allowed backslash inside its own segment class, so a single letter + `:` + two literal backslash characters + `n` (e.g. source text showing a raw `\n` escape sequence as two literal characters, not an actual newline) false-positived as a one-letter drive path; `normalize_path_key` then turned the doubled backslashes into `y://n` / `e://n`, which **outranked AGENTS.md** in a real `top_paths` run | Excluded backslash from the segment character classes in `_kilo_prompt_stats._PATH_RE` (verified: still matches genuine `D:\Projects\...\AGENTS.md`, no longer matches the doubled-escape case); 2 regression tests added. **Known limitation, not silently glossed over:** `content_stats.path_chars` is computed once per request by the relay and stored in the JSONL — this fix only affects requests logged *after* a relay restart. The historical rows already in `logs/kilo_relay.jsonl` were analyzed by the old regex and still show `y://n`/`e://n` in `top_paths` until fresh traffic ages the bad rows out of any `--last N` window; see § Instrumentation sample for the current (still-affected) live output |
+| — | **(audit round 3/4)** `_PATH_RE`'s Windows-path branch allowed escape-stub false positives (`y://n` / `e://n`) and the first fix then overcorrected; a later permissive fix recovered `C:\Windows` but still emitted partial paths for `C:\Program Files\...`, matched embedded tokens like `prefixD:\...`, and missed backslash repo-relative paths | Reworked extraction as boundary-aware Windows alternatives: extension paths may contain spaces, no-extension paths stay whitespace-bounded, JSON-re-escaped separators still normalize, and `is_plausible_path_key()` now rejects `\n`/`\t`/`\r` plus `\xNN`/`\uNNNN` escape stubs without rejecting short real paths like `C:\Go`. Aggregation still normalizes-before-validates stored `path_chars`, so historical junk keys are filtered when the report is regenerated |
+| — | **(audit round 4)** `normalize_path_key()` stripped any `/app/` segment, so a real external path such as `C:\Program Files\App\tool.exe` collapsed to `App/tool.exe` | Repo-relative stripping now only triggers under this project's root marker (`hometutor-studio/`); external paths keep their full normalized key |
+| — | **(audit round 4)** old rows with `content_stats.original` but no stored `session_health` were excluded from the session-health denominator even though the report had enough data to judge them | `build_report()` now recomputes a session-health verdict from `content_stats.original` when measurable fields exist, while truly unmeasured rows remain excluded |
+| — | **(audit round 4)** `_print_safe()` only covered stdout with `.buffer`; stderr paths and text-only redirected streams could still crash on narrow encodings | `_print_safe(text, file=...)` now handles stdout/stderr and streams without `.buffer`; CLI-owned stderr prints use it too |
 | — | **(audit round 3)** the "Levers toward 10×" section quoted `avg ≈36.6k/req` and `tool_result ~698k tok / 40 ≈17.5k tok/req`, both leftovers from an earlier capture, while § Instrumentation sample above them had already been refreshed to different numbers twice — same doc, two disagreeing numbers | Removed the duplicated hardcoded figures; that section now cross-references § Instrumentation sample instead of repeating numbers that can drift out of sync with it (this had already happened twice by the time it was caught) |
 | — | **(audit round 3)** "lint/type tooling: none configured" was checked only against the local `.venv`, not against `.github/workflows/ci.yml`, which does install and run `ruff check app tests` | Corrected below to state both facts: not installed locally, configured in CI — and that CI's `ruff` target (`app tests`) does not include `scripts/`, so this round's `scripts/` edits are not covered by that CI check either |
 
@@ -89,53 +92,42 @@ reintroduce a different kind of corruption. Regenerate + validate with:
 ```
 
 ```
-records=385  chat_records_seen=266  chat_with_stats=40
-per request:  prompt_tokens  n=40 avg=5,997  median=6,436  min=3,800  max=7,685  (REAL usage.prompt_tokens)
-top kinds (AGGREGATE over 40 req):  tool_result ~6.64M tok   assistant_tool_calls ~2.11M tok   system ~227k tok
+records=623  chat_records_seen=504  chat_with_stats=40
+per request:  prompt_tokens  n=40 avg=4,460.2  median=4,545  min=2,170  max=7,528  (REAL usage.prompt_tokens)
+original_estimated_tokens: n=40 avg=126,511.0  median=128,329.5  min=112,111  max=134,578
+forwarded_estimated_tokens: n=40 avg=2,840.4  median=2,852  min=935  max=5,595
+session health: recommend_new_chat 40/40, rate=1.0
+top kinds (AGGREGATE over 40 req): tool_result ~4.04M tok   assistant_tool_calls ~588k tok   system ~227k tok
 top fragments (AGGREGATE over 40 req): available_skills only — `rules` absent from this sample
-top paths, as actually ranked, top 3 (NOT cherry-picked — see caveat below):
-  1. y://n              hits=240  reqs=40  (~201.8k tok) — KNOWN FALSE POSITIVE, see caveat
-  2. scripts/compute_trusted_route_rate.py  hits=1560 reqs=40  (~144.1k tok)
-  3. e://n              hits=320  reqs=40  (~125.6k tok) — KNOWN FALSE POSITIVE, see caveat
+top paths, as actually ranked, top 5:
+  1. tests/e2e/test_surface_focus_live.py      hits=2560 reqs=40 (~166.3k tok)
+  2. tests/e2e/focus_helpers.py                hits=1960 reqs=40 (~125.4k tok)
+  3. D:/Projects/hometutor                     hits=1107 reqs=40 (~110.1k tok)
+  4. app/prompts/_impl.py                      hits=638  reqs=40 (~92.0k tok)
+  5. scripts/check_size_budget.py              hits=1019 reqs=40 (~69.4k tok)
+  6. AGENTS.md                                 hits=80   reqs=40 (~65.7k tok)
   ...
-  9. AGENTS.md          hits=40   reqs=40  (~61.6k tok)
- (CLAUDE.md, further down): hits=14 reqs=14 (~7.2k tok)
+  18. CLAUDE.md                                hits=80   reqs=40 (~24.5k tok)
+No `y://n` / `e://n` rows appear in the regenerated live sample.
 ```
 
-**`top_paths` false positives — found, root-caused, and fixed at the
-aggregator level, so it also cleans historical rows (correction to an
-earlier, now-outdated claim in this doc).** The previous round's doc quoted
-only the AGENTS.md/CLAUDE.md rows from `top_paths`; `y://n` and `e://n`
-actually ranked above them. Root cause: a single letter + `:` + doubled
-literal backslash characters + `n` (e.g. a tool_result echoing source code
-that shows a raw `\n` escape sequence as two literal characters, not an
-actual newline) satisfied the Windows-path regex's "one-letter drive path"
-shape; `normalize_path_key()` then turned the backslashes into `/`,
-producing `y://n` / `e://n`.
+**`top_paths` false positives — found, root-caused, and fixed at extraction
+and aggregation time.** The old `y://n` / `e://n` rows came from source-code
+escape text being mistaken for a Windows path. The final fix is deliberately
+two-layered: `_kilo_prompt_stats._PATH_RE` is boundary-aware and handles
+spaces / JSON-re-escaped separators, while `is_plausible_path_key()` rejects
+known escape-stub shapes after normalization. `kilo_prompt_content_report.py`
+also normalizes-then-validates every stored `path_chars` row it reads, so
+regenerating the report filters historical junk keys rather than waiting for
+old traffic to age out.
 
-This went through two fix attempts, worth recording because the first one
-overcorrected: (1) excluding backslash from `_PATH_RE`'s own segment classes
-stopped the false positive but also stopped matching genuine single-segment
-paths (`C:\Windows`) and genuine doubled-backslash paths (JSON-re-escaped
-text like `D:\\Projects\\report.txt`) — a real regression an audit caught by
-testing those cases directly. (2) The regex was reverted to its original,
-permissive form; disambiguating junk from real paths is now entirely
-`is_plausible_path_key()`'s job, applied to the *normalized* key (so `y:\\n`
-normalizes to `y://n` and gets rejected by shape, while `C:\Windows` and the
-JSON-re-escaped path normalize to clean multi-segment keys and pass).
-
-**This fix is NOT only forward-looking, correcting the earlier claim in this
-doc that it was.** `kilo_prompt_content_report.py`'s aggregator (`build_report`
-/ `_merge_path_rows`) now normalizes-then-validates every stored `path_chars`
-row it reads from `logs/kilo_relay.jsonl`, including rows logged long before
-this fix existed — so regenerating the report cleans historical junk keys
-too, it does not require a relay restart or fresh traffic. Verified live
-against the actual growing log (not a synthetic case): a `--last 40` capture
-taken after this fix shows no `y://n`/`e://n` in `top_paths`. The earlier
-version of this section claimed the opposite (that a relay restart was
-required) based on how the fix was scoped at the time — that scoping changed
-in a later round and this section was not updated until now, which is itself
-the kind of staleness this document keeps needing to correct.
+This section is intentionally explicit because two earlier versions were
+wrong in opposite directions: one said the fix was only forward-looking, the
+next said the permissive regex was enough. It was not: audit round 4 found
+remaining partial matches (`C:\Program Files\...` -> `C:/Program`) and
+embedded matches (`prefixD:\...`). Regression tests now cover both failures,
+plus `\xNN` / `\uNNNN` escape stubs, short real paths such as `C:\Go`, and
+repo-relative backslash paths such as `scripts\tool.py`.
 
 `chat_records_seen=266` vs. `chat_with_stats=40` (audit fix, was previously
 ambiguous): `chat_with_stats` is the size of the `--last N` tail slice, capped
@@ -259,13 +251,16 @@ relay strip.
 
 ## DoD (reproducible in this repo — verify by running the commands, not by reading this table)
 
-- [x] Targeted: `pytest tests/test_token_registry.py tests/test_kilo_prompt_stats.py tests/test_kilo_proxy_relay.py -q` — **102 passed** (14 registry + 26 stats + 62 relay; stats went 17 → 24 → 26 across this doc's three audit rounds — don't extrapolate a trend from that, it's just "tests were added each time a real gap was found")
-- [x] Full kilo suite: `pytest tests/test_token_registry.py tests/test_kilo_prompt_stats.py tests/test_kilo_proxy_relay.py tests/test_kilo_relay_compress.py tests/test_kilo_guard.py -q` — **161 passed** (adds 36 compress + 23 guard, from an unrelated concurrent round of work on those two files, not this audit round; see § Reproduce evidence for both exact commands run back to back)
+- [x] Targeted: `pytest tests/test_token_registry.py tests/test_kilo_prompt_stats.py tests/test_kilo_proxy_relay.py -q` — **119 passed**
+- [x] Full kilo suite: `pytest tests/test_token_registry.py tests/test_kilo_prompt_stats.py tests/test_kilo_proxy_relay.py tests/test_kilo_relay_compress.py tests/test_kilo_guard.py -q` — **187 passed**
+- [x] Wide kilo filter: `pytest tests/ -k kilo -q` — **200 passed**, 3205 deselected, 1 Starlette/httpx deprecation warning
 - [x] Registry: syntactic validity (`json.tool`) **and** semantic checks — entry count, `doc/adr.md` presence, CODE_ROOT non-zero — via `test_registry_no_zeroed_or_missing_regression_entries`
 - [x] `collect_chat_records()` covered directly: non-chat filtering, `deque(maxlen=N)` tail-only-of-chat behavior, `last=None/0`, malformed JSON / blank lines / non-dict rows counted via `lines_total`/`invalid_json`/`non_dict_records`, `chat_records_seen` vs. sliced `chat_with_stats`, missing-file distinct CLI error (exit 3), negative `--last` rejected by argparse, and — added in response to audit round 2 — correctness at 5000-row scale (`test_collect_chat_records_correct_on_large_synthetic_log`) and generator-based streaming asserted structurally (`test_scan_jsonl_lines_is_a_generator_not_a_full_materialization`)
 - [x] `build_report()`'s `hits` vs. `requests` distinction covered directly, including the two gaps audit round 2 asked for: `requests` counts JSONL rows, not unique `request_id` (`test_build_report_requests_counts_rows_not_unique_request_ids`), and a malformed record naming one path twice doesn't inflate `requests` (`test_build_report_requests_not_inflated_by_duplicate_path_row_within_one_record`)
 - [x] Output determinism: `test_build_report_top_lists_are_deterministic_across_repeated_calls` — same input, same `top_kinds`/`top_paths` order on repeat calls
-- [x] `_PATH_RE` doubled-escape false positive (`y://n`/`e://n` outranking AGENTS.md in a real report — found by audit round 3) fixed and regression-tested; **not** claimed fixed in the live sample, since historical `content_stats` is stored, not recomputed — see the caveat in § Instrumentation sample
+- [x] `_PATH_RE` / path normalization regressions covered directly: doubled escape false positives (`y://n`/`e://n`), `\xNN` / `\uNNNN` stubs, Windows paths with spaces, no partial match for extensionless space paths, no embedded `prefixD:\...` match, short real paths (`C:\Go`), and repo-relative backslash paths (`scripts\tool.py`)
+- [x] `build_report()` recomputes missing/unknown `session_health` from measurable `content_stats.original`, while truly unmeasured rows stay excluded
+- [x] `_print_safe()` covers stdout/stderr and text-only streams without `.buffer`
 - [x] `per_request` avg/median/min/max covered directly (`test_per_request_summary_stats_avg_median_min_max`)
 - [x] `lint_agent_prompts.py` OK
 - [x] Lint/type tooling — corrected this round, previous claim was too broad: `mypy`/`black`/`flake8` are not configured anywhere in this repo. `ruff` **is** configured in CI (`.github/workflows/ci.yml`: `pip install ruff` then `python -m ruff check app tests`) but is **not installed in the local `.venv`** (`python -m ruff` fails with `No module named ruff`) and, more importantly, **CI's ruff target is `app tests` — it does not include `scripts/`**, so this round's edits to `scripts/kilo_prompt_content_report.py` and `scripts/_kilo_prompt_stats.py` are not linted by CI either. `tests/test_kilo_prompt_stats.py` (also touched this round) is covered by CI's `ruff check … tests`. Net: this round's script changes have no lint coverage, local or CI; that's a gap in the repo's CI config, not something this round's PR can fix without expanding scope
@@ -276,15 +271,21 @@ relay strip.
 
 ```bash
 .venv/Scripts/python.exe -m pytest tests/test_token_registry.py tests/test_kilo_prompt_stats.py tests/test_kilo_proxy_relay.py -q
-# ........................................................................ [ 70%]
-# ..............................                                           [100%]
-# 102 passed in 0.57s
+# ........................................................................ [ 60%]
+# ...............................................                          [100%]
+# 119 passed in 0.64s
 
 .venv/Scripts/python.exe -m pytest tests/test_token_registry.py tests/test_kilo_prompt_stats.py tests/test_kilo_proxy_relay.py tests/test_kilo_relay_compress.py tests/test_kilo_guard.py -q
-# ........................................................................ [ 44%]
-# ........................................................................ [ 89%]
-# .................                                                        [100%]
-# 161 passed in 0.66s
+# ........................................................................ [ 38%]
+# ........................................................................ [ 77%]
+# ...........................................                              [100%]
+# 187 passed in 0.74s
+
+.venv/Scripts/python.exe -m pytest tests/ -k kilo -q
+# ........................................................................ [ 36%]
+# ........................................................................ [ 72%]
+# ........................................................                 [100%]
+# 200 passed, 3205 deselected, 1 warning in 4.14s
 
 .venv/Scripts/python.exe -m json.tool doc/token_safety_registry.json >/dev/null && echo "registry VALID"
 .venv/Scripts/python.exe scripts/kilo_prompt_content_report.py --log logs/kilo_relay.jsonl --last 40   # dry-run, no --json-out
@@ -297,9 +298,13 @@ git show b95abcd:doc/token_safety_registry.json  | python -m json.tool  # 134 fi
 ```
 
 **Files this audit round actually touched:** `scripts/_kilo_prompt_stats.py`
-(the `_PATH_RE` fix), `scripts/kilo_prompt_content_report.py` (the `+/-200`
-ASCII fix), `tests/test_kilo_prompt_stats.py` (new tests), this doc. Stated
-explicitly rather than via a hardcoded `git diff --stat`/`git status` snapshot:
+(boundary-aware path extraction, plausibility filters, normalization fix),
+`scripts/kilo_prompt_content_report.py` (session-health recompute and safer
+stdout/stderr printing), `tests/test_kilo_prompt_stats.py` (new regression
+tests), `doc/token_safety_registry.json` (regenerated by
+`scripts/measure_token_registry.py --write` after registry freshness failed on
+`doc/changelog.md`), and this doc. Stated explicitly rather than via a hardcoded
+`git diff --stat`/`git status` snapshot:
 across this doc's three audit rounds so far, every committed/uncommitted
 claim written into this file went stale by the next round (the doc itself got
 committed between rounds at least twice, and the working tree has also

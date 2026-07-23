@@ -48,30 +48,37 @@ _FRAGMENT_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
 # real matches it shouldn't have: single-segment drive-root paths like
 # `C:\Windows` (no extension, one segment) and JSON-re-escaped multi-segment
 # paths (each "segment" boundary is a doubled backslash, which the excluded
-# character class also rejected). The regex below is back to the original,
-# permissive matching (backslash allowed inside segments, single segment
-# allowed); disambiguating junk from real paths is left entirely to
-# `is_plausible_path_key()` below, which operates on the *normalized* key
-# (after backslash->slash and multi-slash collapse) and rejects short
-# escape-stub shapes like `y:/n` / `y://n` specifically — verified to still
-# reject the escape-stub cases while recovering `C:\Windows` and
-# `D:\\Projects\\report.txt`.
-_PATH_RE = re.compile(
+# Windows paths need a little more structure than the Unix/repo-relative
+# branches: allow doubled backslashes from JSON-re-escaped text and spaces in
+# directory names, but do not start in the middle of another token and do not
+# let escape stubs like `y:\\n` rank as real paths.
+_PATH_EXT = r"(?:md|py|ts|tsx|js|json|yaml|yml|html|css|txt|ps1|sh|exe|bat|cmd|toml|ini|cfg|log)"
+_PATH_RIGHT_BOUNDARY = r"(?=$|[\s)\"'\]}>:;,])"
+_WIN_SEG = r"[^\\/\r\n\"'<>|:*?]+?"
+_WIN_SEG_NO_SPACE = r"[^\s\\/\r\n\"'<>|:*?]+"
+_WIN_WITH_EXT = rf"[A-Za-z]:\\+(?:{_WIN_SEG}\\+)*{_WIN_SEG}\.{_PATH_EXT}{_PATH_RIGHT_BOUNDARY}"
+_WIN_NO_SPACE = (
+    rf"[A-Za-z]:\\+(?:{_WIN_SEG_NO_SPACE}\\+)*{_WIN_SEG_NO_SPACE}"
+    rf"(?!\s+[^\\/\r\n]*\\){_PATH_RIGHT_BOUNDARY}"
+)
+_PATH_PATTERN = (
+    r"(?<![A-Za-z0-9_./\\-])"
     r"(?P<p>"
-    r"[A-Za-z]:\\(?:[^\s\"'<>|]+\\)*[^\s\"'<>|]+"  # Windows abs
+    f"{_WIN_WITH_EXT}|{_WIN_NO_SPACE}"
     r"|/(?:Users|home|var|tmp|opt)/[^\s\"'<>|]+"  # Unix abs (common roots)
-    r"|(?:(?:doc|scripts|app|tests|archive|\.cursor)/[^\s\"'<>|]+)"  # repo-relative
+    r"|(?:(?:doc|scripts|app|tests|archive|\.cursor)[/\\][^\s\"'<>|]+)"  # repo-relative
     r"|(?:AGENTS\.md|CLAUDE\.md|README\.md|conventions(?:_architecture|_reference)?\.md|"
     r"token_safety(?:_registry)?\.(?:md|json)|backlog_registry\.yaml|tasklist\.md)"
-    r")",
-    re.IGNORECASE,
+    r")"
 )
+_PATH_RE = re.compile(_PATH_PATTERN, re.IGNORECASE)
 
-_EXT_RE = re.compile(r"\.(md|py|ts|tsx|js|json|yaml|yml|html|css|txt|ps1|sh)\b", re.IGNORECASE)
+_EXT_RE = re.compile(rf"\.{_PATH_EXT}\b", re.IGNORECASE)
 # Post-normalize junk: escape stubs and collapsed-drive noise from old logs / edge cases.
 _JUNK_PATH_KEY_RE = re.compile(
     r"^[a-z]:/{1,2}[ntr]$"  # y:/n, e://n, n:/t …
-    r"|^[a-z]:/[^/.\s]{1,2}$",  # D:/x one-char/two-char stub without extension
+    r"|^[a-z]:/{1,2}x[0-9a-f]{2}$"  # e:/x20
+    r"|^[a-z]:/{1,2}u[0-9a-f]{4}$",  # e:/u1234
     re.IGNORECASE,
 )
 _MULTI_SLASH_RE = re.compile(r"/{2,}")
@@ -136,10 +143,14 @@ def normalize_path_key(raw: str) -> str:
     # Drop trailing punctuation from prose / dangling separators.
     text = text.rstrip(").,]}>:;'/\\")
     lower = text.lower()
-    for marker in ("/doc/", "/scripts/", "/app/", "/tests/", "/.cursor/"):
-        idx = lower.rfind(marker)
-        if idx >= 0:
-            return text[idx + 1 :]
+    for project_marker in ("hometutor-studio/",):
+        project_idx = lower.rfind(project_marker)
+        if project_idx >= 0:
+            root_start = project_idx + len(project_marker)
+            for rel_root in ("doc/", "scripts/", "app/", "tests/", ".cursor/"):
+                idx = lower.find(rel_root, root_start)
+                if idx >= 0:
+                    return text[idx:]
     for name in ("agents.md", "claude.md", "backlog_registry.yaml", "token_safety_registry.json"):
         if lower.endswith(name) or lower.endswith("/" + name):
             # keep basename for cross-root identity
@@ -278,7 +289,7 @@ def analyze_chat_payload(
     for row in path_rows:
         m = _EXT_RE.search(str(row["path"]))
         if m:
-            ext_chars[m.group(1).lower()] += int(row["chars"])
+            ext_chars[m.group(0).lstrip(".").lower()] += int(row["chars"])
 
     total_message_chars = sum(role_chars.values())
     return {

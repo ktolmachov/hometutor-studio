@@ -176,9 +176,9 @@
       "safe_hint": "rg -n \"^  <PACKAGE_ID>:\" doc/backlog_registry.yaml  # one package block only"
     },
     "doc/changelog.md": {
-      "lines": 2728,
-      "bytes": 267648,
-      "est_tokens": 66912,
+      "lines": 2734,
+      "bytes": 268602,
+      "est_tokens": 67150,
       "full_read": "forbidden",
       "safe_hint": "tail / last 2-3 entries or append stub only"
     },

@@ -108,6 +108,37 @@ def test_path_char_contributions_finds_json_re_escaped_windows_path():
     assert list(contrib.keys()) == ["D:/Projects/report.txt"]
 
 
+def test_path_char_contributions_handles_windows_paths_with_spaces():
+    bs = chr(92)
+    text = "run " + "C:" + bs + "Program Files" + bs + "App" + bs + "tool.exe" + " now"
+    contrib = path_char_contributions(text)
+    assert list(contrib.keys()) == ["C:/Program Files/App/tool.exe"]
+
+
+def test_path_char_contributions_does_not_emit_partial_space_path():
+    bs = chr(92)
+    text = "directory " + "C:" + bs + "Program Files" + bs + "App" + " has no file extension"
+    assert path_char_contributions(text) == {}
+
+
+def test_path_char_contributions_rejects_embedded_windows_path():
+    bs = chr(92)
+    text = "prefixD:" + bs + "Projects" + bs + "file.py should not start at the D"
+    assert path_char_contributions(text) == {}
+
+
+def test_path_char_contributions_rejects_hex_and_unicode_escape_stubs():
+    bs = chr(92)
+    text = "source has " + "e:" + bs + "x20 and " + "e:" + bs + "u1234 escapes"
+    assert path_char_contributions(text) == {}
+
+
+def test_path_char_contributions_finds_short_valid_drive_path_and_repo_backslash_path():
+    bs = chr(92)
+    assert list(path_char_contributions("open " + "C:" + bs + "Go").keys()) == ["C:/Go"]
+    assert list(path_char_contributions("read scripts" + bs + "tool.py").keys()) == ["scripts/tool.py"]
+
+
 def test_normalize_path_key_collapses_multi_slash():
     assert normalize_path_key("scripts////compute_trusted_route_rate.py/") == (
         "scripts/compute_trusted_route_rate.py"
@@ -248,7 +279,7 @@ def test_session_health_rate_not_diluted_by_unknown_level_records():
     }
     not_measured = {
         "path": "/v1/chat/completions",
-        "content_stats": {"original": {"role_chars": {"user": 10}}},
+        "content_stats": {},
         "session_health": {"level": "unknown", "recommend_new_chat": False},
     }
     out = report.build_report([measured_bloated, not_measured])
@@ -256,6 +287,28 @@ def test_session_health_rate_not_diluted_by_unknown_level_records():
     assert sh["records_with_session_health"] == 1
     assert sh["recommend_new_chat_count"] == 1
     assert sh["recommend_new_chat_rate"] == 1.0  # not 0.5
+
+
+def test_session_health_recomputed_for_old_rows_with_original_stats():
+    """Old JSONL rows may predate session_health but still carry
+    content_stats.original. The report should judge those rows instead of
+    treating them as unmeasured and hiding long-session warnings."""
+    old_bloated = {
+        "path": "/v1/chat/completions",
+        "content_stats": {
+            "original": {
+                "messages_count": 80,
+                "estimated_tokens": 25000,
+                "body_chars": 120000,
+            }
+        },
+    }
+    out = report.build_report([old_bloated])
+    sh = out["session_health"]
+    assert sh["records_with_session_health"] == 1
+    assert sh["records_recomputed_from_original"] == 1
+    assert sh["recommend_new_chat_count"] == 1
+    assert sh["recommend_new_chat_rate"] == 1.0
 
 
 def test_report_main_refuses_empty_json_out(tmp_path: Path):
@@ -412,6 +465,26 @@ class _NarrowEncodingStdout:
         pass
 
 
+class _NarrowEncodingTextOnly:
+    """Text stream without `.buffer`, like some redirected/fake streams."""
+
+    encoding = "cp1252"
+
+    def __init__(self):
+        self.parts: list[str] = []
+
+    def write(self, s: str) -> int:
+        s.encode(self.encoding)
+        self.parts.append(s)
+        return len(s)
+
+    def flush(self) -> None:
+        pass
+
+    def value(self) -> str:
+        return "".join(self.parts)
+
+
 def test_print_safe_does_not_crash_on_narrow_console_encoding(monkeypatch):
     """Regression for the 2026-07-23 P0: a printed report containing a
     character outside cp1252's repertoire (e.g. U+226B '>>' math symbol, or
@@ -425,6 +498,14 @@ def test_print_safe_does_not_crash_on_narrow_console_encoding(monkeypatch):
     written = fake_stdout.buffer.getvalue().decode("cp1252", errors="replace")
     assert "top paths" in written
     assert "threshold" in written
+
+
+def test_print_safe_handles_narrow_stderr_without_buffer():
+    fake_stderr = _NarrowEncodingTextOnly()
+    report._print_safe("stderr path: original ≫ budget", file=fake_stderr)
+    written = fake_stderr.value()
+    assert "stderr path" in written
+    assert "budget" in written
 
 
 def test_report_main_runs_end_to_end_on_narrow_console_encoding(tmp_path: Path, monkeypatch):

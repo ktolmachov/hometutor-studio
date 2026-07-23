@@ -18,6 +18,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
+from _kilo_guard import evaluate_session_health  # noqa: E402
 from _kilo_prompt_stats import is_plausible_path_key, normalize_path_key  # noqa: E402
 
 
@@ -154,6 +155,13 @@ def _summary_stats(values: list[int | float]) -> dict[str, Any]:
     }
 
 
+def _has_session_health_inputs(stats: Any) -> bool:
+    return isinstance(stats, dict) and any(
+        isinstance(stats.get(key), (int, float))
+        for key in ("messages_count", "estimated_tokens", "body_chars")
+    )
+
+
 def build_report(
     records: list[dict[str, Any]],
     last: int | None = None,
@@ -180,6 +188,7 @@ def build_report(
     fwd_est_tokens: list[int] = []
     session_new_chat = 0
     session_health_seen = 0
+    session_health_recomputed = 0
 
     for rec in chat:
         cs = rec.get("content_stats") or {}
@@ -203,13 +212,14 @@ def build_report(
         if fwd and isinstance(fwd.get("estimated_tokens"), (int, float)):
             fwd_est_tokens.append(int(fwd["estimated_tokens"]))
         sh = rec.get("session_health") if isinstance(rec.get("session_health"), dict) else None
+        if (sh is None or sh.get("level") == "unknown") and _has_session_health_inputs(orig):
+            h = evaluate_session_health(orig)
+            sh = {"level": h.level, "recommend_new_chat": h.recommend_new_chat}
+            session_health_recomputed += 1
         if sh is not None and sh.get("level") != "unknown":
-            # Records logged before session_health existed have no such key,
-            # and records where KILO_RELAY_CONTENT_STATS was off (or the route
-            # wasn't chat-completions) carry level="unknown" — both must be
-            # excluded from the denominator, not just the missing-key case,
-            # or a batch of "not measured" requests would silently count as
-            # "measured and healthy" and pull the rate down for no reason.
+            # Denominator is measured verdicts: stored session_health when
+            # present, or a recomputed verdict when old rows still carry
+            # content_stats.original. Truly unmeasured rows stay excluded.
             session_health_seen += 1
             if sh.get("recommend_new_chat"):
                 session_new_chat += 1
@@ -302,10 +312,11 @@ def build_report(
         },
         "session_health": {
             "records_with_session_health": session_health_seen,
+            "records_recomputed_from_original": session_health_recomputed,
             "recommend_new_chat_count": session_new_chat,
-            # Denominator is records_with_session_health, not len(chat): records
-            # logged before this field existed carry no session_health key and
-            # must not silently dilute the rate toward 0.
+            # Denominator is measured verdicts, not len(chat): records with no
+            # session_health and no content_stats.original must not silently
+            # dilute the rate toward 0.
             "recommend_new_chat_rate": (
                 round(session_new_chat / session_health_seen, 3) if session_health_seen else None
             ),
@@ -379,9 +390,9 @@ def render_text(report: dict[str, Any]) -> str:
     sh_seen = sh.get("records_with_session_health", 0)
     lines.append(
         f"  recommend_new_chat: {sh.get('recommend_new_chat_count', 0)}/{sh_seen} "
-        f"(rate={sh.get('recommend_new_chat_rate')}; denominator is records carrying a "
-        f"session_health field, not chat_with_stats={report['chat_with_content_stats']} — "
-        "records logged before this field existed don't count either way)"
+        f"(rate={sh.get('recommend_new_chat_rate')}; denominator is measured session-health "
+        f"verdicts, not chat_with_stats={report['chat_with_content_stats']}; "
+        f"recomputed_from_original={sh.get('records_recomputed_from_original', 0)})"
     )
     lines += [
         "  NOTE: if original >> 40 msgs / >20k est.tok while forwarded is small — start a new chat",
@@ -423,7 +434,7 @@ def render_text(report: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def _print_safe(text: str) -> None:
+def _print_safe(text: str, *, file: Any | None = None) -> None:
     """Print without crashing on narrow console encodings (cp1252, etc.).
 
     ``top_paths``/``top_kinds`` keys come from real log/message content, so
@@ -433,12 +444,19 @@ def _print_safe(text: str) -> None:
     that instance was fixed, but the underlying risk from *data* is
     independent of any one string and stays open without this guard.
     """
+    stream = file or sys.stdout
     try:
-        print(text)
+        stream.write(text + "\n")
+        stream.flush()
     except UnicodeEncodeError:
-        encoding = getattr(sys.stdout, "encoding", None) or "utf-8"
-        sys.stdout.buffer.write((text + "\n").encode(encoding, errors="replace"))
-        sys.stdout.flush()
+        encoding = getattr(stream, "encoding", None) or "utf-8"
+        safe = (text + "\n").encode(encoding, errors="replace")
+        buffer = getattr(stream, "buffer", None)
+        if buffer is not None:
+            buffer.write(safe)
+        else:
+            stream.write(safe.decode(encoding, errors="replace"))
+        stream.flush()
 
 
 def _non_negative_int(raw: str) -> int:
@@ -462,7 +480,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--json-out", type=Path, default=None)
     args = parser.parse_args(argv)
     if not args.log.is_file():
-        print(
+        _print_safe(
             f"ERROR: log file not found: {args.log} — check --log / the relay's "
             "configured log path (this is NOT the same as 'no chat requests yet').",
             file=sys.stderr,
@@ -477,7 +495,7 @@ def main(argv: list[str] | None = None) -> int:
     text = render_text(report)
     _print_safe(text)
     if report["chat_with_content_stats"] == 0:
-        print(
+        _print_safe(
             "NOTE: no content_stats yet — restart relay (KILO_RELAY_CONTENT_STATS=1 default) "
             "and send a few chat requests. Refusing --json-out so an empty report cannot "
             "overwrite a previous good logs/kilo_content_report.json.",
@@ -487,7 +505,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.json_out:
         args.json_out.parent.mkdir(parents=True, exist_ok=True)
         args.json_out.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
-        print(f"Wrote {args.json_out}", file=sys.stderr)
+        _print_safe(f"Wrote {args.json_out}", file=sys.stderr)
     return 0
 
 
