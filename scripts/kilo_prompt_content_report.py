@@ -176,11 +176,32 @@ def build_report(
         _merge_int_maps(frag, src.get("fragment_chars"))
         _merge_int_maps(ext, src.get("ext_chars"))
         _merge_path_rows(paths, src.get("path_chars"))
+        # "One request" here means one element of `chat` (one instrumented
+        # JSONL row that passed `_is_chat_record`) — a row count, not a dedup
+        # by `request_id`. Two rows sharing the same `request_id` (e.g. a
+        # client-side retry logged twice) each still count toward
+        # `requests_with_path` / `chat_with_content_stats`; nothing in this
+        # module reads `request_id`. Verified against the live
+        # logs/kilo_relay.jsonl (2026-07-23): 248/248 chat rows have a
+        # present, unique `request_id` and both `content_stats.original` and
+        # `.forwarded` populated — that is a property of the current relay's
+        # logging, not an invariant this code enforces or checks.
+        #
+        # `seen_this_record` guards against a single record's own
+        # `path_chars` list naming the same path twice (defensive against a
+        # hand-edited or replayed --json-out file; `analyze_chat_payload`'s
+        # own output cannot produce this since it builds `path_chars` from a
+        # dict keyed by path) — without it, a duplicated row would inflate
+        # `requests_with_path` past the actual number of distinct records.
         path_rows_this_record = src.get("path_chars")
         if isinstance(path_rows_this_record, list):
+            seen_this_record: set[str] = set()
             for row in path_rows_this_record:
                 if isinstance(row, dict) and row.get("path"):
-                    requests_with_path[str(row["path"])] += 1
+                    key = str(row["path"])
+                    if key not in seen_this_record:
+                        seen_this_record.add(key)
+                        requests_with_path[key] += 1
         tools = src.get("tools") if isinstance(src.get("tools"), dict) else {}
         for row in tools.get("by_name") or []:
             if isinstance(row, dict) and row.get("name"):

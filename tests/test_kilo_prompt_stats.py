@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import inspect
 import json
 import sys
 from pathlib import Path
@@ -322,6 +323,90 @@ def test_build_report_path_hits_vs_requests_are_distinct():
     assert by_path["AGENTS.md"]["requests"] == 1
     assert by_path["CLAUDE.md"]["hits"] == 2
     assert by_path["CLAUDE.md"]["requests"] == 2
+
+
+def test_build_report_requests_counts_rows_not_unique_request_ids():
+    """`requests` in build_report counts elements of the chat list (JSONL
+    rows), not distinct `request_id` values — this module never reads
+    `request_id`. Two rows sharing one request_id (e.g. a logged retry) must
+    still count as 2 toward `requests`, matching the documented semantics in
+    build_report()'s loop comment rather than silently deduping by ID."""
+    row = {
+        "path": "/v1/chat/completions",
+        "request_id": "same-id",
+        "content_stats": {"original": {"path_chars": [{"path": "AGENTS.md", "chars": 100, "hits": 1}]}},
+    }
+    out = report.build_report([dict(row), dict(row)])
+    by_path = {r["path"]: r for r in out["top_paths"]}
+    assert by_path["AGENTS.md"]["requests"] == 2
+
+
+def test_build_report_requests_not_inflated_by_duplicate_path_row_within_one_record():
+    """A single record's own path_chars listing the same path twice (malformed
+    / hand-edited input — analyze_chat_payload's own output cannot do this,
+    since it builds path_chars from a dict keyed by path) must count as one
+    request for that path, not two."""
+    rec = {
+        "path": "/v1/chat/completions",
+        "content_stats": {
+            "original": {
+                "path_chars": [
+                    {"path": "AGENTS.md", "chars": 100, "hits": 1},
+                    {"path": "AGENTS.md", "chars": 50, "hits": 1},
+                ]
+            }
+        },
+    }
+    out = report.build_report([rec])
+    by_path = {r["path"]: r for r in out["top_paths"]}
+    assert by_path["AGENTS.md"]["requests"] == 1
+
+
+def test_scan_jsonl_lines_is_a_generator_not_a_full_materialization():
+    """Guards the streaming design: _scan_jsonl_lines must stay a generator
+    so collect_chat_records() never holds the full file in memory, however
+    large logs/kilo_relay.jsonl grows."""
+    assert inspect.isgeneratorfunction(report._scan_jsonl_lines)
+
+
+def test_collect_chat_records_correct_on_large_synthetic_log(tmp_path: Path):
+    """Correctness at a scale well past any real capture (5000 chat rows,
+    tail-sliced to 50) — the deque(maxlen=N) design should hold regardless of
+    file size, not just on the handful of rows the other tests use."""
+    log = tmp_path / "big.jsonl"
+    rows = [_chat_row(i) for i in range(5000)]
+    log.write_text("\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8")
+    counters, chat = report.collect_chat_records(log, last=50)
+    assert counters["lines_total"] == 5000
+    assert counters["chat_records_seen"] == 5000
+    assert counters["chat_with_stats"] == 50
+    assert len(chat) == 50
+    assert [r["content_stats"]["original"]["messages_count"] for r in chat] == list(range(4950, 5000))
+
+
+def test_build_report_top_lists_are_deterministic_across_repeated_calls():
+    """Same input must yield the same ordering every time (no hash-order
+    flakiness in top_paths/top_kinds/top_fragments), so a re-run of the report
+    for evidence purposes is reproducible, not just "usually the same"."""
+    records = [
+        _chat_row(1),
+        {
+            "path": "/v1/chat/completions",
+            "content_stats": {
+                "original": {
+                    "kind_chars": {"tool_result": 500, "system": 500},
+                    "path_chars": [
+                        {"path": "AGENTS.md", "chars": 500, "hits": 1},
+                        {"path": "CLAUDE.md", "chars": 500, "hits": 1},
+                    ],
+                }
+            },
+        },
+    ]
+    first = report.build_report(list(records))
+    second = report.build_report(list(records))
+    assert first["top_kinds"] == second["top_kinds"]
+    assert first["top_paths"] == second["top_paths"]
 
 
 def test_build_report_records_total_vs_chat_with_stats_differ():
