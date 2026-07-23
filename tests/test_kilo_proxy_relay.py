@@ -529,6 +529,14 @@ def test_format_request_mini_stats_chat_line():
         },
         usage={"prompt_tokens": 1000, "completion_tokens": 50, "total_tokens": 1050},
         response_chars=4200,
+        session_health=relay.SessionHealth(
+            level="warn",
+            recommend_new_chat=True,
+            reasons=["original_messages>40 (400)"],
+            original_messages=400,
+            original_estimated_tokens=250000,
+            original_body_chars=1000000,
+        ),
     )
     assert line.startswith("[relay] POST /v1/chat/completions → 200")
     assert "1234.5ms" in line
@@ -537,12 +545,23 @@ def test_format_request_mini_stats_chat_line():
     assert "msgs=8" in line
     assert "tools=4" in line
     assert "max_msg=24000" in line
+    assert "session=bloated" in line
+    assert "recommend=new_chat" in line
     assert "model=deepseek-v4-pro" in line
     assert "guard=hard_block mode=warn blocked=no" in line
     assert "stream=yes" in line
     assert "saved=15000" in line
     assert "in=1000 out=50" in line
     assert "resp=4200" in line
+
+
+def test_resolve_guard_mode_cloud_budget_defaults_to_block():
+    assert relay._resolve_guard_mode({}, slim_mode="cloud_budget") == "block"
+    assert relay._resolve_guard_mode({}, slim_mode="local") == "warn"
+    assert (
+        relay._resolve_guard_mode({"KILO_RELAY_GUARD_MODE": "warn"}, slim_mode="cloud_budget")
+        == "warn"
+    )
 
 
 def test_format_request_mini_stats_models_line_is_short():

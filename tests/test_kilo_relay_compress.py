@@ -525,3 +525,47 @@ def test_env_cloud_budget_keep_last_messages_requires_its_own_var():
     assert cfg2.keep_last_messages == 8
     assert cfg2.max_tool_result_chars == 500
     assert relay_compress_any_enabled(cfg2)
+
+
+def test_env_cloud_budget_trim_tools_applies_default_allowlist():
+    cfg = relay_compress_config_from_env(
+        {"KILO_RELAY_SLIM_MODE": "cloud_budget", "KILO_RELAY_CLOUD_BUDGET_TRIM_TOOLS": "1"}
+    )
+    assert cfg.tools_allowlist is not None
+    assert "read" in {n.casefold() for n in cfg.tools_allowlist}
+    assert "webfetch" not in {n.casefold() for n in cfg.tools_allowlist}
+
+
+def test_env_cloud_budget_tools_allowlist_wins_over_trim_flag():
+    cfg = relay_compress_config_from_env(
+        {
+            "KILO_RELAY_SLIM_MODE": "cloud_budget",
+            "KILO_RELAY_CLOUD_BUDGET_TRIM_TOOLS": "1",
+            "KILO_RELAY_CLOUD_BUDGET_TOOLS_ALLOWLIST": "read,bash",
+        }
+    )
+    assert cfg.tools_allowlist == frozenset({"read", "bash"})
+
+
+def test_cloud_budget_trim_drops_idle_manager_tools_from_payload():
+    cfg = relay_compress_config_from_env(
+        {"KILO_RELAY_SLIM_MODE": "cloud_budget", "KILO_RELAY_CLOUD_BUDGET_TRIM_TOOLS": "1"}
+    )
+    payload = {
+        "messages": [{"role": "user", "content": "hi"}],
+        "tools": [
+            {"type": "function", "function": {"name": "read", "description": "d", "parameters": {}}},
+            {"type": "function", "function": {"name": "webfetch", "description": "d", "parameters": {}}},
+            {"type": "function", "function": {"name": "agent_manager", "description": "d", "parameters": {}}},
+            {"type": "function", "function": {"name": "bash", "description": "d", "parameters": {}}},
+        ],
+    }
+    out = compress_chat_completion(payload, cfg)
+    names = {
+        t["function"]["name"]
+        for t in out.payload["tools"]
+        if isinstance(t, dict) and isinstance(t.get("function"), dict)
+    }
+    assert names == {"read", "bash"}
+    assert "webfetch" in out.tool_names_removed
+    assert "agent_manager" in out.tool_names_removed

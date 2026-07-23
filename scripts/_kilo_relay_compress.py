@@ -3,7 +3,7 @@
 Tokens are dominated by tool JSON schemas + XML/noise Cursor injects per request.
 
 Режимы ``KILO_RELAY_SLIM_MODE``: ``local`` (stub system + allowlist tools), ``cloud_budget``
-(полный platform system + все tools, срез XML-шума и раздува схемы), ``off``.
+(полный platform system + tools с opt-in trim, срез XML-шума и раздува схемы), ``off``.
 
 Pure transforms (no env reads except via `relay_compress_config_from_env`).
 """
@@ -39,6 +39,27 @@ ORPHAN_AGENT_SKILLS_CLOSE_RE = re.compile(r"</agent_skills\s*>", re.IGNORECASE)
 
 # MVC set for local throughput; optional Glob via KILO_RELAY_LOCAL_INCLUDE_GLOB=1
 DEFAULT_LOCAL_TOOLS = frozenset({"Shell", "Read", "Write", "Grep"})
+# Opt-in cloud_budget trim (KILO_RELAY_CLOUD_BUDGET_TRIM_TOOLS=1): coding core only.
+# Includes both Cursor PascalCase and Kilo lowercase names (allowlist is casefold).
+# Omits agent_manager / background_process / webfetch / recall / task UI tools —
+# ~1k tok/req schema tax when those idle schemas are dropped.
+DEFAULT_CLOUD_BUDGET_TOOLS = frozenset(
+    {
+        "Shell",
+        "Read",
+        "Write",
+        "StrReplace",
+        "Grep",
+        "Glob",
+        "Delete",
+        "bash",
+        "read",
+        "write",
+        "edit",
+        "grep",
+        "glob",
+    }
+)
 DEFAULT_CURSOR_SYSTEM_STUB = (
     "(Relay: стандартный длинный system-prompt Cursor пропущен.) "
     "Ты кодовый помощник в IDE. Следуй тексту пользователя из <user_query> и отвечай кратко. "
@@ -664,6 +685,13 @@ def relay_compress_config_from_env(env: dict[str, str]) -> RelayCompressConfig:
         # every other KILO_RELAY_CLOUD_BUDGET_* toggle's default-off convention.
         keep_last_messages = int(env.get("KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES", "0") or "0")
         max_tool_result_chars = int(env.get("KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS", "0") or "0")
+        # Opt-in tool-schema trim. Explicit allowlist wins; else DEFAULT_CLOUD_BUDGET_TOOLS
+        # when TRIM_TOOLS=1. Default remains "forward all tools" (Cursor/Kilo may need them).
+        cloud_allow = parse_tools_allowlist(env.get("KILO_RELAY_CLOUD_BUDGET_TOOLS_ALLOWLIST", ""))
+        if cloud_allow is not None:
+            allow = cloud_allow
+        elif _env_truthy(env.get("KILO_RELAY_CLOUD_BUDGET_TRIM_TOOLS", "0")):
+            allow = frozenset(DEFAULT_CLOUD_BUDGET_TOOLS)
     elif is_local:
         label = slim_raw_display or "local(default)"
         if allow is None:

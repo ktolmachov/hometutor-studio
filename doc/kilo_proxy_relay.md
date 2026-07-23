@@ -2,7 +2,7 @@
 
 **Назначение:** HTTP-прокси между OpenAI-compatible клиентом (**Cursor** или **Kilo IDE**) и upstream (LM Studio / `llama.cpp` / облако). Сжимает тело `POST /v1/chat/completions`, пишет JSONL-лог, применяет guard из `scripts/_kilo_guard.py`.
 
-**Актуализация:** 2026-07-23 (Tier B: opt-in history window + cap `tool_result` в `cloud_budget`; см. [kilo_relay_history_window_tier_b_2026-07-23.md](next/kilo_relay_history_window_tier_b_2026-07-23.md)). Ранее: 2026-07-22 DeepSeek+cloud_budget, guard/banner, reasoning_content — [architecture review](next/kilo_relay_daily_architecture_review_2026-07-21.md).
+**Актуализация:** 2026-07-23 (session-health warn по `original`; opt-in `CLOUD_BUDGET_TRIM_TOOLS`; `cloud_budget` → `GUARD_MODE=block` если unset; path-heuristic без `y://n`; Tier B cap `tool_result` 1500). Ранее: Tier B history window — [kilo_relay_history_window_tier_b_2026-07-23.md](next/kilo_relay_history_window_tier_b_2026-07-23.md).
 
 ---
 
@@ -43,8 +43,9 @@ $env:KILO_RELAY_SLIM_MODE = "cloud_budget"   # не local и не off: strip XML
 Канон для Cursor через релей на DeepSeek:
 
 1. `KILO_RELAY_UPSTREAM_PRESET=deepseek` + `DEEPSEEK_API_KEY` (не задавать raw `KILO_RELAY_UPSTREAM`).
-2. **`KILO_RELAY_SLIM_MODE=cloud_budget`** — strip operational XML + ужим схем tools. Список tools не режется (без allowlist). Stub system — **opt-in** через `KILO_RELAY_CLOUD_BUDGET_REPLACE_CURSOR_SYSTEM=1` (профиль launcher `CloudBudget` включает stub). Не использовать `local` и не оставлять unset (дефолт скрипта = `local`).
-3. `KILO_RELAY_GUARD_MODE=warn` — уровни `soft_block`/`hard_block` только в JSONL/мини-стате (`blocked=no`); HTTP 413 нет.
+2. **`KILO_RELAY_SLIM_MODE=cloud_budget`** — strip operational XML + ужим схем tools. Список tools по умолчанию **не** режется; opt-in: `KILO_RELAY_CLOUD_BUDGET_TRIM_TOOLS=1` (coding-core ~6–10) или явный `KILO_RELAY_CLOUD_BUDGET_TOOLS_ALLOWLIST`. Stub system — **opt-in** через `KILO_RELAY_CLOUD_BUDGET_REPLACE_CURSOR_SYSTEM=1` (профиль launcher `CloudBudget` включает stub). Не использовать `local` и не оставлять unset (дефолт скрипта = `local`).
+3. **`KILO_RELAY_GUARD_MODE`**: для `cloud_budget`, если переменная **не задана**, релей ставит **`block`** (HTTP 413 при soft/hard на *forwarded* теле — защита от регрессии компрессора). Явный `warn` по-прежнему допустим. Уровни в JSONL есть всегда.
+4. **Session health (original):** при `original` ≫15 msgs / >20k est.tok / body>110k stderr пишет `session=bloated … recommend=new_chat`. Это **не** HTTP-блок: релей маскирует архив, но сессию всё равно надо перезапустить с handoff.
 4. Опционально `DEEPSEEK_THINKING=disabled` — режет output/latency; для тяжёлого reasoning не включать.
 5. **История:** compress default `KEEP_LAST_MESSAGES=0` (не режет). Daily launcher **`CloudBudget`** включает Tier B (`14` / `2000`). Окно режет **число** сообщений, не суммарный размер — при tool-heavy `in=` всё ещё может >12k/20k; тогда новый чат раньше. Ручной env — § Tier B. Неизвестный `SLIM_MODE` → fail-fast при старте.
 
@@ -221,8 +222,10 @@ Cursor шлёт **всю** историю на каждый ход; без Tier 
 
 | Env (`cloud_budget`) | Дефолт | Эффект |
 |---|---|---|
-| `KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES` | `0` (выкл) | Ведущие `system` + последние N остальных сообщений; граница не оставляет «висячий» `tool` без пары `assistant.tool_calls` |
-| `KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS` | `0` (выкл) | Head-keep cap для `role=tool`, маркер `…[truncated by relay: N more chars]` |
+| `KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES` | `0` (выкл) | Ведущие `system` + последние N остальных сообщений; граница не оставляет «висячий» `tool` без пары `assistant.tool_calls`; **не** уменьшать вслепую ниже 14 — сначала новый чат |
+| `KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS` | `0` (выкл) | Head-keep cap для `role=tool`, маркер `…[truncated by relay: N more chars]`; канон launcher **1500** |
+| `KILO_RELAY_CLOUD_BUDGET_TRIM_TOOLS` | `0` | `1` → coding-core allowlist (Cursor+Kilo names); режет agent/recall/webfetch tax |
+| `KILO_RELAY_CLOUD_BUDGET_TOOLS_ALLOWLIST` | (пусто) | Явный список; побеждает TRIM_TOOLS |
 
 Рекомендуемый старт для Cursor→DeepSeek (новая сессия + перезапуск relay):
 
@@ -239,16 +242,18 @@ $env:KILO_RELAY_SLIM_MODE = "cloud_budget"
 $env:KILO_RELAY_CLOUD_BUDGET_STRIP_CURSOR_RULES = "1"
 $env:KILO_RELAY_CLOUD_BUDGET_STRIP_USER_INFO = "1"
 $env:KILO_RELAY_CLOUD_BUDGET_REPLACE_CURSOR_SYSTEM = "1"
-# allowlist опционален (~2k tok savings); без него tools=16. Match case-insensitive.
-# Имена должны совпадать с Cursor tool ids (часто lowercase: bash/read/grep/…).
-# Не используйте Edit — в Cursor это обычно StrReplace/edit; чужое имя silently drop'ает tool.
-# $env:KILO_RELAY_TOOLS_ALLOWLIST = "Shell,Read,Grep,Write,StrReplace"
+# allowlist опционален (~1k+ tok/req); без него tools≈16. Match case-insensitive.
+# Имена должны совпадать с Cursor/Kilo tool ids (часто lowercase: bash/read/grep/…).
+# $env:KILO_RELAY_CLOUD_BUDGET_TRIM_TOOLS = "1"
+# $env:KILO_RELAY_CLOUD_BUDGET_TOOLS_ALLOWLIST = "read,write,edit,grep,glob,bash"
+# Не задавайте KILO_RELAY_GUARD_MODE=warn, если нужен HTTP 413 при регрессии compress
+# (cloud_budget без этой переменной → GUARD_MODE=block).
 $env:KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES = "14"
-$env:KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS = "2000"
+$env:KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS = "1500"
 ```
 
-Параметры launcher: `-CloudBudgetKeepLastMessages` / `-CloudBudgetMaxToolResultChars` (дефолт **14 / 2000**; раньше 24/4000 — live log показал in до 26k; плато с tools=16 давало ~16–20k). Окно = count, не char-budget: даже с hist_cut `in=` может превышать 12k/20k — новый чат раньше soft_block. В баннере старта проверьте `compress.keep_last_messages=14`. `-UseDeepSeek` + `-RelayProfile Safe` даёт warning (без Tier B).
-В stderr ищите `hist_cut=` / `tr_capped=`; в JSONL — `relay_compress.messages_dropped_history` / `tool_results_capped`. Детали и evidence: [kilo_relay_history_window_tier_b_2026-07-23.md](next/kilo_relay_history_window_tier_b_2026-07-23.md).
+Параметры launcher: `-CloudBudgetKeepLastMessages` / `-CloudBudgetMaxToolResultChars` (канон **14 / 1500**; раньше 24/4000 затем 14/2000). Окно = count, не char-budget: даже с hist_cut `in=` может превышать 12k/20k — **новый чат** при `session=bloated`, не только tighter keep_last. В баннере старта проверьте `compress.keep_last_messages=14`. `-UseDeepSeek` + `-RelayProfile Safe` даёт warning (без Tier B).
+В stderr ищите `hist_cut=` / `tr_capped=` / `session=bloated`; в JSONL — `relay_compress.*` и `session_health`. Детали: [kilo_relay_history_window_tier_b_2026-07-23.md](next/kilo_relay_history_window_tier_b_2026-07-23.md).
 
 ### `KILO_RELAY_SLIM_MODE=local` (дефолт скрипта)
 

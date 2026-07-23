@@ -19,6 +19,7 @@ from _kilo_guard import (  # noqa: E402
     GuardThresholds,
     detect_risk_flags,
     evaluate_guard,
+    evaluate_session_health,
     summarize_body,
 )
 
@@ -217,3 +218,34 @@ def test_from_env_defaults_match_historical_relay_constants():
     assert t.max_largest_message_chars == 24000
     # Raised from 13 to 16: Cursor agent sessions routinely ship ~16 tools.
     assert t.max_tools == 16
+
+
+class TestSessionHealth:
+    def test_ok_when_small(self):
+        h = evaluate_session_health(
+            {"messages_count": 12, "estimated_tokens": 5000, "body_chars": 20000}
+        )
+        assert h.level == "ok"
+        assert h.recommend_new_chat is False
+        assert h.reasons == []
+
+    def test_warns_on_original_token_bloat(self):
+        h = evaluate_session_health(
+            {"messages_count": 10, "estimated_tokens": 25000, "body_chars": 50000}
+        )
+        assert h.recommend_new_chat is True
+        assert any("original_estimated_tokens>" in r for r in h.reasons)
+
+    def test_warns_on_message_archive(self):
+        h = evaluate_session_health(
+            {"messages_count": 400, "estimated_tokens": 1000, "body_chars": 5000}
+        )
+        assert h.recommend_new_chat is True
+        assert any("original_messages>" in r for r in h.reasons)
+
+    def test_warns_on_body_past_hard_threshold(self):
+        h = evaluate_session_health(
+            {"messages_count": 10, "estimated_tokens": 1000, "body_chars": 120000}
+        )
+        assert h.recommend_new_chat is True
+        assert any("original_body_chars>" in r for r in h.reasons)

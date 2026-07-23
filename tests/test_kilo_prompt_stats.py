@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import inspect
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -59,13 +60,27 @@ def test_path_char_contributions_ignores_doubled_escape_sequences():
     bs = chr(92)
     text = "some code shows y:" + bs + bs + "n and e:" + bs + bs + "n as literal escapes, not paths"
     contrib = path_char_contributions(text)
-    assert not any(k.lower() in {"y://n", "e://n", "y:/n", "e:/n"} for k in contrib)
+    assert not any(k.lower() in {"y://n", "e://n", "y:/n", "e:/n", "n://n", "n:/n"} for k in contrib)
+
+
+def test_path_char_contributions_ignores_single_backslash_escape_stubs():
+    """``y:\\n`` (one backslash) must not rank as a Windows path either."""
+    bs = chr(92)
+    text = "escape stubs y:" + bs + "n e:" + bs + "t n:" + bs + "n in source"
+    contrib = path_char_contributions(text)
+    assert not any(re.match(r"^[a-z]:/{1,2}[ntr]$", k, re.I) for k in contrib)
 
 
 def test_path_char_contributions_still_finds_real_windows_paths_with_single_backslashes():
     text = "read " + "D:" + chr(92) + "Projects" + chr(92) + "hometutor-studio" + chr(92) + "AGENTS.md" + " please"
     contrib = path_char_contributions(text)
     assert any("agents.md" in k.lower() for k in contrib)
+
+
+def test_normalize_path_key_collapses_multi_slash():
+    assert normalize_path_key("scripts////compute_trusted_route_rate.py/") == (
+        "scripts/compute_trusted_route_rate.py"
+    )
 
 
 def test_analyze_chat_payload_roles_tools_paths():

@@ -77,6 +77,76 @@ class GuardDecision:
 GuardVerdict = GuardDecision
 
 
+@dataclass(frozen=True)
+class SessionHealthThresholds:
+    """Original-body (pre-compress) session bloat — independent of forwarded budget."""
+
+    warn_estimated_tokens: int = 20000
+    warn_messages: int = 40
+    warn_body_chars: int = 110000
+
+    @classmethod
+    def from_env(cls, env: dict[str, str] | None = None) -> "SessionHealthThresholds":
+        src = env if env is not None else os.environ
+        return cls(
+            warn_estimated_tokens=int(src.get("KILO_RELAY_SESSION_WARN_TOKENS", "20000")),
+            warn_messages=int(src.get("KILO_RELAY_SESSION_WARN_MESSAGES", "40")),
+            warn_body_chars=int(src.get("KILO_RELAY_SESSION_WARN_BODY_CHARS", "110000")),
+        )
+
+
+@dataclass(frozen=True)
+class SessionHealth:
+    level: str  # ok | warn
+    recommend_new_chat: bool
+    reasons: list[str]
+    original_messages: int
+    original_estimated_tokens: int
+    original_body_chars: int
+
+
+def evaluate_session_health(
+    original_stats: dict[str, Any] | None,
+    *,
+    thresholds: SessionHealthThresholds | None = None,
+) -> SessionHealth:
+    """Judge *original* session size (Cursor-side archive), not forwarded budget.
+
+    When original stays huge while forwarded is small, the relay is masking a
+    bloated agent loop — recommend a fresh chat + handoff rather than more trim.
+    Never blocks HTTP; callers attach the verdict to JSONL / stderr only.
+    """
+    thr = thresholds or SessionHealthThresholds()
+    stats = original_stats if isinstance(original_stats, dict) else {}
+    messages = int(stats.get("messages_count") or 0)
+    est_tok = int(stats.get("estimated_tokens") or 0)
+    body_chars = int(stats.get("body_chars") or 0)
+    if est_tok <= 0:
+        total_chars = stats.get("total_message_chars")
+        if isinstance(total_chars, (int, float)) and total_chars > 0:
+            est_tok = int(total_chars) // 4
+        elif body_chars > 0:
+            est_tok = body_chars // 4
+
+    reasons: list[str] = []
+    if est_tok > thr.warn_estimated_tokens:
+        reasons.append(f"original_estimated_tokens>{thr.warn_estimated_tokens} ({est_tok})")
+    if messages > thr.warn_messages:
+        reasons.append(f"original_messages>{thr.warn_messages} ({messages})")
+    if body_chars > thr.warn_body_chars:
+        reasons.append(f"original_body_chars>{thr.warn_body_chars} ({body_chars})")
+
+    recommend = bool(reasons)
+    return SessionHealth(
+        level="warn" if recommend else "ok",
+        recommend_new_chat=recommend,
+        reasons=reasons,
+        original_messages=messages,
+        original_estimated_tokens=est_tok,
+        original_body_chars=body_chars,
+    )
+
+
 def estimate_tokens_from_chars(text: str) -> int:
     if not text:
         return 0

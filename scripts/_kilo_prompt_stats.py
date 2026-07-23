@@ -45,9 +45,13 @@ _FRAGMENT_PATTERNS: tuple[tuple[str, re.Pattern[str]], ...] = (
 # outrank real paths in the aggregate report). Excluding backslash from the
 # segment classes below closes that without affecting genuine single-escaped
 # Windows paths (each segment between real backslashes never contains one).
+#
+# Additionally require either ≥1 directory segment or a file extension so
+# escape-like stubs such as ``y:\n`` / ``e:\t`` (single backslash) never rank.
 _PATH_RE = re.compile(
     r"(?P<p>"
-    r"[A-Za-z]:\\(?:[^\s\"'<>|\\]+\\)*[^\s\"'<>|\\]+"  # Windows abs
+    r"[A-Za-z]:\\(?:[^\s\"'<>|\\]+\\)+[^\s\"'<>|\\]+"  # Windows abs: ≥1 directory
+    r"|[A-Za-z]:\\[^\s\"'<>|\\]+\.[A-Za-z0-9]{1,12}"  # Windows abs: drive\file.ext
     r"|/(?:Users|home|var|tmp|opt)/[^\s\"'<>|]+"  # Unix abs (common roots)
     r"|(?:(?:doc|scripts|app|tests|archive|\.cursor)/[^\s\"'<>|]+)"  # repo-relative
     r"|(?:AGENTS\.md|CLAUDE\.md|README\.md|conventions(?:_architecture|_reference)?\.md|"
@@ -57,6 +61,13 @@ _PATH_RE = re.compile(
 )
 
 _EXT_RE = re.compile(r"\.(md|py|ts|tsx|js|json|yaml|yml|html|css|txt|ps1|sh)\b", re.IGNORECASE)
+# Post-normalize junk: escape stubs and collapsed-drive noise from old logs / edge cases.
+_JUNK_PATH_KEY_RE = re.compile(
+    r"^[a-z]:/{1,2}[ntr]$"  # y:/n, e://n, n:/t …
+    r"|^[a-z]:/[^/.\s]{1,2}$",  # D:/x one-char/two-char stub without extension
+    re.IGNORECASE,
+)
+_MULTI_SLASH_RE = re.compile(r"/{2,}")
 
 
 def message_text(content: Any) -> str:
@@ -114,9 +125,9 @@ def fragment_char_counts(text: str) -> dict[str, int]:
 
 def normalize_path_key(raw: str) -> str:
     text = raw.strip().strip("\"'`")
-    text = text.replace("\\", "/")
-    # Drop trailing punctuation from prose.
-    text = text.rstrip(").,]}>:;'")
+    text = _MULTI_SLASH_RE.sub("/", text.replace("\\", "/"))
+    # Drop trailing punctuation from prose / dangling separators.
+    text = text.rstrip(").,]}>:;'/\\")
     lower = text.lower()
     for marker in ("/doc/", "/scripts/", "/app/", "/tests/", "/.cursor/"):
         idx = lower.rfind(marker)
@@ -131,12 +142,24 @@ def normalize_path_key(raw: str) -> str:
     return text
 
 
+def is_plausible_path_key(key: str) -> bool:
+    """Reject escape-sequence stubs and other non-file keys that pollute top_paths."""
+    if not key or len(key) < 4:
+        return False
+    if _JUNK_PATH_KEY_RE.match(key):
+        return False
+    if "://" in key and not key.lower().startswith(("http://", "https://", "file://")):
+        # y://n style (drive + doubled slash) — never a real filesystem path here
+        return False
+    return True
+
+
 def path_char_contributions(text: str) -> dict[str, int]:
     """Attribute nearby chars to path mentions (window heuristic, not exact file bytes)."""
     contrib: dict[str, int] = defaultdict(int)
     for match in _PATH_RE.finditer(text):
         key = normalize_path_key(match.group("p"))
-        if not key or len(key) < 3:
+        if not is_plausible_path_key(key):
             continue
         start = max(0, match.start() - 200)
         end = min(len(text), match.end() + 200)

@@ -43,7 +43,10 @@ Environment variables:
   KILO_RELAY_MAX_MESSAGES=15
   KILO_RELAY_MAX_LARGEST_MESSAGE_CHARS=24000
   KILO_RELAY_MAX_TOOLS=16
-  KILO_RELAY_GUARD_MODE=warn
+  KILO_RELAY_GUARD_MODE=warn   # cloud_budget: если unset → block (compress regression ≠ pass 100k+ upstream)
+  KILO_RELAY_SESSION_WARN_TOKENS=20000      # original (pre-compress) session health
+  KILO_RELAY_SESSION_WARN_MESSAGES=40
+  KILO_RELAY_SESSION_WARN_BODY_CHARS=110000
 
   DeepSeek preset (relay → DeepSeek's OpenAI-compatible cloud API instead of llama.cpp):
   KILO_RELAY_UPSTREAM_PRESET=deepseek   # activates the preset below; explicit KILO_RELAY_UPSTREAM
@@ -133,9 +136,11 @@ Environment variables:
   KILO_RELAY_CLOUD_BUDGET_REPLACE_CURSOR_SYSTEM=1   # stub system (CloudBudget launcher включает)
   KILO_RELAY_CLOUD_BUDGET_SIMPLE_CHAT_MAX_USER_CHARS=700  # если задано — снятие tools на короткой реплике
   KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES=14   # opt-in Tier B: system + последние N (0=выкл); было 24
-  KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS=2000  # opt-in Tier B: cap role=tool (0=выкл); было 4000
+  KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS=1500  # opt-in Tier B: cap role=tool (0=выкл); 1500 after 2026-07-23 audit
+  KILO_RELAY_CLOUD_BUDGET_TRIM_TOOLS=1   # opt-in: coding-core allowlist (~6–10 tools); drops agent/recall/webfetch tax
+  KILO_RELAY_CLOUD_BUDGET_TOOLS_ALLOWLIST=read,write,edit,grep,glob,bash  # optional explicit list (wins over TRIM)
   # В cloud_budget generic KILO_RELAY_KEEP_LAST_MESSAGES / KILO_RELAY_MAX_TOOL_RESULT_CHARS НЕ fallback — только *_CLOUD_BUDGET_*
-  # 14/2000 — канон launcher CloudBudget после live log 2026-07-23 (24/4000 → in до ~26k на tool-heavy).
+  # 14/1500 — канон после live log 2026-07-23 (не резать keep_last вслепую; сначала новый чат при original≫15).
   KILO_RELAY_KEEP_LAST_MESSAGES=0   # для off/local (не cloud_budget)
   KILO_RELAY_MAX_TOOL_RESULT_CHARS=0
 
@@ -247,8 +252,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _kilo_guard import (  # noqa: E402
     GuardDecision,
     GuardThresholds,
+    SessionHealth,
+    SessionHealthThresholds,
     estimate_tokens_from_chars,
     evaluate_guard,
+    evaluate_session_health,
     preview,
     summarize_body,
     suffix_preview,
@@ -552,7 +560,29 @@ HARD_BLOCK_BODY_CHARS = int(os.getenv("KILO_RELAY_HARD_BLOCK_BODY_CHARS", "11000
 MAX_MESSAGES = int(os.getenv("KILO_RELAY_MAX_MESSAGES", "15"))
 MAX_LARGEST_MESSAGE_CHARS = int(os.getenv("KILO_RELAY_MAX_LARGEST_MESSAGE_CHARS", "24000"))
 MAX_TOOLS = int(os.getenv("KILO_RELAY_MAX_TOOLS", "16"))
-GUARD_MODE = os.getenv("KILO_RELAY_GUARD_MODE", "warn").strip().lower()
+
+
+def _resolve_guard_mode(env: dict[str, str], *, slim_mode: str) -> str:
+    """``warn`` by default; ``cloud_budget`` defaults to ``block`` when unset.
+
+    After compress is proven, block mode is the safety net: a compressor
+    regression must not forward a 1MB original body upstream. Explicit
+    ``KILO_RELAY_GUARD_MODE`` always wins.
+    """
+    raw = (env.get("KILO_RELAY_GUARD_MODE") or "").strip().lower()
+    if raw:
+        return raw
+    if is_cloud_budget_slim_mode(slim_mode):
+        return "block"
+    return "warn"
+
+
+_SLIM_FOR_GUARD = os.getenv("KILO_RELAY_SLIM_MODE", "local")
+try:
+    _SLIM_FOR_GUARD = validate_slim_mode(_SLIM_FOR_GUARD)
+except ValueError:
+    _SLIM_FOR_GUARD = "local"
+GUARD_MODE = _resolve_guard_mode(dict(os.environ), slim_mode=_SLIM_FOR_GUARD)
 THRESHOLDS = GuardThresholds(
     warn_body_chars=WARN_BODY_CHARS,
     max_body_chars=MAX_BODY_CHARS,
@@ -561,6 +591,7 @@ THRESHOLDS = GuardThresholds(
     max_largest_message_chars=MAX_LARGEST_MESSAGE_CHARS,
     max_tools=MAX_TOOLS,
 )
+SESSION_HEALTH_THRESHOLDS = SessionHealthThresholds.from_env()
 SSL_CONTEXT = ssl.create_default_context()
 LOG_LOCK = threading.Lock()
 RELAY_COMPRESS_CFG = relay_compress_config_from_env(dict(os.environ))
@@ -681,6 +712,11 @@ def build_startup_modes_report_lines(bound_host: str, bound_port: int) -> list[s
         f"    max_largest_message_chars={THRESHOLDS.max_largest_message_chars}",
         f"    max_tools={THRESHOLDS.max_tools}",
         "    note: warn/soft_block/hard_block are labels; HTTP 413 only when GUARD_MODE=block",
+        "  session health (original / pre-compress — does not HTTP-block)",
+        f"    warn_estimated_tokens={SESSION_HEALTH_THRESHOLDS.warn_estimated_tokens}",
+        f"    warn_messages={SESSION_HEALTH_THRESHOLDS.warn_messages}",
+        f"    warn_body_chars={SESSION_HEALTH_THRESHOLDS.warn_body_chars}",
+        "    note: when triggered → stderr `session=bloated … recommend=new_chat`",
         "[compress / _kilo_relay_compress]",
         f"  RELAY_COMPRESS_ACTIVE={'yes' if RELAY_COMPRESS_ACTIVE else 'no'}",
     ]
@@ -863,6 +899,7 @@ def format_request_mini_stats(
     content_stats: dict[str, Any] | None = None,
     response_chars: int | None = None,
     error: str | None = None,
+    session_health: SessionHealth | None = None,
 ) -> str:
     """One-line console summary after each proxied request (stderr)."""
     parts: list[str] = [
@@ -916,6 +953,11 @@ def format_request_mini_stats(
         if pin is not None or pout is not None:
             parts.append(f"in={pin if pin is not None else '?'} out={pout if pout is not None else '?'}")
     parts.extend(_content_stats_glance(content_stats))
+    if session_health is not None and session_health.recommend_new_chat:
+        parts.append(
+            f"session=bloated orig_msgs={session_health.original_messages} "
+            f"orig_tok≈{session_health.original_estimated_tokens} recommend=new_chat"
+        )
     if response_chars is not None:
         parts.append(f"resp={response_chars}")
     if error:
@@ -1327,6 +1369,11 @@ class RelayHandler(BaseHTTPRequestHandler):
         request_summary = summarize_body(body_text, PREVIEW_CHARS)
         if CONTENT_STATS and chat_path == "/v1/chat/completions" and body_text:
             content_stats_forwarded = analyze_body_text(body_text)
+        session_health = (
+            evaluate_session_health(content_stats_original, thresholds=SESSION_HEALTH_THRESHOLDS)
+            if chat_path == "/v1/chat/completions"
+            else evaluate_session_health(None, thresholds=SESSION_HEALTH_THRESHOLDS)
+        )
         guard = evaluate_guard(
             chat_path,
             body_text,
@@ -1384,6 +1431,14 @@ class RelayHandler(BaseHTTPRequestHandler):
                 "reasons": guard.reasons,
                 "risk_flags": guard.risk_flags,
             },
+            "session_health": {
+                "level": session_health.level,
+                "recommend_new_chat": session_health.recommend_new_chat,
+                "reasons": session_health.reasons,
+                "original_messages": session_health.original_messages,
+                "original_estimated_tokens": session_health.original_estimated_tokens,
+                "original_body_chars": session_health.original_body_chars,
+            },
             "response": {
                 "status": upstream.status,
                 "headers": redact_headers(upstream.headers),
@@ -1417,6 +1472,7 @@ class RelayHandler(BaseHTTPRequestHandler):
                 content_stats=record.get("content_stats"),
                 response_chars=len(response_body_text),
                 error=upstream.error,
+                session_health=session_health,
             ),
             file=sys.stderr,
         )

@@ -17,6 +17,8 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
+from _kilo_prompt_stats import is_plausible_path_key  # noqa: E402
 
 
 def _is_chat_record(obj: Any) -> bool:
@@ -114,6 +116,8 @@ def _merge_path_rows(dst: dict[str, dict[str, int]], rows: Any) -> None:
         if not isinstance(row, dict) or not row.get("path"):
             continue
         key = str(row["path"])
+        if not is_plausible_path_key(key):
+            continue
         slot = dst.setdefault(key, {"chars": 0, "hits": 0})
         try:
             slot["chars"] += int(row.get("chars") or 0)
@@ -159,6 +163,11 @@ def build_report(
     req_msg_chars: list[int] = []
     req_msg_counts: list[int] = []
     req_prompt_tokens: list[int] = []
+    orig_msg_counts: list[int] = []
+    fwd_msg_counts: list[int] = []
+    orig_est_tokens: list[int] = []
+    fwd_est_tokens: list[int] = []
+    session_new_chat = 0
 
     for rec in chat:
         cs = rec.get("content_stats") or {}
@@ -171,6 +180,19 @@ def build_report(
         req_msg_chars.append(int(total_chars))
         if isinstance(src.get("messages_count"), (int, float)):
             req_msg_counts.append(int(src["messages_count"]))
+        orig = cs.get("original") if isinstance(cs.get("original"), dict) else None
+        fwd = cs.get("forwarded") if isinstance(cs.get("forwarded"), dict) else None
+        if orig and isinstance(orig.get("messages_count"), (int, float)):
+            orig_msg_counts.append(int(orig["messages_count"]))
+        if fwd and isinstance(fwd.get("messages_count"), (int, float)):
+            fwd_msg_counts.append(int(fwd["messages_count"]))
+        if orig and isinstance(orig.get("estimated_tokens"), (int, float)):
+            orig_est_tokens.append(int(orig["estimated_tokens"]))
+        if fwd and isinstance(fwd.get("estimated_tokens"), (int, float)):
+            fwd_est_tokens.append(int(fwd["estimated_tokens"]))
+        sh = rec.get("session_health") if isinstance(rec.get("session_health"), dict) else None
+        if sh and sh.get("recommend_new_chat"):
+            session_new_chat += 1
         _merge_int_maps(role, src.get("role_chars"))
         _merge_int_maps(kind, src.get("kind_chars"))
         _merge_int_maps(frag, src.get("fragment_chars"))
@@ -199,6 +221,8 @@ def build_report(
             for row in path_rows_this_record:
                 if isinstance(row, dict) and row.get("path"):
                     key = str(row["path"])
+                    if not is_plausible_path_key(key):
+                        continue
                     if key not in seen_this_record:
                         seen_this_record.add(key)
                         requests_with_path[key] += 1
@@ -242,11 +266,20 @@ def build_report(
         "chat_with_content_stats": len(chat),
         "note": "top_* values are AGGREGATE sums across all chat requests in the "
         "sample, NOT the cost of a single prompt; divide by per_request.*.n or "
-        "read per_request for a one-prompt view.",
+        "read per_request for a one-prompt view. Prefer original_* for session "
+        "health and forwarded_* / prompt_tokens for upstream budget.",
         "per_request": {
             "message_chars": _summary_stats(req_msg_chars),
             "messages_count": _summary_stats(req_msg_counts),
             "prompt_tokens": _summary_stats(req_prompt_tokens),
+            "original_messages_count": _summary_stats(orig_msg_counts),
+            "forwarded_messages_count": _summary_stats(fwd_msg_counts),
+            "original_estimated_tokens": _summary_stats(orig_est_tokens),
+            "forwarded_estimated_tokens": _summary_stats(fwd_est_tokens),
+        },
+        "session_health": {
+            "recommend_new_chat_count": session_new_chat,
+            "recommend_new_chat_rate": round(session_new_chat / len(chat), 3) if chat else None,
         },
         "usage_prompt_tokens_sum": usage_in,
         "usage_prompt_requests": usage_n,
@@ -306,9 +339,26 @@ def render_text(report: dict[str, Any]) -> str:
         f"  prompt_tokens : {_fmt(pr.get('prompt_tokens', {}), '')}",
         f"  message_chars : {_fmt(pr.get('message_chars', {}), '')}",
         f"  messages_count: {_fmt(pr.get('messages_count', {}), '')}",
+        f"  original_messages_count   : {_fmt(pr.get('original_messages_count', {}), '')}",
+        f"  forwarded_messages_count  : {_fmt(pr.get('forwarded_messages_count', {}), '')}",
+        f"  original_estimated_tokens : {_fmt(pr.get('original_estimated_tokens', {}), '')}",
+        f"  forwarded_estimated_tokens: {_fmt(pr.get('forwarded_estimated_tokens', {}), '')}",
+        "",
+        "-- session health (original archive vs forwarded budget) --",
+    ]
+    sh = report.get("session_health") or {}
+    lines.append(
+        f"  recommend_new_chat: {sh.get('recommend_new_chat_count', 0)}/"
+        f"{report['chat_with_content_stats']} "
+        f"(rate={sh.get('recommend_new_chat_rate')})"
+    )
+    lines += [
+        "  NOTE: if original≫15 msgs / >20k est.tok while forwarded is small — start a new chat",
+        "        with a short handoff; do not only tighten keep_last.",
         "",
         "NOTE: top_* below are AGGREGATE sums across ALL chat requests in the sample,",
         "      not the cost of one prompt. Use per-request block above for a single turn.",
+        "      Junk escape-paths (y://n etc.) are filtered out of top_paths.",
         "",
         "-- top kinds (aggregate sums) --",
     ]
