@@ -547,6 +547,20 @@ def test_env_cloud_budget_tools_allowlist_wins_over_trim_flag():
     assert cfg.tools_allowlist == frozenset({"read", "bash"})
 
 
+def test_generic_tools_allowlist_does_not_leak_into_cloud_budget():
+    """The generic KILO_RELAY_TOOLS_ALLOWLIST is meant for local/off mode (it's
+    read unconditionally at the top of relay_compress_config_from_env before
+    the mode dispatch). Without this, a value left over from local-mode testing
+    would silently restrict cloud_budget's tools too, contradicting both this
+    module's own comment ("Default remains forward all tools") and the
+    established two-tier convention for keep_last_messages/max_tool_result_chars
+    (generic vars never fall back into cloud_budget)."""
+    cfg = relay_compress_config_from_env(
+        {"KILO_RELAY_SLIM_MODE": "cloud_budget", "KILO_RELAY_TOOLS_ALLOWLIST": "Shell,Read"}
+    )
+    assert cfg.tools_allowlist is None
+
+
 def test_cloud_budget_trim_drops_idle_manager_tools_from_payload():
     cfg = relay_compress_config_from_env(
         {"KILO_RELAY_SLIM_MODE": "cloud_budget", "KILO_RELAY_CLOUD_BUDGET_TRIM_TOOLS": "1"}

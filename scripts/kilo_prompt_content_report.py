@@ -168,6 +168,7 @@ def build_report(
     orig_est_tokens: list[int] = []
     fwd_est_tokens: list[int] = []
     session_new_chat = 0
+    session_health_seen = 0
 
     for rec in chat:
         cs = rec.get("content_stats") or {}
@@ -191,8 +192,14 @@ def build_report(
         if fwd and isinstance(fwd.get("estimated_tokens"), (int, float)):
             fwd_est_tokens.append(int(fwd["estimated_tokens"]))
         sh = rec.get("session_health") if isinstance(rec.get("session_health"), dict) else None
-        if sh and sh.get("recommend_new_chat"):
-            session_new_chat += 1
+        if sh is not None:
+            # Records logged before session_health existed have no such key —
+            # count only records where it's actually present, so the rate
+            # below isn't silently diluted by pre-upgrade rows sharing a
+            # `--last N` window with post-upgrade ones.
+            session_health_seen += 1
+            if sh.get("recommend_new_chat"):
+                session_new_chat += 1
         _merge_int_maps(role, src.get("role_chars"))
         _merge_int_maps(kind, src.get("kind_chars"))
         _merge_int_maps(frag, src.get("fragment_chars"))
@@ -278,8 +285,14 @@ def build_report(
             "forwarded_estimated_tokens": _summary_stats(fwd_est_tokens),
         },
         "session_health": {
+            "records_with_session_health": session_health_seen,
             "recommend_new_chat_count": session_new_chat,
-            "recommend_new_chat_rate": round(session_new_chat / len(chat), 3) if chat else None,
+            # Denominator is records_with_session_health, not len(chat): records
+            # logged before this field existed carry no session_health key and
+            # must not silently dilute the rate toward 0.
+            "recommend_new_chat_rate": (
+                round(session_new_chat / session_health_seen, 3) if session_health_seen else None
+            ),
         },
         "usage_prompt_tokens_sum": usage_in,
         "usage_prompt_requests": usage_n,
@@ -347,13 +360,15 @@ def render_text(report: dict[str, Any]) -> str:
         "-- session health (original archive vs forwarded budget) --",
     ]
     sh = report.get("session_health") or {}
+    sh_seen = sh.get("records_with_session_health", 0)
     lines.append(
-        f"  recommend_new_chat: {sh.get('recommend_new_chat_count', 0)}/"
-        f"{report['chat_with_content_stats']} "
-        f"(rate={sh.get('recommend_new_chat_rate')})"
+        f"  recommend_new_chat: {sh.get('recommend_new_chat_count', 0)}/{sh_seen} "
+        f"(rate={sh.get('recommend_new_chat_rate')}; denominator is records carrying a "
+        f"session_health field, not chat_with_stats={report['chat_with_content_stats']} — "
+        "records logged before this field existed don't count either way)"
     )
     lines += [
-        "  NOTE: if original≫15 msgs / >20k est.tok while forwarded is small — start a new chat",
+        "  NOTE: if original >> 15 msgs / >20k est.tok while forwarded is small — start a new chat",
         "        with a short handoff; do not only tighten keep_last.",
         "",
         "NOTE: top_* below are AGGREGATE sums across ALL chat requests in the sample,",
@@ -392,6 +407,24 @@ def render_text(report: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def _print_safe(text: str) -> None:
+    """Print without crashing on narrow console encodings (cp1252, etc.).
+
+    ``top_paths``/``top_kinds`` keys come from real log/message content, so
+    this report can contain arbitrary Unicode regardless of what's hardcoded
+    in this module's own strings — a plain ``print()`` has already crashed
+    once from a stray non-ASCII character in a literal here (2026-07-23);
+    that instance was fixed, but the underlying risk from *data* is
+    independent of any one string and stays open without this guard.
+    """
+    try:
+        print(text)
+    except UnicodeEncodeError:
+        encoding = getattr(sys.stdout, "encoding", None) or "utf-8"
+        sys.stdout.buffer.write((text + "\n").encode(encoding, errors="replace"))
+        sys.stdout.flush()
+
+
 def _non_negative_int(raw: str) -> int:
     value = int(raw)
     if value < 0:
@@ -426,7 +459,7 @@ def main(argv: list[str] | None = None) -> int:
     report = build_report(chat_records, last=None, records_total=counters["dict_records"])
     report["scan"] = counters
     text = render_text(report)
-    print(text)
+    _print_safe(text)
     if report["chat_with_content_stats"] == 0:
         print(
             "NOTE: no content_stats yet — restart relay (KILO_RELAY_CONTENT_STATS=1 default) "

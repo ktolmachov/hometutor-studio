@@ -178,6 +178,33 @@ def test_report_aggregates_content_stats():
     assert out["top_extensions"][0]["key"] == "md"
 
 
+def test_session_health_rate_not_diluted_by_records_missing_the_field():
+    """session_health was added after some historical rows were already
+    logged; those rows have no `session_health` key at all. The rate must be
+    computed over records that actually carry the field, not over every
+    chat record in the sample — otherwise mixing pre-/post-upgrade rows in
+    one --last window silently pulls the rate toward 0 with no indication."""
+    with_health_bloated = {
+        "path": "/v1/chat/completions",
+        "content_stats": {"original": {"role_chars": {"user": 10}}},
+        "session_health": {"recommend_new_chat": True},
+    }
+    with_health_ok = {
+        "path": "/v1/chat/completions",
+        "content_stats": {"original": {"role_chars": {"user": 10}}},
+        "session_health": {"recommend_new_chat": False},
+    }
+    pre_upgrade_no_health_field = {
+        "path": "/v1/chat/completions",
+        "content_stats": {"original": {"role_chars": {"user": 10}}},
+    }
+    out = report.build_report([with_health_bloated, with_health_ok, pre_upgrade_no_health_field])
+    sh = out["session_health"]
+    assert sh["records_with_session_health"] == 2
+    assert sh["recommend_new_chat_count"] == 1
+    assert sh["recommend_new_chat_rate"] == 0.5  # not 1/3
+
+
 def test_report_main_refuses_empty_json_out(tmp_path: Path):
     log = tmp_path / "empty.jsonl"
     log.write_text("{}\n", encoding="utf-8")

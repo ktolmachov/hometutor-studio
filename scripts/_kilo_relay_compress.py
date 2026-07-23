@@ -686,12 +686,18 @@ def relay_compress_config_from_env(env: dict[str, str]) -> RelayCompressConfig:
         keep_last_messages = int(env.get("KILO_RELAY_CLOUD_BUDGET_KEEP_LAST_MESSAGES", "0") or "0")
         max_tool_result_chars = int(env.get("KILO_RELAY_CLOUD_BUDGET_MAX_TOOL_RESULT_CHARS", "0") or "0")
         # Opt-in tool-schema trim. Explicit allowlist wins; else DEFAULT_CLOUD_BUDGET_TOOLS
-        # when TRIM_TOOLS=1. Default remains "forward all tools" (Cursor/Kilo may need them).
+        # when TRIM_TOOLS=1. Default remains "forward all tools" (Cursor/Kilo may need them) —
+        # so the generic KILO_RELAY_TOOLS_ALLOWLIST (set at the top of this function, meant for
+        # `local`/`off`) must NOT leak through here; matches the same two-tier convention already
+        # enforced for keep_last_messages/max_tool_result_chars above (generic vars don't fall
+        # back into cloud_budget, only *_CLOUD_BUDGET_* ones do).
         cloud_allow = parse_tools_allowlist(env.get("KILO_RELAY_CLOUD_BUDGET_TOOLS_ALLOWLIST", ""))
         if cloud_allow is not None:
             allow = cloud_allow
         elif _env_truthy(env.get("KILO_RELAY_CLOUD_BUDGET_TRIM_TOOLS", "0")):
             allow = frozenset(DEFAULT_CLOUD_BUDGET_TOOLS)
+        else:
+            allow = None
     elif is_local:
         label = slim_raw_display or "local(default)"
         if allow is None:
