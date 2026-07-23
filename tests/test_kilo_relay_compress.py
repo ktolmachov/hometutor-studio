@@ -382,6 +382,42 @@ def test_history_window_never_leaves_dangling_tool_result():
         _assert_no_dangling_tool_messages(out.payload["messages"])
 
 
+def test_history_window_skips_oversized_tool_group_to_honor_keep_last():
+    """Tool-safe expand used to blow past keep_last (e.g. 14 → 19) when a
+    large parallel tool_calls batch sat on the cut boundary, tripping
+    soft_block on messages_count. Prefer dropping the older group."""
+    tools = [_msg("tool", f"r{i}", tool_call_id=f"c{i}") for i in range(6)]
+    payload = {
+        "messages": [
+            _msg("system", "s"),
+            _msg("user", "old"),
+            _msg(
+                "assistant",
+                None,
+                tool_calls=[
+                    {"id": f"c{i}", "type": "function", "function": {"name": "Read"}}
+                    for i in range(6)
+                ],
+            ),
+            *tools,
+            _msg("user", "u_recent"),
+            _msg("assistant", "a_recent"),
+            _msg("user", "u_latest"),
+        ]
+    }
+    # keep_last=4 lands cut_at on the last tool of the parallel batch → old
+    # expand-only path would keep assistant+6 tools+3 tail = 10 non-system.
+    cfg = RelayCompressConfig(keep_last_messages=4)
+    out = compress_chat_completion(payload, cfg)
+    kept = out.payload["messages"]
+    _assert_no_dangling_tool_messages(kept)
+    non_system = [m for m in kept if m.get("role") != "system"]
+    assert len(non_system) <= 4
+    assert kept[0]["role"] == "system"
+    assert kept[-1]["content"] == "u_latest"
+    assert all(m.get("role") != "tool" for m in kept), "oversized older tool group should be skipped"
+
+
 def test_history_window_keeps_multiple_leading_system_messages():
     payload = {
         "messages": [

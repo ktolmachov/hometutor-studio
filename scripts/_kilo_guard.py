@@ -48,7 +48,9 @@ class GuardThresholds:
     # 15 allows the injection overhead (8) + ~4 conversation turns + headroom.
     max_messages: int = 15
     max_largest_message_chars: int = 24000
-    max_tools: int = 13
+    # Raised from 13 → 16: Cursor agent sessions routinely ship ~16 tools
+    # (builtin + MCP). Threshold of 13 made every turn a perpetual warn.
+    max_tools: int = 16
 
     @classmethod
     def from_env(cls, env: dict[str, str] | None = None) -> "GuardThresholds":
@@ -59,7 +61,7 @@ class GuardThresholds:
             hard_block_body_chars=int(src.get("KILO_RELAY_HARD_BLOCK_BODY_CHARS", "110000")),
             max_messages=int(src.get("KILO_RELAY_MAX_MESSAGES", "15")),
             max_largest_message_chars=int(src.get("KILO_RELAY_MAX_LARGEST_MESSAGE_CHARS", "24000")),
-            max_tools=int(src.get("KILO_RELAY_MAX_TOOLS", "13")),
+            max_tools=int(src.get("KILO_RELAY_MAX_TOOLS", "16")),
         )
 
 

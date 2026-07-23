@@ -42,7 +42,7 @@ Environment variables:
   KILO_RELAY_HARD_BLOCK_BODY_CHARS=110000
   KILO_RELAY_MAX_MESSAGES=15
   KILO_RELAY_MAX_LARGEST_MESSAGE_CHARS=24000
-  KILO_RELAY_MAX_TOOLS=13
+  KILO_RELAY_MAX_TOOLS=16
   KILO_RELAY_GUARD_MODE=warn
 
   DeepSeek preset (relay → DeepSeek's OpenAI-compatible cloud API instead of llama.cpp):
@@ -551,7 +551,7 @@ MAX_BODY_CHARS = int(os.getenv("KILO_RELAY_MAX_BODY_CHARS", "90000"))
 HARD_BLOCK_BODY_CHARS = int(os.getenv("KILO_RELAY_HARD_BLOCK_BODY_CHARS", "110000"))
 MAX_MESSAGES = int(os.getenv("KILO_RELAY_MAX_MESSAGES", "15"))
 MAX_LARGEST_MESSAGE_CHARS = int(os.getenv("KILO_RELAY_MAX_LARGEST_MESSAGE_CHARS", "24000"))
-MAX_TOOLS = int(os.getenv("KILO_RELAY_MAX_TOOLS", "13"))
+MAX_TOOLS = int(os.getenv("KILO_RELAY_MAX_TOOLS", "16"))
 GUARD_MODE = os.getenv("KILO_RELAY_GUARD_MODE", "warn").strip().lower()
 THRESHOLDS = GuardThresholds(
     warn_body_chars=WARN_BODY_CHARS,
@@ -811,23 +811,35 @@ def extract_usage_from_response_body(body_text: str) -> dict[str, Any] | None:
 
 
 def _content_stats_glance(content_stats: dict[str, Any] | None) -> list[str]:
-    """Short stderr hints: top kind + top path from original content_stats."""
+    """Short stderr hints from content_stats.
+
+    ``top_kind`` / ``top_path`` prefer *original* (pre-compress pollution size).
+    ``top_frag`` prefers *forwarded* so stripped XML (skills/rules/…) does not
+    keep showing up after cloud_budget already removed it from the upstream body.
+    """
     if not isinstance(content_stats, dict):
         return []
-    src = content_stats.get("original") or content_stats.get("forwarded")
-    if not isinstance(src, dict):
+    original = content_stats.get("original")
+    forwarded = content_stats.get("forwarded")
+    bulk = original if isinstance(original, dict) else forwarded
+    if not isinstance(bulk, dict):
         return []
     parts: list[str] = []
-    kinds = src.get("kind_chars")
+    kinds = bulk.get("kind_chars")
     if isinstance(kinds, dict) and kinds:
         top_kind, top_chars = next(iter(kinds.items()))
         parts.append(f"top_kind={top_kind}:{top_chars}")
-    paths = src.get("path_chars")
+    paths = bulk.get("path_chars")
     if isinstance(paths, list) and paths:
         row0 = paths[0]
         if isinstance(row0, dict) and row0.get("path") is not None:
             parts.append(f"top_path={row0['path']}:{row0.get('chars', '?')}")
-    frags = src.get("fragment_chars")
+    # Prefer forwarded fragments when that side was computed (even if empty —
+    # empty means strips worked; do not fall back to original and re-show them).
+    if isinstance(forwarded, dict):
+        frags = forwarded.get("fragment_chars")
+    else:
+        frags = bulk.get("fragment_chars")
     if isinstance(frags, dict) and frags:
         fk, fc = next(iter(frags.items()))
         parts.append(f"top_frag={fk}:{fc}")

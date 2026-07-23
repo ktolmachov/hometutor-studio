@@ -89,6 +89,23 @@ def test_content_stats_glance_and_sanitize():
     assert "top_path=AGENTS.md:4000" in glance
     assert "top_frag=rules:1200" in glance
 
+    # When forwarded is present, fragments come from it (post-strip); empty
+    # forwarded fragments must not fall back to original skills/rules noise.
+    glance_fwd = relay._content_stats_glance(
+        {
+            "original": {
+                "kind_chars": {"tool_result": 9000},
+                "fragment_chars": {"available_skills": 622},
+            },
+            "forwarded": {
+                "kind_chars": {"tool_result": 100},
+                "fragment_chars": {},
+            },
+        }
+    )
+    assert "top_kind=tool_result:9000" in glance_fwd
+    assert not any(p.startswith("top_frag=") for p in glance_fwd)
+
     summary = {
         "body_chars": 10,
         "message_stats": [{"index": 0}],

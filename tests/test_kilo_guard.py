@@ -141,7 +141,7 @@ class TestMessageAndToolThresholds:
         assert v.level == "warn"
 
     def test_tools_over_limit_warns(self):
-        v = evaluate_guard(CHAT_PATH, "", _summary(tools_count=14), thresholds=_thresholds(), mode="warn")
+        v = evaluate_guard(CHAT_PATH, "", _summary(tools_count=17), thresholds=_thresholds(), mode="warn")
         assert v.level == "warn"
 
     def test_hardest_level_wins_when_multiple_triggers(self):
@@ -215,4 +215,5 @@ def test_from_env_defaults_match_historical_relay_constants():
     # Raised from 8 to 15: real injection uses 8-9 system messages.
     assert t.max_messages == 15
     assert t.max_largest_message_chars == 24000
-    assert t.max_tools == 13
+    # Raised from 13 to 16: Cursor agent sessions routinely ship ~16 tools.
+    assert t.max_tools == 16

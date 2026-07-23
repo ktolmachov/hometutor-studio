@@ -244,6 +244,27 @@ def _qualifies_simple_chat(payload: dict[str, Any], max_user_chars: int) -> bool
     return True
 
 
+def _end_of_tool_call_group(messages: list[Any], start: int) -> int:
+    """Return index just after the assistant+tool group that begins at ``start``.
+
+    If ``messages[start]`` is an assistant with ``tool_calls``, skip it and every
+    immediately following ``role == "tool"`` message. Otherwise advance by one.
+    """
+    if start >= len(messages):
+        return start
+    nxt = start + 1
+    head = messages[start]
+    if (
+        isinstance(head, dict)
+        and head.get("role") == "assistant"
+        and isinstance(head.get("tool_calls"), list)
+        and head["tool_calls"]
+    ):
+        while nxt < len(messages) and isinstance(messages[nxt], dict) and messages[nxt].get("role") == "tool":
+            nxt += 1
+    return nxt
+
+
 def _history_window_bounds(messages: list[Any], keep_last_messages: int) -> tuple[int, int]:
     """Return ``(lead_end, cut_at)``: the kept window is ``messages[:lead_end] +
     messages[cut_at:]``.
@@ -258,6 +279,12 @@ def _history_window_bounds(messages: list[Any], keep_last_messages: int) -> tupl
     message chain upstream. Tool-result messages always directly follow their
     triggering assistant message in this format, so walking back one message at
     a time terminates at that assistant message (or at ``lead_end``).
+
+    If that tool-safe expansion would keep more than ``keep_last_messages``
+    non-system messages (typical with a large parallel tool_calls batch on the
+    cut boundary), skip whole older assistant+tool groups until the non-system
+    tail fits — unless skipping would drop the entire conversation (then keep
+    the oversized latest group rather than an empty tail).
     """
     lead_end = 0
     while lead_end < len(messages) and isinstance(messages[lead_end], dict) and messages[lead_end].get("role") == "system":
@@ -269,6 +296,17 @@ def _history_window_bounds(messages: list[Any], keep_last_messages: int) -> tupl
     cut_at = len(messages) - keep_last_messages
     while cut_at > lead_end and isinstance(messages[cut_at], dict) and messages[cut_at].get("role") == "tool":
         cut_at -= 1
+
+    while (len(messages) - cut_at) > keep_last_messages and cut_at < len(messages):
+        nxt = _end_of_tool_call_group(messages, cut_at)
+        if nxt >= len(messages):
+            # Latest group alone exceeds the budget — keep it (valid chain)
+            # rather than forwarding only the system lead.
+            break
+        cut_at = nxt
+        while cut_at < len(messages) and isinstance(messages[cut_at], dict) and messages[cut_at].get("role") == "tool":
+            cut_at += 1
+
     return lead_end, cut_at
 
 
