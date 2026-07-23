@@ -1,6 +1,12 @@
 
 # Журнал Изменений
 
+## 2026-07-23 (kilo relay: New Session live evidence + cloud_budget ops)
+
+- **Live evidence зафиксирован:** при каноне `cloud_budget` + DeepSeek + Tier B `14/1500` + `TRIM_TOOLS=1` + `GUARD_MODE=block` настоящий Cursor **New Session** дал сброс original `body_orig` ~821 КБ→66 КБ и `msgs` 15→2 (первый чистый запрос `id=23aba908`); forwarded остаётся в бюджете (`tools=6`, `guard=ok`, `in` обычно 3–7k).
+- **Доки:** `doc/kilo_proxy_relay.md` (§ Live evidence), `doc/next/kilo_relay_history_window_tier_b_2026-07-23.md`, handoff [`doc/prompts/kilo_relay_cloud_budget_handoff_2026-07-23.md`](prompts/kilo_relay_cloud_budget_handoff_2026-07-23.md).
+- **Смысл для ops:** `session=bloated recommend=new_chat` — сигнал перезапустить чат с handoff; compress маскирует архив, но не заменяет New Session.
+
 ## 2026-07-17 (KG 3D Memory Run e2e coverage)
 
 - **E2E coverage added:** 9 smoke specs cover KG 3D Memory Run, 3D action bridge, memory overlay, inert export, tutor-answer save-to-card, agent gate, theme persistence, audio playlist presence, and due badge wording.

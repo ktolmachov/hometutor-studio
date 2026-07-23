@@ -151,3 +151,18 @@ Verified against `logs/kilo_relay.jsonl` (not a short post-restart sample):
 **Default tightened (launcher + docs + docstring examples):** `KEEP_LAST_MESSAGES=14`, `MAX_TOOL_RESULT_CHARS=2000`. Still not a hard char-budget guarantee — start a new chat when `in` climbs past soft/hard rather than waiting for soft_block.
 
 **Ops caveat:** a manual `python scripts/kilo_proxy_relay.py` inherits whatever `KILO_RELAY_CLOUD_BUDGET_*` is already in the shell. If banner shows `keep_last_messages=24`, the process is still on the old knobs — set 14/2000 explicitly or use `-RelayProfile CloudBudget` (clears then sets).
+
+---
+
+## Live evidence (same day, evening): New Session + 14/1500 + TRIM_TOOLS
+
+Canon in banner: `cloud_budget`, DeepSeek, `keep_last=14`, `max_tool_result_chars=1500`, `TRIM_TOOLS=1` → `tools=6`, `GUARD_MODE=block`.
+
+| Observation | Evidence |
+|---|---|
+| Old thread still bloated | `orig_msgs` ~697–709, `body_orig` ~820k, `hist_cut` ~680+, every line `session=bloated recommend=new_chat` |
+| **True New Session** (not compress-only) | First clean request `id=23aba908`: `body_orig` **821k → 66k**, `msgs` **15 → 2**, no `hist_cut`, no `session=bloated`, `in=1978`, `top_kind=system` |
+| Forwarded budget after restart | New chat grows to `orig_msgs` ~160 / `body_orig` ~440k; forwarded stays `tools=6`, `guard=ok`, `in` typically **3–7k**, no HTTP 413 |
+| `session=bloated` returns early in new chat | Again when `body_orig>110k` (~25 msgs) — expected for tool-heavy loops; action = handoff, not tighter `keep_last` |
+
+Handoff template: [`doc/prompts/kilo_relay_cloud_budget_handoff_2026-07-23.md`](../prompts/kilo_relay_cloud_budget_handoff_2026-07-23.md). Operator doc: [`doc/kilo_proxy_relay.md`](../kilo_proxy_relay.md) § Live evidence.

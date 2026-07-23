@@ -6,7 +6,8 @@
 | Контекст | Live-прогон cloud_budget после session-health / TRIM_TOOLS / path-fix; original-сессия ~600+ msgs |
 | Тема | Короткий handoff в новый чат: релей ок, чат надо перезапустить |
 | Источник | Рабочая сессия Cursor по аудиту и доработке `scripts/kilo_proxy_relay*` |
-| Связанные доки | [`doc/kilo_proxy_relay.md`](../kilo_proxy_relay.md), [`doc/next/kilo_relay_history_window_tier_b_2026-07-23.md`](../next/kilo_relay_history_window_tier_b_2026-07-23.md) |
+| Связанные доки | [`doc/kilo_proxy_relay.md`](../kilo_proxy_relay.md) § Live evidence, [`doc/next/kilo_relay_history_window_tier_b_2026-07-23.md`](../next/kilo_relay_history_window_tier_b_2026-07-23.md) |
+| Live-проверка | **Подтверждено вечером 2026-07-23:** New Session дал сброс `body_orig` 821 КБ→66 КБ, `msgs` 15→2 (`id=23aba908`); дальше forwarded `in` 3–7k при `tools=6` / `guard=ok` |
 
 Текст ниже можно копировать в новый чат агента как единый запрос.
 

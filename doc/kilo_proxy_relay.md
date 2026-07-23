@@ -2,7 +2,7 @@
 
 **Назначение:** HTTP-прокси между OpenAI-compatible клиентом (**Cursor** или **Kilo IDE**) и upstream (LM Studio / `llama.cpp` / облако). Сжимает тело `POST /v1/chat/completions`, пишет JSONL-лог, применяет guard из `scripts/_kilo_guard.py`.
 
-**Актуализация:** 2026-07-23 (session-health warn по `original`; opt-in `CLOUD_BUDGET_TRIM_TOOLS`; `cloud_budget` → `GUARD_MODE=block` если unset; path-heuristic без `y://n`; Tier B cap `tool_result` 1500). Ранее: Tier B history window — [kilo_relay_history_window_tier_b_2026-07-23.md](next/kilo_relay_history_window_tier_b_2026-07-23.md).
+**Актуализация:** 2026-07-23 (live evidence: New Session сброс `body_orig` 821 КБ→66 КБ / `msgs` 15→2; session-health; TRIM_TOOLS; cloud_budget→block; path-fix; Tier B 14/1500). Ранее: Tier B history window — [kilo_relay_history_window_tier_b_2026-07-23.md](next/kilo_relay_history_window_tier_b_2026-07-23.md).
 
 ---
 
@@ -45,9 +45,21 @@ $env:KILO_RELAY_SLIM_MODE = "cloud_budget"   # не local и не off: strip XML
 1. `KILO_RELAY_UPSTREAM_PRESET=deepseek` + `DEEPSEEK_API_KEY` (не задавать raw `KILO_RELAY_UPSTREAM`).
 2. **`KILO_RELAY_SLIM_MODE=cloud_budget`** — strip operational XML + ужим схем tools. Список tools по умолчанию **не** режется; opt-in: `KILO_RELAY_CLOUD_BUDGET_TRIM_TOOLS=1` (coding-core ~6–10) или явный `KILO_RELAY_CLOUD_BUDGET_TOOLS_ALLOWLIST`. Stub system — **opt-in** через `KILO_RELAY_CLOUD_BUDGET_REPLACE_CURSOR_SYSTEM=1` (профиль launcher `CloudBudget` включает stub). Не использовать `local` и не оставлять unset (дефолт скрипта = `local`).
 3. **`KILO_RELAY_GUARD_MODE`**: для `cloud_budget`, если переменная **не задана**, релей ставит **`block`** (HTTP 413 при soft/hard на *forwarded* теле — защита от регрессии компрессора). Явный `warn` по-прежнему допустим. Уровни в JSONL есть всегда. **Важно:** этот дефолт зависит от `cloud_budget` как режима, а не от того, включён ли реально Tier B (`KEEP_LAST_MESSAGES`/`MAX_TOOL_RESULT_CHARS` — сами по себе opt-in, default `0`/выкл). Если `cloud_budget` включён БЕЗ Tier B, base-strip (XML/schema) на длинной реальной сессии обычно недостаточен, чтобы держать forwarded-тело под `HARD_BLOCK_BODY_CHARS` (`110000`, дефолт) — тогда авто-`block` может начать возвращать HTTP 413 на трафике, который раньше просто получал `warn` в логе. Включайте `cloud_budget` вместе с Tier B (пункт 6 ниже), а не по отдельности, если не задаёте `GUARD_MODE=warn` явно.
-4. **Session health (original):** при `original` >40 msgs (`KILO_RELAY_SESSION_WARN_MESSAGES`, не путать с несвязанным guard-порогом `KILO_RELAY_MAX_MESSAGES=15` для *forwarded* тела) / >20k est.tok / body>110k stderr пишет `session=bloated … recommend=new_chat`. Это **не** HTTP-блок: релей маскирует архив, но сессию всё равно надо перезапустить с handoff. **Калибровка неподтверждена:** на реальном длинном логе (2026-07-23, 40 запросов) `recommend_new_chat` сработал на **40/40** (rate=1.0) — при текущих дефолтах (`20000`/`40`/`110000`) сигнал в затяжной сессии срабатывает почти всегда, то есть теряет различительную силу как "поздний" сигнал именно для такого паттерна использования. Дефолты не пересчитаны под это наблюдение — просто зафиксировано как открытый вопрос.
+4. **Session health (original):** при `original` >40 msgs (`KILO_RELAY_SESSION_WARN_MESSAGES`, не путать с несвязанным guard-порогом `KILO_RELAY_MAX_MESSAGES=15` для *forwarded* тела) / >20k est.tok / body>110k stderr пишет `session=bloated … recommend=new_chat`. Это **не** HTTP-блок: релей маскирует архив, но сессию всё равно надо перезапустить с handoff. В затяжном agent-loop сигнал часто горит почти на каждом запросе (это ожидаемо) — различительная сила как «редкий поздний алерт» слабая; ценность в том, что **сброс New Session в логе виден однозначно** (см. § Live evidence ниже).
 5. Опционально `DEEPSEEK_THINKING=disabled` — режет output/latency; для тяжёлого reasoning не включать.
 6. **История:** compress default `KEEP_LAST_MESSAGES=0` (не режет). Daily launcher **`CloudBudget`** включает Tier B (`14` / `1500`). Окно режет **число** сообщений, не суммарный размер — при tool-heavy `in=` всё ещё может >12k/20k; тогда новый чат раньше. Ручной env — § Tier B. Неизвестный `SLIM_MODE` → fail-fast при старте.
+
+#### Live evidence: New Session сброс (2026-07-23, evening)
+
+Один непрерывный `logs/kilo_relay.jsonl` / stderr-прогон при каноне `cloud_budget` + DeepSeek + Tier B **14/1500** + `TRIM_TOOLS=1` + `GUARD_MODE=block` (unset → block):
+
+| Фаза | Признаки в stderr | Итог |
+|---|---|---|
+| Старый bloated-тред | `orig_msgs` ~697–709, `body_orig` ~820 КБ, `hist_cut` ~680+, каждый запрос `session=bloated recommend=new_chat`, `in` ~3–4.5k, `tools=6`, `guard=ok` | Релей держит upstream; сессия Cursor уже архив |
+| **New Session** (первый чистый запрос `id=23aba908`) | `body_orig` **821 КБ → 66 КБ**, `msgs` **15 → 2**, `hist_cut` отсутствует, **нет** `session=bloated`, `in=1978`, `top_kind=system` | Подтверждён реальный сброс original, не только compress |
+| Рост нового чата | `orig_msgs` 2→~160, `body_orig` ~66 КБ→~440 КБ; `session=bloated` снова с ~25 msgs при `body>110k`; forwarded стабильно `tools=6`, `guard=ok`, `in` обычно **3–7k** | Ожидаемый tool-loop; при частом `recommend=new_chat` — снова handoff, не tighter keep_last |
+
+Handoff-промпт для вставки в новый чат: [`doc/prompts/kilo_relay_cloud_budget_handoff_2026-07-23.md`](prompts/kilo_relay_cloud_budget_handoff_2026-07-23.md).
 
 Канонический daily-оркестратор (Start/Stop/Test/MeasuredRun): `D:\AI\llama_cpp_server_pack_v1\kilo-relay\` (`Start-KiloRelayDaily.ps1`, в т.ч. `-UseDeepSeek`). Python-релей и compress/guard — в этом репозитории: `scripts/kilo_proxy_relay.py`, `_kilo_relay_compress.py`, `_kilo_guard.py`.
 
