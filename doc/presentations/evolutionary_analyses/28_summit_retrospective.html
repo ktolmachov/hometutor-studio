@@ -1,0 +1,581 @@
+<title>Разбор №28 — Строили вглубь, а фасад остался прежним</title>
+<style>
+  /* ============================================================
+     HOMETUTOR NOTEBOOK STYLE v1.0 — LOCKED 2026-07-12
+     Извлечено из разборов №9-10 эволюционной серии. Это визитная
+     карточка формата «нескучный разбор». НЕ переизобретать палитру
+     заново в новой сессии — копировать этот файл и менять только
+     содержимое между <div class="wrap"> ... </div>.
+     Гайд: notebook_deck_guide.md (в этой же папке).
+     ============================================================ */
+  :root {
+    /* --- ЛОКОНО (locked core, 9 токенов) --- не менять значения --- */
+    --paper: #f7f3ea;
+    --paper-2: #fffdf7;
+    --ink: #17211b;
+    --muted: #5c6a61;
+    --terra: #b95631;
+    --terra-deep: #7d351f;
+    --forest: #243b2c;
+    --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14);
+    --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46;
+    --verdict-fix: #a05010;
+    --verdict-no: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+    /* --- расширение: статус-токены (опционально, для сводных таблиц
+       «сделано/молчит/дыра» — см. §6 guide) --- */
+    --done: #1e6e46;
+    --silent: #b98a2d;
+    --hole: #8c2f39;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #141a16;
+      --paper-2: #1b231e;
+      --ink: #ece5d4;
+      --muted: #9aa89d;
+      --terra: #d97a52;
+      --terra-deep: #e8a583;
+      --forest: #9dbfa8;
+      --gold: #d9a55e;
+      --line: rgba(236, 229, 212, 0.16);
+      --card: rgba(255, 255, 255, 0.045);
+      --code-bg: rgba(157, 191, 168, 0.10);
+      --verdict-keep: #6fc493;
+      --verdict-fix: #e0a35c;
+      --verdict-no: #e08691;
+      --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+      --done: #6fc493;
+      --silent: #d9b45e;
+      --hole: #e08691;
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #f7f3ea; --paper-2: #fffdf7; --ink: #17211b; --muted: #5c6a61;
+    --terra: #b95631; --terra-deep: #7d351f; --forest: #243b2c; --gold: #c98a3d;
+    --line: rgba(23, 33, 27, 0.14); --card: rgba(255, 255, 255, 0.72);
+    --code-bg: rgba(36, 59, 44, 0.07);
+    --verdict-keep: #1e6e46; --verdict-fix: #a05010; --verdict-no: #8c2f39;
+    --done: #1e6e46; --silent: #b98a2d; --hole: #8c2f39;
+    --shadow: 0 14px 40px rgba(49, 29, 15, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --paper: #141a16; --paper-2: #1b231e; --ink: #ece5d4; --muted: #9aa89d;
+    --terra: #d97a52; --terra-deep: #e8a583; --forest: #9dbfa8; --gold: #d9a55e;
+    --line: rgba(236, 229, 212, 0.16); --card: rgba(255, 255, 255, 0.045);
+    --code-bg: rgba(157, 191, 168, 0.10);
+    --verdict-keep: #6fc493; --verdict-fix: #e0a35c; --verdict-no: #e08691;
+    --done: #6fc493; --silent: #d9b45e; --hole: #e08691;
+    --shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 12% -4%, rgba(201, 138, 61, 0.10), transparent 34%),
+      radial-gradient(circle at 92% 2%, rgba(36, 59, 44, 0.08), transparent 30%),
+      var(--paper);
+    color: var(--ink);
+    font-family: "Segoe UI", -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16.5px;
+    line-height: 1.68;
+  }
+
+  .wrap { max-width: 900px; margin: 0 auto; padding: 3.2rem 1.4rem 4.5rem; }
+
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; letter-spacing: -0.015em; text-wrap: balance; }
+  h1 { font-size: 2.5rem; line-height: 1.12; margin: 0.5rem 0 0.9rem; font-weight: 700; }
+  h2 { font-size: 1.62rem; margin: 0 0 0.9rem; }
+  h3 { font-size: 1.18rem; margin: 1.5rem 0 0.5rem; }
+  p { margin: 0 0 1rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 1.1rem; padding-left: 1.35rem; max-width: 70ch; }
+  li { margin-bottom: 0.45rem; }
+  strong { color: var(--terra-deep); }
+  em { color: var(--muted); }
+
+  code {
+    font-family: Consolas, "SF Mono", Menlo, monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    word-break: break-word;
+  }
+
+  .kicker {
+    text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.74rem;
+    font-weight: 700; color: var(--terra);
+  }
+  .lede { font-size: 1.16rem; color: var(--muted); max-width: 64ch; }
+  .meta { font-size: 0.85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 0.4rem 1.4rem; margin-top: 1.1rem; }
+  .meta code { font-size: 0.82rem; }
+
+  section { margin-top: 3.4rem; }
+  .sec-label {
+    display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.35rem;
+    border-top: 1px solid var(--line); padding-top: 1.6rem;
+  }
+  .sec-num {
+    font-family: Georgia, serif; font-size: 0.95rem; color: var(--gold);
+    font-weight: 700; letter-spacing: 0.06em;
+  }
+  .sec-name {
+    text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem;
+    font-weight: 700; color: var(--muted);
+  }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 1.1rem 1.3rem; margin: 0 0 1rem; box-shadow: var(--shadow);
+  }
+  .anchor-card { border-left: 4px solid var(--terra); }
+  .ev { font-size: 0.86rem; color: var(--muted); margin-top: 0.5rem; }
+  .ev code { font-size: 0.8rem; }
+
+  .figure { margin: 1.4rem 0 0.4rem; }
+  .figure svg { width: 100%; height: auto; display: block; }
+  .figcap { font-size: 0.84rem; color: var(--muted); margin-top: 0.5rem; max-width: 70ch; }
+
+  .table-scroll { overflow-x: auto; margin: 0 0 1.1rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  td:first-child { white-space: nowrap; }
+  td { font-variant-numeric: tabular-nums; }
+
+  .st { display: inline-block; font-size: 0.76rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 99px; white-space: nowrap; }
+  .st-done { color: var(--done); border: 1px solid var(--done); }
+  .st-silent { color: var(--silent); border: 1px solid var(--silent); }
+  .st-hole { color: var(--hole); border: 1px solid var(--hole); }
+
+  .v { display: inline-block; font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+       letter-spacing: 0.08em; padding: 0.1rem 0.55rem; border-radius: 99px; margin-right: 0.5rem; }
+  .v-keep { color: var(--verdict-keep); border: 1.5px solid var(--verdict-keep); }
+  .v-fix { color: var(--verdict-fix); border: 1.5px solid var(--verdict-fix); }
+  .v-no { color: var(--verdict-no); border: 1.5px solid var(--verdict-no); }
+
+  .tension { border-left: 4px solid var(--gold); }
+  .tension .t { font-family: Georgia, serif; font-size: 1.05rem; margin-bottom: 0.35rem; }
+  .syn { color: var(--verdict-keep); font-weight: 600; }
+
+  .ladder { list-style: none; padding-left: 0; }
+  .ladder li { display: flex; gap: 0.8rem; align-items: baseline; margin-bottom: 0.55rem; }
+  .ladder .num {
+    flex: none; font-family: Georgia, serif; font-weight: 700; color: var(--gold);
+    width: 1.6rem; text-align: right;
+  }
+
+  .tag { display: inline-block; font-size: 0.72rem; font-weight: 700; padding: 0.08rem 0.5rem;
+         border-radius: 4px; color: var(--paper-2); }
+  .tag-p0 { background: var(--terra); }
+  .tag-p1 { background: var(--forest); }
+  .tag-p2 { background: var(--gold); }
+  :root[data-theme="dark"] .tag, :root[data-theme="dark"] .tag-p2 { color: #141a16; }
+  @media (prefers-color-scheme: dark) { .tag { color: #141a16; } }
+  :root[data-theme="light"] .tag { color: var(--paper-2); }
+
+  .footer { margin-top: 3.6rem; border-top: 1px solid var(--line); padding-top: 1.4rem;
+            font-size: 0.85rem; color: var(--muted); }
+  .footer code { font-size: 0.8rem; }
+
+  a { color: var(--terra); }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="kicker">Эволюционный разбор · №28 · метаразбор серии — обзор с высоты пройденного пути</div>
+  <h1>Строили вглубь — фасад остался прежним</h1>
+  <p class="lede">27 разборов за две недели: 306 коммитов, +35&nbsp;524 строки, 24 отгруженных
+  структурных ядра — и ни одного удалённого экрана, одна живая метрика и ноль измеренного
+  восторга. Это вид с вершины: что серия доказала, что построила молча — и почему
+  сильный ход теперь не «строить дальше», а «показать и измерить».</p>
+  <div class="meta">
+    <span>hometutor · HEAD <code>05565efe9</code> «392»</span>
+    <span>hometutor-studio · HEAD <code>5ee934c</code> «160»</span>
+    <span>2026-07-24</span>
+    <span>охват: разборы №1–№27 + git-история runtime 2026-07-10…24</span>
+  </div>
+</header>
+
+<div class="card" style="margin-top:1.6rem;">
+  <p style="margin-bottom:0.3rem;"><strong>Паспорт разбора.</strong></p>
+  <ul style="margin-bottom:0.2rem;">
+    <li><em>Область покрытия:</em> метаразбор серии (надёжность/невидимая инфраструктура — как №8, №12).</li>
+    <li><em>Стадия учебного цикла:</em> 10 — прогресс, возврат и достижение цели (вторичная: все).</li>
+    <li><em>Сигнал результата:</em> Outcome Validation Rate серии + число экранов, которые реально видит владелец.</li>
+    <li><em>Сквозная болезнь:</em> <code>PAIN-03</code> «Провода без поверхности» — теперь как свойство всей серии: построенное упрощение существует в коде, но невидимо тому, для кого строилось.</li>
+    <li><em>Доказательность боли:</em> E2 — живой пересчёт git-истории и реестров сегодня (команды в §4).</li>
+    <li><em>Отличие от №8:</em> №8 нашёл невидимую половину фич в одном срезе; №28 показывает, что невидимой осталась <strong>половина результата всей серии</strong> — включая само упрощение. <em>Отличие от №10:</em> №10 синтезировал №1–9 внутрь продукта; №28 оценивает конверсию всех 27 в доказанный опыт. <em>Отличие от №12/№27:</em> те строили стражей кода и доверие к модели; здесь — доверие к самим итогам серии.</li>
+  </ul>
+</div>
+
+<!-- 1. СУТЬ -->
+<section id="essence">
+  <div class="sec-label"><span class="sec-num">1</span><span class="sec-name">Суть</span></div>
+  <h2>Чего по-настоящему хочет владелец от 27 разборов</h2>
+  <p>Не 27 закрытых планов. Владелец хочет <strong>одно изменившееся ощущение</strong>:
+  открыл продукт — и он стал проще, честнее и надёжнее, чем две недели назад; учиться
+  в нём приятнее, и это видно без чтения README. Серия обещала ровно это — каждый разбор
+  начинался с «чего по-настоящему хочет человек», а не «что добавить».</p>
+  <p>Суть ретроспективы от первых принципов: серию нельзя оценивать суммой галочек
+  «shipped». Единица ценности разбора — <strong>подтверждённое изменение опыта</strong>,
+  а галочка — только вексель на него. За две недели серия выписала 24 векселя и
+  погасила один (№26, TLRR 61.1%). <strong>Сильный ход теперь — не написать 28-й вексель,
+  а начать погашать выписанные: показать построенное на поверхности и измерить его.</strong></p>
+</section>
+
+<!-- 2. РЕАЛЬНОСТЬ -->
+<section id="reality">
+  <div class="sec-label"><span class="sec-num">2</span><span class="sec-name">Реальность</span></div>
+  <h2>Мега-история: пять актов за четырнадцать дней</h2>
+
+  <div class="figure">
+    <svg viewBox="0 0 700 190" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Хронология серии: пять актов с 10 по 23 июля 2026, от замыкания петли обучения до суда над контентом">
+      <line x1="20" y1="120" x2="680" y2="120" stroke="var(--line)" stroke-width="2"/>
+      <!-- Акт I -->
+      <rect x="20" y="95" width="128" height="26" rx="6" fill="var(--forest)" opacity="0.85"/>
+      <text x="84" y="112" text-anchor="middle" font-size="11" font-weight="700" fill="var(--paper-2)">№1–10</text>
+      <text x="84" y="62" text-anchor="middle" font-family="Georgia, serif" font-size="12.5" fill="var(--ink)">Акт I</text>
+      <text x="84" y="78" text-anchor="middle" font-size="10.5" fill="var(--muted)">Замкнуть петлю</text>
+      <text x="84" y="140" text-anchor="middle" font-size="10" fill="var(--muted)">10–12 июля</text>
+      <!-- Акт II -->
+      <rect x="156" y="95" width="110" height="26" rx="6" fill="var(--gold)" opacity="0.85"/>
+      <text x="211" y="112" text-anchor="middle" font-size="11" font-weight="700" fill="#141a16">№11–16</text>
+      <text x="211" y="62" text-anchor="middle" font-family="Georgia, serif" font-size="12.5" fill="var(--ink)">Акт II</text>
+      <text x="211" y="78" text-anchor="middle" font-size="10.5" fill="var(--muted)">Материал — продукт</text>
+      <text x="211" y="140" text-anchor="middle" font-size="10" fill="var(--muted)">12–14 июля</text>
+      <!-- Акт III -->
+      <rect x="274" y="95" width="110" height="26" rx="6" fill="var(--terra)" opacity="0.85"/>
+      <text x="329" y="112" text-anchor="middle" font-size="11" font-weight="700" fill="var(--paper-2)">№17–20</text>
+      <text x="329" y="62" text-anchor="middle" font-family="Georgia, serif" font-size="12.5" fill="var(--ink)">Акт III</text>
+      <text x="329" y="78" text-anchor="middle" font-size="10.5" fill="var(--muted)">Мир знаний</text>
+      <text x="329" y="140" text-anchor="middle" font-size="10" fill="var(--muted)">15–17 июля</text>
+      <!-- Акт IV -->
+      <rect x="392" y="95" width="100" height="26" rx="6" fill="var(--forest)" opacity="0.85"/>
+      <text x="442" y="112" text-anchor="middle" font-size="11" font-weight="700" fill="var(--paper-2)">№21–23</text>
+      <text x="442" y="62" text-anchor="middle" font-family="Georgia, serif" font-size="12.5" fill="var(--ink)">Акт IV</text>
+      <text x="442" y="78" text-anchor="middle" font-size="10.5" fill="var(--muted)">Одна нить</text>
+      <text x="442" y="140" text-anchor="middle" font-size="10" fill="var(--muted)">18–19 июля</text>
+      <!-- Акт V -->
+      <rect x="500" y="95" width="120" height="26" rx="6" fill="var(--terra-deep)" opacity="0.9"/>
+      <text x="560" y="112" text-anchor="middle" font-size="11" font-weight="700" fill="var(--paper-2)">№24–27</text>
+      <text x="560" y="62" text-anchor="middle" font-family="Georgia, serif" font-size="12.5" fill="var(--ink)">Акт V</text>
+      <text x="560" y="78" text-anchor="middle" font-size="10.5" fill="var(--muted)">Суд над контентом</text>
+      <text x="560" y="140" text-anchor="middle" font-size="10" fill="var(--muted)">19–23 июля</text>
+      <!-- №28 -->
+      <circle cx="655" cy="108" r="13" fill="none" stroke="var(--gold)" stroke-width="2.5"/>
+      <text x="655" y="112" text-anchor="middle" font-size="10" font-weight="700" fill="var(--gold)">28</text>
+      <text x="655" y="140" text-anchor="middle" font-size="10" fill="var(--muted)">24 июля</text>
+      <text x="655" y="78" text-anchor="middle" font-size="10.5" fill="var(--muted)">вид с вершины</text>
+      <!-- нижняя сводка -->
+      <text x="350" y="172" text-anchor="middle" font-size="11.5" fill="var(--muted)">306 коммитов · +35 524 / −3 464 строк в runtime · 24 структурных ядра · 1 живая метрика</text>
+    </svg>
+    <p class="figcap">Пять актов серии по датам публикации разборов; цифры — git-история
+    <code>hometutor</code> с 2026-07-10 по HEAD <code>05565efe9</code> (только <code>app/</code>).</p>
+  </div>
+
+  <h3>Акт I. Замкнуть петлю (№1–№10)</h3>
+  <p>Серия началась как ремонт учебной петли: знание, которое не теряется после сессии (№1),
+  новичок, который доходит до первого инсайта (№2), материал с паспортом и свежестью (№3),
+  агент одной кнопкой (№4), честные таймауты (№5), карта, которая дышит данными ученика (№6),
+  план, который помнит, где вы сидели (№7). №8 впервые произнёс диагноз серии —
+  <em>«невидимая половина»</em>: построенное не видно. №9 дал продукту свою комнату,
+  №10 замкнул кольцо и озвучил его. Итог акта: петля работает, каждый ход подтверждён кодом.</p>
+
+  <h3>Акт II. Материал становится продуктом (№11–№16)</h3>
+  <p>Поворот от механики к содержимому: витрина обещаний против реальности (№11), архитектурные
+  стражи в CI (№12 — первый инженерный), лекции в уши (№13), рубрика качества конспектов в
+  самом продукте (№14), 3D-карта, которая знает цену узлов (№15), и курс, которым продукт
+  учит самому себе (№16). Здесь серия научилась главному приёму акта V — относиться
+  к своему контенту как к продукту с контрактом качества.</p>
+
+  <h3>Акт III. Мир знаний (№17–№20)</h3>
+  <p>Самая зрелищная дуга: зал получает пол и маршрут (№17), знание собирают как игру (№18),
+  лекция получает присутствие и чекпоинты (№19), зал вырастает в Мнемополис — мир с
+  хранителем, туманом и рассветом (№20). И у этой же дуги самый честный провал ретроспективы:
+  её наблюдательные метрики — <code>time-to-first-action</code>, <code>hall_returns</code> —
+  <strong>так и не подключены</strong>. Самая красивая часть продукта не знает, заходят ли в неё.</p>
+
+  <h3>Акт IV. Один город, один маршрут (№21–№23)</h3>
+  <p>Синтез фич формально состоялся: город получил адреса (№21 — каталог мега-бандла,
+  <code>SourceAddress</code>, пересадки), зеркало прогресса очищено от чужих отпечатков (№22),
+  и главное — №23 сделал SSR канонической Route Policy: одна учебная нить, 10 намерений
+  вместо меню режимов, чекпоинт после каждого результата, компас на пяти поверхностях.
+  Это и есть «качественно новый синтез» — <strong>структурно он существует</strong>.
+  Но старые режимы никуда не ушли: нить легла поверх меню, а не вместо него.</p>
+
+  <h3>Акт V. Суд над контентом (№24–№27)</h3>
+  <p>Финальный поворот — от «что показать» к «чему верить». №24 и №25 честно остановились
+  на анализе: VLQR и SGAR объявлены, но не измерены — и серия впервые отказалась рисовать
+  проценты, которых нет. №26 превратил их связку в работающий гейт: TLRR 61.1% live,
+  <code>verified_quiz</code> разблокирован, 102 теста — <strong>единственный разбор серии
+  с погашенным векселем</strong>. №27 вынес суд самому процессу разработки: протокол суда
+  не должен писать обвиняемый (локальная модель), план готов, реализация не начата.</p>
+
+  <h3>Итоговая ведомость: структура против доказанного результата</h3>
+  <div class="table-scroll">
+    <table>
+      <tr><th>№</th><th>Обещание одной строкой</th><th>Структура</th><th>Outcome (доказан?)</th></tr>
+      <tr><td>1</td><td>Знание не теряется после сессии</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-silent">не измерен</span></td></tr>
+      <tr><td>2</td><td>Новичок доходит до инсайта за 10 минут</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-silent">не измерен</span></td></tr>
+      <tr><td>3</td><td>Конспект с паспортом и свежестью</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-silent">не измерен</span></td></tr>
+      <tr><td>4</td><td>Агент как одна кнопка</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-silent">не измерен</span></td></tr>
+      <tr><td>5</td><td>Честные таймауты и fallback</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-silent">не измерен</span></td></tr>
+      <tr><td>6</td><td>Карта дышит данными ученика</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-silent">не измерен</span></td></tr>
+      <tr><td>7</td><td>План помнит, где вы остановились</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-silent">не измерен</span></td></tr>
+      <tr><td>8</td><td>Построенное становится видимым</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-silent">не измерен</span></td></tr>
+      <tr><td>9</td><td>Своя комната: миры оформления</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-silent">не измерен</span></td></tr>
+      <tr><td>10</td><td>Кольцо №1–9 замкнуто и озвучено</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-silent">не измерен</span></td></tr>
+      <tr><td>11</td><td>Демо совпадает с продуктом</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-silent">пересъёмка ждёт</span></td></tr>
+      <tr><td>12</td><td>Рост архитектуры под стражей CI</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-done">guards в CI</span></td></tr>
+      <tr><td>13</td><td>Материал в уши: подкасты</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-silent">не измерен</span></td></tr>
+      <tr><td>14</td><td>Рубрика качества в продукте</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-silent">не измерен</span></td></tr>
+      <tr><td>15</td><td>3D-карта знает цену узлов</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-silent">не измерен</span></td></tr>
+      <tr><td>16</td><td>Продукт учит самому себе</td><td><span class="st st-done">комплект есть</span></td><td><span class="st st-silent">дверь не открыта</span></td></tr>
+      <tr><td>17</td><td>Зал получает пол и маршрут</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-silent">не измерен</span></td></tr>
+      <tr><td>18</td><td>Знание собирают как игру</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-silent">не измерен</span></td></tr>
+      <tr><td>19</td><td>Лекция с присутствием и чекпоинтами</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-silent">не измерен</span></td></tr>
+      <tr><td>20</td><td>Мнемополис: мир вместо зала</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-hole">метрики не подключены</span></td></tr>
+      <tr><td>21</td><td>Город получает адреса</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-silent">manual DoD ждёт</span></td></tr>
+      <tr><td>22</td><td>Зеркало прогресса без чужих отпечатков</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-silent">не измерен</span></td></tr>
+      <tr><td>23</td><td>Одна нить вместо меню режимов</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-silent">не измерен</span></td></tr>
+      <tr><td>24</td><td>Квиз доказывает, а не выдумывает</td><td><span class="st st-hole">анализ, P0 не начат</span></td><td><span class="st st-hole">VLQR не измерен</span></td></tr>
+      <tr><td>25</td><td>Ответ под присягой (groundedness)</td><td><span class="st st-hole">анализ, P0 не начат</span></td><td><span class="st st-hole">SGAR не измерен</span></td></tr>
+      <tr><td>26</td><td>Учить только доказанному</td><td><span class="st st-done">ядро есть</span></td><td><span class="st st-done">TLRR 61.1% live</span></td></tr>
+      <tr><td>27</td><td>Протокол суда пишет не обвиняемый</td><td><span class="st st-hole">план, P0 не начат</span></td><td><span class="st st-hole">VLCR = N/A</span></td></tr>
+    </table>
+  </div>
+  <p class="ev">Левая колонка почти зелёная (24/27 ядра), правая — почти вся жёлтая:
+  единственный полностью погашенный вексель — №26. «Не измерен» = shipped-unvalidated
+  по правилу гайда §4.2: replay боли не выполнялся, North star не подключена.</p>
+
+  <div class="card">
+    <p><strong>Асимметрия серии в четырёх числах.</strong> С 2026-07-10 в runtime:
+    <code>+35&nbsp;524</code> строк добавлено, <code>−3&nbsp;464</code> удалено (10:1);
+    в <code>app/ui</code> — 29 новых файлов и <strong>0 удалённых</strong>;
+    реестр фич — 26 записей, 18 nav-экранов. Серия умеет только складывать.</p>
+    <p class="ev">Проверка: <code>git diff --stat/--diff-filter=D $(git rev-list -1 --before=2026-07-10 HEAD)..HEAD -- app app/ui</code>;
+    <code>grep -c "FeatureSpec(" app/ui/feature_registry.py</code>.</p>
+  </div>
+</section>
+
+<!-- 3. ПРОТИВОРЕЧИЯ -->
+<section id="tensions">
+  <div class="sec-label"><span class="sec-num">3</span><span class="sec-name">Противоречия</span></div>
+  <h2>Три напряжения вершины — и их синтез</h2>
+
+  <div class="card tension">
+    <div class="t">кардинальное упрощение ↔ ни одного вычитания</div>
+    <p>Каждый разбор разрешал своё противоречие <em>добавлением</em> слоя — нить поверх меню,
+    гейт поверх генерации, мир поверх графа. Вычитание ни разу не было ходом, и это не
+    трусость: удалять работающие вью дорого и опасно. <span class="syn">Синтез: упрощение —
+    это смена дефолта, а не удаление кода.</span> Study-поверхность уже существует
+    (tier 1–2 ≈ 10 экранов из 18); кардинальное упрощение = сделать её тем, что владелец
+    реально видит, оставив полноту в одном клике.</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">shipped ↔ доказано</div>
+    <p>24 структурных ядра против одной живой метрики. Серия строго различает статусы
+    в документах (гайд §4.2), но в жизни replay болей после отгрузки не проводился
+    ни разу, кроме №26. <span class="syn">Синтез: волна валидации вместо новой фичи —
+    погасить 5 самых дорогих векселей повторным замером исходных болей и подключением
+    уже существующих сигналов.</span> Это дешевле любого нового разбора: сигналы
+    (checkpoint-события №23, gate-отчёт №26, session-события №20) уже пишутся.</p>
+  </div>
+
+  <div class="card tension">
+    <div class="t">восторг ↔ честность</div>
+    <p>Серия выработала культуру честности: E0–E3, baseline «N/A ≠ 0%», kill switch,
+    контр-аудиты. Ответить «пользователи в восторге» она не может по построению — телеметрии
+    восторга нет, пользователь один (владелец), наблюдательные метрики не подключены.
+    <span class="syn">Синтез: не измерять восторг — измерять возврат.</span> Единственная
+    область карты покрытия с нулём разборов — «возврат после перерыва и удержание» —
+    и есть честный прокси восторга: в продукт, который радует, возвращаются.</p>
+  </div>
+</section>
+
+<!-- 4. БОЛЬ-ЯКОРЬ -->
+<section id="pain">
+  <div class="sec-label"><span class="sec-num">4</span><span class="sec-name">Боль-якорь</span></div>
+  <h2>«Визуально приложение почти не изменилось»</h2>
+  <div class="card anchor-card">
+    <p><strong>Проверяемый факт:</strong> владелец после 27 разборов ожидал кардинального
+    упрощения, но открывает приложение — и видит практически ту же поверхность, что
+    две недели назад: те же 18 пунктов навигации, тот же Mission Control, только плотнее.</p>
+    <p><strong>Точная причина в коде — три слоя:</strong></p>
+    <ul>
+      <li><code>hometutor@05565efe9:app/ui/feature_registry.py::FEATURES</code> (строки 22–108) —
+      реестр видимости сам называет себя <em>«аддитивный слой»</em>: 26 фич, 18 nav-экранов;
+      tier-система умеет прятать, но ни один экран за серию не удалён;</li>
+      <li><code>git diff --diff-filter=D ...HEAD -- app/ui</code> → <strong>0 удалённых файлов</strong>
+      при 29 добавленных и +22&nbsp;639/−2&nbsp;739 строках в <code>app/ui</code> —
+      упрощение как вычитание физически не происходило;</li>
+      <li><code>hometutor@05565efe9:app/ui_preferences.py::get_ui_level</code> (строки 140–152) —
+      решающий слой: профилю с существующей активностью уровень молча повышается до
+      <code>diagnostic</code> — владельцу открываются <em>все</em> 18 экранов.
+      Упрощённая study-поверхность (~10 экранов) существует и работает, но по построению
+      достаётся только пустому профилю. <strong>Тот, кто ждал упрощения, — единственный,
+      кто не может его увидеть.</strong></li>
+    </ul>
+    <p class="ev">E2, живой пересчёт 2026-07-24: 306 коммитов с 2026-07-10;
+    <code>ls app/ui/*.py | wc -l</code> → 142 файла; <code>grep -c "FeatureSpec("</code> → 26.
+    Это тот же <code>PAIN-03</code> «провода без поверхности», что №8 нашёл у фич —
+    теперь он воспроизвёлся уровнем выше, у самой серии: даже её упрощение оказалось проводом
+    без поверхности.</p>
+  </div>
+</section>
+
+<!-- 5. ВЕРДИКТЫ -->
+<section id="verdicts">
+  <div class="sec-label"><span class="sec-num">5</span><span class="sec-name">Вердикты</span></div>
+  <h2>Решения по итогам пути</h2>
+  <div class="card"><span class="v v-keep">оставить</span><strong>Метод серии.</strong>
+  Паспорт, E0–E3, боль-якорь с живым прогоном, контр-аудиты, «N/A ≠ 0%» — это выработанный
+  капитал процесса; №26 доказал, что метод доводит до живого числа.</div>
+  <div class="card"><span class="v v-keep">оставить</span><strong>Акт V как главное достижение.</strong>
+  Гейт контента (TLRR 61.1%), evidence-bound квизы и стражи №12 — качественно новый результат
+  серии: продукт стал <em>проверяемо честным</em>. Это фундамент, его не трогать.</div>
+  <div class="card"><span class="v v-keep">оставить</span><strong>#27 как engineering-трек.</strong>
+  Контур доверия к локальной модели идёт параллельной дорожкой и не конкурирует с продуктовой
+  валидацией; порядок P0-1→P0-3 из плана v1.7 не меняется.</div>
+  <div class="card"><span class="v v-fix">починить</span><strong>Поверхность — диетой, не ножом.</strong>
+  Дать владельцу study-поверхность: не автоповышать уровень до <code>diagnostic</code> по факту
+  активности, а спросить один раз; переключатель «Простой вид» прямо на Mission Control.
+  Ни одного удалённого вью — только честный дефолт.</div>
+  <div class="card"><span class="v v-fix">починить</span><strong>Векселя — волной валидации.</strong>
+  Replay 5 исходных болей (№2, №19, №22, №23, №26) на живом продукте + подключение двух уже
+  пишущихся сигналов (checkpoint-события №23, session-события мира №20) → каждому разбору
+  честный outcome-статус вместо вечного «shipped-unvalidated».</div>
+  <div class="card"><span class="v v-no">не делать</span><strong>Новый продуктовый разбор до конца
+  волны валидации.</strong> 28-й вексель при 23 непогашенных ухудшает главную метрику серии.
+  Резерв темы «свой материал = полноценный урок» остаётся кандидатом без номера.</div>
+  <div class="card"><span class="v v-no">не делать</span><strong>«Чинить восторг» новой большой
+  фичей.</strong> Мнемополис-2, новые миры и новые режимы не лечат PAIN-03 — они его усиливают.</div>
+  <div class="card"><span class="v v-no">не делать</span><strong>Удалять код ради упрощения.</strong>
+  Вычитание вью — большой риск при нулевой выгоде против смены дефолта; стражи №12 и так
+  держат рост под контролем.</div>
+  <div class="card"><span class="v v-no">не делать</span><strong>Подменять semantic eval №25
+  прокси-метриками.</strong> Токен-оверлап и повторное самооценивание уже отклонены
+  контр-аудитом; SGAR ждёт отдельного решения владельца — это не часть волны валидации.</div>
+</section>
+
+<!-- 6. ЦЕННОСТЬ -->
+<section id="value">
+  <div class="sec-label"><span class="sec-num">6</span><span class="sec-name">Ценность</span></div>
+  <h2>Ответы на четыре вопроса владельца — и одна North star</h2>
+  <div class="card">
+    <p><strong>Достигнуты ли поставленные цели?</strong> Как программа строительства — да:
+    24/27 структурных ядер отгружены, средняя готовность ~93%, метод доведён до эталона.
+    Как программа изменения опыта — не доказано: outcome подтверждён у 1 разбора из 27.</p>
+    <p><strong>Вызывают ли доработки восторг у пользователей?</strong> Честный ответ:
+    неизвестно — и не может быть известен. Продукт живёт в режиме single-owner dogfood,
+    наблюдательные метрики (№20) не подключены, ни одна пользовательская сессия не измерялась.
+    Единственное живое число серии — TLRR 61.1% — метрика доверия, не восторга.</p>
+    <p><strong>Произошло ли кардинальное упрощение?</strong> Нет. +35.5k/−3.5k строк,
+    0 удалённых экранов; построенная простота (study-уровень, одна нить №23) существует,
+    но невидима владельцу по построению (§4).</p>
+    <p><strong>Получен ли качественно новый синтез фич?</strong> Структурно — да:
+    Route Policy (№23) + адреса города (№21) + гейт доверия (№26) + мир (№18/№20) образуют
+    связную систему, которой не было 10 июля. Как ощущение — не доказан: синтез лежит
+    под полом, PAIN-03.</p>
+  </div>
+  <p>Уникальность серии — не в 24 ядрах (фичи умеют строить все), а в культуре доказательства,
+  доведённой до живого гейта. Доказать её ценность измеримо может только сама серия — если
+  начнёт применять свой стандарт честности к собственным итогам:</p>
+  <div class="table-scroll">
+    <table>
+      <tr><th>Метрика</th><th>Формула / источник</th><th>Сейчас</th><th>После P0</th><th>Статус</th></tr>
+      <tr><td><strong>OVR — Outcome Validation Rate</strong> (North star)</td>
+        <td>разборы со статусом validated / no-effect / regressed ÷ все разборы; источник — ведомость §2 + replay-артефакты</td>
+        <td><strong>1/27 ≈ 3.7%</strong> (только №26)</td><td>≥ 6/28 ≈ 21%</td><td><code>wire-in-P0</code></td></tr>
+      <tr><td>Экранов в поверхности владельца</td>
+        <td><code>visible_nav_views_for_level(get_ui_level())</code> на профиле владельца</td>
+        <td>18 (авто-<code>diagnostic</code>)</td><td>≤ 10 (study-дефолт с переключателем)</td><td><code>wired-existing</code></td></tr>
+      <tr><td>Guardrail</td><td>ни один replay не понижает честность: <code>shipped-unvalidated</code> не переименовывается в <code>validated</code> без артефакта</td><td>—</td><td>0 нарушений</td><td>правило</td></tr>
+    </table>
+  </div>
+  <div class="figure">
+    <svg viewBox="0 0 700 150" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Контраст: 24 из 27 ядер построено, но только 1 из 27 результатов доказан">
+      <text x="20" y="30" font-size="12.5" fill="var(--ink)" font-family="Georgia, serif">Построено (структурные ядра)</text>
+      <rect x="20" y="40" width="592" height="20" rx="6" fill="var(--done)" opacity="0.8"/>
+      <rect x="612" y="40" width="68" height="20" rx="6" fill="none" stroke="var(--line)"/>
+      <text x="605" y="55" text-anchor="end" font-size="11.5" font-weight="700" fill="var(--paper-2)">24 / 27</text>
+      <text x="20" y="95" font-size="12.5" fill="var(--ink)" font-family="Georgia, serif">Доказано повторным замером (outcome)</text>
+      <rect x="20" y="105" width="24" height="20" rx="6" fill="var(--hole)" opacity="0.9"/>
+      <rect x="44" y="105" width="636" height="20" rx="6" fill="none" stroke="var(--line)"/>
+      <text x="52" y="120" font-size="11.5" font-weight="700" fill="var(--hole)">1 / 27 — №26, TLRR 61.1%</text>
+    </svg>
+    <p class="figcap">Главный разрыв серии: строительство опережает доказательство в 24 раза.
+    North star №28 — сжать этот разрыв, не построив ничего нового.</p>
+  </div>
+</section>
+
+<!-- 7. ПУТЬ -->
+<section id="path">
+  <div class="sec-label"><span class="sec-num">7</span><span class="sec-name">Путь</span></div>
+  <h2>Золотой путь следующих двух недель</h2>
+  <p><strong>Золотой путь:</strong> посчитать OVR честно → включить владельцу простую
+  поверхность → погасить 5 векселей replay-ем → закрыть нулевую область карты разбором
+  о возврате → и только потом строить новое.</p>
+  <ol class="ladder">
+    <li><span class="num">0</span><span><strong>Сегодня.</strong> OVR = 3.7% зафиксирован в README
+    серии — впервые у серии есть своё честное число.</span></li>
+    <li><span class="num">1</span><span><strong>День 1–2.</strong> Study-дефолт у владельца: открыл
+    продукт — 10 экранов и одна нить; «Полный вид» в один клик. Первое видимое упрощение
+    за 28 разборов.</span></li>
+    <li><span class="num">2</span><span><strong>Неделя 1.</strong> Пять replay-статусов: №2, №19,
+    №22, №23, №26 получают validated / no-effect / regressed с артефактами. OVR ≥ 21%.</span></li>
+    <li><span class="num">3</span><span><strong>Неделя 2.</strong> Разбор «Возвращение после
+    перерыва» — первая тема в нулевой области покрытия, с wired-метрикой возврата с первого дня.</span></li>
+    <li><span class="num">4</span><span><strong>Параллельно.</strong> Engineering-трек #27
+    P0-1→P0-3 идёт своей дорожкой (план v1.7), не смешиваясь с продуктовой валидацией.</span></li>
+  </ol>
+</section>
+
+<!-- 8. ПЛАН -->
+<section id="plan">
+  <div class="sec-label"><span class="sec-num">8</span><span class="sec-name">План</span></div>
+  <h2>P0 — два хода, оба без нового строительства</h2>
+  <div class="table-scroll">
+    <table>
+      <tr><th></th><th>Ход</th><th>Что делается</th><th>Усилие</th></tr>
+      <tr><td><span class="tag tag-p0">P0-1</span></td><td><strong>Волна валидации.</strong></td>
+        <td>Replay исходных болей №2, №19, №22, №23, №26 на живом продукте; подключение двух уже
+        пишущихся сигналов (checkpoint-события №23 → acceptance-rate; session-события №20 →
+        time-to-first-action); каждому из пяти — outcome-статус с артефактом; OVR в README серии.</td>
+        <td>дни</td></tr>
+      <tr><td><span class="tag tag-p0">P0-2</span></td><td><strong>Диета поверхности.</strong></td>
+        <td>Убрать авто-повышение до <code>diagnostic</code> в <code>get_ui_level()</code>
+        (спросить один раз при первом входе после апдейта); переключатель «Простой вид / Полный вид»
+        на Mission Control; study-дефолт ≤ 10 nav-экранов. Ни одного удалённого вью.</td>
+        <td>часы–день</td></tr>
+      <tr><td><span class="tag tag-p1">P1</span></td><td>#27 Execution Packet (engineering-трек).</td>
+        <td>P0-1→P0-3 плана v1.7 — без изменений, параллельная дорожка.</td><td>дни</td></tr>
+      <tr><td><span class="tag tag-p2">P2</span></td><td>Разбор «Возвращение после перерыва»; №25 semantic eval (по отдельному решению); №11 пересъёмка витрины.</td>
+        <td>Первая тема нулевой области — только после P0-1, чтобы родиться с wired-метрикой.</td><td>волна</td></tr>
+    </table>
+  </div>
+  <p><strong>Kill switch P0:</strong> если волна валидации потребовала новую схему хранения,
+  новый пайплайн или LLM-судью — стоп: сигналы должны быть уже пишущимися. Если диета
+  поверхности потянула удаление/рефакторинг вью — стоп: разрешена только смена дефолта
+  и переключатель. Если replay показал <code>regressed</code> — это не провал волны,
+  а её главный продукт: честный статус дороже зелёной галочки.</p>
+</section>
+
+<div class="footer">
+  <p>Разбор №28 · hometutor HEAD <code>05565efe9</code> «392» · hometutor-studio HEAD <code>5ee934c</code> «160» · 2026-07-24.</p>
+  <p>Правило двух слоёв: этот HTML — слой анализа; actionable-кандидаты — в
+  <code>doc/next/series_summit_validation_plan.md</code>. Серия: <code>doc/presentations/evolutionary_analyses/</code>.
+  Кандидаты попадают в <code>backlog_registry.yaml</code> только решением владельца.</p>
+</div>
+
+</div>

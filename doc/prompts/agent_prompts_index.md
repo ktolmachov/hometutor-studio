@@ -21,6 +21,7 @@ Please use file search or ls -t to find recent prompts.
 
 - [Token Analysis — Cursor AI High Input Token Consumption](token_analysis_cursor_ai_2026-04-19.md) — Анализ причин высокого потребления входных токенов в сессии Cursor AI (2026-04-19)
 - [Handoff: kilo_proxy_relay / cloud_budget](kilo_relay_cloud_budget_handoff_2026-07-23.md) — Handoff в New Session: релей ок; повторный bloated после tool-loop (актуализация вечер 2026-07-23)
+- [Evolutionary Wave Continuation Template](evolutionary_wave_continuation_template.md) — Шаблон продолжения реализации по эволюционным разборам с обязательным финальным doc-sync двух README
 
 ## Как добавить prompt в архив
 

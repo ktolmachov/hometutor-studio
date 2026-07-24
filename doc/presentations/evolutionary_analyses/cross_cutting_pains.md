@@ -21,7 +21,7 @@
 |---|---|---|---|
 | `PAIN-01` | Две или более копии истины | Одно понятие вычисляется, хранится или описывается независимо в нескольких местах? | №1: `quiz_mastery` как третья копия; №7: состояние плана; №12: константы бюджетов в страже; №13: две ASR-линии; №21: риск третьего каталога |
 | `PAIN-02` | Закон вне ежедневного цикла | Правило существует в документе или разовой проверке, но не исполняется тем циклом, который и так запускается каждый день? | №12: архитектурные ограничения до подключения regression guards к pytest/CI; №24: quiz-рубрика без executable content gate перед mastery; №25: grounded-answer gate вне CI/cache parity |
-| `PAIN-03` | Провода без поверхности | Данные и логика уже существуют, но студент не видит результата и не может им воспользоваться? | №8: невидимая половина; №10: learner trace и due-сигнал; №20: возможности продукта без дверей из мира |
+| `PAIN-03` | Провода без поверхности | Данные и логика уже существуют, но студент не видит результата и не может им воспользоваться? | №8: невидимая половина; №10: learner trace и due-сигнал; №20: возможности продукта без дверей из мира; №28: построенное серией упрощение (study-поверхность, одна нить) невидимо владельцу — автоапгрейд ui_level до diagnostic |
 | `PAIN-04` | Две линии производства | Один пользовательский артефакт создаётся разными конвейерами с расходящимися контрактами и качеством? | №13: независимые ASR-конвейеры |
 
 Перечень начальный, а не исчерпывающий. Новый класс добавляется только когда
@@ -75,4 +75,12 @@ Evidence: hometutor-studio@545d155:scripts/llamacpp_agent_trigger.ts::validatePa
 Observed effect: правило «границы задаёт задача, не модель» существует только в тексте guide (agent_adapter_llamacpp.md §5–6); код, который реально исполняется каждый прогон, доверяет декларации модели на входе (write-set) и на выходе (tests) — auto-routing на этом контуре сегодня был бы недоказуемым по построению.
 Status: open
 Closure evidence: отсутствует; требуется полный P0-1→P0-3 плана v1.4 (doc/next/local_model_execution_packet_plan.md): authoritative task gates + deterministic evidence, durable patch journal/locks/recovery и исполнимый finalize-review. До live shadow-run с чистым worktree и terminal verified статус остаётся open.
+
+Instance: PAIN-03 / Series-level simplification without surface (упрощение серии невидимо владельцу)
+Analysis: №28
+Evidence: hometutor@05565efe9:app/ui_preferences.py::get_ui_level (строки 140–152 — профиль с существующей активностью молча повышается до LEVEL_DIAGNOSTIC → все 18 nav-вью); hometutor@05565efe9:app/ui/feature_registry.py::FEATURES (докстринг «аддитивный слой», 26 фич, 18 nav); git 2026-07-10..05565efe9: app/ui +22 639/−2 739 строк, 29 новых файлов, 0 удалённых.
+Observed effect: после 27 разборов владелец открывает приложение и видит ту же поверхность из 18 экранов; построенная study-поверхность (~10 вью) и «одна нить» №23 по построению достаются только пустому профилю — ощущение «кардинального упрощения не произошло» при 24 отгруженных структурных ядрах; outcome доказан лишь у 1/27 разборов (OVR 3.7%).
+Status: mitigated (2026-07-24)
+Closure evidence: hometutor@589636dab+:app/ui_preferences.py::get_ui_level — автоапгрейд до LEVEL_DIAGNOSTIC удалён, undecided-профиль резолвится в LEVEL_STUDY без записи; app/ui_preferences.py::should_offer_first_choice/is_ui_level_decided добавлены; app/ui/mission_control.py::_render_first_level_choice_banner — one-time баннер «Простой/Полный вид». Тесты: tests/test_ui_preferences.py, tests/test_mission_control_first_level_choice.py — зелёные; регрессий в test_navigation_visibility.py/test_global_navigation.py/test_architecture_guards.py нет.
+Не closed: это структурный фикс причины, не поведенческое подтверждение «стало ли легче владельцу» — тот замер (visible_nav_views_for_level на реальном профиле владельца + субъективное ощущение) не проводился; см. doc/next/series_summit_validation_plan.md P0-2 и replay_artifacts_2026-07/replay_2026-07-24.md.
 ```
