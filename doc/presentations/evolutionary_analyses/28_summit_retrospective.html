@@ -496,7 +496,7 @@
       <tr><th>Метрика</th><th>Формула / источник</th><th>Сейчас</th><th>После P0</th><th>Статус</th></tr>
       <tr><td><strong>OVR — Outcome Validation Rate</strong> (North star)</td>
         <td>разборы со статусом validated / no-effect / regressed ÷ все разборы; источник — ведомость §2 + replay-артефакты</td>
-        <td><strong>1/27 ≈ 3.7%</strong> (только №26)</td><td>≥ 6/28 ≈ 21%</td><td><code>wire-in-P0</code></td></tr>
+        <td><strong>1/27 ≈ 3.7%</strong> (только №26)</td><td>≥ 5/28 ≈ 17.9%<sup>*</sup></td><td><code>wired-existing</code></td></tr>
       <tr><td>Экранов в поверхности владельца</td>
         <td><code>visible_nav_views_for_level(get_ui_level())</code> на профиле владельца</td>
         <td>18 (авто-<code>diagnostic</code>)</td><td>≤ 10 (study-дефолт с переключателем)</td><td><code>wired-existing</code></td></tr>
@@ -533,7 +533,7 @@
     продукт — 10 экранов и одна нить; «Полный вид» в один клик. Первое видимое упрощение
     за 28 разборов.</span></li>
     <li><span class="num">2</span><span><strong>Неделя 1.</strong> Пять replay-статусов: №2, №19,
-    №22, №23, №26 получают validated / no-effect / regressed с артефактами. OVR ≥ 21%.</span></li>
+    №22, №23, №26 получают validated / no-effect / regressed с артефактами. OVR ≥ 17.9%<sup>*</sup>.</span></li>
     <li><span class="num">3</span><span><strong>Неделя 2.</strong> Разбор «Возвращение после
     перерыва» — первая тема в нулевой области покрытия, с wired-метрикой возврата с первого дня.</span></li>
     <li><span class="num">4</span><span><strong>Параллельно.</strong> Engineering-трек #27
@@ -576,6 +576,14 @@
   <p>Правило двух слоёв: этот HTML — слой анализа; actionable-кандидаты — в
   <code>doc/next/series_summit_validation_plan.md</code>. Серия: <code>doc/presentations/evolutionary_analyses/</code>.
   Кандидаты попадают в <code>backlog_registry.yaml</code> только решением владельца.</p>
+  <p><sup>*</sup> <strong>Корректировка (2026-07-24, независимый аудит реализации).</strong>
+  Исходная версия §6 указывала target «≥6/28 ≈ 21%» — арифметически недостижимо: волна
+  P0-1 содержит ровно 5 кандидатов (№2, №19, №22, №23, №26), из которых №26 уже был в
+  baseline; максимум при идеальном исходе — 5/28 ≈ 17.9%. Исправлено на 5/28; шестой
+  разбор для «красивых 21%» не добавляется — это была бы скрытая эскалация P0-1, а не
+  исправление ошибки. Статус метрики также уточнён: сама формула OVR полностью
+  посчитываема с P0-1 infra (<code>wired-existing</code>), остаток до target —
+  validation gap (4 живых поведенческих прогона), не wiring gap.</p>
 </div>
 
 </div>

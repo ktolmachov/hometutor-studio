@@ -2,14 +2,34 @@
 
 **Источник:** [`../presentations/evolutionary_analyses/28_summit_retrospective.html`](../presentations/evolutionary_analyses/28_summit_retrospective.html)
 **Дата:** 2026-07-24 · hometutor HEAD `05565efe9` «392» → реализация закрыта на `589636dab` «393» + последующие правки того же дня
-**Статус:** P0-2 полностью закрыт; P0-1 infra + replay #26 закрыты; P0-1 replay №2/№19/№22/№23 остаётся открытым
-(mechanically-reverified, не behavioral validated). Артефакты:
+**Статус:** P0-2 implementation shipped, outcome unvalidated (DoD требует live-подтверждение
+на профиле владельца + screenshot до/после — не сделано, см. §P0-2 ниже); P0-1 infra shipped
+и replay #26 validated; P0-1 replay №2/№19/№22/№23 остаётся открытым (mechanically-reverified,
+не behavioral validated). Артефакты:
 [`replay_artifacts_2026-07/replay_2026-07-24.md`](replay_artifacts_2026-07/replay_2026-07-24.md).
 
 North star разбора: **OVR (Outcome Validation Rate)** = разборы со статусом
-`validated`/`no-effect`/`regressed` ÷ все разборы. Baseline **1/27 ≈ 3.7%** (только №26
-имеет live-подтверждённый outcome — TLRR 61.1%). Target после P0-1: **≥ 6/28 ≈ 21%**.
-Wiring-status: `wire-in-P0` (ведомость в README серии + replay-артефакты).
+`validated`/`no-effect`/`regressed` ÷ все разборы.
+
+**Обновлено 2026-07-24 (контр-аудит поймал арифметическую ошибку исходной версии
+плана):** original baseline был **1/27 ≈ 3.7%**, target был заявлен «≥6/28 ≈ 21%» — но
+волна P0-1 содержит ровно 5 кандидатов (№2, №19, №22, №23, №26), из которых №26 уже
+входил в исходный baseline. Даже идеальный исход волны (все 5 → `validated`) даёт
+максимум **5/28 ≈ 17.9%**, не 21% — target был недостижим по построению задолго до
+реализации. Исправлено: **target = 5/28 ≈ 17.9%** (все пять исходных кандидатов волны
+validated); шестой, ранее не заявленный разбор для достижения 21% не добавляется —
+это была бы скрытая эскалация объёма P0-1, а не исправление арифметики.
+
+**Текущее фактическое значение (2026-07-24 после первого прогона волны): 1/28 ≈ 3.6%**
+(знаменатель вырос на сам №28; числитель не изменился — №26 переподтверждён
+`validated`, №2/№19/№22/№23 получили только `mechanically-reverified`, что по
+определению не входит в числитель). До target 5/28 остаётся полный поведенческий
+replay четырёх пунктов.
+
+Wiring-status: **`wired-existing`** — сама формула OVR полностью посчитываема
+(ведомость в README серии + replay-артефакты, готова с P0-1 infra 2026-07-24);
+дальнейшего инженерного wiring не требуется. Оставшийся разрыв до target —
+**validation gap**, не wiring gap: нужны 4 живых поведенческих прогона, не код.
 
 ---
 
@@ -21,10 +41,10 @@ Wiring-status: `wire-in-P0` (ведомость в README серии + replay-а
 
 | Разбор | Что сделано 2026-07-24 | Статус |
 |---|---|---|
-| №26 | Живой `compute_trusted_route_rate.py`: TLRR 61.1%, бит-в-бит с 2026-07-23; 112 тестов | **`validated`** |
+| №26 | Живой `compute_trusted_route_rate.py`: TLRR 61.1%, бит-в-бит с 2026-07-23; 112 тестов. Тот же тестовый прогон затронул 6 pre-existing файлов зоны №26 (`app/quiz_scoped.py`, `scripts/run_gate_scoped_quiz.py` + тесты), закоммиченных отдельно владельцем как «395»/`ec310c7a0` — не работа этой волны, только протестированы заодно | **`validated`** |
 | №2, №19, №22, №23 | Целевые regression-bundles прогнаны (59+54+7+159=279 тестов, все зелёные) | **`mechanically-reverified`**, НЕ `validated` — живого поведенческого прохода не было |
-| checkpoint acceptance-rate | Прочитан из уже писавшихся `checkpoint_offered`↔`route_selected(accepted=True)`; `scripts/compute_checkpoint_acceptance_rate.py` | wired, live-прогон честно `N/A` (0 `checkpoint_offered` в истории) |
-| world time-to-first-action | Потребовал **новую** минимальную инструментацию (план ошибочно считал сигнал уже писавшимся) — `world_entered`/`world_first_action` в новом size-extract модуле `app/ui/dashboards_graph_world_events.py` (вызывается из `dashboards_graph.py`, чтобы не пробить architecture guard №12 peak_file_lines=1958) через существующий `session_tape.append_event`; `scripts/compute_world_time_to_first_action.py` | wired, live-прогон честно `N/A` (0 `world_entered` в истории) |
+| checkpoint acceptance-rate | Прочитан из уже писавшихся `checkpoint_offered`↔`route_selected(accepted=True)`; `scripts/compute_checkpoint_acceptance_rate.py`. **Контр-аудит нашёл двойной счёт**: первая версия джойнила по `(session_id, decision_id)` set-membership, а `decision_id` не уникален на completion (`app/ui/autopilot.py::step_completed` — «two distinct completions... are still two separate steps»); одно принятие могло ошибочно засчитать несколько checkpoint. Исправлено на FIFO-последовательное сопоставление по порядку событий в append-only tape (1 принятие ⇒ максимум 1 checkpoint); 4 новых теста (повторяющийся decision_id, accept до offer, разные сессии, несвязанная поверхность — последний явно документирует остаточное ограничение, не выдаёт его за решённое) | wired (после fix), live-прогон честно `N/A` (0 `checkpoint_offered` в истории) |
+| world time-to-first-action | **Kill switch плана сработал** — план требовал остановиться, если сигнал ещё не пишется; `world_entered`/`world_first_action` не существовали до этой волны. Вместо остановки принято сознательное решение расширить `EVENT_REQUIRED_FIELDS` в `session_tape.py` (новый size-extract модуль `app/ui/dashboards_graph_world_events.py`, вызывается из `dashboards_graph.py`, чтобы не пробить architecture guard №12 peak_file_lines=1958) через уже существующий `session_tape.append_event` pipeline; `scripts/compute_world_time_to_first_action.py` | wired (scope сознательно расширен, зафиксировано здесь явно), live-прогон честно `N/A` (0 `world_entered` в истории) |
 
 **Остаток P0-1 (единственная незакрытая часть):** живой поведенческий replay
 №2/№19/№22/№23 — реальный профиль, секундомер/SQL-снимок, не regression-тесты.
@@ -55,29 +75,68 @@ re-verification намеренно не засчитывается как outcom
      - session-события мира №20 → `time-to-first-action` (первое действие после входа в 3D/мир).
   3. Каждому из 5 — статус `validated` / `no-effect` / `regressed` + ссылка на артефакт
      (лог прогона, SQL-снимок, скрин) в README серии; OVR-строка в разделе «Здоровье серии».
-- **Files:** `hometutor` (только чтение сигналов/добавление счётчиков там, где событие уже пишется:
-  `app/ui/checkpoint.py`, session-события мира; без новых хранилищ);
+- **Files (as amended 2026-07-24 — исходный план предполагал «без новых хранилищ»,
+  это не подтвердилось для world-сигнала, см. Kill switch ниже):**
+  `hometutor: app/ui/checkpoint.py` (нет изменений — сигнал уже писался), `app/ui/
+  adaptive_plan_card.py` (нет изменений), `scripts/compute_checkpoint_acceptance_rate.py`
+  (новый, читает существующие события; после контр-аудита — FIFO join +
+  `(decision_id, surface)` ключ, помечен `metric_kind: "proxy"`); `app/session_tape.py`
+  (**новые типы событий** `world_entered`/`world_first_action` в `EVENT_REQUIRED_FIELDS` —
+  расширение схемы, не предусмотренное исходным планом); `app/ui/
+  dashboards_graph_world_events.py` (новый size-extract модуль, вызывается из
+  `dashboards_graph.py`); `scripts/compute_world_time_to_first_action.py` (новый);
   `hometutor-studio/doc/presentations/evolutionary_analyses/README.md` (ведомость + OVR);
   артефакты — `hometutor-studio/doc/next/replay_artifacts_2026-07/`.
 - **DoD:** 5 outcome-статусов с артефактами; OVR посчитан и опубликован; два сигнала возвращают
   числа на живом профиле; ни один статус не проставлен без артефакта.
-- **Metric contract:** OVR — формула выше; источник: README серии; baseline 3.7%; target ≥21%;
-  guardrail: `shipped-unvalidated` не переименовывается без артефакта; `regressed` — валидный итог.
-- **Kill switch:** потребовалась новая схема/хранилище/пайплайн или LLM-судья — стоп
-  (сигналы должны быть уже пишущимися).
+  **Фактический прогресс DoD (2026-07-24):** только №26 получил `validated` с артефактом;
+  №2/№19/№22/№23 — `mechanically-reverified` (не входит в «5 outcome-статусов» DoD как задумано —
+  это промежуточный статус, не финальный); оба сигнала действительно возвращают числа
+  (честный `N/A`), но checkpoint-сигнал — `proxy`, не точный count. DoD **не закрыт полностью**.
+- **Metric contract (актуализировано 2026-07-24 после независимого контр-аудита —
+  исходные числа ниже были арифметически недостижимы и оставлены здесь как факт истории,
+  не как текущий контракт):**
+  ~~baseline 3.7%; target ≥21%~~ → **текущий baseline (после первого прогона волны)
+  1/28 ≈ 3.6%; target 5/28 ≈ 17.9%** (5 кандидатов волны: №2, №19, №22, №23, №26;
+  6-й разбор для достижения исходных «21%» сознательно не добавлен — это была бы
+  скрытая эскалация объёма P0-1). Источник: README серии + этот файл.
+  Guardrail: `shipped-unvalidated`/`mechanically-reverified` не переименовываются в
+  `validated` без артефакта живого поведенческого прогона; `regressed` — валидный итог.
+- **Kill switch (сработал 2026-07-24 для world-сигнала — зафиксировано, не скрыто):**
+  условие «потребовалась новая схема/хранилище/пайплайн» **выполнилось**:
+  `world_entered`/`world_first_action` не существовали до этой волны, план ошибочно
+  предполагал обратное. Вместо остановки было принято решение расширить
+  `session_tape.EVENT_REQUIRED_FIELDS` двумя типами через уже существующий generic
+  append-only pipeline (не новое хранилище/файл-формат — тот же механизм, что и все
+  остальные event types в этом файле). **Ratification-статус: implemented pending
+  owner ratification** — решение принято агентом в рамках сессии реализации, не
+  владельцем явно; требуется подтверждение владельца, что это расширение схемы приемлемо,
+  прежде чем считать kill switch полностью закрытым, а не просто зафиксированным.
 - **Effort:** дни. **Priority:** P0. **Dependencies:** нет (не зависит от #27).
 
 ## P0-2 — Диета поверхности (первое видимое упрощение)
 
-**Статус 2026-07-24: закрыт.** `get_ui_level()` (`app/ui_preferences.py`) больше не
+**Статус 2026-07-24: implementation shipped, outcome unvalidated (не «закрыт»).**
+Независимый аудит верно указал: DoD ниже требует живое подтверждение на профиле
+владельца и screenshot до/после — ни то, ни другое не сделано. `cross_cutting_pains.md`
+корректно называет этот инстанс `mitigated`, не `closed`; этот план синхронизирован
+с той же формулировкой.
+
+Что сделано (код + тесты, синтетические сценарии — не живой профиль владельца):
+`get_ui_level()` (`app/ui_preferences.py`) больше не
 автоапгрейдит активный профиль до `diagnostic`; добавлены `is_ui_level_decided()`/
 `should_offer_first_choice()`; one-time баннер «Простой/Полный вид» на Mission Control
 (`_render_first_level_choice_banner` в `app/ui/mission_control.py`); существующий
 3-пресетный переключатель (`control_panel.py`) не тронут — kill switch (0 удалённых/
 рефакторенных вью) соблюдён. Тесты: `tests/test_ui_preferences.py`,
-`tests/test_mission_control_first_level_choice.py`, плюс полный прогон
+`tests/test_mission_control_first_level_choice.py` — синтетические
+`AppTest`/monkeypatch-сценарии, не живая БД владельца; плюс полный прогон
 `test_mission_control_*`/`test_navigation_visibility.py`/`test_global_navigation.py`/
 `test_architecture_guards.py` — все зелёные, регрессий не найдено.
+
+Что НЕ сделано (открытый остаток DoD): живая проверка на реальном `user_state.db`
+владельца — `visible_nav_views_for_level(get_ui_level())` фактически ≤10 на его
+профиле; screenshot до/после в `replay_artifacts_2026-07/`.
 
 - **Learning stage:** 1 — первый запуск / каждый вход владельца.
 - **Outcome signal:** число nav-экранов, которые видит владелец при входе: 18 → ≤10.
